@@ -309,10 +309,9 @@ export class NodesSet {
 
     private disableNode(id: string, cause: string): boolean {
         const nodeWrapper = this.nodesMap.get(id);
-        this.disconnectedNodes[cause].add(id);
-
-        if (!this.connectedNodes.has(id) || !nodeWrapper) return false;
+        if (!nodeWrapper) return false;
         
+        this.disconnectedNodes[cause].add(id);
         this.connectedNodes.delete(id);
         nodeWrapper.fadeOut();
         nodeWrapper.updateNode();
@@ -332,9 +331,9 @@ export class NodesSet {
 
     private enableNode(id: string, cause: string): boolean {
         const nodeWrapper = this.nodesMap.get(id);
-        this.disconnectedNodes[cause].delete(id);
-        if (this.isDisconnected(id) || !nodeWrapper) return false;
+        if (!nodeWrapper) return false;
         
+        this.disconnectedNodes[cause].delete(id);
         this.connectedNodes.add(id);
         nodeWrapper.fadeIn();
         nodeWrapper.updateNode();
@@ -404,5 +403,42 @@ export class NodesSet {
         } else {
             nodeWrapper.emphasize(1);
         }
+    }
+
+    // ================================= DEBUG =================================
+
+    printDisconnectedNodes() {
+        const pad = (str: string, length: number, char = ' ') =>
+            str.padStart((str.length + length) / 2, char).padEnd(length, char);
+
+        const rows: string[] = [];
+        const maxIDLength = Math.max(...[...this.nodesMap.keys()].map(id => id.length));
+
+        let hrLength = maxIDLength + 2;
+        hrLength += 12;
+        hrLength += Object.values(DisconnectionCause).map(c => c.length + 3).reduce((s: number, a: number) => s + a, 0);
+
+        const hr = "+" + "-".repeat(hrLength) + "+";
+
+        for (const id of this.nodesMap.keys()) {
+            let row = "| " + id.padEnd(maxIDLength) + " | ";
+            row += pad(this.connectedNodes.has(id) ? "X" : " ", 9) + " | ";
+            for (const cause of Object.values(DisconnectionCause)) {
+                let cell = this.disconnectedNodes[cause].has(id) ? "X" : " ";
+                cell = pad(cell, cause.length);
+                row += cell + " | ";
+            }
+            rows.push(row);
+        }
+
+        let header = "| " + "ID".padEnd(maxIDLength) + " | ";
+        header += "connected | ";
+        for (const cause of Object.values(DisconnectionCause)) {
+            header += pad(cause, cause.length) + " | ";
+        }
+
+        let table = hr + "\n" + header + "\n" + hr + "\n" + rows.join("\n") + "\n" + hr;
+
+        console.log(table);
     }
 }

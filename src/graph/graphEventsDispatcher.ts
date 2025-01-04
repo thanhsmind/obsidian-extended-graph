@@ -19,6 +19,8 @@ export class GraphEventsDispatcher extends Component {
     legendUI: LegendUI | null = null;
     viewsUI: ViewsUI;
 
+    listenStage: boolean = true;
+
     // ============================== CONSTRUCTOR ==============================
 
     /**
@@ -147,13 +149,14 @@ export class GraphEventsDispatcher extends Component {
      * Called when a child is added to the stage by the engine.
      */
     private onChildAddedToStage(): void {
+        if (!this.listenStage) return;
         if (this.graphsManager.isNodeLimitExceeded(this.leaf)) {
             this.graphsManager.disablePlugin(this.leaf);
             return;
         }
 
         this.loadAndConnectNodesAndLinks();
-        this.disableDisconnectedLinks();
+        //this.disableDisconnectedLinks();
     }
 
     private loadAndConnectNodesAndLinks(): void {
@@ -167,17 +170,21 @@ export class GraphEventsDispatcher extends Component {
         if (this.graph.linksSet.disconnectedLinks) {
             const linksToDisable = new Set<string>();
             for (const [cause, set] of Object.entries(this.graph.linksSet.disconnectedLinks)) {
+                const linksToDisableForCause = new Set<string>();
                 for (const id of set) {
                     const L = this.graph.linksSet.linksMap.get(id);
                     if (!L) continue;
                     if (this.graph.renderer.links.find(link => L?.link.source.id === link.source.id && L?.link.target.id === link.target.id)) {
+                        linksToDisableForCause.add(id);
                         linksToDisable.add(id);
                     }
                 }
-                if (linksToDisable.size > 0) {
-                    this.graph.linksSet.disableLinks(linksToDisable, cause);
-                    this.graph.updateWorker();
+                if (linksToDisableForCause.size > 0) {
+                    this.graph.linksSet.disableLinks(linksToDisableForCause, cause);
                 }
+            }
+            if (linksToDisable.size > 0) {
+                this.graph.updateWorker();
             }
         }
     }
@@ -290,21 +297,25 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private disableNodeInteractiveTypes(key: string, types: string[]) {
+        this.listenStage = false;
         if (this.graph.disableNodeInteractiveTypes(key, types)) {
             this.graph.updateWorker();
         }
         else {
             this.leaf.view.renderer.changed();
         }
+        this.listenStage = true;
     }
 
     private enableNodeInteractiveTypes(key: string, types: string[]) {
+        this.listenStage = false;
         if (this.graph.enableNodeInteractiveTypes(key, types)) {
             this.graph.updateWorker();
         }
         else {
             this.leaf.view.renderer.changed();
         }
+        this.listenStage = true;
     }
 
     // ================================= LINKS =================================
@@ -328,15 +339,19 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private disableLinkTypes(types: string[]) {
+        this.listenStage = false;
         if (this.graph.disableLinkTypes(types)) {
             this.graph.updateWorker();
         }
+        this.listenStage = true;
     }
 
     private enableLinkTypes(types: string[]) {
+        this.listenStage = false;
         if (this.graph.enableLinkTypes(types)) {
             this.graph.updateWorker();
         }
+        this.listenStage = true;
     }
 
     // ================================= VIEWS =================================

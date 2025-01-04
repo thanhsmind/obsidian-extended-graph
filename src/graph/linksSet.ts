@@ -258,9 +258,9 @@ export class LinksSet {
 
     private disableLink(id: string, cause: string): boolean {
         const L = this.linksMap.get(id);
-        this.disconnectedLinks[cause].add(id);
-        if (!this.connectedLinks.has(id) || !L) return false;
+        if (!L) return false;
 
+        this.disconnectedLinks[cause].add(id);
         this.connectedLinks.delete(id);
         if (!this.graph.renderer.links.includes(L.link)) {
             if (L.wrapper) {
@@ -288,9 +288,9 @@ export class LinksSet {
 
     private enableLink(id: string, cause: string): boolean {
         const L = this.linksMap.get(id);
-        this.disconnectedLinks[cause].delete(id);
-        if (this.isDisconnected(id) || !L) return false;
+        if (!L) return false;
 
+        this.disconnectedLinks[cause].delete(id);
         this.connectedLinks.add(id);
         if (!this.graph.renderer.links.includes(L.link)) {
             L.link.initGraphics();
@@ -302,13 +302,6 @@ export class LinksSet {
             L.wrapper.updateGraphics();
         }
         return true;
-    }
-
-    private isDisconnected(id: string): boolean {
-        for (const cause of Object.values(DisconnectionCause)) {
-            if (this.disconnectedLinks[cause].has(id)) return true;
-        }
-        return false;
     }
 
     /**
@@ -346,4 +339,42 @@ export class LinksSet {
             }
         }
     }
+
+    // ================================= DEBUG =================================
+
+    printDisconnectedLinks() {
+        const pad = (str: string, length: number, char = ' ') =>
+            str.padStart((str.length + length) / 2, char).padEnd(length, char);
+
+        const rows: string[] = [];
+        const maxIDLength = Math.max(...[...this.linksMap.keys()].map(id => id.length));
+
+        let hrLength = maxIDLength + 2;
+        hrLength += 12;
+        hrLength += Object.values(DisconnectionCause).map(c => c.length + 3).reduce((s: number, a: number) => s + a, 0);
+
+        const hr = "+" + "-".repeat(hrLength) + "+";
+
+        for (const id of this.linksMap.keys()) {
+            let row = "| " + id.padEnd(maxIDLength) + " | ";
+            row += pad(this.connectedLinks.has(id) ? "X" : " ", 9) + " | ";
+            for (const cause of Object.values(DisconnectionCause)) {
+                let cell = this.disconnectedLinks[cause].has(id) ? "X" : " ";
+                cell = pad(cell, cause.length);
+                row += cell + " | ";
+            }
+            rows.push(row);
+        }
+
+        let header = "| " + "ID".padEnd(maxIDLength) + " | ";
+        header += "connected | ";
+        for (const cause of Object.values(DisconnectionCause)) {
+            header += pad(cause, cause.length) + " | ";
+        }
+
+        let table = hr + "\n" + header + "\n" + hr + "\n" + rows.join("\n") + "\n" + hr;
+
+        console.log(table);
+    }
+
 }
