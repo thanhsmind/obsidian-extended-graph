@@ -84,13 +84,13 @@ export class NodesSet {
                 hasType = true;
             }
         }
-        if (!hasType && !this.managers.get(key)?.interactives.has(this.graph.staticSettings.noneType[key])) {
-            missingTypes.add(this.graph.staticSettings.noneType[key]);
+        if (!hasType && !this.managers.get(key)?.interactives.has(this.graph.staticSettings.interactiveSettings[key].noneType)) {
+            missingTypes.add(this.graph.staticSettings.interactiveSettings[key].noneType);
         }
     }
 
     private isTypeValid(key: string, type: string): boolean {
-        if (this.graph.staticSettings.unselectedInteractives[key].includes(type)) return false;
+        if (this.graph.staticSettings.interactiveSettings[key].unselected.includes(type)) return false;
         if (INVALID_KEYS[key].includes(type)) return false;
         return true;
     }
@@ -259,7 +259,7 @@ export class NodesSet {
         const nodesToUpdate: string[] = [];
         for (const [id, wrapper] of this.nodesMap) {
             // If the node does not have arcs for this interactive, and the type is NONE, toggle the node
-            if (!wrapper.arcsWrappers.has(key) && type === this.graph.staticSettings.noneType[key]) {
+            if (!wrapper.arcsWrappers.has(key) && type === this.graph.staticSettings.interactiveSettings[key].noneType) {
                 nodesToUpdate.push(id);
                 continue;
             }

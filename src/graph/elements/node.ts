@@ -82,7 +82,7 @@ export class NodeWrapper extends Container {
     }
 
     private createArcWrapper(manager: InteractiveManager, types: Set<string>, layer: number) {
-        if (types.size > 0 && !types.has(this.settings.noneType[manager.name])) {
+        if (types.size > 0 && !types.has(this.settings.interactiveSettings[manager.name].noneType)) {
             const arcsWrapper = new ArcsWrapper(this, types, manager, layer);
             this.arcsWrappers.set(manager.name, arcsWrapper);
             this.addChild(arcsWrapper);

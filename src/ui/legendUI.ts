@@ -40,7 +40,7 @@ class LegendRow {
             button.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
             const textColor = (color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114 > 150) ? "black" : "white";
             button.style.setProperty(this.cssTextColorVariable, textColor);
-            if (type === this.manager.settings.noneType[this.name]) {
+            if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
                 button.addClass("graph-legend-none");
             }
         }

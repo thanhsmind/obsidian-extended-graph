@@ -108,9 +108,9 @@ export class InteractiveManager extends Component {
         const colorsMaps = new Map<string, Uint8Array>();
         const allTypes = new Set<string>([...this.interactives.keys(), ...types]);
         const allTypesWithoutNone = new Set<string>(allTypes);
-        allTypesWithoutNone.delete(this.settings.noneType[this.name]);
+        allTypesWithoutNone.delete(this.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
-            if (INVALID_KEYS[this.name]?.includes(type) && this.settings.unselectedInteractives[this.name].includes(type)) {
+            if (INVALID_KEYS[this.name]?.includes(type) && this.settings.interactiveSettings[this.name].unselected.includes(type)) {
                 return;
             }
             if (this.interactives.has(type)) return;
@@ -141,7 +141,7 @@ export class InteractiveManager extends Component {
 
     getTypesWithoutNone(): string[] {
         const types = this.getTypes();
-        types.remove(this.settings.noneType[this.name]);
+        types.remove(this.settings.interactiveSettings[this.name].noneType);
         return types;
     }
     
@@ -166,16 +166,16 @@ export class InteractiveManager extends Component {
 
     private tryComputeColorFromType(type: string): Uint8Array | null{
         let color: Uint8Array;
-        const colorSettings = this.settings.interactiveColors[this.name].find(p => p.type === type)?.color;
+        const colorSettings = this.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
         if (colorSettings) {
             color = hex2rgb(colorSettings);
         }
-        else if (type === this.settings.noneType[this.name]) {
+        else if (type === this.settings.interactiveSettings[this.name].noneType) {
             color = NONE_COLOR;
         }
         else {
             const allTypesWithoutNone = [...this.interactives.keys()];
-            allTypesWithoutNone.remove(this.settings.noneType[this.name]);
+            allTypesWithoutNone.remove(this.settings.interactiveSettings[this.name].noneType);
             const nColors = allTypesWithoutNone.length;
             const i = allTypesWithoutNone.indexOf(type);
             if (i < 0) {
@@ -189,6 +189,6 @@ export class InteractiveManager extends Component {
 
     private computeColorFromIndex(index: number, nColors: number) {
         const x = index / nColors;
-        return getColor(this.settings.colormaps[this.name], x);
+        return getColor(this.settings.interactiveSettings[this.name].colormap, x);
     }
 }

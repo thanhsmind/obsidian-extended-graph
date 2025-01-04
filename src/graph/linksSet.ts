@@ -72,7 +72,7 @@ export class LinksSet {
             const linkTypes = dv ? this.getLinkTypesWithDataview(dv, link): this.getLinkTypesWithFrontmatter(link, sourceFile);
 
             if (linkTypes.size === 0) {
-                this.addTypeToMap(this.graph.staticSettings.noneType[LINK_KEY], getLinkID(link), missingTypes);
+                this.addTypeToMap(this.graph.staticSettings.interactiveSettings[LINK_KEY].noneType, getLinkID(link), missingTypes);
             }
 
             missingTypes = new Set([...missingTypes, ...linkTypes]);
@@ -130,7 +130,7 @@ export class LinksSet {
     }
 
     private isTypeValid(type: string): boolean {
-        if (this.graph.staticSettings.unselectedInteractives[LINK_KEY].includes(type)) return false;
+        if (this.graph.staticSettings.interactiveSettings[LINK_KEY].unselected.includes(type)) return false;
         if (INVALID_KEYS[LINK_KEY].includes(type)) return false;
         return true;
     }
@@ -170,7 +170,7 @@ export class LinksSet {
             const types = [...this.linkTypesMap.keys()].filter(type => this.linkTypesMap?.get(type)?.has(linkID));
 
             // If the link has a type
-            if (!this.linkTypesMap.get(this.graph.staticSettings.noneType[LINK_KEY])?.has(linkID)) {
+            if (!this.linkTypesMap.get(this.graph.staticSettings.interactiveSettings[LINK_KEY].noneType)?.has(linkID)) {
                 linkWrapper = new LineLinkWrapper(
                     link,
                     new Set<string>(types),
@@ -219,7 +219,7 @@ export class LinksSet {
     getActiveType(id: string): string {
         if (!this.linkTypesMap) return "";
         const firstActiveType = [...this.linkTypesMap.keys()].find(type => this.linksManager?.isActive(type) && this.linkTypesMap?.get(type)?.has(id));
-        return firstActiveType ? firstActiveType : this.graph.staticSettings.noneType[LINK_KEY];
+        return firstActiveType ? firstActiveType : this.graph.staticSettings.interactiveSettings[LINK_KEY].noneType;
     }
 
     /**

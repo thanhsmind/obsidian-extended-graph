@@ -1,12 +1,16 @@
 import { EngineOptions, GraphViewData } from "../views/viewData";
-import { DEFAULT_VIEW_ID } from "../globalVariables";
+import { DEFAULT_VIEW_ID, LINK_KEY, TAG_KEY } from "../globalVariables";
+
+interface InteractiveSettings {
+    colormap: string;
+    colors: {type: string, color: string}[];
+    unselected: string[];
+    noneType: string;
+}
 
 export interface ExtendedGraphSettings {
     // Interactive settings
-    colormaps: { [interactive: string] : string };
-    interactiveColors: {[interactive: string]: {type: string, color: string}[]};
-    unselectedInteractives: {[interactive: string]: string[]};
-    noneType: { [interactive: string] : string };
+    interactiveSettings: { [interactive: string] : InteractiveSettings };
     additionalProperties: { [interactive: string] : boolean };
 
     // Graph settings
@@ -34,24 +38,9 @@ export interface ExtendedGraphSettings {
     collapseLegend: boolean;
 }
 
-export const DEFAULT_SETTINGS: Partial<ExtendedGraphSettings> = {
+export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Interactive settings
-    colormaps: {
-        TAG_KEY: "hsv",
-        LINK_KEY: "rainbow"
-    },
-    interactiveColors: {
-        TAG_KEY: [],
-        LINK_KEY: []
-    },
-    unselectedInteractives: {
-        TAG_KEY: [],
-        LINK_KEY: []
-    },
-    noneType: {
-        TAG_KEY: "none",
-        LINK_KEY: "none"
-    },
+    interactiveSettings: {},
     additionalProperties: {},
     
     // Graph settings
@@ -64,10 +53,7 @@ export const DEFAULT_SETTINGS: Partial<ExtendedGraphSettings> = {
             id: DEFAULT_VIEW_ID,
             name: "Vault (default)",
             engineOptions: new EngineOptions(),
-            disabledTypes: {
-                TAG_KEY: [],
-                LINK_KEY: []
-            }
+            disabledTypes: { }
         }
     ],
 
@@ -89,3 +75,19 @@ export const DEFAULT_SETTINGS: Partial<ExtendedGraphSettings> = {
     collapseLegend: true,
 };
 
+DEFAULT_SETTINGS.interactiveSettings[TAG_KEY] = {
+    colormap: "hsv",
+    colors: [],
+    unselected: [],
+    noneType: "none"
+};
+
+DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
+    colormap: "rainbow",
+    colors: [],
+    unselected: [],
+    noneType: "none"
+};
+
+DEFAULT_SETTINGS.views[0].disabledTypes[TAG_KEY] = [];
+DEFAULT_SETTINGS.views[0].disabledTypes[LINK_KEY] = [];

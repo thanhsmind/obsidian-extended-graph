@@ -457,9 +457,6 @@ export class Graph extends Component {
      * Updates the worker with the current state of nodes and links.
      */
     updateWorker(): void {
-        this.nodesSet.printDisconnectedNodes();
-        this.linksSet.printDisconnectedLinks();
-
         const nodes = this.getNodesForWorker();
         const links = this.getLinksForWorker();
 
