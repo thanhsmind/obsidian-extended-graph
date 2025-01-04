@@ -1,4 +1,4 @@
-import { TAG_KEY } from "src/globalVariables";
+import { LINK_KEY, TAG_KEY } from "src/globalVariables";
 import { ColorGroup, GraphPluginOptions } from "src/types/graphPluginInstance";
 
 export class EngineOptions implements GraphPluginOptions {
@@ -51,9 +51,11 @@ export class EngineOptions implements GraphPluginOptions {
 export class GraphViewData {
     id: string = "";
     name: string = "";
-    disabledTypes: { [interactive: string] : string[] } = {
-        TAG_KEY: [],
-        LINK_KEY: [],
-    };
+    disabledTypes: { [interactive: string] : string[] } = {};
     engineOptions: EngineOptions = new EngineOptions();
+
+    constructor() {
+        this.disabledTypes[TAG_KEY] = [];
+        this.disabledTypes[LINK_KEY] = [];
+    }
 }
