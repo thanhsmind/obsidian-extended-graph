@@ -234,15 +234,15 @@ export class GraphEventsDispatcher extends Component {
 
     /**
      * Handles the color change of interactive elements.
-     * @param name - The name of the interactive element type.
+     * @param key - The name of the interactive element type.
      * @param type - The type of the interactive element.
      * @param color - The new color of the interactive element.
      */
-    onInteractiveColorChanged(name: string, type: string, color: Uint8Array) {
-        if (name === LINK_KEY) {
+    onInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
+        if (key === LINK_KEY) {
             this.onLinkColorChanged(type, color);
         } else {
-            this.onNodeInteractiveColorChanged(name, type, color);
+            this.onNodeInteractiveColorChanged(key, type, color);
         }
     }
 
@@ -388,8 +388,10 @@ export class GraphEventsDispatcher extends Component {
             manager.loadView(viewData);
             if (this.legendUI) {
                 this.legendUI.enableAll(key);
-                for (const type of viewData.disabledTypes[key]) {
-                    this.legendUI.disable(key, type);
+                if (viewData.disabledTypes.hasOwnProperty(key)) {
+                    for (const type of viewData.disabledTypes[key]) {
+                        this.legendUI.disable(key, type);
+                    }
                 }
             }
         }
