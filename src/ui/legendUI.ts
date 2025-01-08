@@ -118,6 +118,29 @@ class LegendRow {
         const button = this.container.getElementsByClassName(this.getClassName(type))[0];
         if (button) button.removeClass("is-hidden");
     }
+
+    disableAll() {
+        for(const type of this.manager.getTypes()) {
+            this.disable(type);
+        }
+        this.manager.disable(this.manager.getTypes());
+        this.disableAllIcon.style.display = "none";
+        this.enableAllIcon.style.display = "";
+    }
+
+    enableAll() {
+        for(const type of this.manager.getTypes()) {
+            this.enable(type);
+        }
+        this.manager.enable(this.manager.getTypes());
+        this.disableAllIcon.style.display = "";
+        this.enableAllIcon.style.display = "none";
+    }
+
+    private textColor(color: Uint8Array): string {
+        const textColor = (color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114 > 150) ? "black" : "white";
+        return textColor;
+    }
 }
 
 export class LegendUI extends Component {
