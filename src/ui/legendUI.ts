@@ -20,9 +20,9 @@ class LegendRow {
         this.cssTextColorVariable = "--legend-text-color";
 
         
-        const title = this.container.createSpan();
-        title.innerText = this.name + "s";
-        title.addClass("graph-legend-title");
+        const title = this.container.createSpan("graph-legend-title");
+        title.innerText = this.name;
+        setTooltip(title, title.innerText);
     }
 
     private getClassName(type: string): string {
@@ -38,8 +38,7 @@ class LegendRow {
                 this.toggle(type);
             })
             button.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-            const textColor = (color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114 > 150) ? "black" : "white";
-            button.style.setProperty(this.cssTextColorVariable, textColor);
+            button.style.setProperty(this.cssTextColorVariable, this.textColor(color));
             if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
                 button.addClass("graph-legend-none");
             }
@@ -62,6 +61,7 @@ class LegendRow {
         }
         else {
             (button as HTMLElement).style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
+            (button as HTMLElement).style.setProperty(this.cssTextColorVariable, this.textColor(color));
         }
     }
 

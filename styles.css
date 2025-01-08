@@ -73,6 +73,9 @@ body {
 .graph-legend-title {
     font-variant: small-caps;
     width: 5ch;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 /* VIEWS */
