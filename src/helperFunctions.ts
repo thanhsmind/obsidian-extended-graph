@@ -112,6 +112,15 @@ export function getEngine(leaf: WorkspaceLeafExt): GraphEngine {
     }
 }
 
+export function hasEngine(leaf: WorkspaceLeafExt): boolean {
+    if (leaf.view.getViewType() === "graph") {
+        return leaf.view.hasOwnProperty("dataEngine");
+    }
+    else {
+        return leaf.view.hasOwnProperty("engine");
+    }
+}
+
 export function getFileInteractives(interactive: string, app: App, file: TFile): Set<string> {
     if (file.extension !== "md") return new Set<string>();
     switch (interactive) {
