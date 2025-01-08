@@ -6,6 +6,7 @@ import { INVALID_KEYS } from './globalVariables';
 import { WorkspaceLeafExt } from './types/leaf';
 import { WorkspaceExt } from './types/workspace';
 import { GraphViewData } from './views/viewData';
+import { hasEngine } from './helperFunctions';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -116,16 +117,20 @@ export default class GraphExtendedPlugin extends Plugin {
     }
 
     private isGraphOpen(): boolean {
-        if (this.app.workspace.getLeavesOfType('graph').find(leaf => leaf.view instanceof View && leaf.view._loaded)) return true;
-        if (this.app.workspace.getLeavesOfType('localgraph').find(leaf => leaf.view instanceof View && leaf.view._loaded)) return true;
+        if (this.app.workspace.getLeavesOfType('graph').find(leaf => this.isGraph(leaf))) return true;
+        if (this.app.workspace.getLeavesOfType('localgraph').find(leaf => this.isGraph(leaf))) return true;
         return false;
     }
 
     private getAllGraphLeaves(): WorkspaceLeaf[] {
         let leaves: WorkspaceLeaf[] = [];
-        leaves = leaves.concat(this.app.workspace.getLeavesOfType('graph').filter(leaf => leaf.view._loaded));
-        leaves = leaves.concat(this.app.workspace.getLeavesOfType('localgraph').filter(leaf => leaf.view._loaded));
+        leaves = leaves.concat(this.app.workspace.getLeavesOfType('graph').filter(leaf => this.isGraph(leaf)));
+        leaves = leaves.concat(this.app.workspace.getLeavesOfType('localgraph').filter(leaf => this.isGraph(leaf)));
         return leaves;
+    }
+
+    private isGraph(leaf: WorkspaceLeaf): boolean {
+        return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf as WorkspaceLeafExt);
     }
 
     // ================================= VIEWS =================================
