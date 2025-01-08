@@ -67,7 +67,7 @@ export class Graph extends Component {
     private initializeInteractiveManagers(): void {
         const keys = this.getInteractiveManagerKeys();
         for (const key of keys) {
-            const manager = new InteractiveManager(this.dispatcher, this.staticSettings, key);
+            const manager = new InteractiveManager(this.dispatcher, this.dynamicSettings, key);
             this.interactiveManagers.set(key, manager);
             this.addChild(manager);
         }
