@@ -345,10 +345,12 @@ export class SettingPropertiesArray {
         if (!this.isKeyValid(key)) return false;
 
         this.settingTab.plugin.settings.additionalProperties[key] = true;
-        this.settingTab.plugin.settings.interactiveSettings[key].colormap = "rainbow";
-        this.settingTab.plugin.settings.interactiveSettings[key].colors = [];
-        this.settingTab.plugin.settings.interactiveSettings[key].unselected = [];
-        this.settingTab.plugin.settings.interactiveSettings[key].noneType = "none";
+        this.settingTab.plugin.settings.interactiveSettings[key] = {
+            colormap: "rainbow",
+            colors: [],
+            unselected: [],
+            noneType: "none"
+        }
         this.settingTab.plugin.saveSettings().then(() => {
             const setting = new SettingProperties(key, true, this.settingTab, this);
             this.settingInteractives.push(setting);
