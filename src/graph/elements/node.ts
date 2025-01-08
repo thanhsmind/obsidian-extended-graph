@@ -78,15 +78,14 @@ export class NodeWrapper extends Container {
                 validTypes.add(type);
             }
         }
+        if (validTypes.size === 0) validTypes.add(this.settings.interactiveSettings[manager.name].noneType);
         return validTypes;
     }
 
     private createArcWrapper(manager: InteractiveManager, types: Set<string>, layer: number) {
-        if (types.size > 0 && !types.has(this.settings.interactiveSettings[manager.name].noneType)) {
-            const arcsWrapper = new ArcsWrapper(this, types, manager, layer);
-            this.arcsWrappers.set(manager.name, arcsWrapper);
-            this.addChild(arcsWrapper);
-        }
+        const arcsWrapper = new ArcsWrapper(this, types, manager, layer);
+        this.arcsWrappers.set(manager.name, arcsWrapper);
+        this.addChild(arcsWrapper);
     }
 
     // ========================== CONNECT/DISCONNECT ===========================

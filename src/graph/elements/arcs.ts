@@ -47,6 +47,7 @@ export class ArcsWrapper extends ElementWrapper {
         this.arcSize   = Math.min(2 * Math.PI / nTags, ArcsWrapper.maxArcSize);
 
         for (const type of this.types) {
+            if (type === this.manager.settings.interactiveSettings[this.manager.name].noneType) continue;
             const index = allTypes.findIndex(t => t === type);
             const arc = new Graphics();
             arc.name = this.getArcName(type);

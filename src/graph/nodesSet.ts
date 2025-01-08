@@ -258,11 +258,6 @@ export class NodesSet {
     private toggleInteractive(key: string, type: string, enable: boolean): string[] {
         const nodesToUpdate: string[] = [];
         for (const [id, wrapper] of this.nodesMap) {
-            // If the node does not have arcs for this interactive, and the type is NONE, toggle the node
-            if (!wrapper.arcsWrappers.has(key) && type === this.graph.staticSettings.interactiveSettings[key].noneType) {
-                nodesToUpdate.push(id);
-                continue;
-            }
             // If the node does not have arcs for this interactive, or the type is not present, skip
             if (!wrapper.arcsWrappers.has(key) || !wrapper.arcsWrappers.get(key)?.hasType(type)) {
                 continue;
@@ -351,13 +346,6 @@ export class NodesSet {
             nodeWrapper.updateNode();
             nodeWrapper.connect();
         }
-    }
-
-    private isDisconnected(id: string): boolean {
-        for (const cause of Object.values(DisconnectionCause)) {
-            if (this.disconnectedNodes[cause].has(id)) return true;
-        }
-        return false;
     }
 
     // ================================ COLORS =================================
