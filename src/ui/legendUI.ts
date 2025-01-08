@@ -1,4 +1,4 @@
-import { Component, setIcon } from "obsidian";
+import { Component, setIcon, setTooltip } from "obsidian";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import GraphExtendedPlugin from "src/main";
@@ -6,6 +6,8 @@ import GraphExtendedPlugin from "src/main";
 class LegendRow {
     name: string;
     container: Element;
+    disableAllIcon: HTMLDivElement;
+    enableAllIcon: HTMLDivElement;
     cssBGColorVariable: string;
     cssTextColorVariable: string;
     manager: InteractiveManager;
@@ -23,6 +25,17 @@ class LegendRow {
         const title = this.container.createSpan("graph-legend-title");
         title.innerText = this.name;
         setTooltip(title, title.innerText);
+
+        this.disableAllIcon = this.container.createDiv("clickable-icon");
+        setIcon(this.disableAllIcon, "copy");
+        setTooltip(this.disableAllIcon, "Disable all " + this.name + (this.name.endsWith("s") ? "" : "s"));
+        this.disableAllIcon.onclick = this.disableAll.bind(this);
+
+        this.enableAllIcon = this.container.createDiv("clickable-icon");
+        setIcon(this.enableAllIcon, "copy-check");
+        setTooltip(this.enableAllIcon, "Enable all " + this.name + (this.name.endsWith("s") ? "" : "s"));
+        this.enableAllIcon.onclick = this.enableAll.bind(this);
+        this.enableAllIcon.style.display = "none";
     }
 
     private getClassName(type: string): string {
@@ -79,10 +92,20 @@ class LegendRow {
         if (interactive.isActive) {
             this.disable(type);
             this.manager.disable([type]);
+            const allAreDisabled = !this.manager.getTypes().some(t => this.manager.isActive(t));
+            if (allAreDisabled) {
+                this.disableAllIcon.style.display = "none";
+                this.enableAllIcon.style.display = "";
+            }
         }
         else {
             this.enable(type);
             this.manager.enable([type]);
+            const allAreEnabled = !this.manager.getTypes().some(t => !this.manager.isActive(t));
+            if (allAreEnabled) {
+                this.disableAllIcon.style.display = "";
+                this.enableAllIcon.style.display = "none";
+            }
         }
     }
 
