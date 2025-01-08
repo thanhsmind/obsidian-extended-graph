@@ -106,7 +106,7 @@ export class InteractiveManager extends Component {
 
     addTypes(types: Set<string>): void {
         const colorsMaps = new Map<string, Uint8Array>();
-        const allTypes = new Set<string>([...this.interactives.keys(), ...types]);
+        const allTypes = new Set<string>([...this.interactives.keys(), ...types].sort());
         const allTypesWithoutNone = new Set<string>(allTypes);
         allTypesWithoutNone.delete(this.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
