@@ -1,35 +1,49 @@
 import { GraphPluginInstance } from "obsidian-typings";
 
-export interface GraphCorePluginInstance extends GraphPluginInstance {
-    options: GraphPluginOptions;
-    saveOptions: () => void;
+export type GraphPluginInstanceExt = GraphPluginInstance & {
+    /**
+     * Saves the options in graph.json
+     * @internal
+     */
+    saveOptions(): void;
+
+    /** @internal */
+    options: GraphPluginInstanceOptions;
 }
 
-export interface GraphPluginOptions {
-    colorGroups: ColorGroup[];
-    search: string;
-    // filterOptions
-    hideUnresolved: boolean;
-    showAttachments: boolean;
-    showOrphans: boolean;
-    showTags: boolean;
-    localBacklinks: boolean;
-    localForelinks: boolean;
-    localInterlinks: boolean;
-    localJumps: number;
-    // displayOptions
-    lineSizeMultiplier: number;
-    nodeSizeMultiplier: number;
-    showArrow: boolean;
-    textFadeMultiplier: number;
-    // forceOptions
-    centerStrength: number;
-    linkDistance: number;
-    linkStrength: number;
-    repelStrength: number;
+export interface GraphPluginInstanceOptions {
+    centerStrength?: number;
+    close?: boolean;
+    'collapse-color-groups'?: boolean;
+    'collapse-display'?: boolean;
+    'collapse-filter'?: boolean;
+    'collapse-forces'?: boolean;
+    colorGroups?: GraphColorGroup[];
+    hideUnresolved?: boolean;
+    lineSizeMultiplier?: number;
+    linkDistance?: number;
+    linkStrength?: number;
+    localBacklinks?: boolean;
+    localForelinks?: boolean;
+    localInterlinks?: boolean;
+    localJumps?: number;
+    nodeSizeMultiplier?: number;
+    repelStrength?: number;
+    scale?: number;
+    search?: string;
+    showArrow?: boolean;
+    showAttachments?: boolean;
+    showOrphans?: boolean;
+    showTags?: boolean;
+    textFadeMultiplier?: number;
 }
 
-export class ColorGroup {
-    color: {a: number, rgb: number};
+export class GraphColorGroup {
+    color: GraphColorAttributes;
     query: string;
+}
+
+export type GraphColorAttributes = {
+    a: number,
+    rgb: number
 }

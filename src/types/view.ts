@@ -1,15 +1,13 @@
-import { View } from "obsidian";
-import { Renderer } from "./renderer";
+import { GraphRenderer } from "./renderer";
 import { GraphEngine } from "./engine";
+import { GraphView, LocalGraphView } from "obsidian-typings";
 
-export type GraphView = View & {
-    renderer: Renderer;
+export type GraphViewExt = GraphView & {
+    renderer: GraphRenderer;
     dataEngine: GraphEngine;
-    onOptionsChange: () => void;
 }
 
-export type LocalGraphView = View & {
-    renderer: Renderer;
+export type LocalGraphViewExt = LocalGraphView & {
+    renderer: GraphRenderer;
     engine: GraphEngine;
-    onOptionsChange: () => void;
 }

@@ -1,28 +1,15 @@
-import { Graphics, Container } from "pixi.js";
-import { ONode } from './node';
-import { Renderer } from "../../types/renderer";
 import { InteractiveManager } from "../interactiveManager";
 import { ElementWrapper } from "./element";
+import { GraphLink } from "src/types/link";
 
-
-export interface Link {
-    arrow: Graphics;
-    line: Graphics;
-    px: Container;
-    source: ONode;
-    target: ONode;
-    renderer: Renderer;
-    clearGraphics: () => void;
-    initGraphics: () => void;
-}
 
 export abstract class LinkWrapper extends ElementWrapper {
-    link: Link;
+    link: GraphLink;
     name: string;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(link: Link, types: Set<string>, manager: InteractiveManager) {
+    constructor(link: GraphLink, types: Set<string>, manager: InteractiveManager) {
         super(getLinkID(link), types, manager);
 
         this.link = link;

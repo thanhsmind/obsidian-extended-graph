@@ -5,14 +5,14 @@ import { GraphViewData } from "./views/viewData";
 import { MenuUI } from "./ui/menu";
 import { GraphControlsUI } from "./ui/graphControl";
 import { getEngine } from "./helperFunctions";
-import { GraphCorePluginInstance, GraphPluginOptions } from "./types/graphPluginInstance";
+import { GraphPluginInstanceExt, GraphPluginInstanceOptions } from "./types/graphPluginInstance";
 import { WorkspaceLeafExt } from "./types/leaf";
 import { TAG_KEY } from "./globalVariables";
 
 
 export class GraphsManager extends Component {
     globalUIs = new Map<string, {menu: MenuUI, control: GraphControlsUI}>();
-    optionsBackup = new Map<string, GraphPluginOptions>();
+    optionsBackup = new Map<string, GraphPluginInstanceOptions>();
     activeFile: TFile | null = null;
 
     lastBackup: string;
@@ -119,7 +119,12 @@ export class GraphsManager extends Component {
     // ================================ LAYOUT =================================
 
     onNewLeafOpen(leaf: WorkspaceLeafExt): void {
-        this.setGlobalUI(leaf);
+        try {
+            this.setGlobalUI(leaf);
+        }
+        catch {
+            // UI not set, probably because the graph is in a closed sidebar
+        }
         if (this.isPluginAlreadyEnabled(leaf)) return;
         if (this.isGlobalGraphAlreadyOpened(leaf)) return;
         this.backupOptions(leaf);
@@ -388,8 +393,8 @@ export class GraphsManager extends Component {
         }
     }
 
-    private getCorePluginInstance(): GraphCorePluginInstance | undefined {
-        return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphCorePluginInstance;
+    private getCorePluginInstance(): GraphPluginInstanceExt | undefined {
+        return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstanceExt;
     }
 
     applyNormalView(leaf: WorkspaceLeafExt) {

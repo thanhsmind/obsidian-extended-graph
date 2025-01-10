@@ -1,12 +1,12 @@
 import { App, getAllTags, TFile } from "obsidian";
-import { Renderer } from "./types/renderer";
+import { GraphRenderer } from "./types/renderer";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { WorkspaceLeafExt } from "./types/leaf";
-import { GraphView, LocalGraphView } from "./types/view";
+import { GraphViewExt, LocalGraphViewExt } from "./types/view";
 import { GraphEngine } from "./types/engine";
 import { TAG_KEY } from "./globalVariables";
 
-export function getBackgroundColor(renderer: Renderer): Uint8Array {
+export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
     let el: Element = renderer.interactiveEl;
     while (bg.startsWith("rgba(") && bg.endsWith(", 0)") && el.parentElement) {
@@ -101,10 +101,10 @@ export function getImageUri(app: App, keyProperty: string, path: string): string
 
 export function getEngine(leaf: WorkspaceLeafExt): GraphEngine {
     if (leaf.view.getViewType() === "graph") {
-        return (leaf.view as GraphView).dataEngine;
+        return (leaf.view as GraphViewExt).dataEngine;
     }
     else if(leaf.view.getViewType() === "localgraph") {
-        return (leaf.view as LocalGraphView).engine;
+        return (leaf.view as LocalGraphViewExt).engine;
     }
     else {
         console.error("[Extended Graph plugin] Leaf is not a graph.");

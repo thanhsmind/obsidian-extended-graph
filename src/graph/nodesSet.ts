@@ -1,10 +1,11 @@
 import { TFile } from "obsidian";
-import { NodeWrapper, ONode } from "./elements/node";
+import { NodeWrapper } from "./elements/node";
 import { InteractiveManager } from "./interactiveManager";
 import { getBackgroundColor, getFile, getFileInteractives, getImageUri } from "src/helperFunctions";
 import { Graph } from "./graph";
 import { Assets, Texture } from "pixi.js";
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
+import { GraphNode } from "src/types/node";
 
 export class NodesSet {
     nodesMap = new Map<string, NodeWrapper>();
@@ -114,7 +115,7 @@ export class NodesSet {
         return missingNodes;
     }
 
-    private updateNodeWrapper(nodeWrapper: NodeWrapper, node: ONode): void {
+    private updateNodeWrapper(nodeWrapper: NodeWrapper, node: GraphNode): void {
         if (node !== nodeWrapper.node) {
             nodeWrapper.disconnect();
             nodeWrapper.node = node;
@@ -122,7 +123,7 @@ export class NodesSet {
         }
     }
 
-    private createNodeWrapper(node: ONode): void {
+    private createNodeWrapper(node: GraphNode): void {
         const nodeWrapper = new NodeWrapper(
             node,
             this.graph.dispatcher.graphsManager.plugin.app,

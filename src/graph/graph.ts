@@ -1,6 +1,6 @@
 
 import { Component } from 'obsidian';
-import { Renderer } from '../types/renderer';
+import { GraphRenderer } from '../types/renderer';
 import { InteractiveManager } from './interactiveManager';
 import { GraphView } from 'src/views/view';
 import { NodesSet } from './nodesSet';
@@ -19,7 +19,7 @@ export class Graph extends Component {
 
     // Elements
     readonly engine: GraphEngine;
-    readonly renderer: Renderer;
+    readonly renderer: GraphRenderer;
     readonly dynamicSettings: ExtendedGraphSettings;
     readonly staticSettings: ExtendedGraphSettings;
 

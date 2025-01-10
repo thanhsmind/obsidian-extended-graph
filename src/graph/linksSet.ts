@@ -1,13 +1,14 @@
 import { InteractiveManager } from "./interactiveManager";
-import { getLinkID, LineLinkWrapper, Link, LinkWrapper } from "./elements/link";
+import { getLinkID, LineLinkWrapper, LinkWrapper } from "./elements/link";
 import { Graph } from "./graph";
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { getFile } from "src/helperFunctions";
 import { TFile } from "obsidian";
+import { GraphLink } from "src/types/link";
 
 export class LinksSet {
-    linksMap = new Map<string, {wrapper: LinkWrapper | null, link: Link}>();
+    linksMap = new Map<string, {wrapper: LinkWrapper | null, link: GraphLink}>();
     connectedLinks = new Set<string>();
     disconnectedLinks: {[cause: string] : Set<string>} = {};
     linkTypesMap: Map<string, Set<string>> | null = null; // key: type / value: link ids
@@ -81,7 +82,7 @@ export class LinksSet {
         this.linksManager.addTypes(missingTypes);
     }
 
-    private getLinkTypesWithDataview(dv: DataviewApi, link: Link): Set<string> {
+    private getLinkTypesWithDataview(dv: DataviewApi, link: GraphLink): Set<string> {
         const linkTypes = new Set<string>();
         const linkID = getLinkID(link);
         const sourcePage = dv.page(link.source.id);
@@ -103,7 +104,7 @@ export class LinksSet {
         return linkTypes;
     }
 
-    private getLinkTypesWithFrontmatter(link: Link, file: TFile): Set<string> {
+    private getLinkTypesWithFrontmatter(link: GraphLink, file: TFile): Set<string> {
         const linkTypes = new Set<string>();
         const linkID = getLinkID(link);
         const frontmatterLinks = this.graph.dispatcher.graphsManager.plugin.app.metadataCache.getFileCache(file)?.frontmatterLinks;
@@ -152,7 +153,7 @@ export class LinksSet {
         return missingLinks;
     }
 
-    private updateLinkWrapper(L: {wrapper: LinkWrapper | null; link: Link;}, link: Link) {
+    private updateLinkWrapper(L: {wrapper: LinkWrapper | null; link: GraphLink;}, link: GraphLink) {
         if (L.wrapper && L.wrapper.link !== link) {
             L.wrapper.disconnect();
             L.wrapper.link = link;
@@ -161,7 +162,7 @@ export class LinksSet {
         L.link = link;
     }
 
-    private createLinkWrapper(link: Link) {
+    private createLinkWrapper(link: GraphLink) {
         let linkWrapper = null;
         const linkID = getLinkID(link);
 
@@ -321,7 +322,7 @@ export class LinksSet {
         }
     }
 
-    private findNewLink(link: Link) {
+    private findNewLink(link: GraphLink) {
         return this.graph.renderer.links.find(l2 => l2.source.id === link.source.id && l2.target.id === link.target.id);
     }
 

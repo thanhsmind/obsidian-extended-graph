@@ -1,28 +1,28 @@
 import { LINK_KEY, TAG_KEY } from "src/globalVariables";
-import { ColorGroup, GraphPluginOptions } from "src/types/graphPluginInstance";
+import { GraphColorGroup, GraphPluginInstanceOptions } from "src/types/graphPluginInstance";
 
-export class EngineOptions implements GraphPluginOptions {
-    colorGroups: ColorGroup[] = [];
-    search: string = "";
+export class EngineOptions implements GraphPluginInstanceOptions {
+    colorGroups?: GraphColorGroup[] = [];
+    search?: string = "";
     // filterOptions
-    hideUnresolved: boolean = !1;
-    showAttachments: boolean = !1;
-    showOrphans: boolean = !0;
-    showTags: boolean = !1;
-    localBacklinks: boolean = !0;
-    localForelinks: boolean = !0;
-    localInterlinks: boolean = !1;
-    localJumps: number = 1;
+    hideUnresolved?: boolean = !1;
+    showAttachments?: boolean = !1;
+    showOrphans?: boolean = !0;
+    showTags?: boolean = !1;
+    localBacklinks?: boolean = !0;
+    localForelinks?: boolean = !0;
+    localInterlinks?: boolean = !1;
+    localJumps?: number = 1;
     // displayOptions
-    lineSizeMultiplier: number = 1;
-    nodeSizeMultiplier: number = 1;
-    showArrow: boolean = !1;
-    textFadeMultiplier: number = 0;
+    lineSizeMultiplier?: number = 1;
+    nodeSizeMultiplier?: number = 1;
+    showArrow?: boolean = !1;
+    textFadeMultiplier?: number = 0;
     // forceOptions
-    centerStrength: number = 1 + 0.5 * Math.log(0.109);
-    linkDistance: number = 250;
-    linkStrength: number = 1;
-    repelStrength: number = 10;
+    centerStrength?: number = 1 + 0.5 * Math.log(0.109);
+    linkDistance?: number = 250;
+    linkStrength?: number = 1;
+    repelStrength?: number = 10;
 
     constructor(engineOptions?: EngineOptions) {
         if (engineOptions) {

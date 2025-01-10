@@ -1,43 +1,18 @@
 import { App } from 'obsidian';
 import { Container, Graphics, Texture } from 'pixi.js';
 import { InteractiveManager } from '../interactiveManager';
-import { Renderer } from '../../types/renderer';
 import { ExtendedGraphSettings } from 'src/settings/settings';
 import { getFile, getFileInteractives } from 'src/helperFunctions';
 import { ArcsWrapper } from './arcs';
 import { NodeImage } from './image';
-
-export interface ONode {
-    circle: Graphics,
-    color: {
-        a: number;
-        rgb: number;
-    }
-    text: {
-        alpha: number;
-        _text: string;
-    }
-    id: string;
-    weight: number;
-    x: number;
-    y: number;
-    rendered: boolean;
-    type: string;
-    forward: {[id: string] : ONode};
-    reverse: {[id: string] : ONode};
-    renderer: Renderer;
-    getFillColor: () => {rgb: number, a: number};
-    getSize: () => number;
-    clearGraphics: () => void;
-    initGraphics: () => void;
-}
+import { GraphNode } from 'src/types/node';
 
 const NODE_CIRCLE_RADIUS: number = 100;
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
 
 export class NodeWrapper extends Container {
-    node: ONode;
+    node: GraphNode;
     name: string;
     
     app: App;
@@ -51,7 +26,7 @@ export class NodeWrapper extends Container {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: ONode, app: App, settings: ExtendedGraphSettings, managers: InteractiveManager[]) {
+    constructor(node: GraphNode, app: App, settings: ExtendedGraphSettings, managers: InteractiveManager[]) {
         super();
         this.node = node;
         this.name = node.id;
