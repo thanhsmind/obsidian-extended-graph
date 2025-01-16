@@ -165,9 +165,12 @@ export abstract class SettingInteractives {
         const colorSetting = this.colorItems.get(uuid);
         if (!colorSetting) return;
 
+        const textInput = colorSetting.components.find(cb => cb.hasOwnProperty('inputEl')) as TextComponent;
+        const type = textInput.getValue().trim();
+
         this.colorsContainer.removeChild(colorSetting.settingEl);
         this.colorItems.delete(uuid);
-        this.saveColors(uuid);
+        this.saveColors(type);
     }
 
     protected saveColorSetting(uuid: string) {
@@ -231,7 +234,7 @@ export class SettingTags extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab);
-        this.interactiveName = "tag";
+        this.interactiveName = TAG_KEY;
         this.elementName = "node";
         this.previewClass = "arc";
     }
@@ -449,7 +452,7 @@ export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab);
-        this.interactiveName = "link";
+        this.interactiveName = LINK_KEY;
         this.elementName = "link";
         this.previewClass = "line";
     }
@@ -549,7 +552,7 @@ export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab);
-        this.interactiveName = "folder";
+        this.interactiveName = FOLDER_KEY;
         this.elementName = "folder";
         this.previewClass = "";
     }

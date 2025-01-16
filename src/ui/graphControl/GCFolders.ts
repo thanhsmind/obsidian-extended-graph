@@ -7,6 +7,7 @@ import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 
 export class GCFolders extends GCSection {
     foldersManager: InteractiveManager | undefined;
+    settingsMap = new Map<string, Setting>();
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, foldersManager: InteractiveManager) {
         super(leaf, graphsManager, "folders");
@@ -27,7 +28,7 @@ export class GCFolders extends GCSection {
         const paths = this.foldersManager?.getTypesWithoutNone();
         if (!paths) return;
         for (const path of paths) {
-            this.addFolder(path).settingEl;
+            this.addFolder(path);
         }
     }
 
@@ -39,9 +40,14 @@ export class GCFolders extends GCSection {
                     this.toggleFolder(path, enable);
                 })
             });
-        const color = this.foldersManager?.getColor(path);
-        if (color) setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+        this.settingsMap.set(path, setting);
+        this.setColor(path);
         return setting;
+    }
+
+    setColor(path: string) {
+        const color = this.foldersManager?.getColor(path);
+        if (color) this.settingsMap.get(path)?.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
     }
 
     toggleFolder(path: string, enable: boolean) {

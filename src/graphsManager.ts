@@ -204,8 +204,9 @@ export class GraphsManager extends Component {
     }
 
     updateColor(key: string, type: string): void {
+        console.log("update color", key, type);
         this.dispatchers.forEach(dispatcher => {
-            dispatcher.graph.nodesSet.managers.get(key)?.recomputeColor(type);
+            dispatcher.graph.interactiveManagers.get(key)?.recomputeColor(type);
         });
     }
 

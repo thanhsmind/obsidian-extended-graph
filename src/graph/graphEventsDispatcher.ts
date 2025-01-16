@@ -407,7 +407,8 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onFolderColorChanged(path: string, color: Uint8Array) {
-        this.graph.folderBlobs.updateGraphics(path);
+        this.graph.folderBlobs.updateColor(path);
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.setColor(path);
         this.graph.renderer.changed();
     }
 

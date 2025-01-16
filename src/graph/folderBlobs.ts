@@ -215,14 +215,16 @@ export class FoldersSet {
 
     // ============================ UPDATE GRAPHICS ============================
 
-    updateGraphics(path?: string) {
-        if (path) {
-            this.foldersMap.get(path)?.updateGraphics(this.graph.renderer.scale);
+    updateGraphics() {
+        for (const [path, blob] of this.foldersMap) {
+            blob.updateGraphics(this.graph.renderer.scale);
         }
-        else {
-            for (const [path, blob] of this.foldersMap) {
-                blob.updateGraphics(this.graph.renderer.scale);
-            }
-        }
+    }
+
+    updateColor(path: string) {
+        const folderBlob = this.foldersMap.get(path);
+        if (!folderBlob || !this.manager) return;
+        folderBlob.color = rgb2hex(this.manager.getColor(path));
+        folderBlob.updateGraphics(this.graph.renderer.scale);
     }
 }
