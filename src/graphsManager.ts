@@ -277,8 +277,6 @@ export class GraphsManager extends Component {
         const dispatcher = this.dispatchers.get(leafID);
         if (dispatcher) {
             dispatcher.unload();
-            dispatcher.graph.nodesSet.unload();
-            dispatcher.graph.linksSet.unload();
         }
     }
 

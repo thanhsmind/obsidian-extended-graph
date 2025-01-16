@@ -131,9 +131,10 @@ export class GraphEventsDispatcher extends Component {
 
     private createRenderProxy(): void {
         this.renderCallback = this.graph.renderer.renderCallback;
+        const onRendered = this.onRendered.bind(this);
         this.graph.renderer.renderCallback = new Proxy(this.graph.renderer.renderCallback, {
             apply(target, thisArg, args) {
-                console.log("Applied");
+                onRendered();
                 return target.call(thisArg, ...args);
             }
         });
@@ -146,9 +147,10 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        this.graph.renderer.renderCallback = this.renderCallback;
+        //this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         this.graphsManager.onPluginUnloaded(this.leaf);
+        this.unload();
     }
 
     private unbindStageEvents(): void {
@@ -216,6 +218,12 @@ export class GraphEventsDispatcher extends Component {
                 this.graph.updateWorker();
             }
         }
+    }
+
+    // ============================= RENDER EVENTS =============================
+
+    private onRendered() {
+        this.graph.folderBlobs.drawEllipses();
     }
 
     // ============================= INTERACTIVES ==============================
