@@ -1,6 +1,6 @@
 import { Graph } from "src/graph/graph";
 import { EngineOptions, GraphViewData } from "./viewData";
-import { LINK_KEY } from "src/globalVariables";
+import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 
 export class GraphView {
     data = new GraphViewData();
@@ -15,6 +15,7 @@ export class GraphView {
 
     saveGraph(graph: Graph) {
         this.data.disabledTypes[LINK_KEY] = graph.linksSet.linksManager ? graph.linksSet.linksManager.getTypes().filter(type => !graph.linksSet.linksManager?.isActive(type)): [];
+        this.data.disabledTypes[FOLDER_KEY] =  graph.folderBlobs.manager.getTypes().filter(type => !graph.folderBlobs.manager.isActive(type));
         for (const [key, manager] of graph.nodesSet.managers) {
             this.data.disabledTypes[key] = manager.getTypes().filter(type => !manager.isActive(type));
         }

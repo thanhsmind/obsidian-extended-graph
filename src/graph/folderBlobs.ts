@@ -1,9 +1,11 @@
-import { Component, TFile, TFolder } from "obsidian";
+import { TFile, TFolder } from "obsidian";
 import { Graph } from "./graph";
 import { GraphNode } from "obsidian-typings";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { getFile } from "src/helperFunctions";
-import { randomColor } from "src/colors/colors";
+import { randomColor, rgb2hex } from "src/colors/colors";
+import { InteractiveManager } from "./interactiveManager";
+import { getFile, getFileInteractives } from "src/helperFunctions";
+import { FOLDER_KEY, INVALID_KEYS } from "src/globalVariables";
 
 export class FolderBlob {
     readonly path: string;
@@ -14,10 +16,10 @@ export class FolderBlob {
     textStyle: TextStyle;
     BBox: {xMin: number, xMax: number, yMin: number, yMax: number};
 
-    constructor(path: string) {
+    constructor(path: string, color?: string) {
         this.path = path;
 
-        this.color = randomColor();
+        this.color = color ? color : randomColor();
 
         this.area = new Graphics();
         this.area.eventMode = 'none';
@@ -98,28 +100,31 @@ export class FoldersSet {
     // Parent graph
     readonly graph: Graph;
 
+    // Interactive manager
+    manager: InteractiveManager | null;
+
     // Set of blobs
-    blobsSet: Map<string, FolderBlob>;
+    foldersMap = new Map<string, FolderBlob>();
 
     // Graphics
     container: Container;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(graph: Graph) {
-        // Parent graph
+    constructor(graph: Graph, manager: InteractiveManager | undefined) {
         this.graph = graph;
-
-        // Set of blobs
-        this.blobsSet = new Map<string, FolderBlob>();
+        this.initializeManager(manager);
     }
 
-    
+    private initializeManager(manager: InteractiveManager | undefined) {
+        this.manager = manager ? manager : null;
+    }
 
     // ================================ LOADING ================================
 
     load(): void {
         this.initContainer();
+        this.addMissingFolders();
     }
 
     private initContainer(): void {
@@ -128,12 +133,54 @@ export class FoldersSet {
         (this.graph.renderer.px.stage.children[1] as Container).addChildAt(this.container, 0);
     }
 
+    private addMissingFolders(): void {
+        if (!this.manager) return;
+
+        let missingFolders = new Set<string>();
+
+        for (const node of this.graph.renderer.nodes) {
+            if (this.foldersMap.has(node.id)) continue;
+
+            const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+            if (!file) continue;
+
+            const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
+            this.addInteractivesToSet(interactives, missingFolders);
+        }
+
+        this.manager.addTypes(missingFolders);
+    }
+
+    private addInteractivesToSet(interactives: Set<string>, missingFolders: Set<string>) {
+        let hasType = false;
+        for (const interactive of interactives) {
+            if (!this.manager?.interactives.has(interactive)) {
+                if (this.isFolderValid(interactive)) {
+                    missingFolders.add(interactive);
+                    hasType = true;
+                }
+            }
+            else {
+                hasType = true;
+            }
+        }
+        if (!hasType && !this.manager?.interactives.has(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType)) {
+            missingFolders.add(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType);
+        }
+    }
+    
+    private isFolderValid(type: string): boolean {
+        if (this.graph.staticSettings.interactiveSettings[FOLDER_KEY].unselected.includes(type)) return false;
+        if (INVALID_KEYS[FOLDER_KEY].includes(type)) return false;
+        return true;
+    }
+
     // =============================== UNLOADING ===============================
 
     unload(): void {
         this.container.destroy({children: true});
         this.container.removeFromParent();
-        this.blobsSet.clear();
+        this.foldersMap.clear();
     }
 
     // ========================= ADD AND REMOVE FOLDER =========================
@@ -143,7 +190,7 @@ export class FoldersSet {
 
         const folder = this.graph.dispatcher.graphsManager.plugin.app.vault.getFolderByPath(path);
         if (folder) {
-            const blob = new FolderBlob(path);
+            const blob = new FolderBlob(path, this.manager ? rgb2hex(this.manager.getColor(path)) : undefined);
             for (const file of folder.children) {
                 if (file instanceof TFile) {
                     const node = this.graph.nodesSet.nodesMap.get(file.path)?.node;
@@ -154,7 +201,7 @@ export class FoldersSet {
                 }
             }
             if (blob.nodes.length > 0) {
-                this.blobsSet.set(path, blob);
+                this.foldersMap.set(path, blob);
                 this.container.addChild(blob.area);
                 blob.updateGraphics(this.graph.renderer.scale);
             }
@@ -162,15 +209,20 @@ export class FoldersSet {
     }
 
     removeFolder(path: string): void {
-        this.blobsSet.get(path)?.clearGraphics();
-        this.blobsSet.delete(path);
+        this.foldersMap.get(path)?.clearGraphics();
+        this.foldersMap.delete(path);
     }
 
     // ============================ UPDATE GRAPHICS ============================
 
-    updateGraphics() {
-        for (const [path, blob] of this.blobsSet) {
-            blob.updateGraphics(this.graph.renderer.scale);
+    updateGraphics(path?: string) {
+        if (path) {
+            this.foldersMap.get(path)?.updateGraphics(this.graph.renderer.scale);
+        }
+        else {
+            for (const [path, blob] of this.foldersMap) {
+                blob.updateGraphics(this.graph.renderer.scale);
+            }
         }
     }
 }

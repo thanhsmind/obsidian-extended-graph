@@ -1,7 +1,7 @@
 import { App, getAllTags, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { WorkspaceLeafExt } from "./types/leaf";
-import { TAG_KEY } from "./globalVariables";
+import { FOLDER_KEY, TAG_KEY } from "./globalVariables";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 
 export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
@@ -124,6 +124,8 @@ export function getFileInteractives(interactive: string, app: App, file: TFile):
     switch (interactive) {
         case TAG_KEY:
             return getTags(app, file);
+        case FOLDER_KEY:
+            return getFolderPath(file);
         default:
             return getProperty(interactive, app, file);
     }
@@ -179,6 +181,12 @@ function getProperty(key: string, app: App, file: TFile): Set<string> {
     }
 
     return types;
+}
+
+function getFolderPath(file: TFile): Set<string> {
+    const set = new Set<string>();
+    file.parent ? set.add(file.parent.path) : '';
+    return set;
 }
 
 export function isPropertyKeyValid(key: string): boolean {

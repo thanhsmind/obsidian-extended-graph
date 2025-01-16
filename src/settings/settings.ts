@@ -1,5 +1,5 @@
 import { EngineOptions, GraphViewData } from "../views/viewData";
-import { DEFAULT_VIEW_ID, LINK_KEY, TAG_KEY } from "../globalVariables";
+import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
 
 interface InteractiveSettings {
     colormap: string;
@@ -89,5 +89,13 @@ DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
     noneType: "none"
 };
 
+DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
+    colormap: "winter",
+    colors: [],
+    unselected: [],
+    noneType: "."
+};
+
 DEFAULT_SETTINGS.views[0].disabledTypes[TAG_KEY] = [];
 DEFAULT_SETTINGS.views[0].disabledTypes[LINK_KEY] = [];
+DEFAULT_SETTINGS.views[0].disabledTypes[FOLDER_KEY] = [];

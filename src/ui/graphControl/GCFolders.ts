@@ -1,43 +1,51 @@
-import { Setting, TFile, TFolder } from "obsidian";
+import { Setting } from "obsidian";
 import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { GCSection } from "./GCSection";
+import { InteractiveManager } from "src/graph/interactiveManager";
+import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 
 export class GCFolders extends GCSection {
-    settingGlobalFilter: Setting;
+    foldersManager: InteractiveManager | undefined;
     
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
+    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, foldersManager: InteractiveManager) {
         super(leaf, graphsManager, "folders");
 
+        this.foldersManager = foldersManager;
+
         this.treeItemChildren = this.root.createDiv("tree-item-children");
-        this.createFolders();
+        this.onlyWhenPluginEnabled.push(this.root);
 
         this.collapseGraphControlSection();
     }
+    
+    onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
+        //this.createFolders();
+    }
 
     createFolders(): void {
-        const folders = this.leaf.app.vault.getAllFolders(true);
-        for (const folder of folders) {
-            const n = folder.children.filter(f => f instanceof TFile).length;
-            if (n > 0) {
-                this.onlyWhenPluginEnabled.push(this.addFolder(folder).settingEl);
-            }
+        const paths = this.foldersManager?.getTypesWithoutNone();
+        if (!paths) return;
+        for (const path of paths) {
+            this.addFolder(path).settingEl;
         }
     }
 
-    addFolder(folder: TFolder): Setting {
+    addFolder(path: string): Setting {
         const setting = new Setting(this.treeItemChildren)
-            .setName(folder.path)
+            .setName(path)
             .addToggle(cb => {
                 cb.onChange(enable => {
-                    this.toggleFolder(folder.path, enable);
+                    this.toggleFolder(path, enable);
                 })
             });
+        const color = this.foldersManager?.getColor(path);
+        if (color) setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
         return setting;
     }
 
     toggleFolder(path: string, enable: boolean) {
-        if (enable) this.graphsManager.dispatchers.get(this.leaf.id)?.addBBox(path);
-        else this.graphsManager.dispatchers.get(this.leaf.id)?.removeBBox(path);
+        if (enable) this.foldersManager?.enable([path]);
+        else this.foldersManager?.disable([path]);
     }
 }

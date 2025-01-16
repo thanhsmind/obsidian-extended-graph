@@ -1,10 +1,10 @@
-import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
+import { ColorComponent, HexString, setIcon, Setting, TextComponent, TFile } from "obsidian";
 import { cmOptions } from "src/colors/colormaps";
 import { ExtendedGraphSettingTab } from "./settingTab";
 import { capitalizeFirstLetter, getFileInteractives, isPropertyKeyValid } from "src/helperFunctions";
 import { plot_colormap, randomColor } from "src/colors/colors";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
+import { FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
 import { NewNameModal } from "src/ui/newNameModal";
 
 export abstract class SettingInteractives {
@@ -334,6 +334,10 @@ export class SettingPropertiesArray {
             new Notice("This property key is reserved for links");
             return false;
         }
+        else if (key === FOLDER_KEY) {
+            new Notice("This property key is reserved for folders");
+            return false;
+        }
         else if (key === TAG_KEY) {
             new Notice("This property key is reserved for tags");
             return false;
@@ -537,6 +541,57 @@ export class SettingLinks extends SettingInteractives {
                 allTypes = new Set<string>([...allTypes, ...types]);
             }
         }
+        return [...allTypes].sort();
+    }
+}
+
+export class SettingFolders extends SettingInteractives {
+
+    constructor(settingTab: ExtendedGraphSettingTab) {
+        super(settingTab);
+        this.interactiveName = "folder";
+        this.elementName = "folder";
+        this.previewClass = "";
+    }
+
+    display(): void {
+        super.display();
+
+        this.allTopElements.forEach(el => {
+            el.addClass("extended-graph-setting-" + this.interactiveName);
+        });
+    }
+
+    protected saveColor(preview: HTMLDivElement, type: string, color: string) {
+        if (this.isValueValid(type)) {
+            this.updatePreview(preview, type, color);
+            super.saveColors(type);
+        }
+    }
+
+    protected isValueValid(name: string): boolean {
+        return !!this.settingTab.app.vault.getFolderByPath(name);
+    }
+
+    protected getPlaceholder(): string {
+        return "folder/path";
+    }
+
+    protected updatePreview(preview: HTMLDivElement, type?: string, color?: string) {
+        this.updateCSS(preview, color);
+    }
+
+    protected getAllTypes(): string[] {
+        let allTypes = new Set<string>()
+
+        const folders = this.settingTab.app.vault.getAllFolders(true);
+        for (const folder of folders) {
+            const n = folder.children.filter(f => f instanceof TFile).length;
+            if (n > 0) {
+                allTypes.add(folder.path)
+            }
+        }
+
         return [...allTypes].sort();
     }
 }

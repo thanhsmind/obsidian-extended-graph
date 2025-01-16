@@ -1,4 +1,5 @@
 import { Component, setIcon, setTooltip } from "obsidian";
+import { FOLDER_KEY } from "src/globalVariables";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import GraphExtendedPlugin from "src/main";
@@ -179,6 +180,7 @@ export class LegendUI extends Component {
         this.root = this.viewContent.createDiv();
         this.root?.addClass("graph-legend-container");
         for (const [key, manager] of this.dispatcher.graph.interactiveManagers) {
+            if (key === FOLDER_KEY) continue;
             if (manager) this.legendRows.set(key, new LegendRow(key, manager, this.root));
         }
 

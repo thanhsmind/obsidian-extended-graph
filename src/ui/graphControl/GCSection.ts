@@ -54,7 +54,7 @@ export abstract class GCSection extends Component {
     onPluginDisabled(): void {
         this.onlyWhenPluginEnabled.forEach(el => {
             try {
-                this.treeItemChildren.removeChild(el);
+                el.parentNode?.removeChild(el);
             }
             catch {
 

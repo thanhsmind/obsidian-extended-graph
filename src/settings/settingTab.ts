@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import GraphExtendedPlugin from "src/main";
-import { SettingTags, SettingLinks, SettingPropertiesArray } from "./settingInteractive";
+import { SettingTags, SettingLinks, SettingPropertiesArray, SettingFolders } from "./settingInteractive";
 import { SettingFeatures } from "./settingFeatures";
 import { SettingImages } from "./settingImages";
 import { SettingFocus } from "./settingFocus";
@@ -10,6 +10,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     tagSettings: SettingTags;
     propertiesSettingsArray: SettingPropertiesArray;
     linkSettings: SettingLinks;
+    foldersSettings: SettingFolders;
     featuresSettings: SettingFeatures;
     imagesSettings: SettingImages;
     focusSettings: SettingFocus;
@@ -20,6 +21,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.tagSettings = new SettingTags(this);
         this.propertiesSettingsArray = new SettingPropertiesArray(this);
         this.linkSettings = new SettingLinks(this);
+        this.foldersSettings = new SettingFolders(this);
         this.featuresSettings = new SettingFeatures(this);
         this.imagesSettings = new SettingImages(this);
         this.focusSettings = new SettingFocus(this);
@@ -72,6 +74,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.tagSettings.display();
         this.propertiesSettingsArray.display();
         this.linkSettings.display();
+        this.foldersSettings.display();
         this.focusSettings.display();
     }
 }

@@ -1,5 +1,5 @@
 import { GraphColorGroup, GraphPluginInstanceOptions } from "obsidian-typings";
-import { LINK_KEY, TAG_KEY } from "src/globalVariables";
+import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/globalVariables";
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];
@@ -57,5 +57,6 @@ export class GraphViewData {
     constructor() {
         this.disabledTypes[TAG_KEY] = [];
         this.disabledTypes[LINK_KEY] = [];
+        this.disabledTypes[FOLDER_KEY] = [];
     }
 }

@@ -4,7 +4,7 @@ import { LegendUI } from "../ui/legendUI";
 import { ViewsUI } from "../ui/viewsUI";
 import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
-import { LINK_KEY } from "src/globalVariables";
+import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphViewData } from "src/views/viewData";
 
@@ -42,6 +42,7 @@ export class GraphEventsDispatcher extends Component {
         this.addChild(this.graph);
 
         this.initializeLegendUI();
+        this.initializeFoldersUI();
 
         this.viewsUI = new ViewsUI(this);
         this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
@@ -54,6 +55,12 @@ export class GraphEventsDispatcher extends Component {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
         }
+    }
+
+    private initializeFoldersUI(): void {
+        const foldersManager = this.graph.folderBlobs.manager;
+        if (!foldersManager) return;
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.addSectionFolder(foldersManager);
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
@@ -97,7 +104,7 @@ export class GraphEventsDispatcher extends Component {
         this.onChildAddedToStage = this.onChildAddedToStage.bind(this);
         //this.onChildRemovedFromStage = this.onChildRemovedFromStage.bind(this);
     
-        const stage = this.leaf.view.renderer.px.stage.children[1];
+        const stage = this.graph.renderer.px.stage.children[1];
         stage.addEventListener('childAdded', this.onChildAddedToStage);
         //stage.addEventListener('childRemoved', this.onChildRemovedFromStage);
     }
@@ -154,7 +161,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private unbindStageEvents(): void {
-        const stage = this.leaf.view.renderer.px.stage.children[1];
+        const stage = this.graph.renderer.px.stage.children[1];
         stage.removeEventListener('childAdded', this.onChildAddedToStage);
         //stage.removeEventListener('childRemoved', this.onChildRemovedFromStage);
     }
@@ -236,6 +243,8 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesAdded(name: string, colorMaps: Map<string, Uint8Array>) {
         if (name === LINK_KEY) {
             this.onLinkTypesAdded(colorMaps);
+        } else if (name === FOLDER_KEY) {
+            this.onFoldersAdded(colorMaps);
         } else {
             this.onNodeInteractiveTypesAdded(name, colorMaps);
         }
@@ -249,6 +258,8 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesRemoved(name: string, types: Set<string>) {
         if (name === LINK_KEY) {
             this.onLinkTypesRemoved(types);
+        } else if (name === FOLDER_KEY) {
+            this.onFoldersRemoved(types);
         } else {
             this.onNodeInteractiveTypesRemoved(name, types);
         }
@@ -263,6 +274,8 @@ export class GraphEventsDispatcher extends Component {
     onInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
         if (key === LINK_KEY) {
             this.onLinkColorChanged(type, color);
+        } else if (key === FOLDER_KEY) {
+            this.onFolderColorChanged(type, color);
         } else {
             this.onNodeInteractiveColorChanged(key, type, color);
         }
@@ -276,6 +289,8 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesDisabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
             this.disableLinkTypes(types);
+        } else if (name === FOLDER_KEY) {
+            this.disableFolders(types);
         } else {
             this.disableNodeInteractiveTypes(name, types);
         }
@@ -289,6 +304,8 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesEnabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
             this.enableLinkTypes(types);
+        } else if (name === FOLDER_KEY) {
+            this.enableFolders(types);
         } else {
             this.enableNodeInteractiveTypes(name, types);
         }
@@ -305,7 +322,7 @@ export class GraphEventsDispatcher extends Component {
                 this.legendUI.addLegend(key, type, color);
             }
         }
-        this.leaf.view.renderer.changed();
+        this.graph.renderer.changed();
     }
 
     private onNodeInteractiveTypesRemoved(key: string, types: Set<string>) {
@@ -315,7 +332,7 @@ export class GraphEventsDispatcher extends Component {
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
         this.graph.nodesSet.updateArcsColor(key, type, color);
         this.legendUI?.updateLegend(key, type, color);
-        this.leaf.view.renderer.changed();
+        this.graph.renderer.changed();
     }
 
     private disableNodeInteractiveTypes(key: string, types: string[]) {
@@ -324,7 +341,7 @@ export class GraphEventsDispatcher extends Component {
             this.graph.updateWorker();
         }
         else {
-            this.leaf.view.renderer.changed();
+            this.graph.renderer.changed();
         }
         this.listenStage = true;
     }
@@ -335,7 +352,7 @@ export class GraphEventsDispatcher extends Component {
             this.graph.updateWorker();
         }
         else {
-            this.leaf.view.renderer.changed();
+            this.graph.renderer.changed();
         }
         this.listenStage = true;
     }
@@ -347,7 +364,7 @@ export class GraphEventsDispatcher extends Component {
             this.graph.linksSet.updateLinksColor(type, color);
             this.legendUI?.addLegend(LINK_KEY, type, color);
         });
-        this.leaf.view.renderer.changed();
+        this.graph.renderer.changed();
     }
 
     private onLinkTypesRemoved(types: Set<string>) {
@@ -357,7 +374,7 @@ export class GraphEventsDispatcher extends Component {
     private onLinkColorChanged(type: string, color: Uint8Array) {
         this.graph.linksSet.updateLinksColor(type, color);
         this.legendUI?.updateLegend(LINK_KEY, type, color);
-        this.leaf.view.renderer.changed();
+        this.graph.renderer.changed();
     }
 
     private disableLinkTypes(types: string[]) {
@@ -378,12 +395,44 @@ export class GraphEventsDispatcher extends Component {
 
     // ================================ FOLDERS ================================
 
-    addBBox(path: string) {
+    private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.createFolders();
+    }
+
+    private onFoldersRemoved(paths: Set<string>) {
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.createFolders();
+        for (const path of paths) {
+            this.removeBBox(path);
+        }
+    }
+
+    private onFolderColorChanged(path: string, color: Uint8Array) {
+        this.graph.folderBlobs.updateGraphics(path);
+        this.graph.renderer.changed();
+    }
+
+    private disableFolders(paths: string[]) {
+        this.listenStage = false;
+        for (const path of paths) {
+            this.removeBBox(path);
+        }
+        this.listenStage = true;
+    }
+
+    private enableFolders(paths: string[]) {
+        this.listenStage = false;
+        for (const path of paths) {
+            this.addBBox(path);
+        }
+        this.listenStage = true;
+    }
+
+    private addBBox(path: string) {
         this.graph.folderBlobs.addFolder(path);
         this.graph.renderer.changed();
     }
 
-    removeBBox(path: string) {
+    private removeBBox(path: string) {
         this.graph.folderBlobs.removeFolder(path);
         this.graph.renderer.changed();
     }

@@ -56,6 +56,10 @@ export function componentToHex(c: number): string {
     return result;
 }
 
+export function rgb2hex(rgb: Uint8Array): string {
+    return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+}
+
 export function plot_colormap(canvas_id: string, name: string, reverse: boolean) {
     const canvas = <HTMLCanvasElement> document.getElementById(canvas_id);
     if (!canvas) return;
@@ -85,6 +89,6 @@ class GoldenColor {
         GoldenColor.h += GoldenColor.goldenRatioConjugate;
         GoldenColor.h %= 1;
         var color = hsv2rgb({h: Math.floor(GoldenColor.h * 360), s: s, v: v});
-        return "#" + componentToHex(color[0]) + componentToHex(color[1]) + componentToHex(color[2]);
+        return rgb2hex(color);
     }
 }

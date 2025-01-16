@@ -4,7 +4,7 @@ import { InteractiveManager } from './interactiveManager';
 import { GraphView } from 'src/views/view';
 import { NodesSet } from './nodesSet';
 import { LinksSet } from './linksSet';
-import { DEFAULT_VIEW_ID, DisconnectionCause, LINK_KEY, TAG_KEY } from 'src/globalVariables';
+import { DEFAULT_VIEW_ID, DisconnectionCause, FOLDER_KEY, LINK_KEY, TAG_KEY } from 'src/globalVariables';
 import { GraphEventsDispatcher } from './graphEventsDispatcher';
 import { ExtendedGraphSettings } from 'src/settings/settings';
 import { getLinkID } from './elements/link';
@@ -59,7 +59,7 @@ export class Graph extends Component {
         // Sets
         this.nodesSet = new NodesSet(this, this.getNodeManagers());
         this.linksSet = new LinksSet(this, this.interactiveManagers.get(LINK_KEY));
-        this.folderBlobs = new FoldersSet(this);
+        this.folderBlobs = new FoldersSet(this, this.interactiveManagers.get(FOLDER_KEY));
 
         // Functions to override
         this.overrideSearchGetValue();
@@ -84,11 +84,12 @@ export class Graph extends Component {
         }
         if (this.staticSettings.enableTags)  keys.push(TAG_KEY);
         if (this.staticSettings.enableLinks) keys.push(LINK_KEY);
+        keys.push(FOLDER_KEY);
         return keys;
     }
 
     private getNodeManagers(): InteractiveManager[] {
-        return Array.from(this.interactiveManagers.values()).filter(manager => manager.name !== LINK_KEY);
+        return Array.from(this.interactiveManagers.values()).filter(m => m.name !== LINK_KEY && m.name !== FOLDER_KEY);
     }
 
     private overrideSearchGetValue(): void {
