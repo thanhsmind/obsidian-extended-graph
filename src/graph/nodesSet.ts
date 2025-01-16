@@ -5,7 +5,7 @@ import { getBackgroundColor, getFile, getFileInteractives, getImageUri } from "s
 import { Graph } from "./graph";
 import { Assets, Texture } from "pixi.js";
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
-import { GraphNode } from "src/types/node";
+import { GraphNode } from "obsidian-typings";
 
 export class NodesSet {
     nodesMap = new Map<string, NodeWrapper>();

@@ -5,9 +5,9 @@ import { GraphViewData } from "./views/viewData";
 import { MenuUI } from "./ui/menu";
 import { GraphControlsUI } from "./ui/graphControl";
 import { getEngine } from "./helperFunctions";
-import { GraphPluginInstanceExt, GraphPluginInstanceOptions } from "./types/graphPluginInstance";
 import { WorkspaceLeafExt } from "./types/leaf";
 import { TAG_KEY } from "./globalVariables";
+import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
 
 
 export class GraphsManager extends Component {
@@ -393,8 +393,8 @@ export class GraphsManager extends Component {
         }
     }
 
-    private getCorePluginInstance(): GraphPluginInstanceExt | undefined {
-        return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstanceExt;
+    private getCorePluginInstance(): GraphPluginInstance | undefined {
+        return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
     applyNormalView(leaf: WorkspaceLeafExt) {

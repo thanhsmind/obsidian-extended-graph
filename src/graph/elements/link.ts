@@ -1,6 +1,6 @@
+import { GraphLink } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
 import { ElementWrapper } from "./element";
-import { GraphLink } from "src/types/link";
 
 
 export abstract class LinkWrapper extends ElementWrapper {

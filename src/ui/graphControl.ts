@@ -6,7 +6,6 @@ import { GraphsManager } from "src/graphsManager";
 import { getEngine } from "src/helperFunctions";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { GraphPlugin } from "obsidian-typings";
-import { GraphPluginInstanceExt } from "src/types/graphPluginInstance";
 
 export class GraphControlsUI extends Component {
     graphsManager: GraphsManager;
@@ -161,11 +160,10 @@ export class GraphControlsUI extends Component {
     saveForNormalView() {
         const globalFilter = this.graphsManager.plugin.settings.globalFilter;
         this.graphsManager.plugin.settings.globalFilter = "";
-        const instance: GraphPluginInstanceExt = ((this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance as GraphPluginInstanceExt);
+        const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
         
         const engine = getEngine(this.leaf);
         instance.options = engine.getOptions();
-        console.log(instance.options);
         instance.saveOptions();
         this.graphsManager.plugin.settings.globalFilter = globalFilter;
     }

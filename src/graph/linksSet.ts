@@ -5,7 +5,7 @@ import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables"
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { getFile } from "src/helperFunctions";
 import { TFile } from "obsidian";
-import { GraphLink } from "src/types/link";
+import { GraphLink } from "obsidian-typings";
 
 export class LinksSet {
     linksMap = new Map<string, {wrapper: LinkWrapper | null, link: GraphLink}>();

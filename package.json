@@ -19,7 +19,7 @@
 		"esbuild": "0.17.3",
 		"obsidian": "latest",
 		"obsidian-dataview": "^0.5.64",
-		"obsidian-typings": "^2.5.0",
+		"obsidian-typings": "^2.13.5",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
 	},

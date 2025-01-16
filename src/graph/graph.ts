@@ -1,6 +1,5 @@
 
 import { Component } from 'obsidian';
-import { GraphRenderer } from '../types/renderer';
 import { InteractiveManager } from './interactiveManager';
 import { GraphView } from 'src/views/view';
 import { NodesSet } from './nodesSet';
@@ -10,8 +9,8 @@ import { GraphEventsDispatcher } from './graphEventsDispatcher';
 import { ExtendedGraphSettings } from 'src/settings/settings';
 import { getLinkID } from './elements/link';
 import { getEngine } from 'src/helperFunctions';
-import { GraphEngine } from 'src/types/engine';
 import { logToFile } from 'src/logs';
+import { GraphEngine, GraphRenderer } from 'obsidian-typings';
 
 export class Graph extends Component {
     // Parent dispatcher

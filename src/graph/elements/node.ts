@@ -5,7 +5,7 @@ import { ExtendedGraphSettings } from 'src/settings/settings';
 import { getFile, getFileInteractives } from 'src/helperFunctions';
 import { ArcsWrapper } from './arcs';
 import { NodeImage } from './image';
-import { GraphNode } from 'src/types/node';
+import { GraphNode } from 'obsidian-typings';
 
 const NODE_CIRCLE_RADIUS: number = 100;
 const NODE_CIRCLE_X: number = 100;

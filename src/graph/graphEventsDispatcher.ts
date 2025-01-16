@@ -364,16 +364,11 @@ export class GraphEventsDispatcher extends Component {
         const viewData = this.graphsManager.plugin.getViewDataById(id);
         if (!viewData) return;
 
-        this.applyViewOptions(viewData);
         this.updateInteractiveManagers(viewData).then(() => {
+            this.graph.engine.setOptions(viewData.engineOptions);
             this.graph.updateWorker();
             this.graph.engine.updateSearch();
         });
-    }
-
-    private applyViewOptions(viewData: GraphViewData): void {
-        this.graph.engine.setOptions(viewData.engineOptions);
-        this.graph.engine.updateSearch();
     }
 
     private async updateInteractiveManagers(viewData: GraphViewData): Promise<void> {
