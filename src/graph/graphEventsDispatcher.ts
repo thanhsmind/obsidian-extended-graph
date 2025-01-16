@@ -223,7 +223,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        this.graph.folderBlobs.drawEllipses();
+        this.graph.folderBlobs.updateGraphics();
     }
 
     // ============================= INTERACTIVES ==============================
@@ -374,6 +374,18 @@ export class GraphEventsDispatcher extends Component {
             this.graph.updateWorker();
         }
         this.listenStage = true;
+    }
+
+    // ================================ FOLDERS ================================
+
+    addBBox(path: string) {
+        this.graph.folderBlobs.addFolder(path);
+        this.graph.renderer.changed();
+    }
+
+    removeBBox(path: string) {
+        this.graph.folderBlobs.removeFolder(path);
+        this.graph.renderer.changed();
     }
 
     // ================================= VIEWS =================================

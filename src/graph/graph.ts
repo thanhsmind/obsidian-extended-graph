@@ -11,7 +11,7 @@ import { getLinkID } from './elements/link';
 import { getEngine } from 'src/helperFunctions';
 import { logToFile } from 'src/logs';
 import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { FolderBlobs } from './folderBlobs';
+import { FoldersSet } from './folderBlobs';
 
 export class Graph extends Component {
     // Parent dispatcher
@@ -29,7 +29,7 @@ export class Graph extends Component {
     // Sets
     nodesSet: NodesSet;
     linksSet: LinksSet;
-    folderBlobs: FolderBlobs;
+    folderBlobs: FoldersSet;
 
     // Disconnection chains
     nodesDisconnectionCascade = new Map<string, {isDiconnected: boolean, links: Set<string>, nodes: Set<string>}>();
@@ -59,7 +59,7 @@ export class Graph extends Component {
         // Sets
         this.nodesSet = new NodesSet(this, this.getNodeManagers());
         this.linksSet = new LinksSet(this, this.interactiveManagers.get(LINK_KEY));
-        this.folderBlobs = new FolderBlobs(this);
+        this.folderBlobs = new FoldersSet(this);
 
         // Functions to override
         this.overrideSearchGetValue();

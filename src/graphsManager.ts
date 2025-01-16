@@ -3,7 +3,7 @@ import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
 import GraphExtendedPlugin from "./main";
 import { GraphViewData } from "./views/viewData";
 import { MenuUI } from "./ui/menu";
-import { GraphControlsUI } from "./ui/graphControl";
+import { GraphControlsUI } from "./ui/graphControl/graphControl";
 import { getEngine } from "./helperFunctions";
 import { WorkspaceLeafExt } from "./types/leaf";
 import { TAG_KEY } from "./globalVariables";
@@ -191,7 +191,7 @@ export class GraphsManager extends Component {
     }
 
     private updateGlobalFilterUI(dispatcherID: string, filter: string): void {
-        const textarea = this.globalUIs.get(dispatcherID)?.control.settingGlobalFilter.controlEl.querySelector("textarea");
+        const textarea = this.globalUIs.get(dispatcherID)?.control.sectionSettings.settingGlobalFilter.controlEl.querySelector("textarea");
         if (textarea) textarea.value = filter;
     }
 

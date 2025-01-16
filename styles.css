@@ -137,6 +137,11 @@ body {
     z-index: 1;
 }
 
+.mod-extended-graph-folders .tree-item-children {
+    max-height: 140px;
+    overflow-y: auto;
+}
+
 .graph-controls.is-close .mod-extended-graph-toggle {
     --icon-color-active: var(--text-normal);
     display: flex;

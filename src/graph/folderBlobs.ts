@@ -1,27 +1,30 @@
-import { Component } from "obsidian";
+import { Component, TFile, TFolder } from "obsidian";
 import { Graph } from "./graph";
 import { GraphNode } from "obsidian-typings";
-import { Container, Ellipse, Graphics, Point, Text, TextStyle } from "pixi.js";
-import { complex, Complex, det, diag, inv, matrix, multiply, size, sqrt, subtract, transpose, zeros } from "mathjs";
+import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { getFile } from "src/helperFunctions";
+import { randomColor } from "src/colors/colors";
 
 export class FolderBlob {
     readonly path: string;
     nodes: GraphNode[] = [];
     area: Graphics;
     text: Text;
+    color: string;
     textStyle: TextStyle;
     BBox: {xMin: number, xMax: number, yMin: number, yMax: number};
 
     constructor(path: string) {
         this.path = path;
 
+        this.color = randomColor();
+
         this.area = new Graphics();
         this.area.eventMode = 'none';
         
         this.textStyle = new TextStyle({
             fontSize: 14,
-            fill: 'yellow',
+            fill: this.color,
             fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei Light", sans-serif',
             wordWrap: !0,
             wordWrapWidth: 300,
@@ -32,11 +35,22 @@ export class FolderBlob {
         this.area.addChild(this.text);
     }
 
+    clearGraphics() {
+        this.area.removeFromParent();
+        this.area.destroy();
+        this.text.destroy();
+    }
+
+    updateGraphics(scale: number) {
+        this.draw();
+        this.placeText(scale);
+    }
+
     addNode(node: GraphNode) {
         this.nodes.push(node);
     }
 
-    draw() {
+    private draw() {
         this.computeBox();
         this.drawBox();
     }
@@ -44,8 +58,8 @@ export class FolderBlob {
     private drawBox() {
         this.area.clear();
 
-        this.area.lineStyle(2, 'red', 0.7)
-            .beginFill('red', 0.05)
+        this.area.lineStyle(2, this.color, 0.5)
+            .beginFill(this.color, 0.03)
             .drawRoundedRect(this.BBox.xMin, this.BBox.yMin, (this.BBox.xMax - this.BBox.xMin), (this.BBox.yMax - this.BBox.yMin), 50)
             .endFill();
     }
@@ -71,7 +85,7 @@ export class FolderBlob {
         };
     }
 
-    placeText(scale: number) {
+    private placeText(scale: number) {
         const t = Math.min(scale, 5);
         this.text.style.fontSize = 14 * t;
         this.text.x = this.BBox.xMin +  0.5 * (this.BBox.xMax - this.BBox.xMin);
@@ -80,7 +94,7 @@ export class FolderBlob {
     }
 }
 
-export class FolderBlobs extends Component {
+export class FoldersSet {
     // Parent graph
     readonly graph: Graph;
 
@@ -93,8 +107,6 @@ export class FolderBlobs extends Component {
     // ============================== CONSTRUCTOR ==============================
 
     constructor(graph: Graph) {
-        super();
-
         // Parent graph
         this.graph = graph;
 
@@ -106,22 +118,8 @@ export class FolderBlobs extends Component {
 
     // ================================ LOADING ================================
 
-    onload(): void {
+    load(): void {
         this.initContainer();
-        this.initBlobs();
-        this.drawEllipses();
-    }
-
-    private initBlobs(): void {
-        for (const node of this.graph.renderer.nodes) {
-            const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
-            const folder = file?.parent?.path;
-            if (!folder) continue;
-            if (!this.blobsSet.has(folder)) {
-                this.blobsSet.set(folder, new FolderBlob(folder));
-            }
-            this.blobsSet.get(folder)?.addNode(node);
-        }
     }
 
     private initContainer(): void {
@@ -130,20 +128,49 @@ export class FolderBlobs extends Component {
         (this.graph.renderer.px.stage.children[1] as Container).addChildAt(this.container, 0);
     }
 
-    drawEllipses(): void {
-        this.container.removeChildren();
-        for (const [path, blob] of this.blobsSet) {
-            blob.draw();
-            blob.placeText(this.graph.renderer.scale);
-            this.container.addChild(blob.area);
-        }
-    }
-
     // =============================== UNLOADING ===============================
 
     unload(): void {
         this.container.destroy({children: true});
         this.container.removeFromParent();
         this.blobsSet.clear();
+    }
+
+    // ========================= ADD AND REMOVE FOLDER =========================
+
+    addFolder(path: string): void {
+        this.removeFolder(path);
+
+        const folder = this.graph.dispatcher.graphsManager.plugin.app.vault.getFolderByPath(path);
+        if (folder) {
+            const blob = new FolderBlob(path);
+            for (const file of folder.children) {
+                if (file instanceof TFile) {
+                    const node = this.graph.nodesSet.nodesMap.get(file.path)?.node;
+                    if (node) blob.addNode(node);
+                }
+                else if (file instanceof TFolder) {
+                    // it's a nested folder
+                }
+            }
+            if (blob.nodes.length > 0) {
+                this.blobsSet.set(path, blob);
+                this.container.addChild(blob.area);
+                blob.updateGraphics(this.graph.renderer.scale);
+            }
+        }
+    }
+
+    removeFolder(path: string): void {
+        this.blobsSet.get(path)?.clearGraphics();
+        this.blobsSet.delete(path);
+    }
+
+    // ============================ UPDATE GRAPHICS ============================
+
+    updateGraphics() {
+        for (const [path, blob] of this.blobsSet) {
+            blob.updateGraphics(this.graph.renderer.scale);
+        }
     }
 }
