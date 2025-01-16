@@ -19,6 +19,8 @@ export class GraphEventsDispatcher extends Component {
     legendUI: LegendUI | null = null;
     viewsUI: ViewsUI;
 
+    renderCallback: () => void;
+
     listenStage: boolean = true;
 
     // ============================== CONSTRUCTOR ==============================
@@ -81,6 +83,7 @@ export class GraphEventsDispatcher extends Component {
         this.updateOpacityLayerColor();
         this.bindStageEvents();
         this.observeOrphanSettings();
+        this.createRenderProxy();
         this.changeView(this.viewsUI.currentViewID);
     }
 
@@ -126,6 +129,16 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
+    private createRenderProxy(): void {
+        this.renderCallback = this.graph.renderer.renderCallback;
+        this.graph.renderer.renderCallback = new Proxy(this.graph.renderer.renderCallback, {
+            apply(target, thisArg, args) {
+                console.log("Applied");
+                return target.call(thisArg, ...args);
+            }
+        });
+    }
+
     // =============================== UNLOADING ===============================
 
     /**
@@ -133,6 +146,7 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
+        this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         this.graphsManager.onPluginUnloaded(this.leaf);
     }
