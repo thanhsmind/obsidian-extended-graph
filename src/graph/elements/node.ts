@@ -1,5 +1,5 @@
-import { App } from 'obsidian';
-import { Container, Graphics, Texture } from 'pixi.js';
+import { App, getIcon } from 'obsidian';
+import { Assets, Container, Graphics, Sprite, SVGResource, Texture } from 'pixi.js';
 import { InteractiveManager } from '../interactiveManager';
 import { ExtendedGraphSettings } from 'src/settings/settings';
 import { getFile, getFileInteractives } from 'src/helperFunctions';
@@ -23,6 +23,7 @@ export class NodeWrapper extends Container {
     background: Graphics;
     scaleFactor: number = 1;
     isActive: boolean = true;
+    isPinned: boolean = false;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -156,5 +157,42 @@ export class NodeWrapper extends Container {
             this.background.clear();
         }
         this.scale.set(this.scaleFactor);
+    }
+
+    // =============================== PIN NODES ===============================
+
+    pin(): void {
+        this.isPinned = true;
+
+        const svg = getIcon("pin");
+        if (svg) {
+            const bodyStyle = getComputedStyle(document.body);
+            const stroke = bodyStyle.getPropertyValue("--color-base-00");
+
+            const tail = svg.getElementsByTagName("path")[0];
+            const head = svg.getElementsByTagName("path")[1];
+            head.setAttribute("fill", this.app.getAccentColor());
+            head.setAttribute("stroke", stroke);
+            tail.setAttribute("stroke", this.app.getAccentColor());
+            console.log(svg);
+
+            const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.outerHTML)}`
+            Assets.load(svgDataUrl).then(texture => {
+                const icon = new Sprite(texture);
+                icon.name = "pin";
+                icon.anchor.set(1, 0);
+                icon.height = 80;
+                icon.width = 80;
+                icon.position.set(100, -100);
+
+                this.addChild(icon);
+            })
+        }
+    }
+
+    unpin(): void {
+        this.isPinned = false;
+        const icon = this.getChildByName("pin");
+        if (icon) this.removeChild(icon);
     }
 }

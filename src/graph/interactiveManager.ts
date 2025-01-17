@@ -61,6 +61,7 @@ export class InteractiveManager extends Component {
     }
 
     loadView(viewData: GraphViewData): void {
+        if (!viewData.disabledTypes) return;
         const viewTypesToDisable: string[] = viewData.disabledTypes[this.name];
         // Enable/Disable tags
         const toDisable: string[] = [];

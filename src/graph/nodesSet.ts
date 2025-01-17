@@ -394,6 +394,61 @@ export class NodesSet {
         }
     }
 
+    // =============================== PIN NODES ===============================
+
+    setPinnedNodes(ids: Record<string, {x: number, y: number}>) {
+        for (const [id, wrapper] of this.nodesMap) {
+            const isPinned = ids.hasOwnProperty(id);
+            if (isPinned && !wrapper.isPinned) {
+                this.graph.nodesSet.pinNode(id, ids[id].x, ids[id].y);
+            }
+            else if (!isPinned && wrapper.isPinned) {
+                this.graph.nodesSet.unpinNode(id);
+            }
+        }
+    }
+
+    pinNode(id: string, x?: number, y?: number) {
+        const wrapper = this.nodesMap.get(id);
+        if (!wrapper) return;
+        const node = wrapper.node;
+        if (x) node.x = x;
+        if (y) node.y = y;
+        node.fx = node.x;
+        node.fy = node.y;
+        this.graph.renderer.worker.postMessage({
+            run: true,
+            forceNode: {
+                id: node.id,
+                x: node.x,
+                y: node.y
+            }
+        });
+        wrapper.pin();
+    }
+
+    unpinNode(id: string) {
+        const wrapper = this.nodesMap.get(id);
+        if (!wrapper) return;
+        const node = wrapper.node;
+        node.fx = null;
+        node.fy = null;
+        this.graph.renderer.worker.postMessage({
+            forceNode: {
+                id: node.id,
+                x: null,
+                y: null
+            }
+        });
+        wrapper.unpin();
+    }
+
+    isNodePinned(id: string): boolean | undefined {
+        const wrapper = this.nodesMap.get(id);
+        if (!wrapper) return;
+        return wrapper.isPinned;
+    }
+
     // ================================= DEBUG =================================
 
     printDisconnectedNodes() {

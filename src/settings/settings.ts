@@ -95,7 +95,3 @@ DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
     unselected: [],
     noneType: "."
 };
-
-DEFAULT_SETTINGS.views[0].disabledTypes[TAG_KEY] = [];
-DEFAULT_SETTINGS.views[0].disabledTypes[LINK_KEY] = [];
-DEFAULT_SETTINGS.views[0].disabledTypes[FOLDER_KEY] = [];

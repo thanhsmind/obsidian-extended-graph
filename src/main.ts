@@ -1,4 +1,4 @@
-import { Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
 import { GraphsManager } from './graphsManager';
 import { DEFAULT_SETTINGS, ExtendedGraphSettings } from './settings/settings';
 import { ExtendedGraphSettingTab } from './settings/settingTab';
@@ -57,6 +57,12 @@ export default class GraphExtendedPlugin extends Plugin {
             if (!this.isCoreGraphLoaded()) return;
             this.graphsManager.updateColor(key, type);
         }));
+
+        this.registerEvent(this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.graphsManager.onNodeMenuOpened(menu, file, source, leaf);
+        }));
+
     }
 
     private isCoreGraphLoaded(): boolean {

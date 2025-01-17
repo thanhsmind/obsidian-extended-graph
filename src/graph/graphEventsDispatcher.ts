@@ -1,4 +1,4 @@
-import { Component } from "obsidian";
+import { Component, Menu, TAbstractFile, TFile } from "obsidian";
 import { Graph } from "./graph";
 import { LegendUI } from "../ui/legendUI";
 import { ViewsUI } from "../ui/viewsUI";
@@ -7,6 +7,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphViewData } from "src/views/viewData";
+import { FederatedPointerEvent } from "pixi.js";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -91,6 +92,7 @@ export class GraphEventsDispatcher extends Component {
         this.bindStageEvents();
         this.observeOrphanSettings();
         this.createRenderProxy();
+        this.preventDraggingPinnedNodes();
         this.changeView(this.viewsUI.currentViewID);
     }
 
@@ -102,11 +104,10 @@ export class GraphEventsDispatcher extends Component {
 
     private bindStageEvents(): void {
         this.onChildAddedToStage = this.onChildAddedToStage.bind(this);
-        //this.onChildRemovedFromStage = this.onChildRemovedFromStage.bind(this);
-    
-        const stage = this.graph.renderer.px.stage.children[1];
-        stage.addEventListener('childAdded', this.onChildAddedToStage);
-        //stage.addEventListener('childRemoved', this.onChildRemovedFromStage);
+        this.graph.renderer.px.stage.children[1].on('childAdded', this.onChildAddedToStage);
+
+        this.onPointerDown = this.onPointerDown.bind(this);
+        this.graph.renderer.px.stage.on('pointerdown', this.onPointerDown);
     }
 
     private observeOrphanSettings(): void {
@@ -141,8 +142,9 @@ export class GraphEventsDispatcher extends Component {
         const onRendered = this.onRendered.bind(this);
         this.graph.renderer.renderCallback = new Proxy(this.graph.renderer.renderCallback, {
             apply(target, thisArg, args) {
+                const res = target.call(thisArg, ...args);
                 onRendered();
-                return target.call(thisArg, ...args);
+                return res;
             }
         });
     }
@@ -154,16 +156,15 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        //this.graph.renderer.renderCallback = this.renderCallback;
+        this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         this.graphsManager.onPluginUnloaded(this.leaf);
         this.unload();
     }
 
     private unbindStageEvents(): void {
-        const stage = this.graph.renderer.px.stage.children[1];
-        stage.removeEventListener('childAdded', this.onChildAddedToStage);
-        //stage.removeEventListener('childRemoved', this.onChildRemovedFromStage);
+        this.graph.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
+        this.graph.renderer.px.stage.off('pointerdown', this.onPointerDown);
     }
 
     // ============================= STAGE EVENTS ==============================
@@ -212,6 +213,10 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
+    private onPointerDown(): void {
+        this.preventDraggingPinnedNodes();
+    }
+
     // ============================ SETTINGS EVENTS ============================
 
     toggleOrphans(ev: Event) {
@@ -230,6 +235,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
+        console.log(this.graph.renderer.idleFrames);
         this.graph.folderBlobs.updateGraphics();
     }
 
@@ -449,8 +455,9 @@ export class GraphEventsDispatcher extends Component {
         if (!viewData) return;
 
         this.updateInteractiveManagers(viewData).then(() => {
-            this.graph.engine.setOptions(viewData.engineOptions);
+            if (viewData.engineOptions) this.graph.engine.setOptions(viewData.engineOptions);
             this.graph.updateWorker();
+            this.graph.nodesSet.setPinnedNodes(viewData.pinNodes ? viewData.pinNodes : {});
             this.graph.engine.updateSearch();
         });
     }
@@ -465,7 +472,7 @@ export class GraphEventsDispatcher extends Component {
     private updateNodeManagers(viewData: GraphViewData): void {
         for (const [key, manager] of this.graph.nodesSet.managers) {
             manager.loadView(viewData);
-            if (this.legendUI) {
+            if (this.legendUI && viewData.disabledTypes) {
                 this.legendUI.enableAll(key);
                 if (viewData.disabledTypes.hasOwnProperty(key)) {
                     for (const type of viewData.disabledTypes[key]) {
@@ -479,7 +486,7 @@ export class GraphEventsDispatcher extends Component {
     private updateLinkManager(viewData: GraphViewData): void {
         if (this.graph.linksSet.linksManager) {
             this.graph.linksSet.linksManager.loadView(viewData);
-            if (this.legendUI) {
+            if (this.legendUI && viewData.disabledTypes) {
                 this.legendUI.enableAll(LINK_KEY);
                 for (const type of viewData.disabledTypes[LINK_KEY]) {
                     this.legendUI.disable(LINK_KEY, type);
@@ -494,5 +501,39 @@ export class GraphEventsDispatcher extends Component {
      */
     deleteView(id: string): void {
         this.graphsManager.onViewNeedsDeletion(id);
+    }
+
+
+    // =============================== PIN NODES ===============================
+
+    onNodeMenuOpened(menu: Menu, file: TFile) {
+        menu.addSections(['extended-graph']);
+        menu.addItem(cb => {
+            cb.setIcon("pin");
+            if (this.graph.nodesSet.isNodePinned(file.path)) {
+                cb.setTitle("Unpin node");
+                cb.onClick(() => { this.unpinNode(file); });
+            }
+            else {
+                cb.setTitle("Pin node");
+                cb.onClick(() => { this.pinNode(file); });
+            }
+        })
+    }
+
+    private pinNode(file: TFile) {
+        this.graph.nodesSet.pinNode(file.path);
+    }
+
+    private unpinNode(file: TFile) {
+        this.graph.nodesSet.unpinNode(file.path);
+        this.graph.renderer.changed();
+    }
+
+    preventDraggingPinnedNodes() {
+        var i = this.graph.renderer.dragNode;
+        if (i && this.graph.nodesSet.isNodePinned(i.id)) {
+            this.graph.renderer.dragNode = null;
+        }
     }
 }

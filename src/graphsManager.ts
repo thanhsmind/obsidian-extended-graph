@@ -1,4 +1,4 @@
-import { CachedMetadata, Component, FileView, TFile, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
 import GraphExtendedPlugin from "./main";
 import { GraphViewData } from "./views/viewData";
@@ -204,7 +204,6 @@ export class GraphsManager extends Component {
     }
 
     updateColor(key: string, type: string): void {
-        console.log("update color", key, type);
         this.dispatchers.forEach(dispatcher => {
             dispatcher.graph.interactiveManagers.get(key)?.recomputeColor(type);
         });
@@ -402,6 +401,15 @@ export class GraphsManager extends Component {
         if (engine && options) {
             engine.setOptions(options);
             engine.updateSearch();
+        }
+    }
+
+
+    // =============================== NODE MENU ===============================
+
+    onNodeMenuOpened(menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) {
+        if (source === "graph-context-menu" && leaf && file instanceof TFile) {
+            this.dispatchers.get(leaf.id)?.onNodeMenuOpened(menu, file);
         }
     }
 }
