@@ -271,20 +271,28 @@ export class Graph extends Component {
             if (cascade.isDiconnected) nodesToKeepDisabled.push(id);
             nodesToKeepDisabled = nodesToKeepDisabled.concat([...cascade.nodes]);
         }
+        for (const [id, cascade] of this.linksDisconnectionCascade) {
+            nodesToKeepDisabled = nodesToKeepDisabled.concat([...cascade.nodes]);
+        }
         let linksToKeepDisabled: string[] = [];
         for (const [id, cascade] of this.linksDisconnectionCascade) {
             if (cascade.isDiconnected) linksToKeepDisabled.push(id);
             linksToKeepDisabled = linksToKeepDisabled.concat([...cascade.links]);
         }
+        for (const [id, cascade] of this.nodesDisconnectionCascade) {
+            linksToKeepDisabled = linksToKeepDisabled.concat([...cascade.links]);
+        }
 
-        // Enable links directly
+        // Get the links to enable directly from the user input
         const linksToEnable = [...ids.values()].filter(id => !linksToKeepDisabled.includes(id));
-        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
 
         for (const linkID of linksToEnable) {
-            // Cascade
+            // Cascade first, in order to enable the nodes
             this.enableCascadeChainFromLink(linkID, cascades, nodesToKeepDisabled, linksToKeepDisabled);
         }
+        
+        // Enable links directly
+        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
 
         if (linksToEnable.length > 0) this.enableOrphans();
 
@@ -383,6 +391,9 @@ export class Graph extends Component {
             if (cascade.isDiconnected) nodesToKeepDisabled.push(id);
             nodesToKeepDisabled = nodesToKeepDisabled.concat([...cascade.nodes]);
         }
+        for (const [id, cascade] of this.linksDisconnectionCascade) {
+            nodesToKeepDisabled = nodesToKeepDisabled.concat([...cascade.nodes]);
+        }
         let nodesToEnable = new Set<string>([...ids.values()].filter(id =>
             !nodesToKeepDisabled.includes(id)
         ));
@@ -393,6 +404,9 @@ export class Graph extends Component {
         let linksToKeepDisabled: string[] = [];
         for (const [id, cascade] of this.linksDisconnectionCascade) {
             if (cascade.isDiconnected) linksToKeepDisabled.push(id);
+            linksToKeepDisabled = linksToKeepDisabled.concat([...cascade.links]);
+        }
+        for (const [id, cascade] of this.nodesDisconnectionCascade) {
             linksToKeepDisabled = linksToKeepDisabled.concat([...cascade.links]);
         }
         for (const nodeID of nodesToEnable) {
@@ -421,13 +435,13 @@ export class Graph extends Component {
         const cascade = cascades.get(nodeID);
         if (!cascade) return;
 
-        // Enable links by cascading
-        const linksToEnable = [...cascade.links].filter(id => !linksToKeepDisabled.includes(id));
-        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
-
         // Enable nodes by cascading
         const nodesToEnable = [...cascade.nodes].filter(id => !nodesToKeepDisabled.includes(id));
         this.nodesSet.enableElements(nodesToEnable, DisconnectionCause.USER);
+
+        // Enable links by cascading
+        const linksToEnable = [...cascade.links].filter(id => !linksToKeepDisabled.includes(id));
+        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
     }
 
     disableOrphans() : boolean {

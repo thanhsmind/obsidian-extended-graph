@@ -206,10 +206,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             
             extendedElement.disableType(key, type);
 
-            // If the element is still active (displayed) but at least one
-            // manager is disabled, we must disable the element
-            console.log("isAnyManagerDisabled", extendedElement.isAnyManagerDisabled());
-            if (extendedElement.isActive && extendedElement.isAnyManagerDisabled()) {
+            if (extendedElement.isAnyManagerDisabled()) {
                 elementsToDisable.push(id);
             }
         }
@@ -227,9 +224,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         
             extendedElement.enableType(key, type);
 
-            // If the element is inactive (hidden) but at no manager is
-            // disabled, we must enable the element
-            if (!extendedElement.isActive && !extendedElement.isAnyManagerDisabled()) {
+            if (!extendedElement.isAnyManagerDisabled()) {
                 elementsToEnable.push(id);
             }
         }
