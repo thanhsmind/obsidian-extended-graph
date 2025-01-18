@@ -212,7 +212,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        console.log(this.graph.renderer.idleFrames);
+        //console.log(this.graph.renderer.idleFrames);
         this.graph.folderBlobs.updateGraphics();
     }
 

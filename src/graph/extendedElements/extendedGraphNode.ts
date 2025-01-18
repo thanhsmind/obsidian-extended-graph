@@ -18,6 +18,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
         super(node, types, managers);
         this.settings = settings;
         this.app = app;
+        this.initGraphicsWrapper();
     }
 
     protected needGraphicsWrapper(): boolean {

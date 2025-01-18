@@ -3,24 +3,25 @@ import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
 import { InteractiveManager } from "../interactiveManager";
 import { GraphicsWrapper } from "./graphicsWrapper";
 import { ManagerGraphics } from "./managerGraphics";
-import { Graphics } from "pixi.js";
+import { LineLink } from "../graphicElements/lines/line";
 
 export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> {
     // Interface instance values
     name: string;
     extendedElement: ExtendedGraphLink;
-    managerGraphicsMap?: Map<string, ManagerGraphics>;
-    pixiElement: Graphics;
+    pixiElement: LineLink;
 
 
     constructor(extendedElement: ExtendedGraphLink) {
-        this.extendedElement = extendedElement;
         this.name = extendedElement.id;
+        this.extendedElement = extendedElement;
     }
 
     // ============================= INITALIZATION =============================
 
     initGraphics(): void {}
+
+    abstract createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
 
     // ============================ CLEAR GRAPHICS =============================
 
@@ -35,7 +36,7 @@ export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> 
     // ============================ UPDATE GRAPHICS ============================
 
     updateGraphics(): void {
-        throw new Error('Method not implemented.');
+        this.pixiElement.updateGraphics();
     }
 
     // ============================ ENABLE/DISABLE =============================

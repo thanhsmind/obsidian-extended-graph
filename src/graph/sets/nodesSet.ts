@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { TAbstractFile, TFile } from "obsidian";
 import { getBackgroundColor, getFile, getFileInteractives, getImageUri } from "src/helperFunctions";
 import { Assets, Texture } from "pixi.js";
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
@@ -9,7 +9,6 @@ import { InteractiveManager } from "../interactiveManager";
 import { Graph } from "../graph";
 
 export class NodesSet extends AbstractSet<GraphNode> {
-    managers = new Map<string, InteractiveManager>();
     extendedElementsMap: Map<string, ExtendedGraphNode>;
 
     // ============================== CONSTRUCTOR ==============================
@@ -62,7 +61,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     private initNodeGraphics(id: string, texture: Texture | undefined, backgroundColor: Uint8Array): void {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode) return;
-        extendedNode.graphicsWrapper?.initGraphics(texture);
+        extendedNode.graphicsWrapper?.initNodeImage(texture);
         extendedNode.graphicsWrapper?.nodeImage?.updateOpacityLayerColor(backgroundColor);
     }
 
@@ -104,6 +103,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return true;
     }
     
+    protected getAbstractFile(node: GraphNode): TFile | null {
+        return getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+    }
+
     // ============================= INTERACTIVES ==============================
 
     

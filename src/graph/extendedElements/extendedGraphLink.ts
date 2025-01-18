@@ -17,6 +17,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         const typesMap = new Map<string, Set<string>>();
         typesMap.set(LINK_KEY, types);
         super(link, typesMap, [manager]);
+        this.initGraphicsWrapper();
     }
 
     protected needGraphicsWrapper(): boolean {
@@ -33,8 +34,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
-        this.graphicsWrapper.updateGraphics();
-        this.graphicsWrapper.connect();
+
+        let layer = 1;
+        for (const [key, manager] of this.managers) {
+            const validTypes = this.getTypes(key);
+            this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
+            layer++;
+        }
     }
 
     // ============================== CORE ELEMENT =============================

@@ -2,7 +2,7 @@ import { DisconnectionCause } from "src/globalVariables";
 import { Graph } from "../graph";
 import { InteractiveManager } from "../interactiveManager";
 import { getFile } from "src/helperFunctions";
-import { TFile } from "obsidian";
+import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { ExtendedGraphElement } from "./extendedGraphElement";
 
@@ -75,11 +75,11 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             const id = this.getID(element);
             if (this.extendedElementsMap.has(id)) continue;
 
-            const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, id);
-            if (!file) continue;
+            const file = this.getAbstractFile(element);
+            if (!file || file instanceof TFolder) continue;
 
             isElementMissing = true;
-            const types = this.getTypesFromFile(key, element, file);
+            const types = this.getTypesFromFile(key, element, (file as TFile));
             this.addTypes(key, types, id, missingTypes);
         }
 
@@ -94,11 +94,11 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             if (this.isTypeValid(key, type)) {
                 if (!this.managers.get(key)?.interactives.has(type)) {
                     missingTypes.add(type);
-                    if (!this.typesMap[key].type) {
+                    if (!this.typesMap[key].hasOwnProperty(type)) {
                         this.typesMap[key][type] = new Set<string>();
                     }
-                    this.typesMap[key][type].add(id);
                 }
+                this.typesMap[key][type].add(id);
                 hasType = true;
             }
         }
@@ -191,6 +191,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     protected abstract getID(coreElement: T): string;
     protected abstract getTypesFromFile(key: string, coreElement: T, file: TFile): Set<string>;
     protected abstract isTypeValid(key: string, type: string): boolean;
+    protected abstract getAbstractFile(coreElement: T): TAbstractFile | null;
     
     // ============================= TOGGLE TYPES ==============================
 
@@ -207,6 +208,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
             // If the element is still active (displayed) but at least one
             // manager is disabled, we must disable the element
+            console.log("isAnyManagerDisabled", extendedElement.isAnyManagerDisabled());
             if (extendedElement.isActive && extendedElement.isAnyManagerDisabled()) {
                 elementsToDisable.push(id);
             }
@@ -227,6 +229,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
                 // If the element is inactive (hidden) but at no manager is
                 // disabled, we must enable the element
+                console.log("isAnyManagerDisabled", extendedElement.isAnyManagerDisabled());
                 if (!extendedElement.isActive && !extendedElement.isAnyManagerDisabled()) {
                     elementsToEnable.push(id);
                 }

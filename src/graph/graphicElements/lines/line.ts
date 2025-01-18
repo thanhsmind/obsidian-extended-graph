@@ -6,7 +6,16 @@ export class LineLink extends Graphics implements ManagerGraphics {
     // Instance values
     manager: InteractiveManager;
     types: Set<string>;
-    
+    name: string;
+
+    constructor(manager: InteractiveManager, types: Set<string>, name: string) {
+        super();
+        this.manager = manager;
+        this.types = types;
+        this.name = name;
+
+        this.updateGraphics();
+    }
 
     clearGraphics(): void {
         this.clear();

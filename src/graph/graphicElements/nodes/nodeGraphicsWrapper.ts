@@ -35,7 +35,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     initGraphics(texture?: Texture): void {
         this.placeNode();
-        if (this.extendedElement.needImage()) this.initNodeImage(texture);
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.extendedElement.needBackground()) this.initBackground();
         this.connect();
@@ -46,7 +45,8 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         this.pixiElement.y = NODE_CIRCLE_Y;
     }
 
-    private initNodeImage(texture: Texture | undefined) {
+    initNodeImage(texture: Texture | undefined) {
+        if (!this.extendedElement.needImage()) return;
         this.nodeImage = new NodeImage(texture);
         this.pixiElement.addChild(this.nodeImage);
     }
@@ -161,7 +161,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
             head.setAttribute("fill", this.extendedElement.app.getAccentColor());
             head.setAttribute("stroke", stroke);
             tail.setAttribute("stroke", this.extendedElement.app.getAccentColor());
-            console.log(svg);
 
             const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.outerHTML)}`
             Assets.load(svgDataUrl).then(texture => {

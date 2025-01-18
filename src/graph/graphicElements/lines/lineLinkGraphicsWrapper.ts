@@ -20,13 +20,13 @@ export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper {
 
     initGraphics(): void {
         this.managerGraphicsMap = new Map<string, LineLink>();
-        this.connect();
     }
     
-    createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
-        const lineLink = new LineLink();
+    override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
+        const lineLink = new LineLink(manager, types, this.name);
         this.managerGraphicsMap?.set(manager.name, lineLink);
         this.pixiElement = lineLink;
+        this.connect();
     }
 
     // ============================ CLEAR GRAPHICS =============================
@@ -50,7 +50,7 @@ export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper {
     // ========================== CONNECT/DISCONNECT ===========================
 
     connect(): void {
-        if (this.extendedElement.coreElement.line && !this.extendedElement.coreElement.line.getChildByName(this.name)) {
+        if (this.extendedElement.coreElement.line && !this.extendedElement.coreElement.line.getChildByName(this.pixiElement.name)) {
             this.extendedElement.coreElement.line.addChild(this.pixiElement);
         }
     }

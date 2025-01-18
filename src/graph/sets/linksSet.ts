@@ -1,11 +1,12 @@
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { TFile } from "obsidian";
+import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { AbstractSet } from "../abstractAndInterfaces/abstractSet";
 import { ExtendedGraphLink, getLinkID } from "../extendedElements/extendedGraphLink";
 import { InteractiveManager } from "../interactiveManager";
 import { Graph } from "../graph";
+import { getFile } from "src/helperFunctions";
 
 export class LinksSet extends AbstractSet<GraphLink> {
 
@@ -87,6 +88,10 @@ export class LinksSet extends AbstractSet<GraphLink> {
         if (this.graph.staticSettings.interactiveSettings[LINK_KEY].unselected.includes(type)) return false;
         if (INVALID_KEYS[LINK_KEY].includes(type)) return false;
         return true;
+    }
+
+    protected getAbstractFile(link: GraphLink): TFile | null {
+        return getFile(this.graph.dispatcher.graphsManager.plugin.app, link.source.id);
     }
 
     // ============================ TOGGLE ELEMENTS ============================

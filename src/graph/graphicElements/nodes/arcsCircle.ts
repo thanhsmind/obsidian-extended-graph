@@ -14,6 +14,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
     // Instance interface values
     manager: InteractiveManager;
     types: Set<string>
+    name: string;
 
     // Instance values
     arcSize: number;

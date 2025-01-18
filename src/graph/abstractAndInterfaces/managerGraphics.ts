@@ -3,6 +3,7 @@ import { InteractiveManager } from "../interactiveManager";
 export interface ManagerGraphics {
     manager: InteractiveManager;
     types: Set<string>;
+    name: string;
 
     clearGraphics(): void;
     initGraphics(): void;

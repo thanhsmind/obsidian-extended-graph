@@ -22,7 +22,9 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             const key = manager.name;
             this.managers.set(key, manager);
         }
+    }
 
+    protected initGraphicsWrapper() {
         if (this.needGraphicsWrapper()) {
             this.createGraphicsWrapper();
         }
@@ -61,7 +63,12 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     // ================================ GETTERS ================================
 
     isAnyManagerDisabled(): boolean {
-        return [...this.managers.values()].some(manager => manager.isFullyDisabled());
+        for (const [key, manager] of this.managers) {
+            const types = this.getTypes(key);
+            if (types.size === 0) continue;
+            if ([...types].every(type => !manager.isActive(type))) return true;
+        }
+        return  false;
     }
 
     getActiveType(key: string): string | undefined {
