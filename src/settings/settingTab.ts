@@ -1,30 +1,32 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import GraphExtendedPlugin from "src/main";
-import { SettingTags, SettingLinks, SettingPropertiesArray, SettingFolders } from "./settingInteractive";
-import { SettingFeatures } from "./settingFeatures";
 import { SettingImages } from "./settingImages";
 import { SettingFocus } from "./settingFocus";
+import { SettingTags } from "./settingInteractives.ts/settingTags";
+import { SettingPropertiesArray } from "./settingInteractives.ts/settingProperties";
+import { SettingLinks } from "./settingInteractives.ts/settingLinks";
+import { SettingFolders } from "./settingInteractives.ts/settingFolders";
+import { SettingPerformance } from "./settingPerformance";
+
+export interface SettingsSection {
+    display(): void;
+}
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     plugin: GraphExtendedPlugin;
-    tagSettings: SettingTags;
-    propertiesSettingsArray: SettingPropertiesArray;
-    linkSettings: SettingLinks;
-    foldersSettings: SettingFolders;
-    featuresSettings: SettingFeatures;
-    imagesSettings: SettingImages;
-    focusSettings: SettingFocus;
+    sections: SettingsSection[] = [];
 
     constructor(app: App, plugin: GraphExtendedPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-        this.tagSettings = new SettingTags(this);
-        this.propertiesSettingsArray = new SettingPropertiesArray(this);
-        this.linkSettings = new SettingLinks(this);
-        this.foldersSettings = new SettingFolders(this);
-        this.featuresSettings = new SettingFeatures(this);
-        this.imagesSettings = new SettingImages(this);
-        this.focusSettings = new SettingFocus(this);
+
+        this.sections.push(new SettingTags(this));
+        this.sections.push(new SettingPropertiesArray(this));
+        this.sections.push(new SettingLinks(this));
+        this.sections.push(new SettingFolders(this));
+        this.sections.push(new SettingImages(this));
+        this.sections.push(new SettingFocus(this));
+        this.sections.push(new SettingPerformance(this));
     }
 
     display(): void {
@@ -32,19 +34,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         containerEl.addClass("extended-graph-settings");
-
-        new Setting(containerEl)
-            .setName('Maximum number of nodes')
-            .setDesc('If the graph contains more nodes than this setting, the plugin will be disabled.')
-            .addText(cb => cb
-                .setValue(this.plugin.settings.maxNodes.toString())
-                .onChange(async (value) => {
-                    const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        this.plugin.settings.maxNodes = intValue;
-                        await this.plugin.saveSettings();
-                    }
-            }));
 
         new Setting(containerEl)
             .setName('Global filter')
@@ -69,12 +58,8 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             });
 
         // FEATURES
-        this.featuresSettings.display();
-        this.imagesSettings.display();
-        this.tagSettings.display();
-        this.propertiesSettingsArray.display();
-        this.linkSettings.display();
-        this.foldersSettings.display();
-        this.focusSettings.display();
+        for (const section of this.sections) {
+            section.display();
+        }
     }
 }

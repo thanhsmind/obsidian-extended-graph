@@ -15,7 +15,7 @@ export class GraphControlsUI extends Component {
 
     // Sections
     sectionSettings: GCSettings;
-    sectionFolders: GCFolders;
+    sectionFolders?: GCFolders;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
         super();

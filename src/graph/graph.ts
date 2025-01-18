@@ -81,9 +81,9 @@ export class Graph extends Component {
                 if (this.staticSettings.additionalProperties[property]) keys.push(property);
             }
         }
-        if (this.staticSettings.enableTags)  keys.push(TAG_KEY);
-        if (this.staticSettings.enableLinks) keys.push(LINK_KEY);
-        keys.push(FOLDER_KEY);
+        if (this.staticSettings.enableTags)    keys.push(TAG_KEY);
+        if (this.staticSettings.enableLinks)   keys.push(LINK_KEY);
+        if (this.staticSettings.enableFolders) keys.push(FOLDER_KEY);
         return keys;
     }
 
@@ -126,7 +126,7 @@ export class Graph extends Component {
 
     private async initSets(): Promise<void> {
         // Let time to the engine to apply user filters
-        await this.delay(500);
+        await this.delay(this.staticSettings.delay);
 
         this.nodesSet.load();
         this.linksSet.load();

@@ -1,4 +1,4 @@
-import { Component, Menu, TAbstractFile, TFile } from "obsidian";
+import { Component, Menu, TFile } from "obsidian";
 import { Graph } from "./graph";
 import { LegendUI } from "../ui/legendUI";
 import { ViewsUI } from "../ui/viewsUI";
@@ -7,7 +7,6 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphViewData } from "src/views/viewData";
-import { FederatedPointerEvent } from "pixi.js";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -35,15 +34,18 @@ export class GraphEventsDispatcher extends Component {
         super();
         this.leaf = leaf;
         this.graphsManager = graphsManager;
+        this.initializeGraph();
         this.initializeUI();
     }
 
-    private initializeUI(): void {
+    private initializeGraph(): void {
         this.graph = new Graph(this);
         this.addChild(this.graph);
+    }
 
+    private initializeUI(): void {
         this.initializeLegendUI();
-        this.initializeFoldersUI();
+        if (this.graphsManager.plugin.settings.enableFolders) this.initializeFoldersUI();
 
         this.viewsUI = new ViewsUI(this);
         this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
@@ -379,11 +381,11 @@ export class GraphEventsDispatcher extends Component {
     // ================================ FOLDERS ================================
 
     private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.createFolders();
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
     }
 
     private onFoldersRemoved(paths: Set<string>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.createFolders();
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
         for (const path of paths) {
             this.removeBBox(path);
         }
@@ -391,7 +393,7 @@ export class GraphEventsDispatcher extends Component {
 
     private onFolderColorChanged(path: string, color: Uint8Array) {
         this.graph.folderBlobs.updateColor(path);
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders.setColor(path);
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.setColor(path);
         this.graph.renderer.changed();
     }
 

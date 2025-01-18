@@ -1,5 +1,6 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
+import { addHeading } from "./settingHelperFunctions";
 
 export class SettingFocus {
     settingTab: ExtendedGraphSettingTab;
@@ -11,12 +12,19 @@ export class SettingFocus {
 
     display() {
         const containerEl = this.settingTab.containerEl;
-        this.allTopElements.push(
-            new Setting(containerEl)
-                .setName("Focus")
-                .setHeading()
-                .settingEl
-        );
+
+        addHeading({
+            containerEl       : containerEl,
+            heading           : "Focus",
+            icon              : 'telescope',
+            description       : "Scale up the node corresponding to the active note",
+            displayCSSVariable: '--display-focus-features',
+            enable            : this.settingTab.plugin.settings.enableFocusActiveNote,
+            updateToggle      : (function(value: boolean) {
+                this.settingTab.plugin.settings.enableFocusActiveNote = value;
+            }).bind(this),
+            settingTab        : this.settingTab
+        })
 
         this.allTopElements.push(
             new Setting(containerEl)

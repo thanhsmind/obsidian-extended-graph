@@ -47,7 +47,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
-        this.nodeImage = new NodeImage(texture);
+        this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor);
         this.pixiElement.addChild(this.nodeImage);
     }
 

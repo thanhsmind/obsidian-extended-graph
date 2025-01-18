@@ -14,16 +14,23 @@ export interface ExtendedGraphSettings {
     additionalProperties: { [interactive: string] : boolean };
 
     // Graph settings
-    imageProperty: string;
-    maxNodes: number;
     globalFilter: string;
     backupGraphOptions: EngineOptions;
     views: GraphViewData[];
+
+    // Image
+    imageProperty: string;
+    borderFactor: number;
+
+    // Performances
+    maxNodes: number;
+    delay: number;
 
     // Feature toggles
     enableTags: boolean;
     enableProperties: boolean;
     enableLinks: boolean;
+    enableFolders: boolean;
     enableImages: boolean;
     enableFocusActiveNote: boolean;
     removeSource: boolean;
@@ -44,8 +51,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     additionalProperties: {},
     
     // Graph settings
-    imageProperty: "image",
-    maxNodes: 20,
     globalFilter: "",
     backupGraphOptions: new EngineOptions(),
     views: [
@@ -57,10 +62,19 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         }
     ],
 
+    // Images
+    imageProperty: "image",
+    borderFactor: 0.06,
+
+    // Performances
+    maxNodes: 20,
+    delay: 500,
+
     // Feature toggles
     enableTags: true,
     enableProperties: false,
     enableLinks: true,
+    enableFolders: true,
     enableImages: true,
     enableFocusActiveNote: false,
     removeSource: false,

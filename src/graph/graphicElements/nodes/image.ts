@@ -1,12 +1,11 @@
 import { ColorSource, Graphics, Sprite, Texture } from "pixi.js";
 
 export class NodeImage extends Sprite {
-    borderFactor: number = 0.06;
     circleRadius: number = 10;
     opacityLayer: Graphics;
     textureSize: number;
 
-    constructor(texture: Texture = Texture.EMPTY) {
+    constructor(texture: Texture = Texture.EMPTY, borderFactor: number) {
         super(texture);
         this.textureSize = Math.min(texture.width, texture.height);
 
@@ -34,7 +33,7 @@ export class NodeImage extends Sprite {
         this.addChild(this.opacityLayer);
 
         // Size
-        this.scale.set(200 * (1 - this.borderFactor) / this.textureSize);
+        this.scale.set(200 * (1 - borderFactor) / this.textureSize);
     }
 
     changeImage(texture: Texture) {
