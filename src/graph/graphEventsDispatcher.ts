@@ -313,7 +313,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
-        this.graph.nodesSet.updateArcsColor(key, type, color);
+        this.graph.nodesSet.updateTypeColor(key, type, color);
         this.legendUI?.updateLegend(key, type, color);
         this.graph.renderer.changed();
     }
@@ -344,7 +344,7 @@ export class GraphEventsDispatcher extends Component {
 
     private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
         colorMaps.forEach((color, type) => {
-            this.graph.linksSet.updateLinksColor(type, color);
+            this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
             this.legendUI?.addLegend(LINK_KEY, type, color);
         });
         this.graph.renderer.changed();
@@ -355,7 +355,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onLinkColorChanged(type: string, color: Uint8Array) {
-        this.graph.linksSet.updateLinksColor(type, color);
+        this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
         this.legendUI?.updateLegend(LINK_KEY, type, color);
         this.graph.renderer.changed();
     }

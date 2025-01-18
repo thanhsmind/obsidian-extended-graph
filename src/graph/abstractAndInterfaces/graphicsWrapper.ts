@@ -11,8 +11,6 @@ export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     extendedElement: ExtendedGraphNode | ExtendedGraphLink;
     managerGraphicsMap?: Map<string, ArcsCircle | LineLink>;
     pixiElement: Graphics | Container;
-
-    toggleType(type: string, enable: boolean): void
     
     initGraphics(): void;
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;

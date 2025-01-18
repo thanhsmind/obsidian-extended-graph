@@ -57,7 +57,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
         return node.id === this.id;
     }
 
-    protected override getCoreCollection(): GraphNode[] {
+    override getCoreCollection(): GraphNode[] {
         return this.coreElement.renderer.nodes;
     }
 

@@ -108,7 +108,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     // ============================= INTERACTIVES ==============================
-
     
     /**
      * Reset arcs for each node
@@ -147,19 +146,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const color = getBackgroundColor(this.graph.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.nodeImage?.updateOpacityLayerColor(color);
-        });
-    }
-
-    /**
-     * Updates the color of arcs for a certain tag type.
-     * @param type - The tag type.
-     * @param color - The new color.
-     */
-    updateArcsColor(key: string, type: string, color: Uint8Array): void {
-        if (!this.graph.staticSettings.enableTags) return;
-
-        this.extendedElementsMap.forEach(extendedNode => {
-            extendedNode.graphicsWrapper?.managerGraphicsMap?.get(key)?.redrawType(type, color);
         });
     }
 

@@ -1,4 +1,4 @@
-import { DisconnectionCause } from "src/globalVariables";
+import { DisconnectionCause, LINK_KEY } from "src/globalVariables";
 import { Graph } from "../graph";
 import { InteractiveManager } from "../interactiveManager";
 import { getFile } from "src/helperFunctions";
@@ -217,24 +217,23 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     }
 
     enableType(key: string, type: string): string[] {
-            const elementsToEnable: string[] = [];
-            for (const [id, extendedElement] of this.extendedElementsMap) {
-                // If the elment does not have this type, skip
-                const elementTypes = extendedElement.getTypes(key);
-                if (!elementTypes.has(type)) {
-                    continue;
-                }
-            
-                extendedElement.enableType(key, type);
-
-                // If the element is inactive (hidden) but at no manager is
-                // disabled, we must enable the element
-                console.log("isAnyManagerDisabled", extendedElement.isAnyManagerDisabled());
-                if (!extendedElement.isActive && !extendedElement.isAnyManagerDisabled()) {
-                    elementsToEnable.push(id);
-                }
+        const elementsToEnable: string[] = [];
+        for (const [id, extendedElement] of this.extendedElementsMap) {
+            // If the elment does not have this type, skip
+            const elementTypes = extendedElement.getTypes(key);
+            if (!elementTypes.has(type)) {
+                continue;
             }
-            return elementsToEnable;
+        
+            extendedElement.enableType(key, type);
+
+            // If the element is inactive (hidden) but at no manager is
+            // disabled, we must enable the element
+            if (!extendedElement.isActive && !extendedElement.isAnyManagerDisabled()) {
+                elementsToEnable.push(id);
+            }
+        }
+        return elementsToEnable;
     }
 
     // ============================ TOGGLE ELEMENTS ============================
@@ -249,8 +248,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
         this.disconnectedIDs[cause].add(id);
         this.connectedIDs.delete(id);
-        extendedElement.disable();
 
+        extendedElement.disable();
         extendedElement.coreElement.clearGraphics();
         this.coreCollection.remove(extendedElement.coreElement);
 
@@ -267,8 +266,22 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         
         this.disconnectedIDs[cause].delete(id);
         this.connectedIDs.add(id);
-        extendedElement.enable();;
+
+        if (!extendedElement.getCoreCollection().includes(extendedElement.coreElement))
+            extendedElement.getCoreCollection().push(extendedElement.coreElement);
+        extendedElement.coreElement.initGraphics();
+        extendedElement.enable();
 
         return true;
+    }
+
+    // ================================ COLORS =================================
+
+    updateTypeColor(key: string, type: string, color: Uint8Array): void {
+        for (const id of this.getElementsByTypes(key, [type])) {
+            const extendedElement = this.extendedElementsMap.get(id);
+            if (!extendedElement) return;
+            extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.redrawType(type, color);
+        }
     }
 }

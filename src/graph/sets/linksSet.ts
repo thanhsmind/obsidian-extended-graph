@@ -105,21 +105,6 @@ export class LinksSet extends AbstractSet<GraphLink> {
         }
     }
 
-    // ================================ COLORS =================================
-
-    /**
-     * Updates the color of a link type.
-     * @param type - The link type.
-     * @param color - The new color.
-     */
-    updateLinksColor(type: string, color: Uint8Array): void {
-        for (const [id, extendedLink] of this.extendedElementsMap) {
-            if (extendedLink.types.has(type)) {
-                extendedLink.graphicsWrapper?.updateGraphics();
-            }
-        }
-    }
-
     // ================================= DEBUG =================================
 
     printDisconnectedLinks() {

@@ -53,7 +53,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         return link.source.id === this.coreElement.source.id && link.target.id === this.coreElement.target.id;
     }
 
-    protected override getCoreCollection(): GraphLink[] {
+    override getCoreCollection(): GraphLink[] {
         return this.coreElement.renderer.links;
     }
 

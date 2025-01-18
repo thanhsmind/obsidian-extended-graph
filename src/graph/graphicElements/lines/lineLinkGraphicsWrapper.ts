@@ -41,12 +41,6 @@ export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper {
         this.pixiElement.updateGraphics();
     }
 
-    // ============================ ENABLE/DISABLE =============================
-
-    toggleType(type: string, enable: boolean): void {
-        throw new Error('Method not implemented.');
-    }
-
     // ========================== CONNECT/DISCONNECT ===========================
 
     connect(): void {

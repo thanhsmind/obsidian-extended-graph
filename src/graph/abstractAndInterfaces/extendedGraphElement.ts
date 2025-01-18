@@ -58,7 +58,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     protected abstract isCoreElementUptodate(): boolean;
     abstract isSameCoreElement(coreElement: T): boolean;
-    protected abstract getCoreCollection(): T[];
+    abstract getCoreCollection(): T[];
 
     // ================================ GETTERS ================================
 
@@ -113,10 +113,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     enable() {
         this.isActive = true;
-        this.updateCoreElement();
-        this.coreElement.initGraphics();
-        if (!this.getCoreCollection().includes(this.coreElement))
-            this.getCoreCollection().push(this.coreElement);
         this.graphicsWrapper?.connect();
     }
 }

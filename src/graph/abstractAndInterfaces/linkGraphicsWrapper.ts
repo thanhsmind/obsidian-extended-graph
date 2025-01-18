@@ -19,7 +19,7 @@ export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> 
 
     // ============================= INITALIZATION =============================
 
-    initGraphics(): void {}
+    initGraphics(): void { }
 
     abstract createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
 
@@ -37,12 +37,6 @@ export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> 
 
     updateGraphics(): void {
         this.pixiElement.updateGraphics();
-    }
-
-    // ============================ ENABLE/DISABLE =============================
-    
-    toggleType(type: string, enable: boolean): void {
-        this.updateGraphics();
     }
 
     // ========================== CONNECT/DISCONNECT ===========================

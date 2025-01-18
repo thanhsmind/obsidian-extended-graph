@@ -86,13 +86,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     // ============================ UPDATE GRAPHICS ============================
 
     updateGraphics(): void {
-        throw new Error('Method not implemented.');
-    }
-
-    // ============================ ENABLE/DISABLE =============================
-
-    toggleType(type: string, enable: boolean): void {
-        throw new Error('Method not implemented.');
+        
     }
 
     // ========================== CONNECT/DISCONNECT ===========================
