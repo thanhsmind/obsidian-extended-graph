@@ -1,11 +1,11 @@
 import { TFile, TFolder } from "obsidian";
-import { Graph } from "./graph";
 import { GraphNode } from "obsidian-typings";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { randomColor, rgb2hex } from "src/colors/colors";
-import { InteractiveManager } from "./interactiveManager";
 import { getFile, getFileInteractives } from "src/helperFunctions";
 import { FOLDER_KEY, INVALID_KEYS } from "src/globalVariables";
+import { InteractiveManager } from "../interactiveManager";
+import { Graph } from "../graph";
 
 export class FolderBlob {
     readonly path: string;
@@ -111,9 +111,9 @@ export class FoldersSet {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(graph: Graph, manager: InteractiveManager | undefined) {
+    constructor(graph: Graph, managers: InteractiveManager[]) {
         this.graph = graph;
-        this.initializeManager(manager);
+        if (managers.length > 0) this.initializeManager(managers[0]);
     }
 
     private initializeManager(manager: InteractiveManager | undefined) {
@@ -193,7 +193,7 @@ export class FoldersSet {
             const blob = new FolderBlob(path, this.manager ? rgb2hex(this.manager.getColor(path)) : undefined);
             for (const file of folder.children) {
                 if (file instanceof TFile) {
-                    const node = this.graph.nodesSet.nodesMap.get(file.path)?.node;
+                    const node = this.graph.nodesSet.extendedElementsMap.get(file.path)?.coreElement;
                     if (node) blob.addNode(node);
                 }
                 else if (file instanceof TFolder) {

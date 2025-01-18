@@ -190,29 +190,6 @@ export class GraphEventsDispatcher extends Component {
         this.graph.linksSet.connectLinks();
     }
 
-    private disableDisconnectedLinks(): void {
-        if (this.graph.linksSet.disconnectedLinks) {
-            const linksToDisable = new Set<string>();
-            for (const [cause, set] of Object.entries(this.graph.linksSet.disconnectedLinks)) {
-                const linksToDisableForCause = new Set<string>();
-                for (const id of set) {
-                    const L = this.graph.linksSet.linksMap.get(id);
-                    if (!L) continue;
-                    if (this.graph.renderer.links.find(link => L?.link.source.id === link.source.id && L?.link.target.id === link.target.id)) {
-                        linksToDisableForCause.add(id);
-                        linksToDisable.add(id);
-                    }
-                }
-                if (linksToDisableForCause.size > 0) {
-                    this.graph.linksSet.disableLinks(linksToDisableForCause, cause);
-                }
-            }
-            if (linksToDisable.size > 0) {
-                this.graph.updateWorker();
-            }
-        }
-    }
-
     private onPointerDown(): void {
         this.preventDraggingPinnedNodes();
     }
@@ -484,8 +461,9 @@ export class GraphEventsDispatcher extends Component {
     }
     
     private updateLinkManager(viewData: GraphViewData): void {
-        if (this.graph.linksSet.linksManager) {
-            this.graph.linksSet.linksManager.loadView(viewData);
+        const linksManager = this.graph.linksSet.managers.get(LINK_KEY);
+        if (linksManager) {
+            linksManager.loadView(viewData);
             if (this.legendUI && viewData.disabledTypes) {
                 this.legendUI.enableAll(LINK_KEY);
                 for (const type of viewData.disabledTypes[LINK_KEY]) {

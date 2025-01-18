@@ -55,11 +55,11 @@ export class GraphsManager extends Component {
             this.dispatchers.forEach(dispatcher => {
                 if (!dispatcher.graph || !dispatcher.graph.renderer) return;
         
-                const nodeWrapper = dispatcher.graph.nodesSet.getNodeWrapperFromFile(file);
-                if (!nodeWrapper) return;
+                const extendedNode = dispatcher.graph.nodesSet.extendedElementsMap.get(file.path);
+                if (!extendedNode) return;
         
                 const newTypes = this.extractTagsFromCache(cache);
-                const needsUpdate = !nodeWrapper.arcsWrappers.get(TAG_KEY)?.matchesTypes(newTypes);
+                const needsUpdate = !extendedNode.matchesTypes(TAG_KEY, newTypes);
 
                 if (needsUpdate) {
                     this.updateNodeTypes(dispatcher);
@@ -74,7 +74,7 @@ export class GraphsManager extends Component {
     }
 
     private updateNodeTypes(dispatcher: GraphEventsDispatcher): void {
-        const types = dispatcher.graph.nodesSet.getAllInteractivesInGraph(TAG_KEY);
+        const types = dispatcher.graph.nodesSet.getAllTypes(TAG_KEY);
         if (types) {
             dispatcher.graph.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
         }
