@@ -332,6 +332,9 @@ export class Graph extends Component {
         if (!this.staticSettings.fadeOnDisable && nodesToDisable.length > 0) {
             return this.disableNodes(nodesToDisable);
         }
+        else if (this.staticSettings.fadeOnDisable && nodesToDisable.length > 0) {
+            return this.fadeOutNodes(nodesToDisable);
+        }
         return false;
     }
 
@@ -343,6 +346,9 @@ export class Graph extends Component {
         if (!this.staticSettings.fadeOnDisable && nodesToEnable.length > 0) {
             return this.enableNodes(nodesToEnable);
         }
+        else if (this.staticSettings.fadeOnDisable && nodesToEnable.length > 0) {
+            return this.fadeInNodes(nodesToEnable);
+        }
         return false;
     }
 
@@ -350,7 +356,7 @@ export class Graph extends Component {
      * Disables nodes specified by their IDs and cascades the disconnection to related links.
      * @param ids - Array of node IDs to disable.
      */
-    disableNodes(ids: string[]): boolean {
+    private disableNodes(ids: string[]): boolean {
         // Disable nodes directly
         const disabledNodes = this.nodesSet.disableElements(ids, DisconnectionCause.USER);
 
@@ -381,7 +387,7 @@ export class Graph extends Component {
      * Enables nodes specified by their IDs and cascades the reconnection to related links.
      * @param ids - Array of node IDs to enable.
      */
-    enableNodes(ids: string[]): boolean {
+    private enableNodes(ids: string[]): boolean {
         // Get all the cascade chains and clean them in the map structure
         const cascades = this.getAndCleanCascadeNodes(new Set<string>(ids));
 
@@ -480,6 +486,25 @@ export class Graph extends Component {
         }
         return true;
     }
+
+    
+    private fadeOutNodes(ids: string[]): boolean {
+        for (const id of ids) {
+            const extendedElement = this.nodesSet.extendedElementsMap.get(id);
+            if (!extendedElement) continue;
+            extendedElement.graphicsWrapper?.fadeOut();
+        }
+        return false;
+    }
+
+    private fadeInNodes(ids: string[]): boolean {
+        for (const id of ids) {
+            const extendedElement = this.nodesSet.extendedElementsMap.get(id);
+            if (!extendedElement) continue;
+            extendedElement.graphicsWrapper?.fadeIn();
+        }
+        return false;
+    }
     
     // ============================ UPDATING WORKER ============================
 
@@ -487,6 +512,7 @@ export class Graph extends Component {
      * Updates the worker with the current state of nodes and links.
      */
     updateWorker(): void {
+        console.log(this);
         const nodes = this.getNodesForWorker();
         const links = this.getLinksForWorker();
 
