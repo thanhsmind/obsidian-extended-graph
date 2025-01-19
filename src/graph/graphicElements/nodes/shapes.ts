@@ -1,4 +1,4 @@
-import { ColorSource, Graphics, SHAPES } from "pixi.js";
+import { ColorSource, Graphics } from "pixi.js";
 
 export enum ShapeEnum {
     CIRCLE = "circle",
@@ -9,11 +9,11 @@ export enum ShapeEnum {
     POLY_6 = "hexagon",
     POLY_8 = "octogon",
     POLY_10 = "decagon",
-    STARBURST_4 = "staburst 4",
-    STARBURST_5 = "staburst 5",
-    STARBURST_6 = "starburst 6",
-    STARBURST_8 = "staburst 8",
-    STARBURST_10 = "staburst 10"
+    STARBURST_4 = "star (4)",
+    STARBURST_5 = "star (5)",
+    STARBURST_6 = "star (6)",
+    STARBURST_8 = "star (8)",
+    STARBURST_10 = "star (10)"
 }
 
 enum ShapeType {
@@ -65,11 +65,9 @@ export class NodeShape extends Graphics {
     private drawUniqueShape(): NodeShape {
         switch (this.type) {
             case ShapeType.POLYGON:
-                return this.drawPolygon(this.getPolygonOutside());
             case ShapeType.STARBURST:
-                return this.drawPolygon(this.getStarburst());
+                return this.drawPolygon(NodeShape.getVertices(this.shape));
             case ShapeType.SQUARE:
-                console.log("square");
                 return this.drawRect(-NODE_RADIUS, -NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
@@ -77,53 +75,24 @@ export class NodeShape extends Graphics {
         }
     }
 
-    private getPolygonInside(shift: number, r: number = NODE_RADIUS): number[] {
-        const P: number[] = [];
-        for (let k = 0; k < this.n; ++k) {
-            const theta = 2 * Math.PI * k / this.n;
-            P.push(r *  Math.sin(theta + shift));
-            P.push(r * -Math.cos(theta + shift));
-        }
-        return P;
-    }
-
-    private getPolygonOutside(): number[] {
-        let newRadius = NODE_RADIUS;
-        if (this.type === ShapeType.POLYGON) {
-            newRadius = NodeShape.getPolygonRadius(this.n);
-        }
-        if (this.type === ShapeType.STARBURST) {
-            newRadius = NodeShape.getStarburstRadius(this.n);
-        }
-        return this.getPolygonInside(0, newRadius);
-    }
-
-    private getStarburst(): number[] {
-        const Pi = this.getPolygonInside(2 * Math.PI / (2 * this.n));
-        const Po = this.getPolygonOutside();
-        const P: number[] = [];
-        for (let k = 0; k < this.n; ++k) {
-            P.push(Po[k*2]);
-            P.push(Po[k*2+1]);
-            P.push(Pi[k*2]);
-            P.push(Pi[k*2+1]);
-        }
-        console.log(P);
-        return P;
-    }
-
     // ============================ STATIC METHODS =============================
+
+    static randomShape(): ShapeEnum {
+        const values = Object.keys(ShapeEnum).filter(v => typeof v === 'string');
+        const enumKey = values[Math.floor(Math.random() * values.length)];
+        return ShapeEnum[enumKey as keyof typeof ShapeEnum];
+    }
 
     static nodeScaleFactor(shape: ShapeEnum): number {
         const type = NodeShape.getType(shape);
         if (type === ShapeType.POLYGON) {
-            const outerR = NodeShape.getPolygonRadius(NodeShape.getN(shape));
+            const outerR = NodeShape.getPolygonRadius(NodeShape.getN(shape), NODE_RADIUS);
             const innerR = NODE_RADIUS;
             const middleR = (outerR + innerR) / 2;
             return middleR / outerR;
         }
         if (type === ShapeType.STARBURST) {
-            const outerR = NodeShape.getStarburstRadius(NodeShape.getN(shape));
+            const outerR = NodeShape.getStarburstRadius(NodeShape.getN(shape), NODE_RADIUS);
             const innerR = NODE_RADIUS;
             const middleR = (outerR + innerR) / 2;
             return middleR / outerR;
@@ -134,18 +103,12 @@ export class NodeShape extends Graphics {
     static getSizeFactor(shape: ShapeEnum): number {
         const type = NodeShape.getType(shape);
         if (type === ShapeType.POLYGON) {
-            return this.getPolygonRadius(NodeShape.getN(shape)) / NODE_RADIUS;
+            return this.getPolygonRadius(NodeShape.getN(shape), NODE_RADIUS) / NODE_RADIUS;
         }
         if (type === ShapeType.STARBURST) {
-            return this.getStarburstRadius(NodeShape.getN(shape)) / NODE_RADIUS;
+            return this.getStarburstRadius(NodeShape.getN(shape), NODE_RADIUS) / NODE_RADIUS;
         }
         return 1;
-    }
-
-    static randomShape(): ShapeEnum {
-        const values = Object.keys(ShapeEnum).filter(v => typeof v === 'string');
-        const enumKey = values[Math.floor(Math.random() * values.length)];
-        return ShapeEnum[enumKey as keyof typeof ShapeEnum];
     }
 
     private static getN(shape: ShapeEnum): number {
@@ -198,13 +161,109 @@ export class NodeShape extends Graphics {
         }
     }
 
-    private static getPolygonRadius(n: number): number {
-        const rInside = NODE_RADIUS;
-        const rOutside = rInside / Math.cos(Math.PI / n);
+    private static getVertices(shape: ShapeEnum): number[] {
+        const type = NodeShape.getType(shape);
+        switch (type) {
+            case ShapeType.POLYGON:
+                return NodeShape.getPolygonOutside(shape, 0, NODE_RADIUS);
+            case ShapeType.STARBURST:
+                return NodeShape.getStarburst(shape, NODE_RADIUS);
+        }
+        return [];
+    }
+
+    private static getPolygonInside(shape: ShapeEnum, shift: number, r: number): number[] {
+        const n = NodeShape.getN(shape);
+        const P: number[] = [];
+        for (let k = 0; k < n; ++k) {
+            const theta = 2 * Math.PI * k / n;
+            P.push(r *  Math.sin(theta + shift));
+            P.push(r * -Math.cos(theta + shift));
+        }
+        return P;
+    }
+
+    private static getPolygonOutside(shape: ShapeEnum, shift: number, r: number): number[] {
+        const type = NodeShape.getType(shape);
+        const n = NodeShape.getN(shape);
+        let newRadius = r;
+        if (type === ShapeType.POLYGON) {
+            newRadius = NodeShape.getPolygonRadius(n, r);
+        }
+        if (type === ShapeType.STARBURST) {
+            newRadius = NodeShape.getStarburstRadius(n, r);
+        }
+        return this.getPolygonInside(shape, shift, newRadius);
+    }
+
+    private static getStarburst(shape: ShapeEnum, r: number): number[] {
+        const n = NodeShape.getN(shape);
+        const Pi = NodeShape.getPolygonInside(shape, 2 * Math.PI / (2 * n), r);
+        const Po = NodeShape.getPolygonOutside(shape, 0, r);
+        const P: number[] = [];
+        for (let k = 0; k < n; ++k) {
+            P.push(Po[k*2]);
+            P.push(Po[k*2+1]);
+            P.push(Pi[k*2]);
+            P.push(Pi[k*2+1]);
+        }
+        return P;
+    }
+
+    private static getPolygonRadius(n: number, r: number): number {
+        const rOutside = r / Math.cos(Math.PI / n);
         return rOutside;
     }
     
-    private static getStarburstRadius(n: number): number {
-        return NodeShape.getPolygonRadius(n) + 30;
+    private static getStarburstRadius(n: number, r: number): number {
+        return NodeShape.getPolygonRadius(n, r) + 30;
+    }
+
+    static getSVG(shape: ShapeEnum): SVGElement {
+        const type = NodeShape.getType(shape);
+
+        const getNode = function(n: string, v: any): SVGElement {
+            const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);
+            for (var p in v)
+                svgNode.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+            return svgNode;
+        }
+        
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttributeNS(null, 'fill', 'currentColor');
+        svg.setAttributeNS(null, 'stroke-width', '0');
+
+        switch (type) {
+            case ShapeType.CIRCLE:
+            case ShapeType.UNKNOWN:
+                const circle = getNode('circle', {cx: 100, cy: 100, r: 100});
+                svg.appendChild(circle);
+                svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
+                break;
+            case ShapeType.SQUARE:
+                const square = getNode('rect', {width: 200, height: 200});
+                svg.appendChild(square);
+                svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
+                break;
+            case ShapeType.POLYGON:
+            case ShapeType.STARBURST:
+                const V = NodeShape.getVertices(shape);
+                for (let k = 0; k < V.length; ++k) {
+                    V[k] += 100;
+                }
+                const max = Math.max.apply(null, V);
+                const min = Math.min.apply(null, V);
+                let pathStr = `M ${V[0]} ${V[1]} `;
+                for (let k = 2; k < V.length; k += 2) {
+                    pathStr += `L ${V[k]} ${V[k+1]} `
+                }
+                const path = getNode('path', {d: pathStr});
+                svg.appendChild(path);
+                svg.setAttributeNS(null, 'viewBox', `${min} ${min} ${max-min} ${max-min}`);
+            default:
+                break;
+        }
+
+        return svg;
     }
 }

@@ -337,3 +337,39 @@ body {
     }
 
 }
+
+
+.graph-modal-shape-picker .modal-content {
+    --svg-size: 70px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--svg-size));
+    gap: 30px;
+    text-align: center;
+
+    .setting-item {
+        flex-direction: column-reverse;
+        gap: 5px;
+        border: 0;
+        padding: 0;
+    }
+
+    .setting-item > * {
+        margin: 0;
+    }
+
+    .setting-item-name {
+        text-transform: capitalize;
+    }
+
+    svg {
+        width: var(--svg-size);
+    }
+}
+@media (hover: hover) {
+    .graph-modal-shape-picker .modal-content .setting-item-control:hover {
+        box-shadow: none;
+        opacity: var(--icon-opacity-hover);
+        color: var(--icon-color-hover);
+        background-color: var(--background-modifier-hover);
+    }
+}

@@ -45,6 +45,7 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeUI(): void {
         this.initializeLegendUI();
+        if (this.graphsManager.plugin.settings.enableShapes) this.initializeColorGroupsUI();
         if (this.graphsManager.plugin.settings.enableFolders) this.initializeFoldersUI();
 
         this.viewsUI = new ViewsUI(this);
@@ -64,6 +65,16 @@ export class GraphEventsDispatcher extends Component {
         const foldersManager = this.graph.folderBlobs.manager;
         if (!foldersManager) return;
         this.graphsManager.globalUIs.get(this.leaf.id)?.control.addSectionFolder(foldersManager);
+    }
+
+    private initializeColorGroupsUI(): void {
+        const globalUI = this.graphsManager.globalUIs.get(this.leaf.id);
+        if (!globalUI) return;
+
+        globalUI.control.addSectionColorGroups();
+        if (!globalUI.control.sectionColorGroups) return;
+        
+        this.addChild(globalUI.control.sectionColorGroups);
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {

@@ -35,7 +35,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         this.pixiElement = new Container();
         this.pixiElement.name = this.name;
         
-        //this.shape = NodeShape.randomShape();
+        this.shape = NodeShape.randomShape();
         this.baseScale = NodeShape.nodeScaleFactor(this.shape);
         this.changeGetSize();
     }

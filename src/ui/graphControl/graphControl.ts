@@ -5,6 +5,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { GCSettings } from "./GCSettings";
 import { GCFolders } from "./GCFolders";
 import { InteractiveManager } from "src/graph/interactiveManager";
+import { GCColorGroups } from "./GCColorGroups";
 
 export class GraphControlsUI extends Component {
     graphsManager: GraphsManager;
@@ -16,6 +17,7 @@ export class GraphControlsUI extends Component {
     // Sections
     sectionSettings: GCSettings;
     sectionFolders?: GCFolders;
+    sectionColorGroups?: GCColorGroups;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
         super();
@@ -44,5 +46,9 @@ export class GraphControlsUI extends Component {
 
     addSectionFolder(foldersManager: InteractiveManager): void {
         this.sectionFolders = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+    }
+
+    addSectionColorGroups(): void {
+        this.sectionColorGroups = new GCColorGroups(this.leaf, this.graphsManager);
     }
 }
