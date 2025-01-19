@@ -2,6 +2,7 @@ import { ColorSource, Graphics, SHAPES } from "pixi.js";
 
 export enum ShapeEnum {
     CIRCLE = "circle",
+    SQUARE = "square",
     POLY_3 = "triangle",
     POLY_4 = "diamond",
     POLY_5 = "pentagon",
@@ -17,6 +18,7 @@ export enum ShapeEnum {
 
 enum ShapeType {
     CIRCLE = "circle",
+    SQUARE = "square",
     POLYGON = "polygon",
     STARBURST = "starburst",
     UNKNOWN = "unknown"
@@ -47,28 +49,31 @@ export class NodeShape extends Graphics {
                    .endFill();
     }
 
-    getDrawingResolution() {
-        if (this.type === ShapeType.CIRCLE) {
-            return RESOLUTION_RADIUS;
+    getDrawingResolution(): number {
+        switch (this.type) {
+            case ShapeType.CIRCLE:
+            case ShapeType.UNKNOWN:
+                return RESOLUTION_RADIUS;
+            default:
+                return 1;
         }
-        return 1;
     }
 
     // https://bennettfeely.com/clippy/
     // starburst: https://css-generators.com/starburst-shape/
     // polygon: https://css-generators.com/polygon-shape/
     private drawUniqueShape(): NodeShape {
-        if (this.type === ShapeType.POLYGON) {
-            return this.drawPolygon(this.getPolygonOutside());
-        }
-        if (this.type === ShapeType.STARBURST) {
-            return this.drawPolygon(this.getStarburst());
-        }
-        switch (this.shape) {
-            case ShapeEnum.CIRCLE:
+        switch (this.type) {
+            case ShapeType.POLYGON:
+                return this.drawPolygon(this.getPolygonOutside());
+            case ShapeType.STARBURST:
+                return this.drawPolygon(this.getStarburst());
+            case ShapeType.SQUARE:
+                console.log("square");
+                return this.drawRect(-NODE_RADIUS, -NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
+            case ShapeType.CIRCLE:
+            case ShapeType.UNKNOWN:
                 return this.drawCircle(0, 0, RESOLUTION_RADIUS);
-            default:
-                return this;
         }
     }
 
@@ -184,6 +189,8 @@ export class NodeShape extends Graphics {
             case ShapeEnum.STARBURST_8:
             case ShapeEnum.STARBURST_10:
                 return ShapeType.STARBURST;
+            case ShapeEnum.SQUARE:
+                return ShapeType.SQUARE;
             case ShapeEnum.CIRCLE:
                 return ShapeType.CIRCLE;
             default:

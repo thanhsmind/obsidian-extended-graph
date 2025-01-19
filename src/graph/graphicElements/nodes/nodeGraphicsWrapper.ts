@@ -28,7 +28,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     // Shape specific
     getSizeCallback?: () => number;
-    shape: ShapeEnum = ShapeEnum.CIRCLE;
+    shape: ShapeEnum = ShapeEnum.SQUARE;
     baseScale: number = 1;
 
     constructor(extendedElement: ExtendedGraphNode, colorsReplacement?: ColorReplacement) {
