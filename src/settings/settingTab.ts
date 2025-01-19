@@ -7,6 +7,7 @@ import { SettingPropertiesArray } from "./settingInteractives.ts/settingProperti
 import { SettingLinks } from "./settingInteractives.ts/settingLinks";
 import { SettingFolders } from "./settingInteractives.ts/settingFolders";
 import { SettingPerformance } from "./settingPerformance";
+import { SettingShapes } from "./settingShapes";
 
 export interface SettingsSection {
     display(): void;
@@ -26,6 +27,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingFolders(this));
         this.sections.push(new SettingImages(this));
         this.sections.push(new SettingFocus(this));
+        this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingPerformance(this));
     }
 
