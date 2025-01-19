@@ -7,7 +7,6 @@ import { GraphicsWrapper } from '../../abstractAndInterfaces/graphicsWrapper';
 import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
 import { NodeShape, ShapeEnum } from './shapes';
-import { ColorReplacement } from './colorsReplacement';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
@@ -23,7 +22,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     // Additional graphics elements
     nodeImage?: NodeImage;
     background?: NodeShape;
-    colorsReplacement?: ColorReplacement;
     scaleFactor: number = 1;
 
     // Shape specific
@@ -31,7 +29,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     shape: ShapeEnum = ShapeEnum.CIRCLE;
     baseScale: number = 1;
 
-    constructor(extendedElement: ExtendedGraphNode, colorsReplacement?: ColorReplacement) {
+    constructor(extendedElement: ExtendedGraphNode) {
         this.extendedElement = extendedElement;
         this.name = extendedElement.id;
         this.pixiElement = new Container();
@@ -224,12 +222,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     // ================================= COLOR =================================
 
     getFillColor(): GraphColorAttributes {
-        if (this.extendedElement.settings.enableShapes && this.colorsReplacement) {
-            return this.colorsReplacement.getFillColor(this.extendedElement.coreElement);
-        }
-        else {
-            return this.extendedElement.coreElement.getFillColor();
-        }
+        return this.extendedElement.coreElement.getFillColor();
     }
 
 }

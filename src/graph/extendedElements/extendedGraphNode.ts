@@ -5,22 +5,19 @@ import { NodeGraphicsWrapper } from "../graphicElements/nodes/nodeGraphicsWrappe
 import { GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
 import { ShapeEnum } from "../graphicElements/nodes/shapes";
-import { ColorReplacement } from "../graphicElements/nodes/colorsReplacement";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;
     settings: ExtendedGraphSettings;
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
-    colorReplacement?: ColorReplacement;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], app: App, settings: ExtendedGraphSettings, colorReplacement?: ColorReplacement) {
+    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], app: App, settings: ExtendedGraphSettings) {
         super(node, types, managers);
         this.settings = settings;
         this.app = app;
-        this.colorReplacement = colorReplacement;
         this.initGraphicsWrapper();
     }
 
@@ -43,7 +40,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     public needPin(): boolean { return true; }
 
     protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new NodeGraphicsWrapper(this, this.colorReplacement);
+        this.graphicsWrapper = new NodeGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
 
         let layer = 1;
