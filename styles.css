@@ -212,11 +212,16 @@ body {
         border-radius: var(--radius-s);
     }
 
+    .setting-item-heading.mod-toggle > .setting-item-control .checkbox-container {
+        order: 10;
+    }
+
     .extended-graph-setting-tag      { display: var(--display-tag-features);      }
     .extended-graph-setting-property { display: var(--display-property-features); }
     .extended-graph-setting-link     { display: var(--display-link-features);     }
     .extended-graph-setting-image    { display: var(--display-image-features);    }
     .extended-graph-setting-focus    { display: var(--display-focus-features);    }
+    .extended-graph-setting-folder   { display: var(--display-folder-features);   }
 
     .settings-colors-container,
     .settings-properties-container {

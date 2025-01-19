@@ -13,10 +13,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(link: GraphLink, types: Set<string>, manager: InteractiveManager) {
-        const typesMap = new Map<string, Set<string>>();
-        typesMap.set(LINK_KEY, types);
-        super(link, typesMap, [manager]);
+    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
+        super(link, types, managers);
         this.initGraphicsWrapper();
     }
 

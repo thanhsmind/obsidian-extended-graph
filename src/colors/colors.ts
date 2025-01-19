@@ -6,6 +6,10 @@ export function getColor(palette: string, x: number): Uint8Array {
     return new Uint8Array(cm.evaluate_cmap(x, palette, false));
 }
 
+export function rgb2int(rgb: Uint8Array): number {
+    return rgb[0] * (256*256) + rgb[1] * 256 + rgb[2];
+}
+
 /**
  * Convert HSV to RGB
  * @param hsv h: 0-360, s: 0-100, v: 0-100

@@ -34,6 +34,7 @@ export class SettingPropertiesArray implements SettingsSection {
             }).bind(this),
             settingTab        : this.settingTab
         }  ).addButton(cb => {
+                this.allTopElements.push(cb.buttonEl);
                 setIcon(cb.buttonEl, "plus");
                 cb.onClick((e) => {
                     cb.buttonEl.blur();

@@ -33,6 +33,7 @@ export interface ExtendedGraphSettings {
     enableFolders: boolean;
     enableImages: boolean;
     enableFocusActiveNote: boolean;
+    enableShapes: boolean;
     removeSource: boolean;
     removeTarget: boolean;
 
@@ -77,6 +78,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     enableFolders: true,
     enableImages: true,
     enableFocusActiveNote: false,
+    enableShapes: true,
     removeSource: false,
     removeTarget: false,
 

@@ -4,20 +4,23 @@ import { ExtendedGraphSettings } from "src/settings/settings";
 import { NodeGraphicsWrapper } from "../graphicElements/nodes/nodeGraphicsWrapper";
 import { GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
+import { ShapeEnum } from "../graphicElements/nodes/shapes";
+import { ColorReplacement } from "../graphicElements/nodes/colorsReplacement";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;
     settings: ExtendedGraphSettings;
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
-    
+    colorReplacement?: ColorReplacement;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], app: App, settings: ExtendedGraphSettings) {
+    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], app: App, settings: ExtendedGraphSettings, colorReplacement?: ColorReplacement) {
         super(node, types, managers);
         this.settings = settings;
         this.app = app;
+        this.colorReplacement = colorReplacement;
         this.initGraphicsWrapper();
     }
 
@@ -29,14 +32,18 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     }
 
     public needImage(): boolean { return this.settings.enableImages; }
-    public needBackground(): boolean { return this.settings.fadeOnDisable; }
+    public needBackground(): boolean {
+        return this.settings.fadeOnDisable
+            || this.settings.enableFocusActiveNote
+            || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
+    }
     public needArcs(): boolean {
         return this.coreElement.type === "" && this.managers.size > 0;
     }
     public needPin(): boolean { return true; }
 
     protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new NodeGraphicsWrapper(this);
+        this.graphicsWrapper = new NodeGraphicsWrapper(this, this.colorReplacement);
         this.graphicsWrapper.initGraphics();
 
         let layer = 1;

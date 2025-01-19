@@ -7,22 +7,42 @@ import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
 import { AbstractSet } from "../abstractAndInterfaces/abstractSet";
 import { InteractiveManager } from "../interactiveManager";
 import { Graph } from "../graph";
+import { ColorReplacement } from "../graphicElements/nodes/colorsReplacement";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
+    colorReplacement?: ColorReplacement;
 
     // ============================== CONSTRUCTOR ==============================
 
     constructor(graph: Graph, managers: InteractiveManager[]) {
         super(graph, managers);
 
+
+        if (false && this.graph.staticSettings.enableShapes) {
+            // Should not be needed anymore, because nodes are scaled downed instead or recolorized
+            this.colorReplacement = new ColorReplacement(this.graph.renderer, this.graph.engine);
+        }
+
         this.coreCollection = this.graph.renderer.nodes;
     }
 
     // ================================ LOADING ================================
 
+    override load(): void {
+        super.load();
+        this.colorReplacement?.shortcutColors();
+    }
+
     protected override handleMissingElements(ids: Set<string>): void {
         this.loadAssets(ids);
+    }
+
+    // =============================== UNLOADING ===============================
+
+    override unload() {
+        super.unload();
+        this.colorReplacement?.restoreColors();
     }
 
     // ================================ IMAGES =================================
@@ -81,6 +101,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
             [...this.managers.values()],
             this.graph.dispatcher.graphsManager.plugin.app,
             this.graph.staticSettings,
+            this.colorReplacement
         );
 
         this.extendedElementsMap.set(id, extendedGraphNode);
@@ -163,7 +184,11 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (!extendedNode) return;
 
         if (emphasize) {
-            extendedNode.graphicsWrapper?.emphasize(this.graph.dynamicSettings.focusScaleFactor, this.graph.renderer.colors.fillFocused.rgb);
+            let color = this.graph.renderer.colors.fillFocused.rgb;
+            if (this.graph.staticSettings.enableShapes && this.colorReplacement) {
+                color = this.colorReplacement.copyColors.fillFocused.rgb;
+            }
+            extendedNode.graphicsWrapper?.emphasize(this.graph.dynamicSettings.focusScaleFactor, color);
         } else {
             extendedNode.graphicsWrapper?.emphasize(1);
         }

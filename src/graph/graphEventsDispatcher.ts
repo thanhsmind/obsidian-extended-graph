@@ -144,8 +144,8 @@ export class GraphEventsDispatcher extends Component {
         const onRendered = this.onRendered.bind(this);
         this.graph.renderer.renderCallback = new Proxy(this.graph.renderer.renderCallback, {
             apply(target, thisArg, args) {
-                const res = target.call(thisArg, ...args);
                 onRendered();
+                const res = target.call(thisArg, ...args);
                 return res;
             }
         });
@@ -215,7 +215,7 @@ export class GraphEventsDispatcher extends Component {
 
     private onRendered() {
         //console.log(this.graph.renderer.idleFrames);
-        this.graph.folderBlobs.updateGraphics();
+        if (this.graph.staticSettings.enableFolders) this.graph.folderBlobs.updateGraphics();
     }
 
     // ============================= INTERACTIVES ==============================

@@ -1,15 +1,17 @@
 import { getIcon } from 'obsidian';
-import { Assets, Container, Graphics, Sprite, Texture } from 'pixi.js';
+import { Assets, Container, Sprite, Texture } from 'pixi.js';
 import { ArcsCircle } from './arcsCircle';
 import { NodeImage } from './image';
-import { GraphNode } from 'obsidian-typings';
+import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
 import { GraphicsWrapper } from '../../abstractAndInterfaces/graphicsWrapper';
 import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
+import { NodeShape, ShapeEnum } from './shapes';
+import { ColorReplacement } from './colorsReplacement';
 
-const NODE_CIRCLE_RADIUS: number = 100;
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
+
 
 export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     // Interface instance values
@@ -20,20 +22,61 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     // Additional graphics elements
     nodeImage?: NodeImage;
-    background?: Graphics;
+    background?: NodeShape;
+    colorsReplacement?: ColorReplacement;
     scaleFactor: number = 1;
 
-    constructor(extendedElement: ExtendedGraphNode) {
+    // Shape specific
+    getSizeCallback?: () => number;
+    shape: ShapeEnum = ShapeEnum.CIRCLE;
+    baseScale: number = 1;
+
+    constructor(extendedElement: ExtendedGraphNode, colorsReplacement?: ColorReplacement) {
         this.extendedElement = extendedElement;
         this.name = extendedElement.id;
         this.pixiElement = new Container();
         this.pixiElement.name = this.name;
+        
+        //this.shape = NodeShape.randomShape();
+        this.baseScale = NodeShape.nodeScaleFactor(this.shape);
+        this.changeGetSize();
+    }
+
+    private changeGetSize() {
+        if (this.getSizeCallback && this.shape === ShapeEnum.CIRCLE) {
+            this.restoreGetSize();
+            return;
+        }
+        else if (this.getSizeCallback) {
+            return;
+        }
+        this.getSizeCallback = this.extendedElement.coreElement.getSize;
+        const getSize = this.getSize.bind(this);
+        this.extendedElement.coreElement.getSize = new Proxy(this.extendedElement.coreElement.getSize, {
+            apply(target, thisArg, args) {
+                return getSize.call(this, ...args)
+            }
+        });
+    }
+
+    private restoreGetSize() {
+        if (!this.getSizeCallback) return;
+        this.extendedElement.coreElement.getSize = this.getSizeCallback;
+        this.getSizeCallback = undefined;
+    }
+
+    // ============================= PROXY METHODS =============================
+
+    getSize(): number {
+        const node = this.extendedElement.coreElement;
+        const originalSize = node.renderer.fNodeSizeMult * Math.max(8, Math.min(3 * Math.sqrt(node.weight + 1), 30));
+        return originalSize * this.baseScale;
     }
 
 
     // ============================= INITALIZATION =============================
 
-    initGraphics(texture?: Texture): void {
+    initGraphics(): void {
         this.placeNode();
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.extendedElement.needBackground()) this.initBackground();
@@ -47,7 +90,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
-        this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor);
+        this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor, this.shape);
         this.pixiElement.addChild(this.nodeImage);
     }
 
@@ -56,8 +99,11 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     }
 
     private initBackground() {
-        this.background = new Graphics();
-        this.background.scale.set(NODE_CIRCLE_RADIUS / 10);
+        this.background = new NodeShape(this.shape);
+        if (this.extendedElement.settings.enableShapes) {
+            this.background.drawFill(this.getFillColor().rgb);
+        }
+        this.background.scale.set(this.background.getDrawingResolution());
         this.pixiElement.addChildAt(this.background, 0);
     }
 
@@ -77,6 +123,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
                 arcWrapper.clearGraphics();
             }
         }
+        this.restoreGetSize();
     }
 
     destroyGraphics(): void {
@@ -123,18 +170,17 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         this.nodeImage?.fadeOut();
     }
 
+
     // =============================== EMPHASIZE ===============================
 
     emphasize(scale: number, color?: number) {
         if (!this.background) return;
 
         this.scaleFactor = scale;
-        if (this.scaleFactor > 1) {
+        if (this.scaleFactor > 1 || this.extendedElement.settings.enableShapes) {
+            color = color ? color : this.getFillColor().rgb;
             this.background.clear();
-            this.background
-                .beginFill(color ? color : this.extendedElement.coreElement.getFillColor().rgb)
-                .drawCircle(0, 0, 10)
-                .endFill();
+            this.background.drawFill(color);
         }
         else {
             this.background.clear();
@@ -173,6 +219,17 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     unpin(): void {
         const icon = this.pixiElement.getChildByName("pin");
         if (icon) this.pixiElement.removeChild(icon);
+    }
+
+    // ================================= COLOR =================================
+
+    getFillColor(): GraphColorAttributes {
+        if (this.extendedElement.settings.enableShapes && this.colorsReplacement) {
+            return this.colorsReplacement.getFillColor(this.extendedElement.coreElement);
+        }
+        else {
+            return this.extendedElement.coreElement.getFillColor();
+        }
     }
 
 }
