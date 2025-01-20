@@ -1,8 +1,9 @@
 import { App, ButtonComponent, DropdownComponent, Modal, setIcon, Setting, TextComponent } from "obsidian";
 import { BUTTON_ADD_CLASS, BUTTON_DELETE_CLASS } from "src/globalVariables";
 import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
-import { CombinationLogic, QueryData } from "src/queries/queriesMatcher";
-import { LogicKey, logicKeyLabel, RuleQuery, SourceKey, sourceKeyLabel } from "src/queries/ruleQuery";
+import { CombinationLogic, QueryData, QueryMatcher } from "src/queries/queriesMatcher";
+import { logicKeyLabel, RuleQuery, sourceKeyLabels } from "src/queries/ruleQuery";
+import { QueryMatchesModal } from "./queryMatchesModal";
 
 export class ShapeQueryModal extends Modal {
     saveCallback: (shape: ShapeEnum, queryData: QueryData) => void;
@@ -10,6 +11,7 @@ export class ShapeQueryModal extends Modal {
 
     queryData: QueryData;
 
+    viewMatchesButton: ButtonComponent;
     rulesSettings: RuleSetting[] = [];
     combinationLogicButtons: Record<CombinationLogic, ButtonComponent | null> = {
         'AND': null,
@@ -82,12 +84,15 @@ export class ShapeQueryModal extends Modal {
     }
 
     private addRule(queryRecord?: Record<string, string>) {
-        this.rulesSettings.push(new RuleSetting(
+        const ruleSetting = new RuleSetting(
             this.contentEl,
             this.app,
             this.removeRule.bind(this),
+            this.onChange.bind(this),
             queryRecord
-        ));
+        );
+        this.rulesSettings.push(ruleSetting);
+        ruleSetting.onChange();
     }
 
     private removeRule(ruleSetting: RuleSetting) {
@@ -102,11 +107,27 @@ export class ShapeQueryModal extends Modal {
 			.setButtonText("Cancel")
 			.onClick(() => this.close());
 
+        this.viewMatchesButton = new ButtonComponent(container)
+            .setButtonText("View matches")
+            .onClick(() => this.viewMatches());
+
 		new ButtonComponent(container)
             .setButtonText("Save")
 			.setIcon('save')
 			.onClick(() => this.save())
 			.setCta();
+    }
+
+    onChange(ruleQuery: RuleQuery) {
+        const matcher = this.getMatcher();
+        const files = matcher.getMatches(this.app);
+        this.viewMatchesButton.setButtonText(`View matches (${files.length})`);
+        this.viewMatchesButton.setDisabled(files.length === 0);
+    }
+
+    private viewMatches() {
+        const modal = new QueryMatchesModal(this.app, this.queryData);
+        modal.open();
     }
     
 	onClose(): void {
@@ -114,13 +135,22 @@ export class ShapeQueryModal extends Modal {
 	}
 
     private save(): void {
+        this.setQueryData();
+        this.saveCallback(this.shape, this.queryData);
+        this.close();
+    }
+
+    private setQueryData() {
         const queries: RuleQuery[] = [];
         for (const rule of this.rulesSettings) {
             queries.push(rule.getRuleQuery());
         }
         this.queryData.rules = queries.map(query => query.getRecord());
-        this.saveCallback(this.shape, this.queryData);
-        this.close();
+    }
+
+    private getMatcher(): QueryMatcher {
+        this.setQueryData();
+        return new QueryMatcher(this.queryData);
     }
 }
 
@@ -128,18 +158,19 @@ export class ShapeQueryModal extends Modal {
 class RuleSetting extends Setting {
     app: App;
 
-    onRemove: (s: RuleSetting) => void;
+    onRemoveCallback: (s: RuleSetting) => void;
+    onChangeCallback: (r: RuleQuery) => void
 
     sourceDropdown: DropdownComponent;
     propertyDropdown: DropdownComponent | null;
     logicDropdown: DropdownComponent;
     valueText: TextComponent;
 
-    constructor(containerEl: HTMLElement, app: App, onRemove: (s: RuleSetting) => void, queryRecord?: Record<string, string>) {
+    constructor(containerEl: HTMLElement, app: App, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
         super(containerEl);
         this.app = app;
 
-        this.onRemove = onRemove;
+        this.onRemoveCallback = onRemove;
 
         this.setClass('rule-setting');
         this.addRemoveButton();
@@ -154,7 +185,7 @@ class RuleSetting extends Setting {
             this.valueText.setValue(queryRecord['value']);
         }
 
-        this.onChange();
+        this.onChangeCallback = onChange;
     }
 
     private addRemoveButton(): RuleSetting {
@@ -163,7 +194,7 @@ class RuleSetting extends Setting {
             button.setIcon('trash');
             button.setTooltip('Remove');
             button.onClick(() => {
-                this.onRemove(this);
+                this.onRemoveCallback(this);
             });
         });
     }
@@ -171,7 +202,7 @@ class RuleSetting extends Setting {
     private addSourceDropdown(): RuleSetting {
         return this.addDropdown(cb => {
             this.sourceDropdown = cb;
-            cb.addOptions(sourceKeyLabel);
+            cb.addOptions(sourceKeyLabels);
             cb.onChange(value => {
                 if (value === 'property') {
                     this.addPropertyDropdown();
@@ -219,7 +250,11 @@ class RuleSetting extends Setting {
 
     onChange(): void {
         const ruleQuery = this.getRuleQuery();
-        console.log(ruleQuery.isValid());
+        this.setValidity(ruleQuery);
+        this.onChangeCallback(ruleQuery);
+    }
+
+    private setValidity(ruleQuery: RuleQuery): void {
         if (!ruleQuery.isValid()) {
             this.settingEl.addClass("query-invalid");
         }

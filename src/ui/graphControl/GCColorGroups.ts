@@ -83,6 +83,5 @@ export class GCColorGroups extends Component {
 
     private setShape(queryNode: Node, shape: ShapeEnum) {
         const query = (queryNode as HTMLInputElement).value;
-        console.log(query, shape);
     }
 }

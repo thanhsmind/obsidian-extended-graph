@@ -1,6 +1,7 @@
 import { EngineOptions, GraphViewData } from "../views/viewData";
 import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
 import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
+import { QueryData } from "src/queries/queriesMatcher";
 
 interface InteractiveSettings {
     colormap: string;
@@ -39,10 +40,7 @@ export interface ExtendedGraphSettings {
     removeTarget: boolean;
 
     // Shapes
-    shapeQueries: Record<ShapeEnum, {
-        combinationLogic: 'AND' | 'OR',
-        rules: Record<string, string>[]
-    }>;
+    shapeQueries: Record<string, QueryData>;
 
     // Display settings
     fadeOnDisable: boolean;
@@ -53,6 +51,7 @@ export interface ExtendedGraphSettings {
     collapseLegend: boolean;
 }
 
+let shapeQueriesIndex = 0;
 export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Interactive settings
     interactiveSettings: {},
@@ -91,19 +90,19 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Shapes
     shapeQueries: {
-        'circle'   : {combinationLogic: 'AND', rules: []},
-        'decagon'  : {combinationLogic: 'AND', rules: []},
-        'diamond'  : {combinationLogic: 'AND', rules: []},
-        'hexagon'  : {combinationLogic: 'AND', rules: []},
-        'octogon'  : {combinationLogic: 'AND', rules: []},
-        'pentagon' : {combinationLogic: 'AND', rules: []},
-        'square'   : {combinationLogic: 'AND', rules: []},
-        'star (10)': {combinationLogic: 'AND', rules: []},
-        'star (4)' : {combinationLogic: 'AND', rules: []},
-        'star (5)' : {combinationLogic: 'AND', rules: []},
-        'star (6)' : {combinationLogic: 'AND', rules: []},
-        'star (8)' : {combinationLogic: 'AND', rules: []},
-        'triangle' : {combinationLogic: 'AND', rules: []},
+        'circle'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'square'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'triangle' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'diamond'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'pentagon' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'hexagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'octogon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'decagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star (4)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star (5)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star (6)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star (8)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star (10)': {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
     },
 
     // Display settings

@@ -7,7 +7,7 @@ import { GraphicsWrapper } from '../../abstractAndInterfaces/graphicsWrapper';
 import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
 import { NodeShape, ShapeEnum } from './shapes';
-import { QueryMatcher } from 'src/queries/queriesMatcher';
+import { QueryData, QueryMatcher } from 'src/queries/queriesMatcher';
 import { getFile } from 'src/helperFunctions';
 
 const NODE_CIRCLE_X: number = 100;
@@ -44,13 +44,15 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     private initShape() {
         const app = this.extendedElement.app;
-        for (const shape of Object.values(ShapeEnum)) {
-            const queryData = this.extendedElement.settings.shapeQueries[shape];
-            const queriesMatcher = new QueryMatcher(queryData);
+        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.extendedElement.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+            return a[1].index - b[1].index;
+        }));
+        for (const shape of Object.keys(shapeQueries)) {
+            const queriesMatcher = new QueryMatcher(shapeQueries[shape]);
             const file = getFile(app, this.extendedElement.id);
             if (!file) return;
             if (queriesMatcher.doesMatch(app, file)) {
-                this.shape = shape;
+                this.shape = shape as ShapeEnum;
                 return;
             }
         }

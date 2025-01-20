@@ -4,6 +4,7 @@ import { RuleQuery } from "./ruleQuery";
 export type CombinationLogic = 'AND' | 'OR';
 export type QueryData = {
     combinationLogic: CombinationLogic,
+    index: number,
     rules: Record<string, string>[]
 }
 
@@ -23,7 +24,6 @@ export class QueryMatcher {
         if (validRules.length === 0) return false;
         switch (this.queryData.combinationLogic) {
             case 'AND':
-                validRules.forEach(rule => console.log(new RuleQuery(rule).doesMatch(app, file)));
                 return validRules.every(rule => new RuleQuery(rule).doesMatch(app, file) ?? false);
             case 'OR':
                 return validRules.some(rule => new RuleQuery(rule).doesMatch(app, file) ?? false);
@@ -31,5 +31,16 @@ export class QueryMatcher {
                 break;
         }
         return false;
+    }
+
+    toString(): string {
+        let queryDataStr = "";
+        for (let i = 0; i < this.queryData.rules.length; ++i) {
+            let ruleStr = new RuleQuery(this.queryData.rules[i]).toString();
+            if (!ruleStr) continue;
+            queryDataStr += ruleStr;
+            if (i !== this.queryData.rules.length - 1) queryDataStr += " " + this.queryData.combinationLogic;
+        }
+        return queryDataStr;
     }
 }

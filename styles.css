@@ -367,9 +367,14 @@ body {
         svg.shape-svg {
             flex-shrink: 0;
         }
+
+        .move-buttons {
+            display: flex;
+        }
+        .move-buttons > * {
+            padding-inline: 0;
+        }
     }
-
-
 }
 
 .graph-modal-shape-query {
