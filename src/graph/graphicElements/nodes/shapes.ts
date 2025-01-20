@@ -24,10 +24,10 @@ enum ShapeType {
     UNKNOWN = "unknown"
 }
 
-const NODE_RADIUS = 100;
-const RESOLUTION_RADIUS = 10;
-
 export class NodeShape extends Graphics {
+    static readonly RADIUS = 100;
+    static readonly RESOLUTION_RADIUS = 10;
+
     readonly shape: ShapeEnum;
     readonly n: number;
     readonly type: ShapeType;
@@ -53,7 +53,7 @@ export class NodeShape extends Graphics {
         switch (this.type) {
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
-                return RESOLUTION_RADIUS;
+                return NodeShape.RESOLUTION_RADIUS;
             default:
                 return 1;
         }
@@ -68,10 +68,10 @@ export class NodeShape extends Graphics {
             case ShapeType.STARBURST:
                 return this.drawPolygon(NodeShape.getVertices(this.shape));
             case ShapeType.SQUARE:
-                return this.drawRect(-NODE_RADIUS, -NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
+                return this.drawRect(-NodeShape.RADIUS, -NodeShape.RADIUS, 2 * NodeShape.RADIUS, 2 * NodeShape.RADIUS);
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
-                return this.drawCircle(0, 0, RESOLUTION_RADIUS);
+                return this.drawCircle(0, 0, NodeShape.RESOLUTION_RADIUS);
         }
     }
 
@@ -86,14 +86,14 @@ export class NodeShape extends Graphics {
     static nodeScaleFactor(shape: ShapeEnum): number {
         const type = NodeShape.getType(shape);
         if (type === ShapeType.POLYGON) {
-            const outerR = NodeShape.getPolygonRadius(NodeShape.getN(shape), NODE_RADIUS);
-            const innerR = NODE_RADIUS;
+            const outerR = NodeShape.getPolygonRadius(NodeShape.getN(shape), NodeShape.RADIUS);
+            const innerR = NodeShape.RADIUS;
             const middleR = (outerR + innerR) / 2;
             return middleR / outerR;
         }
         if (type === ShapeType.STARBURST) {
-            const outerR = NodeShape.getStarburstRadius(NodeShape.getN(shape), NODE_RADIUS);
-            const innerR = NODE_RADIUS;
+            const outerR = NodeShape.getStarburstRadius(NodeShape.getN(shape), NodeShape.RADIUS);
+            const innerR = NodeShape.RADIUS;
             const middleR = (outerR + innerR) / 2;
             return middleR / outerR;
         }
@@ -103,10 +103,10 @@ export class NodeShape extends Graphics {
     static getSizeFactor(shape: ShapeEnum): number {
         const type = NodeShape.getType(shape);
         if (type === ShapeType.POLYGON) {
-            return this.getPolygonRadius(NodeShape.getN(shape), NODE_RADIUS) / NODE_RADIUS;
+            return this.getPolygonRadius(NodeShape.getN(shape), NodeShape.RADIUS) / NodeShape.RADIUS;
         }
         if (type === ShapeType.STARBURST) {
-            return this.getStarburstRadius(NodeShape.getN(shape), NODE_RADIUS) / NODE_RADIUS;
+            return this.getStarburstRadius(NodeShape.getN(shape), NodeShape.RADIUS) / NodeShape.RADIUS;
         }
         return 1;
     }
@@ -165,9 +165,9 @@ export class NodeShape extends Graphics {
         const type = NodeShape.getType(shape);
         switch (type) {
             case ShapeType.POLYGON:
-                return NodeShape.getPolygonOutside(shape, 0, NODE_RADIUS);
+                return NodeShape.getPolygonOutside(shape, 0, NodeShape.RADIUS);
             case ShapeType.STARBURST:
-                return NodeShape.getStarburst(shape, NODE_RADIUS);
+                return NodeShape.getStarburst(shape, NodeShape.RADIUS);
         }
         return [];
     }

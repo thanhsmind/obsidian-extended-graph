@@ -1,11 +1,10 @@
 import { Graphics } from "pixi.js";
 import { InteractiveManager } from "../../interactiveManager";
 import { ManagerGraphics } from "../../abstractAndInterfaces/managerGraphics";
-import { NodeGraphicsWrapper } from "./nodeGraphicsWrapper";
+import { NodeShape, ShapeEnum } from "./shapes";
 
 export class ArcsCircle extends Graphics implements ManagerGraphics {
     // Static values
-    static readonly nodeSize   = 200;
     static readonly thickness  = 0.09;
     static readonly inset      = 0.03;
     static readonly gap        = 0.2;
@@ -20,6 +19,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
     arcSize: number;
     circleLayer: number;
     graphics = new Map<string, {index: number, graphic: Graphics}>();
+    shape: ShapeEnum;
 
     /**
      * Creates an instance of ArcsWrapper.
@@ -27,12 +27,13 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
      * @param manager - The interactive manager
      * @param circleLayer - The layer of the circle
      */
-    constructor(types: Set<string>, manager: InteractiveManager, circleLayer: number) {
+    constructor(types: Set<string>, manager: InteractiveManager, circleLayer: number, shape: ShapeEnum) {
         super();
         this.name = manager.name;
         this.types = types;
         this.manager = manager;
         this.circleLayer = circleLayer;
+        this.shape = shape;
         this.initGraphics();
         this.updateGraphics();
     }
@@ -79,13 +80,13 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         if (!color) color = this.manager.getColor(type);
         
         const alpha      = arc.graphic.alpha;
-        const radius     = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * ArcsCircle.nodeSize;
+        const radius     = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
         const startAngle = this.arcSize * arc.index + ArcsCircle.gap * 0.5;
         const endAngle   = this.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
 
         arc.graphic.clear();
         arc.graphic
-            .lineStyle(ArcsCircle.thickness * ArcsCircle.nodeSize, color)
+            .lineStyle(ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2, color)
             .arc(0, 0, radius, startAngle, endAngle)
             .endFill();
         arc.graphic.alpha = alpha;

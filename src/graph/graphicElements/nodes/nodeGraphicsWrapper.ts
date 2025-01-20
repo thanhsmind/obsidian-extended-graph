@@ -125,7 +125,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     }
 
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
-        const arcsCircle = new ArcsCircle(types, manager, layer);
+        const arcsCircle = new ArcsCircle(types, manager, layer, this.shape);
         this.managerGraphicsMap?.set(manager.name, arcsCircle);
         this.pixiElement.addChild(arcsCircle);
     }
