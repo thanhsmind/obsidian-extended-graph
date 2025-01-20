@@ -1,13 +1,13 @@
 import { Component, setIcon } from "obsidian";
 import { GraphViewData } from "src/views/viewData";
 import { DEFAULT_VIEW_ID } from "src/globalVariables";
-import GraphExtendedPlugin from "src/main";
+import ExtendedGraphPlugin from "src/main";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { NewNameModal } from "./newNameModal";
+import { NewNameModal } from "./modals/newNameModal";
 
 export class ViewsUI extends Component {
     dispatcher: GraphEventsDispatcher;
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     currentViewID: string;

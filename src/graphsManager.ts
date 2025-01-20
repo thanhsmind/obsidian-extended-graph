@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
-import GraphExtendedPlugin from "./main";
+import ExtendedGraphPlugin from "./main";
 import { GraphViewData } from "./views/viewData";
 import { MenuUI } from "./ui/menu";
 import { GraphControlsUI } from "./ui/graphControl/graphControl";
@@ -18,12 +18,12 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
     
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
     dispatchers = new Map<string, GraphEventsDispatcher>();
 
     // ============================== CONSTRUCTOR ==============================
     
-    constructor(plugin: GraphExtendedPlugin) {
+    constructor(plugin: ExtendedGraphPlugin) {
         super();
         this.plugin = plugin;
     }

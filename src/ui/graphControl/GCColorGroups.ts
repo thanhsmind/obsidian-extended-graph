@@ -1,8 +1,7 @@
 import { Component, setIcon, setTooltip } from "obsidian";
 import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
-import { ShapePickerModal } from "../shapePicker";
-import { forEach } from "mathjs";
+import { ShapePickerModal } from "../modals/shapePickerModal";
 import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 
 export class GCColorGroups extends Component {

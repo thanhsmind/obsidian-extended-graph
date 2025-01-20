@@ -222,6 +222,7 @@ body {
     .extended-graph-setting-image    { display: var(--display-image-features);    }
     .extended-graph-setting-focus    { display: var(--display-focus-features);    }
     .extended-graph-setting-folder   { display: var(--display-folder-features);   }
+    .extended-graph-setting-shapes   { display: var(--display-shapes-features);   }
 
     .settings-colors-container,
     .settings-properties-container {
@@ -336,6 +337,79 @@ body {
 
     }
 
+    .setting-item.extended-graph-setting-shapes {
+        --svg-size: var(--icon-size);
+
+        .setting-item-info {
+            flex: 0 1 9em;
+        }
+
+        .setting-item-name {
+            text-transform: capitalize;
+        }
+
+        .setting-item-control {
+            overflow: hidden;
+        }
+
+        .query-string {
+            flex-grow: 1;
+            text-align: start;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            color: var(--text-muted);
+            font-size: var(--font-ui-smaller);
+            line-height: var(--line-height-tight);
+        }
+
+        svg.shape-svg {
+            flex-shrink: 0;
+        }
+    }
+
+
+}
+
+.graph-modal-shape-query {
+    .modal-title {
+        display: flex;
+        gap: 15px;
+        vertical-align: middle;
+    }
+
+    .rule-setting {
+        align-items: flex-start;
+        
+        .setting-item-info {
+            display: none;
+        }
+
+        .setting-item-control {
+            align-items: flex-start;
+            max-width: 100%;
+
+            > *:not(.clickable-icon) {
+                min-width: 20px;
+                flex-shrink: 1;
+            }
+        }
+
+        &.query-invalid {
+            input[type="text"] {
+                background-color: color-mix(in srgb, var(--background-modifier-form-field), var(--color-red) 5%);
+                border-color: color-mix(in srgb, var(--background-modifier-border), var(--color-red) 50%);
+            }
+        }
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid var(--background-modifier-border);
+        padding: 0.75em 0;
+    }
 }
 
 
@@ -372,4 +446,21 @@ body {
         color: var(--icon-color-hover);
         background-color: var(--background-modifier-hover);
     }
+}
+
+/* SHAPES */
+
+svg.shape-svg {
+    width: var(--svg-size, var(--icon-size));
+}
+
+/* BUTTONS */
+
+.extended-graph-delete-button {
+    --text-color: var(--color-red);
+    color: var(--text-color);
+}
+.extended-graph-add-button {
+    --text-color: var(--color-green);
+    color: var(--text-color);
 }

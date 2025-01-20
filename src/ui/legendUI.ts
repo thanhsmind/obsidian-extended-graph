@@ -2,7 +2,7 @@ import { Component, setIcon, setTooltip } from "obsidian";
 import { FOLDER_KEY } from "src/globalVariables";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
-import GraphExtendedPlugin from "src/main";
+import ExtendedGraphPlugin from "src/main";
 
 class LegendRow {
     name: string;
@@ -146,7 +146,7 @@ class LegendRow {
 
 export class LegendUI extends Component {
     dispatcher: GraphEventsDispatcher;
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     legendRows: Map<string, LegendRow>;

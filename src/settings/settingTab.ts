@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import GraphExtendedPlugin from "src/main";
+import ExtendedGraphPlugin from "src/main";
 import { SettingImages } from "./settingImages";
 import { SettingFocus } from "./settingFocus";
 import { SettingTags } from "./settingInteractives.ts/settingTags";
@@ -14,10 +14,10 @@ export interface SettingsSection {
 }
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
     sections: SettingsSection[] = [];
 
-    constructor(app: App, plugin: GraphExtendedPlugin) {
+    constructor(app: App, plugin: ExtendedGraphPlugin) {
         super(app, plugin);
         this.plugin = plugin;
 

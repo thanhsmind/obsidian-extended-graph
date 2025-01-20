@@ -10,7 +10,7 @@ import { hasEngine } from './helperFunctions';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
-export default class GraphExtendedPlugin extends Plugin {
+export default class ExtendedGraphPlugin extends Plugin {
     settings: ExtendedGraphSettings;
     graphsManager: GraphsManager;
     waitingTime: number = 0;

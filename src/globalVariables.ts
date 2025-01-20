@@ -13,3 +13,6 @@ export const DisconnectionCause = Object.freeze({
     USER: "user",
     ORPHAN: "orphan",
 });
+
+export const BUTTON_DELETE_CLASS: string = "extended-graph-delete-button";
+export const BUTTON_ADD_CLASS: string    = "extended-graph-add-button";

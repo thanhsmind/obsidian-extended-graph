@@ -1,5 +1,6 @@
 import { EngineOptions, GraphViewData } from "../views/viewData";
 import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
+import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 
 interface InteractiveSettings {
     colormap: string;
@@ -36,6 +37,12 @@ export interface ExtendedGraphSettings {
     enableShapes: boolean;
     removeSource: boolean;
     removeTarget: boolean;
+
+    // Shapes
+    shapeQueries: Record<ShapeEnum, {
+        combinationLogic: 'AND' | 'OR',
+        rules: Record<string, string>[]
+    }>;
 
     // Display settings
     fadeOnDisable: boolean;
@@ -81,6 +88,23 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     enableShapes: true,
     removeSource: false,
     removeTarget: false,
+
+    // Shapes
+    shapeQueries: {
+        'circle'   : {combinationLogic: 'AND', rules: []},
+        'decagon'  : {combinationLogic: 'AND', rules: []},
+        'diamond'  : {combinationLogic: 'AND', rules: []},
+        'hexagon'  : {combinationLogic: 'AND', rules: []},
+        'octogon'  : {combinationLogic: 'AND', rules: []},
+        'pentagon' : {combinationLogic: 'AND', rules: []},
+        'square'   : {combinationLogic: 'AND', rules: []},
+        'star (10)': {combinationLogic: 'AND', rules: []},
+        'star (4)' : {combinationLogic: 'AND', rules: []},
+        'star (5)' : {combinationLogic: 'AND', rules: []},
+        'star (6)' : {combinationLogic: 'AND', rules: []},
+        'star (8)' : {combinationLogic: 'AND', rules: []},
+        'triangle' : {combinationLogic: 'AND', rules: []},
+    },
 
     // Display settings
     fadeOnDisable: false,

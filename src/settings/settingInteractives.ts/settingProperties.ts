@@ -2,7 +2,7 @@ import { setIcon, Setting } from "obsidian";
 import { ExtendedGraphSettingTab, SettingsSection } from "../settingTab";
 import { SettingInteractives } from "./settingInteractive";
 import { isPropertyKeyValid } from "src/helperFunctions";
-import { NewNameModal } from "src/ui/newNameModal";
+import { NewNameModal } from "src/ui/modals/newNameModal";
 import { FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
 import { addHeading } from "../settingHelperFunctions";
 
