@@ -17,9 +17,9 @@ export class GraphView {
         // Disable types
         this.data.disabledTypes = {};
         const linksManager = graph.linksSet.managers.get(LINK_KEY);
-        this.data.disabledTypes[LINK_KEY] = linksManager ? linksManager.getTypes().filter(type => !linksManager.isActive(type)): [];
+        this.data.disabledTypes[LINK_KEY] = linksManager?.getTypes().filter(type => !linksManager.isActive(type)) ?? [];
         const folderManager = graph.folderBlobs.manager;
-        this.data.disabledTypes[FOLDER_KEY] = folderManager ? folderManager.getTypes().filter(type => !folderManager.isActive(type)): [];
+        this.data.disabledTypes[FOLDER_KEY] = folderManager?.getTypes().filter(type => !folderManager.isActive(type)) ?? [];
         for (const [key, manager] of graph.nodesSet.managers) {
             this.data.disabledTypes[key] = manager.getTypes().filter(type => !manager.isActive(type));
         }

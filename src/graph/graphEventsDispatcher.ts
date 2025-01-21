@@ -468,8 +468,10 @@ export class GraphEventsDispatcher extends Component {
             linksManager.loadView(viewData);
             if (this.legendUI && viewData.disabledTypes) {
                 this.legendUI.enableAll(LINK_KEY);
-                for (const type of viewData.disabledTypes[LINK_KEY]) {
-                    this.legendUI.disable(LINK_KEY, type);
+                if (viewData.disabledTypes.hasOwnProperty(LINK_KEY)) {
+                    for (const type of viewData.disabledTypes[LINK_KEY]) {
+                        this.legendUI.disable(LINK_KEY, type);
+                    }
                 }
             }
         }

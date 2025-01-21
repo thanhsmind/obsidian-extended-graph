@@ -72,7 +72,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode) return;
         extendedNode.graphicsWrapper?.initNodeImage(texture);
-        extendedNode.graphicsWrapper?.nodeImage?.updateOpacityLayerColor(backgroundColor);
+        extendedNode.graphicsWrapper?.updateOpacityLayerColor(backgroundColor);
     }
 
     // =========================== EXTENDED ELEMENTS ===========================
@@ -155,7 +155,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     updateOpacityLayerColor(): void {
         const color = getBackgroundColor(this.graph.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
-            extendedNode.graphicsWrapper?.nodeImage?.updateOpacityLayerColor(color);
+            extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
     }
 

@@ -30,10 +30,10 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
     public needImage(): boolean { return this.settings.enableFeatures['images']; }
     public needBackground(): boolean {
-        return this.settings.fadeOnDisable
-            || this.settings.enableFeatures['focus']
+        return this.settings.enableFeatures['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
+    public needOpacityLayer(): boolean { return this.settings.fadeOnDisable; }
     public needArcs(): boolean {
         return this.coreElement.type === "" && this.managers.size > 0;
     }

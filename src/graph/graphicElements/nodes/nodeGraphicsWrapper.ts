@@ -1,5 +1,5 @@
 import { getIcon } from 'obsidian';
-import { Assets, Container, Sprite, Texture } from 'pixi.js';
+import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
 import { ArcsCircle } from './arcsCircle';
 import { NodeImage } from './image';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
@@ -23,6 +23,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     // Additional graphics elements
     nodeImage?: NodeImage;
+    opacityLayer?: NodeShape;
     background?: NodeShape;
     scaleFactor: number = 1;
 
@@ -97,6 +98,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         this.placeNode();
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.extendedElement.needBackground()) this.initBackground();
+        if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         this.connect();
     }
 
@@ -108,7 +110,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
         this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor, this.shape);
-        this.pixiElement.addChild(this.nodeImage);
+        this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length - 2);
     }
 
     private initArcsWrapper() {
@@ -122,6 +124,14 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         }
         this.background.scale.set(this.background.getDrawingResolution());
         this.pixiElement.addChildAt(this.background, 0);
+    }
+
+    private initOpacityLayer() {
+        this.opacityLayer = new NodeShape(this.shape);
+        this.opacityLayer.drawFill(0xFF0000);
+        this.opacityLayer.scale.set(this.opacityLayer.getDrawingResolution());
+        this.opacityLayer.alpha = 0;
+        this.pixiElement.addChild(this.opacityLayer);
     }
 
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
@@ -153,6 +163,12 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         
     }
 
+    updateOpacityLayerColor(backgroundColor: ColorSource): void {
+        if (!this.opacityLayer) return;
+        this.opacityLayer.clear();
+        this.opacityLayer.drawFill(backgroundColor);
+    }
+
     // ========================== CONNECT/DISCONNECT ===========================
     
     updateCoreElement(): void {
@@ -180,11 +196,11 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     // ============================== FADE IN/OUT ==============================
 
     fadeIn() {
-        this.nodeImage?.fadeIn();
+        if (this.opacityLayer) this.opacityLayer.alpha = 0;
     }
 
     fadeOut() {
-        this.nodeImage?.fadeOut();
+        if (this.opacityLayer) this.opacityLayer.alpha = 0.8;
     }
 
 

@@ -17,14 +17,6 @@ export class NodeImage extends Sprite {
         this.mask = mask;
         this.addChild(mask);
 
-        // Opacity Layer
-        this.opacityLayer = new Graphics();
-        this.opacityLayer.width = texture.width;
-        this.opacityLayer.height = texture.height;
-        this.updateOpacityLayerColor(0xFF0000);
-        this.opacityLayer.alpha = 0;
-        this.addChild(this.opacityLayer);
-
         // Size
         const scaleNoBorder = 2 * 100 * NodeShape.getSizeFactor(shape) / this.textureSize;
         const scaleBorder = scaleNoBorder * (1 - borderFactor);
@@ -35,21 +27,5 @@ export class NodeImage extends Sprite {
 
     changeImage(texture: Texture) {
         this.texture = texture;
-    }
-
-    updateOpacityLayerColor(backgroundColor: ColorSource): void {
-        this.opacityLayer.clear();
-        this.opacityLayer
-            .beginFill(backgroundColor)
-            .drawRect(-0.5 * this.textureSize, -0.5 * this.textureSize, this.textureSize, this.textureSize)
-            .endFill();
-    }
-
-    fadeIn() {
-        this.opacityLayer.alpha = 0;
-    }
-
-    fadeOut() {
-        this.opacityLayer.alpha = 0.8;
     }
 }
