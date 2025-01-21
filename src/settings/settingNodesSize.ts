@@ -1,11 +1,14 @@
-import { Setting } from "obsidian";
+import { setIcon, Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
 import { SettingsSectionCollapsible } from "./settingCollapsible";
 import { isPropertyKeyValid } from "src/helperFunctions";
 import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
+import { NodeSizeCalculator, NodeSizeFunction, nodeSizeFunctionLabels } from "src/nodeSizes/nodeSizeCalculator";
+import { NodeSizeCalculatorFactory } from "src/nodeSizes/nodeSizeCalculatorFactory";
 
 export class SettingNodeSize extends SettingsSectionCollapsible {
     allTopElements: HTMLElement[] = [];
+    warningSetting: Setting;
     
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'node-size', '', "Nodes size", 'circle-arrow-out-up-right', "Choose how nodes sizes must be computed");
@@ -14,6 +17,7 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
     protected override addBody(): void {
         this.addNodeSizeProperty();
         this.addNodeSizeFunction();
+        this.addWarning();
     }
 
     private addNodeSizeProperty(): void {
@@ -33,6 +37,49 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
     }
 
     private addNodeSizeFunction(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName('Node size function')
+            .setDesc("Select how the graph engine should compute the size of the nodes.")
+            .addDropdown(cb => {
+                cb.addOptions(nodeSizeFunctionLabels);
+                cb.setValue(this.settingTab.plugin.settings.nodeSizeFunction);
+                cb.onChange((value) => {
+                    this.recomputeNodeSizes(value as NodeSizeFunction);
+                });
+            });
+            
+        this.elementsBody.push(setting.settingEl);
+    }
 
+    private addWarning(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setClass("setting-warning")
+            .then(cb => {
+                setIcon(cb.nameEl, 'triangle-alert');
+            });
+            
+        this.elementsBody.push(setting.settingEl);
+        this.warningSetting = setting;
+        this.setWarning();
+    }
+
+    private setWarning(): void {
+        const warning = this.settingTab.plugin.graphsManager.nodeSizeCalculator?.getWarning();
+        if (warning && warning !== "") {
+            this.warningSetting.setDesc(warning);
+            this.warningSetting.settingEl.style.setProperty("display", "");
+        }
+        else {
+            this.warningSetting.setDesc("");
+            this.warningSetting.settingEl.style.setProperty("display", "none");
+        }
+    }
+
+    private recomputeNodeSizes(functionKey: NodeSizeFunction): void {
+        this.settingTab.plugin.settings.nodeSizeFunction = functionKey;
+        this.settingTab.plugin.graphsManager.nodeSizeCalculator = NodeSizeCalculatorFactory.getCalculator(functionKey, this.settingTab.app);
+        this.settingTab.plugin.graphsManager.nodeSizeCalculator?.computeSizes();
+        this.setWarning();
+        this.settingTab.plugin.saveSettings();
     }
 }

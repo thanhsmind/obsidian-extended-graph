@@ -3,6 +3,7 @@ import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariabl
 import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 import { QueryData } from "src/queries/queriesMatcher";
 import { Feature } from "src/types/features";
+import { NodeSizeFunction } from "src/nodeSizes/nodeSizeCalculator";
 
 interface InteractiveSettings {
     colormap: string;
@@ -27,6 +28,7 @@ export interface ExtendedGraphSettings {
 
     // Nodes sizes
     nodeSizeProperty: string;
+    nodeSizeFunction: NodeSizeFunction;
 
     // Performances
     maxNodes: number;
@@ -71,6 +73,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Nodes sizes
     nodeSizeProperty: "",
+    nodeSizeFunction: 'default',
 
     // Performances
     maxNodes: 20,

@@ -6,6 +6,7 @@ import { GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
 import { NodeShape, ShapeEnum } from "../graphicElements/nodes/shapes";
 import { getFile, getFileInteractives, isNumber } from "src/helperFunctions";
+import ExtendedGraphPlugin from "src/main";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;
@@ -112,9 +113,10 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
     getSize(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
+        const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileSizes.get(this.id);
         const node = this.coreElement;
         const originalSize = node.renderer.fNodeSizeMult * Math.max(8, Math.min(3 * Math.sqrt(node.weight + 1), 30));
-        return originalSize * this.baseScale * customRadiusFactor;
+        return originalSize * this.baseScale * customRadiusFactor * (customFunctionFactor ?? 1);
     }
 
     // ============================== CORE ELEMENT =============================

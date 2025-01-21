@@ -22,8 +22,12 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this.app, this));
-        this.loadGraphsManager();
-        this.registerEvents();
+
+        this.registerEvent(this.app.workspace.on('layout-ready', () => {
+            this.loadGraphsManager();
+            this.registerEvents();
+            this.onLayoutChange();
+        }));
     }
 
     private initializeInvalidKeys(): void {

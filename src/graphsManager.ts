@@ -8,6 +8,8 @@ import { getEngine } from "./helperFunctions";
 import { WorkspaceLeafExt } from "./types/leaf";
 import { TAG_KEY } from "./globalVariables";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
+import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
+import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
 
 
 export class GraphsManager extends Component {
@@ -20,6 +22,8 @@ export class GraphsManager extends Component {
     
     plugin: ExtendedGraphPlugin;
     dispatchers = new Map<string, GraphEventsDispatcher>();
+    
+    nodeSizeCalculator: NodeSizeCalculator | undefined;
 
     // ============================== CONSTRUCTOR ==============================
     
@@ -31,8 +35,14 @@ export class GraphsManager extends Component {
     // ================================ LOADING ================================
 
     onload(): void {
+        this.initilizeNodeSizeCalculator();
         this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
         this.registerEvent(this.plugin.app.workspace.on('css-change', this.onThemeChange.bind(this)));
+    }
+
+    private initilizeNodeSizeCalculator(): void {
+        this.nodeSizeCalculator = NodeSizeCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app);
+        this.nodeSizeCalculator?.computeSizes();
     }
 
     // =============================== UNLOADING ===============================
