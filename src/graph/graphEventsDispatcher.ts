@@ -216,7 +216,7 @@ export class GraphEventsDispatcher extends Component {
     private onRendered() {
         //console.log(this.graph.renderer.idleFrames);
         if (this.graph.staticSettings.enableFeatures['folders']) this.graph.folderBlobs.updateGraphics();
-        if (this.graph.staticSettings.enableFeatures['curvedLinks']) {
+        if (this.graph.staticSettings.enableFeatures['links'] && this.graph.staticSettings.enableFeatures['curvedLinks']) {
             for (const id of this.graph.linksSet.connectedIDs) {
                 this.graph.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.updateGraphics();
             }

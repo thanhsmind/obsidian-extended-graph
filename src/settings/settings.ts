@@ -25,6 +25,9 @@ export interface ExtendedGraphSettings {
     imageProperty: string;
     borderFactor: number;
 
+    // Nodes sizes
+    nodeSizeProperty: string;
+
     // Performances
     maxNodes: number;
     delay: number;
@@ -66,6 +69,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     imageProperty: "image",
     borderFactor: 0.06,
 
+    // Nodes sizes
+    nodeSizeProperty: "",
+
     // Performances
     maxNodes: 20,
     delay: 500,
@@ -83,6 +89,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'shapes'      : true,
         'source'      : false,
         'target'      : false,
+        'node-size'    : false,
     },
 
     // Shapes

@@ -8,7 +8,7 @@ import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
 import { NodeShape, ShapeEnum } from './shapes';
 import { QueryData, QueryMatcher } from 'src/queries/queriesMatcher';
-import { getFile } from 'src/helperFunctions';
+import { getFile, getFileInteractives } from 'src/helperFunctions';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
@@ -28,9 +28,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     scaleFactor: number = 1;
 
     // Shape specific
-    getSizeCallback?: () => number;
     shape: ShapeEnum = ShapeEnum.CIRCLE;
-    baseScale: number = 1;
 
     constructor(extendedElement: ExtendedGraphNode) {
         this.extendedElement = extendedElement;
@@ -39,8 +37,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         this.pixiElement.name = this.name;
         
         this.initShape();
-        this.baseScale = NodeShape.nodeScaleFactor(this.shape);
-        this.changeGetSize();
+        this.extendedElement.baseScale = NodeShape.nodeScaleFactor(this.shape);
     }
 
     private initShape() {
@@ -60,36 +57,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         }
     }
 
-    private changeGetSize() {
-        if (this.getSizeCallback && this.shape === ShapeEnum.CIRCLE) {
-            this.restoreGetSize();
-            return;
-        }
-        else if (this.getSizeCallback) {
-            return;
-        }
-        this.getSizeCallback = this.extendedElement.coreElement.getSize;
-        const getSize = this.getSize.bind(this);
-        this.extendedElement.coreElement.getSize = new Proxy(this.extendedElement.coreElement.getSize, {
-            apply(target, thisArg, args) {
-                return getSize.call(this, ...args)
-            }
-        });
-    }
-
-    private restoreGetSize() {
-        if (!this.getSizeCallback) return;
-        this.extendedElement.coreElement.getSize = this.getSizeCallback;
-        this.getSizeCallback = undefined;
-    }
-
     // ============================= PROXY METHODS =============================
-
-    getSize(): number {
-        const node = this.extendedElement.coreElement;
-        const originalSize = node.renderer.fNodeSizeMult * Math.max(8, Math.min(3 * Math.sqrt(node.weight + 1), 30));
-        return originalSize * this.baseScale;
-    }
 
 
     // ============================= INITALIZATION =============================
@@ -150,7 +118,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
                 arcWrapper.clearGraphics();
             }
         }
-        this.restoreGetSize();
     }
 
     destroyGraphics(): void {

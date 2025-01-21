@@ -222,6 +222,7 @@ body {
     .setting-images       { display: var(--display-settings-images);    }
     .setting-focus        { display: var(--display-settings-focus);    }
     .setting-shapes       { display: var(--display-settings-shapes);   }
+    .setting-node-size    { display: var(--display-settings-node-size);   }
 
     .settings-colors-container,
     .settings-properties-container {

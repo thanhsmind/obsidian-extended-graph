@@ -33,6 +33,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     override unload() {
         super.unload();
+        for (const node of this.extendedElementsMap.values()) {
+            node.unload();
+        }
     }
 
     // ================================ IMAGES =================================

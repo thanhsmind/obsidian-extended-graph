@@ -19,7 +19,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected needGraphicsWrapper(): boolean {
-        if (this.settings.enableFeatures['curvedLinks']) {
+        if (this.settings.enableFeatures['links'] && this.settings.enableFeatures['curvedLinks']) {
             return true;
         }
         for (const [key, manager] of this.managers) {
