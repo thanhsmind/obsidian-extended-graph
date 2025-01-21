@@ -1,11 +1,11 @@
-import { Component, setIcon, setTooltip, WorkspaceLeaf } from "obsidian";
+import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip, WorkspaceLeaf } from "obsidian";
 
 export class MenuUI extends Component {
     viewContent: HTMLElement;
     leaf: WorkspaceLeaf;
 
-    buttonEnable: HTMLDivElement;
-    buttonReset: HTMLDivElement;
+    buttonEnable: ExtraButtonComponent;
+    buttonReset: ExtraButtonComponent;
     enabled: boolean;
 
     constructor(leaf: WorkspaceLeaf) {
@@ -21,44 +21,49 @@ export class MenuUI extends Component {
     }
 
     createEnableButton(graphControls: HTMLDivElement) {
-        this.buttonEnable = graphControls.createDiv("clickable-icon graph-controls-button mod-extended-graph-toggle");
-        setIcon(this.buttonEnable, "sparkles");
-        
-        this.buttonEnable.addEventListener('click', (function() {
-            if (!this.enabled) {
-                this.enable();
-                this.leaf.trigger("extended-graph:enable-plugin", this.leaf);
-            } else {
-                this.disable();
-                this.leaf.trigger("extended-graph:disable-plugin", this.leaf);
-            }
-        }).bind(this));
+        this.buttonEnable = new ExtraButtonComponent(graphControls)
+            .setTooltip("Enable Extended Graph Plugin", {placement: 'top'})
+            .setIcon("sparkles")
+            .onClick(() => {
+                if (!this.enabled) {
+                    this.enable();
+                    this.leaf.trigger("extended-graph:enable-plugin", this.leaf);
+                } else {
+                    this.disable();
+                    this.leaf.trigger("extended-graph:disable-plugin", this.leaf);
+                }
+            })
+            .then(cb => {
+                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-extended-graph-toggle"]);
+            });
     }
 
     createResetButton(graphControls: HTMLDivElement) {
-        this.buttonReset = graphControls.createDiv("clickable-icon graph-controls-button mod-extended-graph-reset");
-        setIcon(this.buttonReset, "rotate-ccw");
-        
-        this.buttonReset.addEventListener('click', (function() {
-            if (this.enabled) {
-                this.leaf.trigger("extended-graph:reset-plugin", this.leaf);
-            }
-        }).bind(this));
-        
-        this.buttonReset.style.display = "none";
+        this.buttonReset = new ExtraButtonComponent(graphControls)
+            .setTooltip("Reset graph")
+            .setIcon("rotate-ccw")
+            .onClick(() => {
+                if (this.enabled) {
+                    this.leaf.trigger("extended-graph:reset-plugin", this.leaf);
+                }
+            })
+            .then(cb => {
+                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-extended-graph-reset"]);
+                cb.extraSettingsEl.style.display = "none";
+            });
     }
 
     enable() {
         this.enabled = true;
-        this.buttonEnable.addClass("is-active");
-        this.buttonReset.style.display = "";
-        setTooltip(this.buttonEnable, "Enable Extended Graph Plugin", {placement: 'top'});
+        this.buttonEnable.extraSettingsEl.addClass("is-active");
+        this.buttonEnable.setTooltip("Enable Extended Graph Plugin", {placement: 'top'});
+        this.buttonReset.extraSettingsEl.style.display = "";
     }
 
     disable() {
         this.enabled = false;
-        this.buttonEnable.removeClass("is-active");
-        this.buttonReset.style.display = "none";
-        setTooltip(this.buttonEnable, "Disable Extended Graph Plugin", {placement: 'top'});
+        this.buttonEnable.extraSettingsEl.removeClass("is-active");
+        this.buttonEnable.setTooltip("Disable Extended Graph Plugin", {placement: 'top'});
+        this.buttonReset.extraSettingsEl.style.display = "none";
     }
 }

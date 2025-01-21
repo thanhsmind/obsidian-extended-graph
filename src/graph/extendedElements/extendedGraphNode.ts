@@ -28,10 +28,10 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
             || this.needPin();
     }
 
-    public needImage(): boolean { return this.settings.enableImages; }
+    public needImage(): boolean { return this.settings.enableFeatures['images']; }
     public needBackground(): boolean {
         return this.settings.fadeOnDisable
-            || this.settings.enableFocusActiveNote
+            || this.settings.enableFeatures['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
     public needArcs(): boolean {

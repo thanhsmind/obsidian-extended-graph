@@ -1,0 +1,1 @@
+export type Feature = 'tags' | 'properties' | 'property-key' | 'links' | 'folders' | 'images' | 'focus' | 'shapes' | 'source' | 'target';

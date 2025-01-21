@@ -1,36 +1,16 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
 import { isPropertyKeyValid } from "src/helperFunctions";
-import { addHeading } from "./settingHelperFunctions";
+import { SettingsSectionCollapsible } from "./settingCollapsible";
 
-export class SettingImages {
-    settingTab: ExtendedGraphSettingTab;
-    allTopElements: HTMLElement[] = [];
-    
+export class SettingImages extends SettingsSectionCollapsible {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
+        super(settingTab, 'images', '', "Images", 'image', "Display image on top of nodes")
     }
 
-    display() {
-        addHeading({
-            containerEl: this.settingTab.containerEl,
-            heading: "Images",
-            icon: 'image',
-            description: "Display image on top of nodes",
-            displayCSSVariable: '--display-image-features',
-            enable: this.settingTab.plugin.settings.enableImages,
-            updateToggle: (function (value: boolean) {
-                this.settingTab.plugin.settings.enableImages = value;
-            }).bind(this),
-            settingTab: this.settingTab
-        })
-
+    protected override addBody() {
         this.addImageProperty();
         this.addBorderFactor();
-
-        this.allTopElements.forEach(el => {
-            el.addClass("extended-graph-setting-image");
-        })
     }
 
     private addImageProperty() {
@@ -46,7 +26,7 @@ export class SettingImages {
                     }
             }));
             
-        this.allTopElements.push(setting.settingEl);
+        this.elementsBody.push(setting.settingEl);
     }
 
     private addBorderFactor() {
@@ -69,6 +49,6 @@ export class SettingImages {
             });
         setting.controlEl.addClass("setting-item-description");
 
-        this.allTopElements.push(setting.settingEl);
+        this.elementsBody.push(setting.settingEl);
     }
 }

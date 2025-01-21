@@ -8,10 +8,7 @@ import { SettingLinks } from "./settingInteractives.ts/settingLinks";
 import { SettingFolders } from "./settingInteractives.ts/settingFolders";
 import { SettingPerformance } from "./settingPerformance";
 import { SettingShapes } from "./settingShapes";
-
-export interface SettingsSection {
-    display(): void;
-}
+import { SettingsSection } from "./settingsSection";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     plugin: ExtendedGraphPlugin;

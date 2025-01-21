@@ -2,40 +2,20 @@ import { INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { SettingInteractives } from "./settingInteractive";
 import { ExtendedGraphSettingTab } from "../settingTab";
 import { Setting } from "obsidian";
-import { capitalizeFirstLetter, isPropertyKeyValid } from "src/helperFunctions";
+import { isPropertyKeyValid } from "src/helperFunctions";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { addHeading } from "../settingHelperFunctions";
 
 
 export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab);
-        this.interactiveName = LINK_KEY;
-        this.elementName = "link";
-        this.previewClass = "line";
-        this.icon = "link";
+        super(settingTab, 'links', LINK_KEY, "Links", 'link', "Display and filter link types");
     }
 
-    protected addHeading(): Setting {
-        return addHeading({
-            containerEl       : this.settingTab.containerEl,
-            heading           : capitalizeFirstLetter(this.interactiveName + 's'),
-            icon              : this.icon,
-            description       : "Display and filter link types",
-            displayCSSVariable: '--display-link-features',
-            enable            : this.settingTab.plugin.settings.enableLinks,
-            updateToggle      : (function(value: boolean) {
-                this.settingTab.plugin.settings.enableLinks = value;
-            }).bind(this),
-            settingTab        : this.settingTab
-        });
-    }
+    protected override addBody(): void {
+        super.addBody();
 
-    display(): void {
-        super.display();
-
-        const labels = this.containerEl.querySelectorAll(`.settings-selection-container.extended-graph-setting-${this.interactiveName} label`);
+        const labels = this.containerEl.querySelectorAll(`.settings-selection-container.${this.itemClasses} label`);
         const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === this.settingTab.plugin.settings.imageProperty) as HTMLLabelElement;
         if (imageLabel) {
             const cb = imageLabel.querySelector("input") as HTMLInputElement ;
@@ -43,53 +23,38 @@ export class SettingLinks extends SettingInteractives {
             imageLabel.parentNode?.removeChild(imageLabel);
         }
         
-        this.allTopElements.push(new Setting(this.settingTab.containerEl)
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(`Remove sources`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.removeSource);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['source']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.removeSource = value;
+                    this.settingTab.plugin.settings.enableFeatures['source'] = value;
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
 
-        this.allTopElements.push(new Setting(this.settingTab.containerEl)
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(`Remove targets`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.removeTarget);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['target']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.removeTarget = value;
+                    this.settingTab.plugin.settings.enableFeatures['target'] = value;
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
-
-        this.allTopElements.forEach(el => {
-            el.addClass("extended-graph-setting-" + this.interactiveName);
-        })
     }
 
-    protected saveColor(preview: HTMLDivElement, type: string, color: string) {
-        if (this.isValueValid(type)) {
-            this.updatePreview(preview, type, color);
-            super.saveColors(type);
-        }
-    }
-
-    protected isValueValid(name: string): boolean {
+    protected override isValueValid(name: string): boolean {
         return isPropertyKeyValid(name);
     }
 
-    protected getPlaceholder(): string {
+    protected override getPlaceholder(): string {
         return "property-key";
     }
 
-    protected updatePreview(preview: HTMLDivElement, type?: string, color?: string) {
-        this.updateCSS(preview, color);
-    }
-
-    protected getAllTypes(): string[] {
+    protected override getAllTypes(): string[] {
         let allTypes = new Set<string>();
 
         const dv = getDataviewAPI();

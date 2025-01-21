@@ -2,6 +2,7 @@ import { EngineOptions, GraphViewData } from "../views/viewData";
 import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
 import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 import { QueryData } from "src/queries/queriesMatcher";
+import { Feature } from "src/types/features";
 
 interface InteractiveSettings {
     colormap: string;
@@ -29,15 +30,7 @@ export interface ExtendedGraphSettings {
     delay: number;
 
     // Feature toggles
-    enableTags: boolean;
-    enableProperties: boolean;
-    enableLinks: boolean;
-    enableFolders: boolean;
-    enableImages: boolean;
-    enableFocusActiveNote: boolean;
-    enableShapes: boolean;
-    removeSource: boolean;
-    removeTarget: boolean;
+    enableFeatures: Record<Feature, boolean>;
 
     // Shapes
     shapeQueries: Record<string, QueryData>;
@@ -78,15 +71,18 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     delay: 500,
 
     // Feature toggles
-    enableTags: true,
-    enableProperties: false,
-    enableLinks: true,
-    enableFolders: true,
-    enableImages: true,
-    enableFocusActiveNote: false,
-    enableShapes: true,
-    removeSource: false,
-    removeTarget: false,
+    enableFeatures: {
+        'tags'        : true,
+        'properties'  : false,
+        'property-key': true,
+        'links'       : true,
+        'folders'     : false,
+        'images'      : true,
+        'focus'       : false,
+        'shapes'      : true,
+        'source'      : false,
+        'target'      : false,
+    },
 
     // Shapes
     shapeQueries: {

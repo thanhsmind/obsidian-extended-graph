@@ -1,76 +1,53 @@
 import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, SettingsSection } from "../settingTab";
+import { ExtendedGraphSettingTab } from "../settingTab";
 import { SettingInteractives } from "./settingInteractive";
 import { isPropertyKeyValid } from "src/helperFunctions";
 import { NewNameModal } from "src/ui/modals/newNameModal";
 import { FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
-import { addHeading } from "../settingHelperFunctions";
+import { SettingsSectionCollapsible } from "../settingCollapsible";
+import { UIElements } from "src/ui/UIElements";
 
-export class SettingPropertiesArray implements SettingsSection {
-    settingTab: ExtendedGraphSettingTab;
+export class SettingPropertiesArray extends SettingsSectionCollapsible {
     settingInteractives: SettingInteractives[] = [];
-    allTopElements: HTMLElement[] = [];
     interactiveName: string;
-    propertiesContainer: HTMLDivElement;
-    icon: string = "archive";
+    propertiesContainer: HTMLElement;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
+        super(settingTab, 'properties', '', "Properties", 'archive', "Display and filter by property values");
+        
         for (const [key, enabled] of Object.entries(this.settingTab.plugin.settings.additionalProperties)) {
-            this.settingInteractives.push(new SettingProperties(key, enabled, settingTab, this));
+            this.settingInteractives.push(new SettingProperty(key, settingTab, this));
         }
     }
 
-    protected addHeading(): Setting {
-        return addHeading({
-            containerEl       : this.settingTab.containerEl,
-            heading           : 'Properties',
-            icon              : this.icon,
-            description       : "Display and filter by property values",
-            displayCSSVariable: '--display-property-features',
-            enable            : this.settingTab.plugin.settings.enableProperties,
-            updateToggle      : (function(value: boolean) {
-                this.settingTab.plugin.settings.enableProperties = value;
-            }).bind(this),
-            settingTab        : this.settingTab
-        }  ).addButton(cb => {
-                this.allTopElements.push(cb.buttonEl);
-                setIcon(cb.buttonEl, "plus");
-                cb.onClick((e) => {
-                    cb.buttonEl.blur();
-                    this.openModalToAddInteractive();
-                })
-            });
+    protected override addHeader(): void {
+        super.addHeader();
+
+        this.settingHeader.addButton(cb => {
+            UIElements.setupButton(cb, 'add');
+            this.elementsBody.push(cb.buttonEl);
+            cb.onClick((e) => {
+                cb.buttonEl.blur();
+                this.openModalToAddInteractive();
+            })
+        });
     }
 
-    display() {
-        const containerEl = this.settingTab.containerEl;
-        
-        this.addHeading();
-
-        this.allTopElements.forEach(el => {
-            el.addClass("extended-graph-setting-property");
-        })
-        
-        
-        this.propertiesContainer = containerEl.createDiv("settings-properties-container");
-        this.allTopElements.push(this.propertiesContainer);
+    protected override addBody() {
+        this.propertiesContainer = this.settingTab.containerEl.createDiv("settings-properties-container");
+        this.elementsBody.push(this.propertiesContainer);
 
         for (const setting of this.settingInteractives) {
             setting.containerEl = this.propertiesContainer;
             setting.display();
         }
-
-        this.allTopElements.forEach(el => {
-            el.addClass("extended-graph-setting-property");
-        })
     }
 
     protected openModalToAddInteractive() {
         const modal = new NewNameModal(
             this.settingTab.app,
             "Property key",
-            this.addInteractive.bind(this)
+            this.addProperty.bind(this)
         );
         modal.open();
     }
@@ -95,7 +72,7 @@ export class SettingPropertiesArray implements SettingsSection {
         return isPropertyKeyValid(key);
     }
 
-    protected addInteractive(key: string): boolean {
+    protected addProperty(key: string): boolean {
         if (!this.isKeyValid(key)) return false;
 
         this.settingTab.plugin.settings.additionalProperties[key] = true;
@@ -106,7 +83,7 @@ export class SettingPropertiesArray implements SettingsSection {
             noneType: "none"
         }
         this.settingTab.plugin.saveSettings().then(() => {
-            const setting = new SettingProperties(key, true, this.settingTab, this);
+            const setting = new SettingProperty(key, this.settingTab, this);
             this.settingInteractives.push(setting);
             setting.containerEl = this.propertiesContainer;
             setting.display();
@@ -116,76 +93,40 @@ export class SettingPropertiesArray implements SettingsSection {
     }
 }
 
-export class SettingProperties extends SettingInteractives {
-    enabled: boolean;
+export class SettingProperty extends SettingInteractives {
     array: SettingPropertiesArray;
 
-    constructor(key: string, enabled: boolean, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
-        super(settingTab);
-        this.interactiveName = key;
-        this.elementName = "node";
-        this.previewClass = "arc";
-        this.enabled = enabled;
+    constructor(key: string, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
+        super(settingTab, 'property-key', key, "Property: " + key, '', "Display and filter property " + key);
         this.array = array;
     }
 
-    protected addHeading(): Setting {
-        const heading = addHeading({
-            containerEl       : this.containerEl,
-            heading           : 'Property: ' + this.interactiveName,
-            icon              : '',
-            description       : "Display and filter property " + this.interactiveName,
-            enable            : this.settingTab.plugin.settings.additionalProperties[this.interactiveName],
-            updateToggle      : (function(value: boolean) {
-                this.settingTab.plugin.settings.additionalProperties[this.interactiveName] = value;
-            }).bind(this),
-            settingTab        : this.settingTab
-        }  ).addButton(cb => {
-                setIcon(cb.buttonEl, "trash");
-                cb.onClick((e) => {
-                    this.remove();
-                    this.settingTab.plugin.saveSettings().then(() => {
-                        for (const el of this.allTopElements) {
-                            this.containerEl.removeChild(el);
-                        }
-                    });
-                })
-            });
-
-        this.allTopElements.push(heading.settingEl);
-
-        return heading;
+    protected override addHeader() {
+        super.addHeader();
+        this.settingHeader.addButton(cb => {
+            UIElements.setupButton(cb, 'delete');
+            cb.onClick((e) => {
+                this.remove();
+            })
+        });
+        this.settingHeader.settingEl.addClass('setting-property-header');
     }
 
     remove(): void {
-        delete this.settingTab.plugin.settings.additionalProperties[this.interactiveName];
-        delete this.settingTab.plugin.settings.interactiveSettings[this.interactiveName];
+        delete this.settingTab.plugin.settings.additionalProperties[this.interactiveKey];
+        delete this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey];
         this.array.settingInteractives.remove(this);
+        this.settingTab.plugin.saveSettings().then(() => {
+            this.settingHeader.settingEl.remove();
+            this.elementsBody.forEach(el => el.remove());
+        });
     }
 
-    display(): void {
-        super.display();
-    }
-
-    protected saveColor(preview: HTMLDivElement, type: string, color: string) {
-        if (this.isValueValid(type)) {
-            this.updatePreview(preview, type, color);
-            super.saveColors(type);
-        }
-        else {
-            preview.innerText = "";
-        }
-    }
-
-    protected isValueValid(name: string): boolean {
+    protected override isValueValid(name: string): boolean {
         return (name.length > 0);
     }
 
-    protected getPlaceholder(): string {
+    protected override getPlaceholder(): string {
         return "property-key";
-    }
-
-    protected updatePreview(preview: HTMLDivElement, type?: string, color?: string) {
-        this.updateCSS(preview, color);
     }
 }

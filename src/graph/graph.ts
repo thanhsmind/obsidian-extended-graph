@@ -76,14 +76,14 @@ export class Graph extends Component {
 
     private getInteractiveManagerKeys(): string[] {
         const keys: string[] = [];
-        if (this.staticSettings.enableProperties) {
+        if (this.staticSettings.enableFeatures['properties']) {
             for (const property in this.staticSettings.additionalProperties) {
                 if (this.staticSettings.additionalProperties[property]) keys.push(property);
             }
         }
-        if (this.staticSettings.enableTags)    keys.push(TAG_KEY);
-        if (this.staticSettings.enableLinks)   keys.push(LINK_KEY);
-        if (this.staticSettings.enableFolders) keys.push(FOLDER_KEY);
+        if (this.staticSettings.enableFeatures['tags'])    keys.push(TAG_KEY);
+        if (this.staticSettings.enableFeatures['links'])   keys.push(LINK_KEY);
+        if (this.staticSettings.enableFeatures['folders']) keys.push(FOLDER_KEY);
         return keys;
     }
 
@@ -203,7 +203,7 @@ export class Graph extends Component {
     private disableLinks(ids: Set<string>): boolean {
         const disabledLinks = this.linksSet.disableElements([...ids], DisconnectionCause.USER);
 
-        if (this.staticSettings.removeSource || this.staticSettings.removeTarget) {
+        if (this.staticSettings.enableFeatures['source'] || this.staticSettings.enableFeatures['target']) {
             for (const linkID of ids) {
                 const cascade = this.linksDisconnectionCascade.get(linkID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
 
@@ -233,10 +233,10 @@ export class Graph extends Component {
         const link = this.linksSet.extendedElementsMap.get(linkID)?.coreElement;
         if (!link) return nodesToDisable;
 
-        if (this.staticSettings.removeSource && !invalidNodeIDs.includes(link.source.id)) {
+        if (this.staticSettings.enableFeatures['source'] && !invalidNodeIDs.includes(link.source.id)) {
             nodesToDisable.add(link.source.id);
         }
-        if (this.staticSettings.removeTarget && !invalidNodeIDs.includes(link.target.id)) {
+        if (this.staticSettings.enableFeatures['target'] && !invalidNodeIDs.includes(link.target.id)) {
             nodesToDisable.add(link.target.id);
         }
         return nodesToDisable;

@@ -51,7 +51,7 @@ export class GraphsManager extends Component {
     // ============================ METADATA CHANGES ===========================
 
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        if (this.plugin.settings.enableTags) {
+        if (this.plugin.settings.enableFeatures['tags']) {
             this.dispatchers.forEach(dispatcher => {
                 if (!dispatcher.graph || !dispatcher.graph.renderer) return;
         
@@ -333,7 +333,7 @@ export class GraphsManager extends Component {
     }
 
     changeActiveFile(file: TFile | null): void {
-        if (!this.plugin.settings.enableFocusActiveNote) return;
+        if (!this.plugin.settings.enableFeatures['focus']) return;
 
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.leaf.view.getViewType() !== "graph") return;

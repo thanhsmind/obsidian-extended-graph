@@ -24,31 +24,33 @@ export class GCSettings extends GCSection {
     }
 
     createSaveForDefaultView(): Setting {
-        const setting = new Setting(this.treeItemChildren)
+        return new Setting(this.treeItemChildren)
             .setName("Save for default view")
-            .setTooltip("Save the current settings as the default view settings");
-            const icon = setting.controlEl.createDiv("clickable-icon save-button");
-        setIcon(icon, "arrow-up-to-line");
-        icon.addEventListener('click', e => {
-            this.saveForDefaultView();
-        });
-        return setting;
+            .setTooltip("Save the current settings as the default view settings")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("save-button");
+                setIcon(cb.extraSettingsEl, "arrow-up-to-line");
+                cb.onClick(() => {
+                    this.saveForDefaultView();
+                });
+            });
     }
 
     createSaveForNormalView(): Setting {
-        const setting = new Setting(this.treeItemChildren)
+        return new Setting(this.treeItemChildren)
             .setName("Save for normal view")
-            .setTooltip("Save the current settings as the normal view settings (no plugin enabled)");
-        const icon = setting.controlEl.createDiv("clickable-icon save-button");
-        setIcon(icon, "arrow-down-to-line");
-        icon.addEventListener('click', e => {
-            this.saveForNormalView();
-        });
-        return setting;
+            .setTooltip("Save the current settings as the normal view settings (no plugin enabled)")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("save-button");
+                setIcon(cb.extraSettingsEl, "arrow-down-to-line");
+                cb.onClick(() => {
+                    this.saveForNormalView();
+                });
+            });
     }
 
     createGlobalFilter(): Setting {
-        const filterHeader = new Setting(this.treeItemChildren).setName("Global filter");
+        const filterHeader = new Setting(this.treeItemChildren).setName("Global filter").setHeading();
         this.onlyWhenPluginEnabled.push(filterHeader.settingEl);
 
         return new Setting(this.treeItemChildren)

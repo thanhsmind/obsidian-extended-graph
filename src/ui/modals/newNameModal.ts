@@ -1,4 +1,5 @@
 import { App, Modal, setIcon, Setting, TextComponent } from "obsidian";
+import { UIElements } from "../UIElements";
 
 export class NewNameModal extends Modal {
     callback: (name: string) => boolean;
@@ -20,9 +21,9 @@ export class NewNameModal extends Modal {
     onOpen() {
         new Setting(this.contentEl)
             .addText((text) => { this.input = text; })
-            .addButton((btn) => {
-                setIcon(btn.buttonEl, "plus");
-                btn.buttonEl.addEventListener('click', e => {
+            .addButton((cb) => {
+                UIElements.setupButton(cb, 'add');
+                cb.buttonEl.addEventListener('click', e => {
                     if (this.callback(this.input.getValue())) {
                         this.close();
                     }

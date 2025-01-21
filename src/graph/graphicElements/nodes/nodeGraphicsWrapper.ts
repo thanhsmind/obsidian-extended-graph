@@ -43,6 +43,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     }
 
     private initShape() {
+        if (!this.extendedElement.settings.enableFeatures['shapes']) return;
         const app = this.extendedElement.app;
         const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.extendedElement.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return a[1].index - b[1].index;
@@ -117,7 +118,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     private initBackground() {
         this.background = new NodeShape(this.shape);
-        if (this.extendedElement.settings.enableShapes) {
+        if (this.extendedElement.settings.enableFeatures['shapes']) {
             this.background.drawFill(this.getFillColor().rgb);
         }
         this.background.scale.set(this.background.getDrawingResolution());
@@ -194,7 +195,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         if (!this.background) return;
 
         this.scaleFactor = scale;
-        if (this.scaleFactor > 1 || this.extendedElement.settings.enableShapes) {
+        if (this.scaleFactor > 1 || this.extendedElement.settings.enableFeatures['shapes']) {
             color = color ? color : this.getFillColor().rgb;
             this.background.clear();
             this.background.drawFill(color);

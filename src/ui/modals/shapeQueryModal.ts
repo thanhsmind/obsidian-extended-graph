@@ -1,9 +1,9 @@
 import { App, ButtonComponent, DropdownComponent, Modal, setIcon, Setting, TextComponent } from "obsidian";
-import { BUTTON_ADD_CLASS, BUTTON_DELETE_CLASS } from "src/globalVariables";
 import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 import { CombinationLogic, QueryData, QueryMatcher } from "src/queries/queriesMatcher";
 import { logicKeyLabel, RuleQuery, sourceKeyLabels } from "src/queries/ruleQuery";
 import { QueryMatchesModal } from "./queryMatchesModal";
+import { UIElements } from "../UIElements";
 
 export class ShapeQueryModal extends Modal {
     saveCallback: (shape: ShapeEnum, queryData: QueryData) => void;
@@ -75,8 +75,7 @@ export class ShapeQueryModal extends Modal {
             .setName("Rules")
             .setHeading()
             .addButton(cb => {
-                cb.setClass(BUTTON_ADD_CLASS);
-                setIcon(cb.buttonEl, "plus");
+                UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
                     this.addRule();
                 });
@@ -189,11 +188,9 @@ class RuleSetting extends Setting {
     }
 
     private addRemoveButton(): RuleSetting {
-        return this.addExtraButton(button => {
-            button.extraSettingsEl.addClass(BUTTON_DELETE_CLASS);
-            button.setIcon('trash');
-            button.setTooltip('Remove');
-            button.onClick(() => {
+        return this.addExtraButton(cb => {
+            UIElements.setupExtraButton(cb, 'delete');
+            cb.onClick(() => {
                 this.onRemoveCallback(this);
             });
         });

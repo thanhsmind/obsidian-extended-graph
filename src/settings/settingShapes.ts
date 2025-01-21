@@ -1,46 +1,28 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
-import { addHeading } from "./settingHelperFunctions";
 import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 import { ShapeQueryModal } from "src/ui/modals/shapeQueryModal";
 import { QueryData, QueryMatcher } from "src/queries/queriesMatcher";
 import ExtendedGraphPlugin from "src/main";
+import { SettingsSectionCollapsible } from "./settingCollapsible";
 
-export class SettingShapes {
-    settingTab: ExtendedGraphSettingTab;
-    settingShapes: SettingShape[] = [];
-    
+export class SettingShapes extends SettingsSectionCollapsible {
+    settingsShape: SettingShape[] = [];
+
     constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
+        super(settingTab, 'shapes', '', "Shapes", 'shapes', "Use nodes of various shapes")
     }
 
-    display() {
-        this.settingShapes = [];
-        addHeading({
-            containerEl: this.settingTab.containerEl,
-            heading: "Shapes",
-            icon: 'shapes',
-            description: "Use nodes of various shapes",
-            displayCSSVariable: '--display-shapes-features',
-            enable: this.settingTab.plugin.settings.enableShapes,
-            updateToggle: (function (value: boolean) {
-                this.settingTab.plugin.settings.enableShapes = value;
-            }).bind(this),
-            settingTab: this.settingTab
-        })
-
+    protected override addBody() {
         const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.settingTab.plugin.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return a[1].index - b[1].index;
         }));
         const values = Object.keys(shapeQueries);
         for (const shape of values) {
             const shapeSetting = this.addShape(shape as ShapeEnum);
-            this.settingShapes.push(shapeSetting);
+            this.elementsBody.push(shapeSetting.settingEl);
+            this.settingsShape.push(shapeSetting);
         }
-
-        this.settingShapes.forEach(settingShape => {
-            settingShape.settingEl.addClass("extended-graph-setting-shapes");
-        })
     }
 
     private addShape(shape: ShapeEnum): SettingShape {
@@ -48,28 +30,28 @@ export class SettingShapes {
     }
 
     private moveDown(settingShape: SettingShape) {
-        const index = this.settingShapes.indexOf(settingShape);
-        if (index >= this.settingShapes.length - 1) return;
-        [this.settingShapes[index], this.settingShapes[index + 1]] = [this.settingShapes[index + 1], this.settingShapes[index]];
+        const index = this.settingsShape.indexOf(settingShape);
+        if (index >= this.settingsShape.length - 1) return;
+        [this.settingsShape[index], this.settingsShape[index + 1]] = [this.settingsShape[index + 1], this.settingsShape[index]];
         
         const next = settingShape.settingEl.nextSibling;
         this.settingTab.containerEl?.insertAfter(settingShape.settingEl, next);
 
         this.settingTab.plugin.settings.shapeQueries[settingShape.shape].index = index + 1;
-        this.settingTab.plugin.settings.shapeQueries[this.settingShapes[index].shape].index = index;
+        this.settingTab.plugin.settings.shapeQueries[this.settingsShape[index].shape].index = index;
         this.settingTab.plugin.saveSettings();
     }
 
     private moveUp(settingShape: SettingShape) {
-        const index = this.settingShapes.indexOf(settingShape);
+        const index = this.settingsShape.indexOf(settingShape);
         if (index === 0) return;
-        [this.settingShapes[index], this.settingShapes[index - 1]] = [this.settingShapes[index - 1], this.settingShapes[index]];
+        [this.settingsShape[index], this.settingsShape[index - 1]] = [this.settingsShape[index - 1], this.settingsShape[index]];
 
         const previous = settingShape.settingEl.previousSibling;
         this.settingTab.containerEl?.insertBefore(settingShape.settingEl, previous);
 
         this.settingTab.plugin.settings.shapeQueries[settingShape.shape].index = index - 1;
-        this.settingTab.plugin.settings.shapeQueries[this.settingShapes[index].shape].index = index;
+        this.settingTab.plugin.settings.shapeQueries[this.settingsShape[index].shape].index = index;
         this.settingTab.plugin.saveSettings();
     }
 }

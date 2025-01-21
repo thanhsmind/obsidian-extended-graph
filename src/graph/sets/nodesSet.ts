@@ -47,7 +47,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const emptyTextures: string[] = [];
         for (const id of ids) {
             const imageUri = getImageUri(this.graph.dispatcher.graphsManager.plugin.app, this.graph.staticSettings.imageProperty, id);
-            if (imageUri && this.graph.staticSettings.enableImages) {
+            if (imageUri && this.graph.staticSettings.enableFeatures['images']) {
                 imageURIs.set(id, imageUri);
             } else {
                 emptyTextures.push(id);
@@ -123,7 +123,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * Reset arcs for each node
      */
     resetArcs(key: string): void {
-        if (!this.graph.staticSettings.enableTags) return;
+        if (!this.graph.staticSettings.enableFeatures['tags']) return;
         for (const [id, extendedElement] of this.extendedElementsMap) {
             const file = getFile(extendedElement.app, id);
             const arcCicle = extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key);
@@ -167,7 +167,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * @param emphasize - Whether to highlight or unhighlight the node.
      */
     emphasizeNode(file: TFile, emphasize: boolean): void {
-        if (!this.graph.staticSettings.enableFocusActiveNote) return;
+        if (!this.graph.staticSettings.enableFeatures['focus']) return;
 
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode) return;

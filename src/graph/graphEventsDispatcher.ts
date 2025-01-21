@@ -45,7 +45,7 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeUI(): void {
         this.initializeLegendUI();
-        if (this.graphsManager.plugin.settings.enableFolders) this.initializeFoldersUI();
+        if (this.graphsManager.plugin.settings.enableFeatures['folders']) this.initializeFoldersUI();
 
         this.viewsUI = new ViewsUI(this);
         this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
@@ -54,7 +54,7 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeLegendUI(): void {
         const settings = this.graphsManager.plugin.settings;
-        if (settings.enableLinks || settings.enableTags || this.hasAdditionalProperties(settings)) {
+        if (settings.enableFeatures['links'] || settings.enableFeatures['tags'] || this.hasAdditionalProperties(settings)) {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
         }
@@ -67,7 +67,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
-        return Object.values(settings.additionalProperties).some(p => p);
+        return settings.enableFeatures['properties'] && Object.values(settings.additionalProperties).some(p => p);
     }
 
     // ================================ LOADING ================================
@@ -215,7 +215,7 @@ export class GraphEventsDispatcher extends Component {
 
     private onRendered() {
         //console.log(this.graph.renderer.idleFrames);
-        if (this.graph.staticSettings.enableFolders) this.graph.folderBlobs.updateGraphics();
+        if (this.graph.staticSettings.enableFeatures['folders']) this.graph.folderBlobs.updateGraphics();
     }
 
     // ============================= INTERACTIVES ==============================

@@ -1,22 +1,15 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
-import { addHeading } from "./settingHelperFunctions";
+import { SettingsSection } from "./settingsSection";
 
-export class SettingPerformance {
-    settingTab: ExtendedGraphSettingTab;
+export class SettingPerformance extends SettingsSection {
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
+        super(settingTab, "Performances", 'cpu', "");
     }
 
-    display() {
+    protected override addBody() {
         const containerEl = this.settingTab.containerEl;
-
-        addHeading({
-            containerEl       : containerEl,
-            heading           : "Performances",
-            icon              : 'cpu'
-        })
 
         new Setting(containerEl)
             .setName('Maximum number of nodes')

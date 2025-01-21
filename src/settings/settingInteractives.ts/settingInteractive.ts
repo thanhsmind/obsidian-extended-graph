@@ -1,109 +1,101 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
 import { cmOptions } from "src/colors/colormaps";
-import { ExtendedGraphSettingTab, SettingsSection } from "../settingTab";
-import { capitalizeFirstLetter, getFileInteractives } from "src/helperFunctions";
+import { ExtendedGraphSettingTab } from "../settingTab";
+import { getFileInteractives } from "src/helperFunctions";
 import { plot_colormap, randomColor } from "src/colors/colors";
 import { INVALID_KEYS } from "src/globalVariables";
+import ExtendedGraphPlugin from "src/main";
+import { Feature } from "src/types/features";
+import { SettingsSectionCollapsible } from "../settingCollapsible";
+import { UIElements } from "src/ui/UIElements";
 
-export abstract class SettingInteractives implements SettingsSection {
-    settingTab: ExtendedGraphSettingTab;
-    interactiveName: string;
-    elementName: string;
-    previewClass: string;
+export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";
-    icon: string = "";
     
-    containerEl: HTMLElement;
     settingInteractiveColor: Setting;
-    colorsContainer: HTMLDivElement;
     settingInteractiveFilter: Setting;
-    selectionContainer: HTMLDivElement;
+    selectionContainer: HTMLElement;
     canvasPalette: HTMLCanvasElement;
-    colorItems = new Map<string, Setting>();
-    allTopElements: HTMLElement[] = [];
+    colors: SettingColor[] = [];
 
-    constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
-        this.containerEl = this.settingTab.containerEl;
+    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, title: string, icon: string, description: string) {
+        super(settingTab, feature, interactiveKey, title, icon, description);
     }
-    
-    protected abstract addHeading(): Setting;
 
-    display() {
-        this.colorItems.clear();
+    protected addBody(): void {
+        this.addNoneTypeSetting();
+        this.addColorPaletteSetting();
+        this.addSpecificColorHeaderSetting();
+        this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colors.forEach((interactive) => {
+            this.addColor(interactive.type, interactive.color);
+        })
+        this.addFilterTypeSetting();
+    }
 
-        this.addHeading();
+    protected addNoneTypeSetting() {
+        this.noneType = this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType;
+        const setting = new Setting(this.containerEl)
+            .setName('None type id')
+            .setDesc(`The id which will be given if no ${this.interactiveKey} is found.`)
+            .addText(cb => cb
+                .setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType)
+                .onChange(async (value) => {
+                    value = value.trim();
+                    if (value == this.noneType) return;
+                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType = value;
+                    INVALID_KEYS[this.interactiveKey].remove(this.noneType);
+                    INVALID_KEYS[this.interactiveKey].push(value);
+                    this.noneType = value;
+                    await this.settingTab.plugin.saveSettings();
+            }));
+        this.elementsBody.push(setting.settingEl);
+    }
 
-        // NONE TYPE
-        this.allTopElements.push(
-            new Setting(this.containerEl)
-                .setName('None type id')
-                .setDesc(`The id which will be given to ${this.elementName} with no type`)
-                .addText(cb => cb
-                    .setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].noneType)
-                    .onChange(async (value) => {
-                        value = value.trim();
-                        if (value == this.noneType) return;
-                        this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].noneType = value;
-                        INVALID_KEYS[this.interactiveName].remove(this.noneType);
-                        INVALID_KEYS[this.interactiveName].push(value);
-                        this.noneType = value;
-                        await this.settingTab.plugin.saveSettings();
-                }))
-                .settingEl
-        );
-        this.noneType = this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].noneType;
-
-        // COLOR PALETTE
-        const settingPalette = new Setting(this.containerEl)
+    protected addColorPaletteSetting(): void {
+        const setting = new Setting(this.containerEl)
             .setName(`Color palette`)
-            .setDesc(`Choose the color palette for the ${this.interactiveName}s visualizations`)
-            .addDropdown(cb => cb.addOptions(cmOptions).setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colormap)
+            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`)
+            .addDropdown(cb => cb.addOptions(cmOptions).setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap)
             .onChange(async (value) => {
                 plot_colormap(this.canvasPalette.id, value, false);
-                this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colormap = value;
-                this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveName);
+                this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = value;
+                this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
                 await this.settingTab.plugin.saveSettings();
             }));
-        this.allTopElements.push(settingPalette.settingEl);
-        settingPalette.controlEl.addClass("color-palette");
-        this.canvasPalette = settingPalette.controlEl.createEl("canvas");
-        this.canvasPalette.id = `canvas-palette-${this.interactiveName}`;
+        setting.controlEl.addClass("color-palette");
+        this.canvasPalette = setting.controlEl.createEl("canvas");
+        this.canvasPalette.id = `canvas-palette-${this.interactiveKey}`;
         this.canvasPalette.width = 100;
         this.canvasPalette.height = 20;
-        plot_colormap(this.canvasPalette.id, this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colormap, false);
-        
-        // SPECIFIC COLORS
+        plot_colormap(this.canvasPalette.id, this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap, false);
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    protected addSpecificColorHeaderSetting(): void {
         this.settingInteractiveColor = new Setting(this.containerEl)
-            .setName(`Specific ${this.interactiveName} colors`)
-            .setDesc(`Choose specific ${this.interactiveName} colors that will not be affected by the color palette`)
+            .setName(`Specific ${this.interactiveKey} colors`)
+            .setDesc(`Choose specific ${this.interactiveKey} colors that will not be affected by the color palette`)
             .addButton(cb => {
-                setIcon(cb.buttonEl, "plus");
+                UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
                     this.addColor("", randomColor());
                 })
             });
-        this.allTopElements.push(this.settingInteractiveColor.settingEl);
-        
-        this.colorsContainer = this.containerEl.createDiv("settings-colors-container");
-        this.allTopElements.push(this.colorsContainer);
+        this.elementsBody.push(this.settingInteractiveColor.settingEl);
+    }
 
-        this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colors.forEach((interactive) => {
-            this.addColor(interactive.type, interactive.color);
-        })
-
-        // FILTER TYPES
+    protected addFilterTypeSetting(): void {
         this.settingInteractiveFilter = new Setting(this.containerEl)
-            .setName(`${this.interactiveName}s selection`)
-            .setDesc(`Choose which ${this.interactiveName}s should be considered by the plugin`);
-        this.allTopElements.push(this.settingInteractiveFilter.settingEl);
+            .setName(`${this.interactiveKey}s selection`)
+            .setDesc(`Choose which ${this.interactiveKey}s should be considered by the plugin`);
+        this.elementsBody.push(this.settingInteractiveFilter.settingEl);
         
-        this.selectionContainer = this.containerEl.createDiv("settings-selection-container");
-        this.allTopElements.push(this.selectionContainer);
+        this.selectionContainer = this.containerEl.createDiv({cls: "settings-selection-container"});
+        this.elementsBody.push(this.selectionContainer);
 
         const allTypes = this.getAllTypes();
         for (const type of allTypes) {
-            const isActive = !this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].unselected.includes(type);
+            const isActive = !this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(type);
             const label = this.selectionContainer.createEl("label");
             const text = label.createSpan({text: type});
             const toggle = label.createEl("input", {type: "checkbox"});
@@ -114,73 +106,20 @@ export abstract class SettingInteractives implements SettingsSection {
         }
     }
 
-    protected addColor(type: string, color: HexString): Setting {
-        const colorSetting = new Setting(this.colorsContainer);
-        const uuid = crypto.randomUUID();
-        this.colorItems.set(uuid, colorSetting);
-        
-        colorSetting.addText(cb => {
-            cb.setPlaceholder(this.getPlaceholder());
-            cb.setValue(type);
-            cb.onChange((name: string) => {
-                this.saveColorSetting(uuid);
-            })
-        });
+    protected addColor(type: string, color: HexString): void {
+        const setting = new SettingColor(this.containerEl, this.settingTab.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this));
+        this.elementsBody.push(setting.settingEl);
 
-        colorSetting.addColorPicker(cb => {
-            cb.setValue(color);
-            cb.onChange((color: string) => {
-                this.saveColorSetting(uuid);
-            })
-        });
-
-        colorSetting.addButton(cb => {
-            setIcon(cb.buttonEl, 'x');
-            cb.onClick((() => {
-                this.removeColorSetting(uuid);
-            }))
-        });
-
-        const preview = colorSetting.controlEl.createDiv(`preview ${this.previewClass}`);
-        this.updatePreview(preview, type, color);
-
-        return colorSetting;
-    }
-
-    protected updateCSS(preview: HTMLElement, color?: string) {
-        const parent = preview.parentElement;
-        color ? parent?.style.setProperty("--interactive-color", color): parent?.style.setProperty("--interactive-color", "transparent");
-    }
-
-    protected removeColorSetting(uuid: string) {
-        const colorSetting = this.colorItems.get(uuid);
-        if (!colorSetting) return;
-
-        const textInput = colorSetting.components.find(cb => cb.hasOwnProperty('inputEl')) as TextComponent;
-        const type = textInput.getValue().trim();
-
-        this.colorsContainer.removeChild(colorSetting.settingEl);
-        this.colorItems.delete(uuid);
-        this.saveColors(type);
-    }
-
-    protected saveColorSetting(uuid: string) {
-        const colorSetting = this.colorItems.get(uuid);
-        if (!colorSetting) return;
-
-        const colorPicker = colorSetting.components.find(cb => cb.hasOwnProperty('colorPickerEl')) as ColorComponent;
-        const textInput = colorSetting.components.find(cb => cb.hasOwnProperty('inputEl')) as TextComponent;
-        const preview = colorSetting.controlEl.querySelector(".preview") as HTMLElement;
-        const type = textInput.getValue().trim();
-        const color = colorPicker.getValue();
-        this.saveColor(preview, type, color);
+        let previous = this.colors.last() ?? this.settingInteractiveColor;
+        this.containerEl.insertAfter(setting.settingEl, previous.settingEl);
+        this.colors.push(setting);
     }
 
     protected selectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.addClass("is-active");
         toggle.checked = true;
-        if (this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].unselected.includes(label.innerText)) {
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].unselected.remove(label.innerText);
+        if (this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
+            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.remove(label.innerText);
             this.settingTab.plugin.saveSettings();
         }
     }
@@ -188,36 +127,123 @@ export abstract class SettingInteractives implements SettingsSection {
     protected deselectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.removeClass("is-active");
         toggle.checked = false;
-        if (!this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].unselected.includes(label.innerText)) {
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].unselected.push(label.innerText);
+        if (!this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
+            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.push(label.innerText);
             this.settingTab.plugin.saveSettings();
         }
-    }
-
-    protected async saveColors(changedType: string) {
-        this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colors = [];
-        this.colorItems.forEach(colorSetting => {
-            const colorPicker = colorSetting.components.find(cb => cb.hasOwnProperty('colorPickerEl')) as ColorComponent;
-            const textInput = colorSetting.components.find(cb => cb.hasOwnProperty('inputEl')) as TextComponent;
-            const type = textInput.getValue();
-            const color = colorPicker.getValue();
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveName].colors.push({type: type, color: color});
-        });
-        this.settingTab.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.interactiveName, changedType);
-        await this.settingTab.plugin.saveSettings();
     }
 
     protected getAllTypes(): string[] {
         let allTypes = new Set<string>();
         for (const file of this.settingTab.app.vault.getFiles()) {
-            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveName, this.settingTab.app, file)]);
+            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, this.settingTab.app, file)]);
         }
         return [...allTypes].sort();
     }
 
-    protected abstract saveColor(preview: HTMLElement, type: string, color: string): void;
     protected abstract isValueValid(name: string): boolean;
     protected abstract getPlaceholder(): string;
-    protected abstract updatePreview(preview: HTMLDivElement, type?: string, color?: string): void;
 }
 
+
+class SettingColor extends Setting {
+    plugin: ExtendedGraphPlugin;
+
+    isValid: (type: string) => boolean;
+    key: string;
+    type: string;
+    color: string;
+
+    textComponent: TextComponent;
+    colorComponent: ColorComponent;
+
+    constructor(containerEl: HTMLElement, plugin: ExtendedGraphPlugin, key: string, type: string, color: HexString, isValid: (type: string) => boolean) {
+        super(containerEl);
+
+        this.plugin = plugin;
+        this.isValid = isValid;
+        this.key = key;
+        this.type = type;
+        this.color = color;
+        
+        this.addText(cb => {
+            this.textComponent = cb;
+            cb.setPlaceholder(key);
+            cb.setValue(type);
+            cb.onChange((name: string) => {
+                this.save();
+            })
+        });
+
+        this.addColorPicker(cb => {
+            this.colorComponent = cb;
+            cb.setValue(color);
+            cb.onChange((color: string) => {
+                this.updateCSS();
+                this.save();
+            })
+        });
+
+        this.addButton(cb => {
+            setIcon(cb.buttonEl, 'x');
+            cb.onClick((() => {
+                this.remove();
+            }))
+        });
+
+        this.updateCSS();
+        this.settingEl.addClass('setting-color');
+    }
+
+    private save() {
+        if (!this.isValid(this.type)) return;
+
+        const newType = this.textComponent.getValue().trim();
+        const newColor = this.colorComponent.getValue();
+
+        const colors = this.plugin.settings.interactiveSettings[this.key].colors;
+
+        // Remove old data
+        const oldIndex = colors.findIndex(c => c.type === this.type);
+        if (oldIndex !== -1) {
+            colors.remove(colors[oldIndex]);
+        }
+
+        // Add new data
+        const newIndex = colors.findIndex(c => c.type === newType);
+
+        if (newIndex === -1) {
+            colors.push({type: newType, color: newColor});
+        }
+        else {
+            colors[newIndex] = {type: newType, color: newColor};
+        }
+
+        this.plugin.saveSettings();
+        if (this.type !== newType) {
+            this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
+        }
+        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, newType);
+
+        this.type = newType;
+        this.color = newColor;
+    }
+
+    private updateCSS() {
+        this.settingEl.style.setProperty("--interactive-color", this.colorComponent.getValue());
+    }
+
+    protected remove() {
+        const type = this.textComponent.getValue().trim();
+
+        const colors = this.plugin.settings.interactiveSettings[this.key].colors;
+        const oldIndex = colors.findIndex(c => c.type === this.type);
+        if (oldIndex !== -1) {
+            colors.remove(colors[oldIndex]);
+        }
+        this.plugin.saveSettings();
+        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, type);
+
+        this.settingEl.remove();
+    }
+}

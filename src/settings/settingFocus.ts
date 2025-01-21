@@ -1,33 +1,17 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab } from "./settingTab";
-import { addHeading } from "./settingHelperFunctions";
+import { SettingsSectionCollapsible } from "./settingCollapsible";
 
-export class SettingFocus {
-    settingTab: ExtendedGraphSettingTab;
+export class SettingFocus extends SettingsSectionCollapsible {
     allTopElements: HTMLElement[] = [];
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        this.settingTab = settingTab;
+        super(settingTab, 'focus', '', "Focus", 'telescope', "Scale up the node corresponding to the active note");
     }
 
-    display() {
-        const containerEl = this.settingTab.containerEl;
-
-        addHeading({
-            containerEl       : containerEl,
-            heading           : "Focus",
-            icon              : 'telescope',
-            description       : "Scale up the node corresponding to the active note",
-            displayCSSVariable: '--display-focus-features',
-            enable            : this.settingTab.plugin.settings.enableFocusActiveNote,
-            updateToggle      : (function(value: boolean) {
-                this.settingTab.plugin.settings.enableFocusActiveNote = value;
-            }).bind(this),
-            settingTab        : this.settingTab
-        })
-
-        this.allTopElements.push(
-            new Setting(containerEl)
+    protected override addBody(): void {
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
                 .setName('Scale factor')
                 .setDesc('The node corresponding to the currently active note will be scaled up by this factor.')
                 .addText(cb => cb
@@ -38,12 +22,7 @@ export class SettingFocus {
                             this.settingTab.plugin.settings.focusScaleFactor = n;
                             await this.settingTab.plugin.saveSettings();
                         }
-                }))
-                .settingEl
+                })).settingEl
         );
-
-        this.allTopElements.forEach(el => {
-            el.addClass("extended-graph-setting-focus");
-        })
     }
 }
