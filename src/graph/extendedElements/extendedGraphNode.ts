@@ -71,20 +71,6 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
         return this.coreElement.id;
     }
 
-    // ================================ TOGGLE =================================
-
-    override disable() {
-        super.disable();
-
-        this.graphicsWrapper?.fadeOut();
-    }
-
-    override enable() {
-        super.enable();
-
-        this.graphicsWrapper?.fadeIn();
-    }
-
     // =============================== PIN NODES ===============================
 
     pin(): void {

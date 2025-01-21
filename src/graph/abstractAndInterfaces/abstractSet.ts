@@ -80,6 +80,9 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
             isElementMissing = true;
             const types = this.getTypesFromFile(key, element, (file as TFile));
+            if (types.size === 0) {
+                types.add(this.graph.staticSettings.interactiveSettings[key].noneType);
+            }
             this.addTypes(key, types, id, missingTypes);
         }
 
@@ -203,7 +206,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             if (!elementTypes.has(type)) {
                 continue;
             }
-            
+
             extendedElement.disableType(key, type);
 
             if (extendedElement.isAnyManagerDisabled()) {

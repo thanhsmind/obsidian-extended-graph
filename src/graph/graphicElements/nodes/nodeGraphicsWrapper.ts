@@ -57,7 +57,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
                 return;
             }
         }
-        
     }
 
     private changeGetSize() {
