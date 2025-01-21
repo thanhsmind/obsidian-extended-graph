@@ -44,6 +44,17 @@ export class SettingLinks extends SettingInteractives {
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(`Curved links`)
+            .setDesc(`Use curved links instead of straight lines`)
+            .addToggle(cb => {
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['curvedLinks']);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.enableFeatures['curvedLinks'] = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     protected override isValueValid(name: string): boolean {

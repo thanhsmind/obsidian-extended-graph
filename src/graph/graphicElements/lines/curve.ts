@@ -15,7 +15,7 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
     }
 
     redrawType(type: string, color?: Uint8Array): void {
-        console.log(this.link);
+        this.clear();
         const renderer = this.link.renderer;
         
         const f = renderer.nodeScale;
@@ -56,7 +56,7 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         else {
             this.tint = this.manager.getColor(type);
         }
-        this.alpha = this.link.line.alpha + 0.5;
+        this.alpha = this.link.line.alpha + this.targetAlpha;
         this.link.line.alpha = -0.2;
     }
 }

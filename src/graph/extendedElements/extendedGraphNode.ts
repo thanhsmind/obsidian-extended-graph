@@ -8,15 +8,13 @@ import { ShapeEnum } from "../graphicElements/nodes/shapes";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;
-    settings: ExtendedGraphSettings;
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], app: App, settings: ExtendedGraphSettings) {
-        super(node, types, managers);
-        this.settings = settings;
+    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, app: App) {
+        super(node, types, managers, settings);
         this.app = app;
         this.initGraphicsWrapper();
     }

@@ -5,6 +5,7 @@ import { LineLinkGraphicsWrapper } from "../graphicElements/lines/lineLinkGraphi
 import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
 import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
 import { CurveLinkGraphicsWrapper } from "../graphicElements/lines/curveLinkGraphicsWrapper";
+import { ExtendedGraphSettings } from "src/settings/settings";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
@@ -12,12 +13,15 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
-        super(link, types, managers);
+    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings) {
+        super(link, types, managers, settings);
         this.initGraphicsWrapper();
     }
 
     protected needGraphicsWrapper(): boolean {
+        if (this.settings.enableFeatures['curvedLinks']) {
+            return true;
+        }
         for (const [key, manager] of this.managers) {
             const types = this.types.get(key);
             if (!types || types.size === 0) continue;
@@ -29,7 +33,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
+        if (this.settings.enableFeatures['curvedLinks']) {
+            this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
+        }
+        else {
+            this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
+        }
         this.graphicsWrapper.initGraphics();
 
         let layer = 1;

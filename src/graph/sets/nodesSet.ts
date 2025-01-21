@@ -89,8 +89,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
             node,
             types,
             [...this.managers.values()],
+            this.graph.staticSettings,
             this.graph.dispatcher.graphsManager.plugin.app,
-            this.graph.staticSettings
         );
 
         this.extendedElementsMap.set(id, extendedGraphNode);

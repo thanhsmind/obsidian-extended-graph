@@ -7,6 +7,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
+    targetAlpha: number = 0.6;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string) {
         super();

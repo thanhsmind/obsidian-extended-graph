@@ -15,6 +15,6 @@ export class LinkLineGraphics extends LinkGraphics implements ManagerGraphics {
         this.lineStyle({width: 16, color: color ? color : this.manager.getColor(type)})
             .moveTo(0, 8)
             .lineTo(16, 8);
-        this.alpha = 0.6;
+        this.alpha = this.targetAlpha;
     }
 }

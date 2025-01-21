@@ -76,6 +76,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'properties'  : false,
         'property-key': true,
         'links'       : true,
+        'curvedLinks' : false,
         'folders'     : false,
         'images'      : true,
         'focus'       : false,
