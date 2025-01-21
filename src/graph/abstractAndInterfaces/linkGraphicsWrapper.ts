@@ -2,14 +2,14 @@ import { GraphLink } from "obsidian-typings";
 import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
 import { InteractiveManager } from "../interactiveManager";
 import { GraphicsWrapper } from "./graphicsWrapper";
-import { ManagerGraphics } from "./managerGraphics";
-import { LineLink } from "../graphicElements/lines/line";
+import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
 
-export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> {
+export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values
     name: string;
     extendedElement: ExtendedGraphLink;
-    pixiElement: LineLink;
+    managerGraphicsMap?: Map<string, T>;
+    pixiElement: T;
 
 
     constructor(extendedElement: ExtendedGraphLink) {
@@ -19,7 +19,15 @@ export abstract class LinkGraphicsWrapper implements GraphicsWrapper<GraphLink> 
 
     // ============================= INITALIZATION =============================
 
-    initGraphics(): void { }
+    initGraphics(): void {
+        this.managerGraphicsMap = new Map<string, T>();
+    }
+
+    setManagerGraphics(manager: InteractiveManager, linkGraphics: T) {
+        this.managerGraphicsMap?.set(manager.name, linkGraphics);
+        this.pixiElement = linkGraphics;
+        this.connect();
+    }
 
     abstract createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
 

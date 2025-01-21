@@ -3,13 +3,12 @@ import { InteractiveManager } from "../interactiveManager";
 import { ExtendedGraphElement } from "../abstractAndInterfaces/extendedGraphElement";
 import { LineLinkGraphicsWrapper } from "../graphicElements/lines/lineLinkGraphicsWrapper";
 import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
-import { LINK_KEY } from "src/globalVariables";
-
-
+import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
+import { CurveLinkGraphicsWrapper } from "../graphicElements/lines/curveLinkGraphicsWrapper";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
-    graphicsWrapper?: LinkGraphicsWrapper;
+    graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -30,7 +29,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
+        this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
 
         let layer = 1;

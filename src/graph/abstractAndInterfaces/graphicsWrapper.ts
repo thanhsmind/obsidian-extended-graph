@@ -3,13 +3,13 @@ import { GraphLink, GraphNode } from "obsidian-typings";
 import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
 import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
 import { ArcsCircle } from "../graphicElements/nodes/arcsCircle";
-import { LineLink } from "../graphicElements/lines/line";
+import { LinkLineGraphics } from "../graphicElements/lines/line";
 import { InteractiveManager } from "../interactiveManager";
 
 export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     name: string;
     extendedElement: ExtendedGraphNode | ExtendedGraphLink;
-    managerGraphicsMap?: Map<string, ArcsCircle | LineLink>;
+    managerGraphicsMap?: Map<string, ArcsCircle | LinkLineGraphics>;
     pixiElement: Graphics | Container;
     
     initGraphics(): void;
