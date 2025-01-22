@@ -226,17 +226,14 @@ export class NodeShape extends Graphics {
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttributeNS(null, 'fill', 'currentColor');
         svg.setAttributeNS(null, 'stroke-width', '0');
+        svg.appendChild(NodeShape.getInnerSVG(shape));
 
         switch (type) {
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
-                const circle = getSVGNode('circle', {cx: 100, cy: 100, r: 100});
-                svg.appendChild(circle);
                 svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
                 break;
             case ShapeType.SQUARE:
-                const square = getSVGNode('rect', {width: 200, height: 200});
-                svg.appendChild(square);
                 svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
                 break;
             case ShapeType.POLYGON:
@@ -247,17 +244,35 @@ export class NodeShape extends Graphics {
                 }
                 const max = Math.max.apply(null, V);
                 const min = Math.min.apply(null, V);
-                let pathStr = `M ${V[0]} ${V[1]} `;
-                for (let k = 2; k < V.length; k += 2) {
-                    pathStr += `L ${V[k]} ${V[k+1]} `
-                }
-                const path = getSVGNode('path', {d: pathStr});
-                svg.appendChild(path);
                 svg.setAttributeNS(null, 'viewBox', `${min} ${min} ${max-min} ${max-min}`);
             default:
                 break;
         }
 
         return svg;
+    }
+
+    static getInnerSVG(shape: ShapeEnum): SVGElement {
+        const type = NodeShape.getType(shape);
+
+        switch (type) {
+            case ShapeType.SQUARE:
+                return getSVGNode('rect', {width: 200, height: 200});
+            case ShapeType.POLYGON:
+            case ShapeType.STARBURST:
+                const V = NodeShape.getVertices(shape);
+                for (let k = 0; k < V.length; ++k) {
+                    V[k] += 100;
+                }
+                let pathStr = `M ${V[0]} ${V[1]} `;
+                for (let k = 2; k < V.length; k += 2) {
+                    pathStr += `L ${V[k]} ${V[k+1]} `
+                }
+                return getSVGNode('path', {d: pathStr});
+            case ShapeType.CIRCLE:
+            case ShapeType.UNKNOWN:
+            default:
+                return getSVGNode('circle', {cx: 100, cy: 100, r: 100});
+        }
     }
 }

@@ -7,6 +7,7 @@ import { ExtendedGraphLink, getLinkID } from "../graph/extendedElements/extended
 import { App, HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import { ExportSVGOptionModal, ExportSVGOptions } from "./exportSVGOptionsModal";
+import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
 
 export abstract class ExportGraphToSVG {
     app: App;
@@ -154,14 +155,24 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     protected override getSVGForNode(extendedNode: ExtendedGraphNode, options: ExportSVGOptions): SVGElement {
         const node = extendedNode.coreElement;
 
-        const circle = getSVGNode('circle', {
-            cx: node.circle.x,
-            cy: node.circle.y,
-            r: node.getSize(),
-            fill: int2hex(node.getFillColor().rgb)
-        });
-
-        return circle;
+        if (options.useNodesShapes && extendedNode.graphicsWrapper) {
+            const g = getSVGNode('g', {
+                transform: `translate(${node.circle.x - node.getSize()} ${node.circle.y - node.getSize()}) scale(${node.getSize() / NodeShape.RADIUS})`,
+                fill: int2hex(node.getFillColor().rgb)
+            });
+            const shape = NodeShape.getInnerSVG(extendedNode.graphicsWrapper?.shape);
+            g.appendChild(shape);
+            return g;
+        }
+        else {
+            const circle = getSVGNode('circle', {
+                cx: node.circle.x,
+                cy: node.circle.y,
+                r: node.getSize(),
+                fill: int2hex(node.getFillColor().rgb)
+            });
+            return circle;
+        }
     }
 
     protected override getSVGForLink(extendedLink: ExtendedGraphLink, options: ExportSVGOptions): SVGElement {
