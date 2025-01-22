@@ -14,7 +14,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     isPinned: boolean = false;
 
     // Size
-    baseScale: number = 1;
+    graphicsWrapperScale: number = 1;
     radius: number = NodeShape.RADIUS;
     getSizeCallback?: () => number;
 
@@ -58,6 +58,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new NodeGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
+        this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
@@ -113,10 +114,15 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
     getSize(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
-        const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileSizes.get(this.id);
         const node = this.coreElement;
-        const originalSize = node.renderer.fNodeSizeMult * Math.max(8, Math.min(3 * Math.sqrt(node.weight + 1), 30));
-        return originalSize * this.baseScale * customRadiusFactor * (customFunctionFactor ?? 1);
+        if (this.settings.nodeSizeFunction !== 'default') {
+            let customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileSizes.get(this.id);
+            return this.graphicsWrapperScale * customRadiusFactor * (customFunctionFactor ?? 1);
+        }
+        else {
+            const originalSize = node.renderer.fNodeSizeMult * Math.max(8, Math.min(3 * Math.sqrt(node.weight + 1), 30));
+            return originalSize * this.graphicsWrapperScale * customRadiusFactor;
+        }
     }
 
     // ============================== CORE ELEMENT =============================

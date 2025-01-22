@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab } from "./settingTab";
 import { SettingsSectionCollapsible } from "./settingCollapsible";
 import { isPropertyKeyValid } from "src/helperFunctions";
 import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
-import { NodeSizeCalculator, NodeSizeFunction, nodeSizeFunctionLabels } from "src/nodeSizes/nodeSizeCalculator";
+import { NodeSizeFunction, nodeSizeFunctionLabels } from "src/nodeSizes/nodeSizeCalculator";
 import { NodeSizeCalculatorFactory } from "src/nodeSizes/nodeSizeCalculatorFactory";
 
 export class SettingNodeSize extends SettingsSectionCollapsible {
@@ -27,7 +27,7 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.nodeSizeProperty)
                 .onChange(async (key) => {
-                    if (isPropertyKeyValid(key)) {
+                    if (key === "" || isPropertyKeyValid(key)) {
                         this.settingTab.plugin.settings.nodeSizeProperty = key;
                         await this.settingTab.plugin.saveSettings();
                     }

@@ -1,6 +1,6 @@
 import { App, TFile } from "obsidian";
 
-export type NodeSizeFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime';
+export type NodeSizeFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
 
 export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
     'default': "Default",
@@ -9,7 +9,14 @@ export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
     'forwardUniquelinksCount': "Number of unique forward links",
     'filenameLength': "File name length",
     'tagsCount': "Number of tags",
-    'creationTime': "Time since file creation"
+    'creationTime': "Time since file creation",
+    'eccentricity': "Eccentricity in the connected graph",
+    'betweenness': "Betweenness centrality",
+    'closeness': "Closeness centrality",
+    'degree': "Degree centrality",
+    'eigenvector': "Eigenvector centrality",
+    'hub': "Hub centrality (from HITS)",
+    'authority': "Authority centrality (from HITS)",
 }
 
 export abstract class NodeSizeCalculator {
@@ -21,8 +28,9 @@ export abstract class NodeSizeCalculator {
     }
 
     async computeSizes(): Promise<void> {
-        await this.getSizes()
+        await this.getSizes();
         this.normalize();
+        this.cleanNanAndInfinite();
     }
 
     private async getSizes(): Promise<void> {
@@ -34,14 +42,28 @@ export abstract class NodeSizeCalculator {
     }
 
     private normalize(): void {
-        const min = Math.min(...this.fileSizes.values());
-        const max = Math.max(...this.fileSizes.values());
+        const N = this.getNumberValues();
+        const min = Math.min(...N);
+        const max = Math.max(...N);
         this.fileSizes.forEach((size: number, path: string) => {
             this.fileSizes.set(path, (size - min) / (max - min) + 0.5);
-        })
+        });
+    }
+
+    private getNumberValues(): number[] {
+        return [...this.fileSizes.values()].filter(n => isFinite(n) && !isNaN(n));
+    }
+
+    private cleanNanAndInfinite() {
+        this.fileSizes.forEach((size: number, path: string) => {
+            if (!isFinite(size) || isNaN(size)) {
+                this.fileSizes.set(path, 1);
+            }
+        });
     }
 
     abstract getSize(file: TFile): Promise<number>;
 
     getWarning(): string { return ""; }
+    getLink(): string { return ""; }
 }

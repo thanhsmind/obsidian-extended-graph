@@ -5,6 +5,9 @@ import { NodeSizeFunction, NodeSizeCalculator } from "./nodeSizeCalculator";
 import { FilenameLengthCalculator } from "./filenameLengthCalculator";
 import { TagsCountCalculator } from "./tagsCountCalculator";
 import { CreationTimeCalculator } from "./creationTimeCalculator";
+import { EccentricityCalculator } from "./eccentricityCalculator";
+import { GraphologySingleton } from "./graphology";
+import * as centrality from "./centralityCalculator";
 
 export class NodeSizeCalculatorFactory {
     static getCalculator(key: NodeSizeFunction, app: App): NodeSizeCalculator | undefined {
@@ -21,6 +24,20 @@ export class NodeSizeCalculatorFactory {
                 return new TagsCountCalculator(app);
             case 'creationTime':
                 return new CreationTimeCalculator(app);
+            case 'eccentricity':
+                return new EccentricityCalculator(app);
+            case 'closeness':
+                return new centrality.ClosenessCentralityCalculator(app, GraphologySingleton.getGraphology(app));
+            case 'betweenness':
+                return new centrality.BetweennessCentralityCalculator(app, GraphologySingleton.getGraphology(app));
+            case 'degree':
+                return new centrality.DegreeCentralityCalculator(app, GraphologySingleton.getGraphology(app));
+            case 'eigenvector':
+                return new centrality.EigenvectorCentralityCalculator(app, GraphologySingleton.getGraphology(app));
+            case 'hub':
+                return new centrality.HubsCalculator(app, GraphologySingleton.getGraphology(app));
+            case 'authority':
+                return new centrality.AuthoritiesCalculator(app, GraphologySingleton.getGraphology(app));
             default:
                 return;
         }
