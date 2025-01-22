@@ -10,6 +10,7 @@ import { TAG_KEY } from "./globalVariables";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
 import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
 import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG } from "./svg/exportToSVG";
 
 
 export class GraphsManager extends Component {
@@ -421,5 +422,19 @@ export class GraphsManager extends Component {
         if (source === "graph-context-menu" && leaf && file instanceof TFile) {
             this.dispatchers.get(leaf.id)?.onNodeMenuOpened(menu, file);
         }
+    }
+
+    // ============================== SCREENSHOT ===============================
+
+    getSVGScreenshot(leaf: WorkspaceLeafExt) {
+        const dispatcher = this.dispatchers.get(leaf.id);
+        let exportToSVG: ExportGraphToSVG;
+        if (dispatcher) {
+            exportToSVG = new ExportExtendedGraphToSVG(this.plugin.app, dispatcher.graph);
+        }
+        else {
+            exportToSVG = new ExportCoreGraphToSVG(this.plugin.app, getEngine(leaf));
+        }
+        exportToSVG.toClipboard();
     }
 }

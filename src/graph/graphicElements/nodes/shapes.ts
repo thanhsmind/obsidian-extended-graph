@@ -1,4 +1,5 @@
 import { ColorSource, Graphics } from "pixi.js";
+import { getSVGNode } from "src/helperFunctions";
 
 export enum ShapeEnum {
     CIRCLE = "circle",
@@ -221,13 +222,6 @@ export class NodeShape extends Graphics {
 
     static getSVG(shape: ShapeEnum): SVGElement {
         const type = NodeShape.getType(shape);
-
-        const getNode = function(n: string, v: any): SVGElement {
-            const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);
-            for (var p in v)
-                svgNode.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
-            return svgNode;
-        }
         
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttributeNS(null, 'fill', 'currentColor');
@@ -236,12 +230,12 @@ export class NodeShape extends Graphics {
         switch (type) {
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
-                const circle = getNode('circle', {cx: 100, cy: 100, r: 100});
+                const circle = getSVGNode('circle', {cx: 100, cy: 100, r: 100});
                 svg.appendChild(circle);
                 svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
                 break;
             case ShapeType.SQUARE:
-                const square = getNode('rect', {width: 200, height: 200});
+                const square = getSVGNode('rect', {width: 200, height: 200});
                 svg.appendChild(square);
                 svg.setAttributeNS(null, 'viewBox', '0 0 200 200');
                 break;
@@ -257,7 +251,7 @@ export class NodeShape extends Graphics {
                 for (let k = 2; k < V.length; k += 2) {
                     pathStr += `L ${V[k]} ${V[k+1]} `
                 }
-                const path = getNode('path', {d: pathStr});
+                const path = getSVGNode('path', {d: pathStr});
                 svg.appendChild(path);
                 svg.setAttributeNS(null, 'viewBox', `${min} ${min} ${max-min} ${max-min}`);
             default:

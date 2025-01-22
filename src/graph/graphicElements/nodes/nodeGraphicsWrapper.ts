@@ -56,9 +56,6 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
         }
     }
 
-    // ============================= PROXY METHODS =============================
-
-
     // ============================= INITALIZATION =============================
 
     initGraphics(): void {

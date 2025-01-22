@@ -3,6 +3,7 @@ import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
 import { InteractiveManager } from "../interactiveManager";
 import { GraphicsWrapper } from "./graphicsWrapper";
 import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
+import { HexString } from "obsidian";
 
 export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values
@@ -10,7 +11,6 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     extendedElement: ExtendedGraphLink;
     managerGraphicsMap?: Map<string, T>;
     pixiElement: T;
-
 
     constructor(extendedElement: ExtendedGraphLink) {
         this.name = extendedElement.id;
