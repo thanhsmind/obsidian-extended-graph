@@ -119,7 +119,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     getSize(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.nodeSizeFunction !== 'default') {
+        if (this.settings.enableFeatures['node-size'] && this.settings.nodeSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
             let customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileSizes.get(this.id);
             return originalSize * this.graphicsWrapperScale * customRadiusFactor * (customFunctionFactor ?? 1);

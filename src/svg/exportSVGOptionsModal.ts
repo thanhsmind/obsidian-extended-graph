@@ -3,6 +3,7 @@ import { Graph } from "src/graph/graph";
 import { ExtendedGraphSettings } from "src/settings/settings";
 
 export type ExportSVGOptions = {
+    asImage: boolean,
     showNodeNames: boolean,
     useCurvedLinks: boolean,
     useNodesShapes: boolean,
@@ -15,6 +16,7 @@ export class ExportSVGOptionModal extends Modal {
     isCanceled: boolean = true;
 
     options: ExportSVGOptions = {
+        asImage: true,
         // Core options
         showNodeNames: false,
         // Extended options
@@ -131,15 +133,27 @@ export class ExportSVGOptionModal extends Modal {
     // ============================ APPLY AND CLOSE ============================
 
     private addApply() {
-        new Setting(this.contentEl)
+        const setting = new Setting(this.contentEl)
             .addButton(cb => {
+                cb.setButtonText("Copy svg code to clipboard");
+                cb.onClick(() => {
+                    this.isCanceled = false;
+                    this.options.asImage = false;
+                    this.close();
+                })
+            });
+            
+        if (ClipboardItem.supports("image/svg+xml")) {
+            setting.addButton(cb => {
                 cb.setButtonText("Copy screenshot to clipboard");
                 cb.setCta();
                 cb.onClick(() => {
                     this.isCanceled = false;
+                    this.options.asImage = true;
                     this.close();
                 })
             })
+        }
     }
 }
 

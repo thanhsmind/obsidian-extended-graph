@@ -1,6 +1,6 @@
 
 import { Graph } from "../graph/graph";
-import { getSVGNode } from "src/helperFunctions";
+import { getSVGNode, polar2Cartesian } from "src/helperFunctions";
 import { ExtendedGraphNode } from "../graph/extendedElements/extendedGraphNode";
 import { int2hex, rgb2hex } from "src/colors/colors";
 import { ExtendedGraphLink, getLinkID } from "../graph/extendedElements/extendedGraphLink";
@@ -8,10 +8,15 @@ import { App, HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import { ExportSVGOptionModal, ExportSVGOptions } from "./exportSVGOptionsModal";
 import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
+import { ArcsCircle } from "src/graph/graphicElements/nodes/arcsCircle";
 
 export abstract class ExportGraphToSVG {
     app: App;
     svg: SVGSVGElement;
+
+    groupLinks: SVGElement;
+    groupNodes: SVGElement;
+    groupText: SVGElement;
     
     minX: number;
     maxX: number;
@@ -27,38 +32,34 @@ export abstract class ExportGraphToSVG {
         
         this.svg.setAttributeNS(null, 'viewBox', this.getViewBox());
 
+        this.groupLinks = getSVGNode('g', {id: 'links'});
+        this.groupNodes = getSVGNode('g', {id: 'nodes'});
+        this.groupText = getSVGNode('g', {id: 'texts'});
+
         this.addLinks(options);
         this.addNodes(options);
+
+        this.svg.appendChild(this.groupLinks);
+        this.svg.appendChild(this.groupNodes);
+        this.svg.appendChild(this.groupText);
     }
 
     private addNodes(options: ExportSVGOptions): void {
-        const groupNodes = getSVGNode('g', {id: 'nodes'});
-
         const visibleNodes = this.getVisibleNodes();
         for (const extendedNode of visibleNodes) {
-            const group = getSVGNode('g', {id: extendedNode.id});
-
             const shape = this.getSVGForNode(extendedNode, options);
-            group.appendChild(shape);
+            this.groupNodes.appendChild(shape);
 
             const text = this.getSVGForText(extendedNode, options);
-            if (text) group.appendChild(text);
-
-            groupNodes.append(group);
+            if (text) this.groupText.appendChild(text);
         }
-
-        this.svg.appendChild(groupNodes);
     }
 
     private addLinks(options: ExportSVGOptions): void {
-        const group = getSVGNode('g', {id: 'links'});
-
         const visibleLinks = this.getVisibleLinks();
         for (const extendedLink of visibleLinks) {
-            group.appendChild(this.getSVGForLink(extendedLink, options));
+            this.groupLinks.appendChild(this.getSVGForLink(extendedLink, options));
         }
-
-        this.svg.appendChild(group);
     }
 
     private getSVGForText(node: ExtendedGraphNode | GraphNode, options: ExportSVGOptions): SVGElement | null {
@@ -67,6 +68,8 @@ export abstract class ExportGraphToSVG {
         const coreNode = this.getCoreNode(node);
 
         const text = getSVGNode('text', {
+            class: 'node-name',
+            id: 'text:' + node.id,
             x: coreNode.circle.x,
             y: coreNode.circle.y + coreNode.getSize() + 20 + 4,
             style: "font-size: 20px;",
@@ -102,31 +105,33 @@ export abstract class ExportGraphToSVG {
 
     async toClipboard(): Promise<void> {
         try {
-            if (ClipboardItem.supports("image/svg+xml")) {
-                const modal: ExportSVGOptionModal = this.getModal();
+            const modal: ExportSVGOptionModal = this.getModal();
 
                 modal.onClose = (async function() {
                     if (modal.isCanceled) return;
 
                     // Create SVG
                     this.createSVG(modal.options);
+                    const svgString = this.toString();
+                    
+                    // Copy SVG as Image
+                    if (modal.options.asImage) {
+                        const blob = new Blob([svgString], {type: "image/svg+xml"});
+                        await navigator.clipboard.write([
+                            new ClipboardItem({
+                                "image/svg+xml": blob
+                            }),
+                        ]);
+                    }
+                    // Copy SVG as text
+                    else {
+                        await navigator.clipboard.writeText(svgString);
+                    }
 
-                    // Copy SVG
-                    const blob = new Blob([this.toString()], {type: "image/svg+xml"});
-                    console.log(this.toString());
-                    await navigator.clipboard.write([
-                        new ClipboardItem({
-                            "image/svg+xml": blob
-                        }),
-                    ]);
                     new Notice("SVG copied to clipboard");
                 }).bind(this);
                 
                 modal.open();
-                
-            } else {
-                new Notice("SVG images are not supported by the clipboard.");
-            }
         } catch (err) {
             console.error(err.name, err.message);
         }
@@ -153,10 +158,27 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     protected override getSVGForNode(extendedNode: ExtendedGraphNode, options: ExportSVGOptions): SVGElement {
-        const node = extendedNode.coreElement;
+        const group = getSVGNode('g', {
+            class: 'node-group',
+            id: 'node:' + extendedNode.id
+        });
 
+        const nodeShape = this.getSVGForNodeShape(extendedNode, options);
+        group.appendChild(nodeShape);
+
+        if (options.showArcs) {
+            const arcs = this.getSVGForArcs(extendedNode);
+            group.appendChild(arcs);
+        }
+
+        return group;
+    }
+
+    private getSVGForNodeShape(extendedNode: ExtendedGraphNode, options: ExportSVGOptions): SVGElement {
+        const node = extendedNode.coreElement;
         if (options.useNodesShapes && extendedNode.graphicsWrapper) {
             const g = getSVGNode('g', {
+                class: 'node-shape',
                 transform: `translate(${node.circle.x - node.getSize()} ${node.circle.y - node.getSize()}) scale(${node.getSize() / NodeShape.RADIUS})`,
                 fill: int2hex(node.getFillColor().rgb)
             });
@@ -166,6 +188,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         }
         else {
             const circle = getSVGNode('circle', {
+                class: 'node-shape',
                 cx: node.circle.x,
                 cy: node.circle.y,
                 r: node.getSize(),
@@ -175,10 +198,56 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         }
     }
 
+    private getSVGForArcs(extendedNode: ExtendedGraphNode): SVGElement {
+        const node = extendedNode.coreElement;
+        const cx = node.circle.x;
+        const cy = node.circle.y;
+
+        const group = getSVGNode('g', {
+            class: 'arcs'
+        });
+
+        for (const [key, manager] of extendedNode.managers) {
+            const arcs = extendedNode.graphicsWrapper?.managerGraphicsMap?.get(key);
+            if (!arcs) continue;
+
+            const circleGroup = getSVGNode('g', {
+                class: 'arcs-circle'
+            });
+            
+            for (const [type, arc] of arcs.graphics) {
+                const color: HexString = rgb2hex(manager.getColor(type));
+                
+                const alpha      = arc.graphic.alpha;
+                const radius     = node.getSize() * (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * arcs.circleLayer) * 2 * NodeShape.getSizeFactor(arcs.shape);
+                const startAngle = arcs.arcSize * arc.index + ArcsCircle.gap * 0.5;
+                const endAngle   = arcs.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
+                const thickness  = node.getSize() * ArcsCircle.thickness * 2 * NodeShape.getSizeFactor(arcs.shape);
+                
+                var start = polar2Cartesian(cx, cy, radius, endAngle);
+                var end = polar2Cartesian(cx, cy, radius, startAngle);
+                var largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+
+                const path = `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+                const arcSVG = getSVGNode('path', {
+                    class: 'arc arc-' + type,
+                    d: path,
+                    opacity: alpha,
+                    'stroke-width': thickness,
+                    'stroke': color,
+                    'fill': 'none',
+                });
+                circleGroup.appendChild(arcSVG);
+            }
+
+            group.appendChild(circleGroup);
+        }
+
+        return group;
+    }
+
     protected override getSVGForLink(extendedLink: ExtendedGraphLink, options: ExportSVGOptions): SVGElement {
         const link = extendedLink.coreElement;
-
-        console.log(getLinkID(link), link);
 
         let path: string;
         if (options.useCurvedLinks) {
@@ -197,6 +266,8 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         const width: number = (this.graph.engine.options.lineSizeMultiplier ?? 1) * 4;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line.alpha;
         const line = getSVGNode('path', {
+            class: 'link',
+            id: 'link:' + getLinkID(link),
             d: path,
             stroke: color,
             'stroke-width': width,
@@ -238,6 +309,8 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
 
     protected override getSVGForNode(node: GraphNode): SVGElement {;
         const circle = getSVGNode('circle', {
+            class: 'node-shape',
+            id: 'node:' + node.id,
             cx: node.circle.x,
             cy: node.circle.y,
             r: node.getSize(),
@@ -252,7 +325,14 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
         const color: HexString = int2hex(Number(link.line.tint));
         const width: number = (this.engine.options.lineSizeMultiplier ?? 1) * 4;
         const opacity: number = link.line.alpha;
-        const line = getSVGNode('path', {d: path, stroke: color, 'stroke-width': width, opacity: opacity});
+        const line = getSVGNode('path', {
+            class: 'link',
+            id: 'link:' + getLinkID(link),
+            d: path,
+            stroke: color,
+            'stroke-width': width,
+            opacity: opacity
+        });
 
         return line;
     }

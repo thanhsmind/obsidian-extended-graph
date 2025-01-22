@@ -11,6 +11,13 @@ export function getSVGNode(n: string, v?: any): SVGElement {
     return svgNode;
 }
 
+export function polar2Cartesian(x: number, y: number, r: number, theta: number) {
+    return {
+        x: x + (r * Math.cos(theta)),
+        y: y + (r * Math.sin(theta))
+    };
+}
+
 export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
     let el: Element = renderer.interactiveEl;
