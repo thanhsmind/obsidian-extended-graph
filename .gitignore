@@ -25,3 +25,4 @@ data.json
 debug/
 logs.txt
 *.xcf
+git-filter-repo
