@@ -45,14 +45,18 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     }
 
     public needImage(): boolean { return this.settings.enableFeatures['images']; }
+    
     public needBackground(): boolean {
         return this.settings.enableFeatures['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
+    
     public needOpacityLayer(): boolean { return this.settings.fadeOnDisable; }
+    
     public needArcs(): boolean {
         return this.coreElement.type === "" && this.managers.size > 0;
     }
+
     public needPin(): boolean { return true; }
 
     protected createGraphicsWrapper(): void {
@@ -115,7 +119,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     getSize(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.nodeSizeFunction !== 'default') {
+        if (this.settings.enableFeatures['node-size'] && this.settings.nodeSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
             let customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileSizes.get(this.id);
             return originalSize * this.graphicsWrapperScale * customRadiusFactor * (customFunctionFactor ?? 1);

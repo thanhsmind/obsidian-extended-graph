@@ -15,7 +15,6 @@ export abstract class GCSection extends Component {
     root: HTMLDivElement;
     treeItemChildren: HTMLDivElement;
     collapseIcon: HTMLDivElement;
-    onlyWhenPluginEnabled: HTMLElement[] = [];
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, title: string) {
         super();
@@ -44,22 +43,15 @@ export abstract class GCSection extends Component {
         })
     }
 
+    abstract display(enabled: boolean): void;
+
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
         this.dispatcher = dispatcher;
-        this.onlyWhenPluginEnabled.forEach(el => {
-            this.treeItemChildren.appendChild(el);
-        });
+        this.display(true);
     }
 
     onPluginDisabled(): void {
-        this.onlyWhenPluginEnabled.forEach(el => {
-            try {
-                el.parentNode?.removeChild(el);
-            }
-            catch {
-
-            }
-        });
+        this.display(false);
     }
 
     onunload(): void {

@@ -15,15 +15,20 @@ export class GCSettings extends GCSection {
         super(leaf, graphsManager, "settings");
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
-        this.createSaveForDefaultView();
-        this.onlyWhenPluginEnabled.push(this.createSaveForNormalView().settingEl);
-        this.settingGlobalFilter = this.createGlobalFilter();
-        this.onlyWhenPluginEnabled.push(this.settingGlobalFilter.settingEl);
+        this.display(true);
 
         this.collapseGraphControlSection();
     }
 
-    createSaveForDefaultView(): Setting {
+    override display(enable: boolean) {
+        this.treeItemChildren.innerHTML = "";
+        this.createSaveForDefaultView();
+        if (enable) this.createSaveForNormalView();
+        if (enable) this.settingGlobalFilter = this.createGlobalFilter();
+        this.createScreenshot().settingEl;
+    }
+
+    private createSaveForDefaultView(): Setting {
         return new Setting(this.treeItemChildren)
             .setName("Save for default view")
             .setTooltip("Save the current settings as the default view settings")
@@ -36,7 +41,7 @@ export class GCSettings extends GCSection {
             });
     }
 
-    createSaveForNormalView(): Setting {
+    private createSaveForNormalView(): Setting {
         return new Setting(this.treeItemChildren)
             .setName("Save for normal view")
             .setTooltip("Save the current settings as the normal view settings (no plugin enabled)")
@@ -49,9 +54,8 @@ export class GCSettings extends GCSection {
             });
     }
 
-    createGlobalFilter(): Setting {
-        const filterHeader = new Setting(this.treeItemChildren).setName("Global filter").setHeading();
-        this.onlyWhenPluginEnabled.push(filterHeader.settingEl);
+    private createGlobalFilter(): Setting {
+        new Setting(this.treeItemChildren).setName("Global filter").setHeading();
 
         return new Setting(this.treeItemChildren)
             .setClass("mod-search-setting")
@@ -79,7 +83,19 @@ export class GCSettings extends GCSection {
             });
     }
 
-    saveForDefaultView() {
+    private createScreenshot(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName("Copy SVG screenshot")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("screenshot-button");
+                setIcon(cb.extraSettingsEl, "image");
+                cb.onClick(() => {
+                    this.getSVGScreenshot();
+                });
+            });
+    }
+
+    private saveForDefaultView() {
         const viewData = this.graphsManager.plugin.settings.views.find(v => v.id === DEFAULT_VIEW_ID);
         if (!viewData) return;
         const engine = getEngine(this.leaf);
@@ -87,7 +103,7 @@ export class GCSettings extends GCSection {
         this.graphsManager.onViewNeedsSaving(viewData);
     }
 
-    saveForNormalView() {
+    private saveForNormalView() {
         const globalFilter = this.graphsManager.plugin.settings.globalFilter;
         this.graphsManager.plugin.settings.globalFilter = "";
         const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
@@ -96,5 +112,9 @@ export class GCSettings extends GCSection {
         instance.options = engine.getOptions();
         instance.saveOptions();
         this.graphsManager.plugin.settings.globalFilter = globalFilter;
+    }
+
+    private getSVGScreenshot() {
+        this.graphsManager.getSVGScreenshot(this.leaf);
     }
 }

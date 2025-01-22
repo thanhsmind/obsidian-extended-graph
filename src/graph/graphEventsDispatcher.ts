@@ -7,6 +7,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphViewData } from "src/views/viewData";
+import { ExportExtendedGraphToSVG } from "../svg/exportToSVG";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -96,6 +97,8 @@ export class GraphEventsDispatcher extends Component {
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
         this.changeView(this.viewsUI.currentViewID);
+
+        console.log(this.graph.engine);
     }
 
     private updateOpacityLayerColor(): void {
