@@ -516,7 +516,7 @@ export class Graph extends Component {
             return void 0 === n && (n = .9), e * n + t * (1 - n);
         }
         let scale = this.renderer.scale;
-        let targetScale = 2;
+        let targetScale = this.dynamicSettings.zoomFactor;
         let panX = this.renderer.panX
         let panY = this.renderer.panY;
         this.renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));

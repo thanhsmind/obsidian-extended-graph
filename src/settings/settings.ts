@@ -30,6 +30,9 @@ export interface ExtendedGraphSettings {
     nodeSizeProperty: string;
     nodeSizeFunction: NodeSizeFunction;
 
+    // Zoom on node
+    zoomFactor: number;
+
     // Performances
     maxNodes: number;
     delay: number;
@@ -74,6 +77,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Nodes sizes
     nodeSizeProperty: "",
     nodeSizeFunction: 'default',
+
+    // Zoom on node
+    zoomFactor: 2,
 
     // Performances
     maxNodes: 20,

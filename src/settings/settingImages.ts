@@ -40,12 +40,11 @@ export class SettingImages extends SettingsSectionCollapsible {
                 }
                 cb.setLimits(0, 50, 1)
                     .setValue(this.settingTab.plugin.settings.borderFactor * 100)
-                    .onChange(async (value) => {
+                    .onChange(value => {
                         this.settingTab.plugin.settings.borderFactor = value / 100;
                         if (preview) preview.textContent = this.settingTab.plugin.settings.borderFactor.toString() + "%";
-                        await this.settingTab.plugin.saveSettings();
+                        this.settingTab.plugin.saveSettings();
                     });
-                
             });
         setting.controlEl.addClass("setting-item-description");
 

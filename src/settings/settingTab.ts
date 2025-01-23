@@ -10,6 +10,7 @@ import { SettingPerformance } from "./settingPerformance";
 import { SettingShapes } from "./settingShapes";
 import { SettingsSection } from "./settingsSection";
 import { SettingNodeSize } from "./settingNodesSize";
+import { SettingZoom } from "./settingZoom";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     plugin: ExtendedGraphPlugin;
@@ -27,6 +28,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingFocus(this));
         this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingNodeSize(this));
+        this.sections.push(new SettingZoom(this));
         this.sections.push(new SettingPerformance(this));
     }
 
