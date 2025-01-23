@@ -11,6 +11,7 @@ import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
 
 export class GCSettings extends GCSection {
     settingGlobalFilter: Setting;
+    suggester: NodeNameSuggester;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
         super(leaf, graphsManager, "settings", "Extended Graph Settings");
@@ -28,7 +29,7 @@ export class GCSettings extends GCSection {
         this.createSaveForDefaultView();
         if (enable) this.createSaveForNormalView();
         if (enable) this.settingGlobalFilter = this.createGlobalFilter();
-        if (enable) this.createZoomOnNode();
+        this.createZoomOnNode();
         this.createScreenshot().settingEl;
     }
 
@@ -103,14 +104,12 @@ export class GCSettings extends GCSection {
         return new Setting(this.treeItemChildren)
             .setName("Zoom on node")
             .addSearch(cb => {
-                if (!this.dispatcher) return;
                 const callback = (value: string) => {
-                    this.dispatcher?.graph.zoomOnNode(value);
+                    console.log(value);
+                    this.graphsManager.zoomOnNode(this.leaf, value);
                 }
-                new NodeNameSuggester(this.dispatcher.graphsManager.plugin.app, cb.inputEl, this.dispatcher?.graph, callback);
-                cb.onChange(value => callback(value));
-            })
-            
+                this.suggester = new NodeNameSuggester(this.graphsManager.plugin.app, cb.inputEl, this.leaf.view.renderer, callback);
+            });
     }
 
     // =============================== CALLBACKS ===============================

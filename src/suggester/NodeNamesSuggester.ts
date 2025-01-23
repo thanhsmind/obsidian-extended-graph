@@ -1,18 +1,19 @@
 import { AbstractInputSuggest, App } from "obsidian";
-import { Graph } from "src/graph/graph";
+import { GraphRenderer } from "obsidian-typings";
 
 export class NodeNameSuggester extends AbstractInputSuggest<string> {
-    graph: Graph;
+    graph: GraphRenderer;
     callback: (value: string) => void;
 
-    constructor(app: App, textInputEl: HTMLInputElement | HTMLDivElement, graph: Graph, callback: (value: string) => void) {
+    constructor(app: App, textInputEl: HTMLInputElement | HTMLDivElement, graph: GraphRenderer, callback: (value: string) => void) {
         super(app, textInputEl);
+        console.log(graph);
         this.graph = graph;
         this.callback = callback;
     }
 
-    protected getSuggestions(query: string): string[] | Promise<string[]> {
-        return [...this.graph.nodesSet.connectedIDs.values()];
+    protected getSuggestions(query: string): string[] {
+        return this.graph.nodes.filter(node => node.id.toLowerCase().contains(query.toLowerCase())).map(node => node.id);
     }
 
     renderSuggestion(value: string, el: HTMLElement): void {

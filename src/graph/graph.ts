@@ -505,38 +505,6 @@ export class Graph extends Component {
         }
         return false;
     }
-
-    // ============================= ZOOM ON NODE ==============================
-
-    zoomOnNode(nodeID: string) {
-        console.log(nodeID);
-        const node = this.nodesSet.extendedElementsMap.get(nodeID)?.coreElement;
-        if (!node) return;
-        const wj = function(e: number, t: number, n: number) {
-            return void 0 === n && (n = .9), e * n + t * (1 - n);
-        }
-        let scale = this.renderer.scale;
-        let targetScale = this.dynamicSettings.zoomFactor;
-        let panX = this.renderer.panX
-        let panY = this.renderer.panY;
-        this.renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
-        
-        let zoomCenterX = this.renderer.zoomCenterX;
-        let zoomCenterY = this.renderer.zoomCenterY;
-
-        if (0 === zoomCenterX && 0 === zoomCenterY) {
-            var s = window.devicePixelRatio;
-            zoomCenterX = this.renderer.width / 2 * s;
-            zoomCenterY = this.renderer.height / 2 * s;
-        }
-
-        scale = wj(scale, targetScale, .85);
-        panX -= node.x * scale + panX - zoomCenterX;
-        panY -= node.y * scale + panY - zoomCenterY;
-        this.renderer.setPan(panX, panY);
-        this.renderer.setScale(scale);
-        this.renderer.changed();
-    }
     
     // ============================ UPDATING WORKER ============================
 

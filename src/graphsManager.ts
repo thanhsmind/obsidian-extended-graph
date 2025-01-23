@@ -437,4 +437,36 @@ export class GraphsManager extends Component {
         }
         exportToSVG.toClipboard();
     }
+
+    // ============================= ZOOM ON NODE ==============================
+
+    zoomOnNode(leaf: WorkspaceLeafExt, nodeID: string) {
+        const renderer = leaf.view.renderer;
+        const node = renderer.nodes.find(node => node.id === nodeID);
+        if (!node) return;
+        
+        let scale = renderer.scale;
+        let targetScale = this.plugin.settings.zoomFactor;
+        let panX = renderer.panX
+        let panY = renderer.panY;
+        renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
+        
+        let zoomCenterX = renderer.zoomCenterX;
+        let zoomCenterY = renderer.zoomCenterY;
+
+        if (0 === zoomCenterX && 0 === zoomCenterY) {
+            var s = window.devicePixelRatio;
+            zoomCenterX = renderer.width / 2 * s;
+            zoomCenterY = renderer.height / 2 * s;
+        }
+
+        let n = 0.85;
+        scale = (void 0 === n && (n = .9), scale * n + targetScale * (1 - n));
+        console.log(n);
+        panX -= node.x * scale + panX - zoomCenterX;
+        panY -= node.y * scale + panY - zoomCenterY;
+        renderer.setPan(panX, panY);
+        renderer.setScale(scale);
+        renderer.changed();
+    }
 }

@@ -5,7 +5,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 
 export abstract class GCSection extends Component {
     graphsManager: GraphsManager;
-    dispatcher: GraphEventsDispatcher | null;
+    dispatcher: GraphEventsDispatcher | undefined;
     leaf: WorkspaceLeafExt;
 
     graphControls: HTMLElement;
@@ -51,6 +51,7 @@ export abstract class GCSection extends Component {
     }
 
     onPluginDisabled(): void {
+        this.dispatcher = undefined;
         this.display(false);
     }
 
