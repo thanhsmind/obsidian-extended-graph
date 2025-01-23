@@ -103,6 +103,20 @@ export class GraphEventsDispatcher extends Component {
 
         this.onPointerDown = this.onPointerDown.bind(this);
         this.graph.renderer.px.stage.on('pointerdown', this.onPointerDown);
+
+        this.graph.renderer.interactiveEl.addEventListener("wheel", (ev) => {
+            setTimeout(() => {
+                const renderer = this.graph.renderer;
+                console.log('--------');
+                console.log(renderer.viewport);
+                console.log("Pan:", renderer.panX, renderer.panY);
+                console.log("ZoomCenter:", renderer.zoomCenterX, renderer.zoomCenterY);
+                console.log("Scale:", renderer.scale, renderer.targetScale);
+                for (const [id, node] of this.graph.nodesSet.extendedElementsMap) {
+                    console.log(id + ":", node.coreElement.x, node.coreElement.y, node.coreElement.getSize());
+                }
+            }, 500)
+        });
     }
 
     private observeOrphanSettings(): void {

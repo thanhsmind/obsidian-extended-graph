@@ -4,7 +4,10 @@ import { ExtendedGraphSettings } from "src/settings/settings";
 
 export type ExportSVGOptions = {
     asImage: boolean,
+    // Core options
+    onlyVisibleArea: boolean,
     showNodeNames: boolean,
+    // Extended options
     useCurvedLinks: boolean,
     useNodesShapes: boolean,
     showArcs: boolean,
@@ -18,7 +21,8 @@ export class ExportSVGOptionModal extends Modal {
     options: ExportSVGOptions = {
         asImage: true,
         // Core options
-        showNodeNames: false,
+        onlyVisibleArea: false,
+        showNodeNames: true,
         // Extended options
         useCurvedLinks: false,
         useNodesShapes: false,
@@ -42,12 +46,22 @@ export class ExportSVGOptionModal extends Modal {
     // ============================= CORE OPTIONS ==============================
 
     private addCoreOptions() {
+        this.addOnlyVisibleArea();
         this.addShowNodeNames();
     }
 
-    private addShowNodeNames() {
-        this.options.showNodeNames = true;
+    private addOnlyVisibleArea() {
+        new Setting(this.contentEl)
+            .setName("Export only visible area")
+            .addToggle(cb => {
+                cb.setValue(this.options.onlyVisibleArea);
+                cb.onChange(value => {
+                    this.options.onlyVisibleArea = value;
+                })
+            });
+    }
 
+    private addShowNodeNames() {
         new Setting(this.contentEl)
             .setName("Show node names")
             .addToggle(cb => {
