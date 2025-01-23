@@ -34,7 +34,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     protected override addBody() {
-        this.propertiesContainer = this.settingTab.containerEl.createDiv("settings-properties-container");
+        this.propertiesContainer = this.settingTab.containerEl.createDiv("setting-item settings-properties-container");
         this.elementsBody.push(this.propertiesContainer);
 
         for (const setting of this.settingInteractives) {
@@ -103,9 +103,9 @@ export class SettingProperty extends SettingInteractives {
 
     protected override addHeader() {
         super.addHeader();
-        this.settingHeader.addButton(cb => {
-            UIElements.setupButton(cb, 'delete');
-            cb.onClick((e) => {
+        this.settingHeader.addExtraButton(cb => {
+            UIElements.setupExtraButton(cb, 'delete');
+            cb.onClick(() => {
                 this.remove();
             })
         });

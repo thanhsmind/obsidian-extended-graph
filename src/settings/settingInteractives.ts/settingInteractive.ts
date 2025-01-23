@@ -90,7 +90,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
             .setDesc(`Choose which ${this.interactiveKey}s should be considered by the plugin`);
         this.elementsBody.push(this.settingInteractiveFilter.settingEl);
         
-        this.selectionContainer = this.containerEl.createDiv({cls: "settings-selection-container"});
+        this.selectionContainer = this.containerEl.createDiv({cls: "setting-item settings-selection-container"});
         this.elementsBody.push(this.selectionContainer);
 
         const allTypes = this.getAllTypes();
