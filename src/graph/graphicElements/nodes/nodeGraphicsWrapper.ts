@@ -3,7 +3,7 @@ import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
 import { ArcsCircle } from './arcsCircle';
 import { NodeImage } from './image';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { GraphicsWrapper } from '../../abstractAndInterfaces/graphicsWrapper';
+import { GraphicsWrapper } from '../../interfaces/graphicsWrapper';
 import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
 import { NodeShape, ShapeEnum } from './shapes';

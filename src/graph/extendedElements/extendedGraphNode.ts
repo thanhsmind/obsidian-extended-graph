@@ -1,5 +1,4 @@
 import { App } from "obsidian";
-import { ExtendedGraphElement } from "../abstractAndInterfaces/extendedGraphElement";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { NodeGraphicsWrapper } from "../graphicElements/nodes/nodeGraphicsWrapper";
 import { GraphNode } from "obsidian-typings";
@@ -7,6 +6,7 @@ import { InteractiveManager } from "../interactiveManager";
 import { NodeShape, ShapeEnum } from "../graphicElements/nodes/shapes";
 import { getFile, getFileInteractives, isNumber } from "src/helperFunctions";
 import ExtendedGraphPlugin from "src/main";
+import { ExtendedGraphElement } from "./extendedGraphElement";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;

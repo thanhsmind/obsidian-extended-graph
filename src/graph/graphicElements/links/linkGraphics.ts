@@ -1,6 +1,6 @@
 import { HexString } from "obsidian";
 import { Graphics } from "pixi.js";
-import { ManagerGraphics } from "src/graph/abstractAndInterfaces/managerGraphics";
+import { ManagerGraphics } from "src/graph/interfaces/managerGraphics";
 import { InteractiveManager } from "src/graph/interactiveManager";
 
 export abstract class LinkGraphics extends Graphics implements ManagerGraphics {

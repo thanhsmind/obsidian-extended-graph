@@ -1,4 +1,4 @@
-import { ManagerGraphics } from "src/graph/abstractAndInterfaces/managerGraphics";
+import { ManagerGraphics } from "src/graph/interfaces/managerGraphics";
 import { LinkGraphics } from "./linkGraphics";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import { GraphLink } from "obsidian-typings";

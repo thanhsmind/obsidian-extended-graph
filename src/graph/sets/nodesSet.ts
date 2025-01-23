@@ -4,9 +4,9 @@ import { Assets, Texture } from "pixi.js";
 import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { GraphNode } from "obsidian-typings";
 import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
-import { AbstractSet } from "../abstractAndInterfaces/abstractSet";
 import { InteractiveManager } from "../interactiveManager";
 import { Graph } from "../graph";
+import { AbstractSet } from "./abstractSet";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;

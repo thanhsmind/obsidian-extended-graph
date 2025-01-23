@@ -3,7 +3,7 @@ import { GraphLink, GraphNode } from "obsidian-typings";
 import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
 import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
 import { ArcsCircle } from "../graphicElements/nodes/arcsCircle";
-import { LinkLineGraphics } from "../graphicElements/lines/line";
+import { LinkLineGraphics } from "../graphicElements/links/line";
 import { InteractiveManager } from "../interactiveManager";
 
 export interface GraphicsWrapper<T extends GraphNode | GraphLink> {

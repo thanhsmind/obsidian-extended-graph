@@ -1,11 +1,11 @@
 import { GraphLink } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
-import { ExtendedGraphElement } from "../abstractAndInterfaces/extendedGraphElement";
-import { LineLinkGraphicsWrapper } from "../graphicElements/lines/lineLinkGraphicsWrapper";
-import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
-import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
-import { CurveLinkGraphicsWrapper } from "../graphicElements/lines/curveLinkGraphicsWrapper";
+import { LineLinkGraphicsWrapper } from "../graphicElements/links/lineLinkGraphicsWrapper";
+import { LinkGraphics } from "../graphicElements/links/linkGraphics";
+import { CurveLinkGraphicsWrapper } from "../graphicElements/links/curveLinkGraphicsWrapper";
 import { ExtendedGraphSettings } from "src/settings/settings";
+import { ExtendedGraphElement } from "./extendedGraphElement";
+import { LinkGraphicsWrapper } from "../graphicElements/links/linkGraphicsWrapper";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;

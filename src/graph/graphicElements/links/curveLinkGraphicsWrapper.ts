@@ -1,6 +1,6 @@
-import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
 import { LinkCurveGraphics } from "./curve";
 import { InteractiveManager } from "src/graph/interactiveManager";
+import { LinkGraphicsWrapper } from "./linkGraphicsWrapper";
 
 export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraphics> {
     
