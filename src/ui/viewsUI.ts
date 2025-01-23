@@ -4,8 +4,8 @@ import { DEFAULT_VIEW_ID } from "src/globalVariables";
 import ExtendedGraphPlugin from "src/main";
 import { NewNameModal } from "./modals/newNameModal";
 import { UIElements } from "./UIElements";
+import { ViewsManager } from "src/views/viewsManager";
 import { Graph } from "src/graph/graph";
-import { ViewsManager } from "src/viewsManager";
 
 export class ViewsUI extends Component {
     viewsManager: ViewsManager;

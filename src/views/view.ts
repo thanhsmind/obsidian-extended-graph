@@ -16,10 +16,13 @@ export class GraphView {
     saveGraph(graph: Graph) {
         // Disable types
         this.data.disabledTypes = {};
+        
         const linksManager = graph.linksSet.managers.get(LINK_KEY);
         this.data.disabledTypes[LINK_KEY] = linksManager?.getTypes().filter(type => !linksManager.isActive(type)) ?? [];
-        const folderManager = graph.folderBlobs.manager;
+
+        const folderManager = graph.folderBlobs.managers.get(FOLDER_KEY);
         this.data.disabledTypes[FOLDER_KEY] = folderManager?.getTypes().filter(type => !folderManager.isActive(type)) ?? [];
+
         for (const [key, manager] of graph.nodesSet.managers) {
             this.data.disabledTypes[key] = manager.getTypes().filter(type => !manager.isActive(type));
         }

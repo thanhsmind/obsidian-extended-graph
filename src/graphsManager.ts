@@ -10,7 +10,7 @@ import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typing
 import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
 import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
 import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG } from "./svg/exportToSVG";
-import { ViewsManager } from "./viewsManager";
+import { ViewsManager } from "./views/viewsManager";
 
 
 export class GraphsManager extends Component {

@@ -6,6 +6,7 @@ import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
+import { GCFolders } from "src/ui/graphControl/GCFolders";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -16,6 +17,7 @@ export class GraphEventsDispatcher extends Component {
     observerOrphans: MutationObserver;
 
     legendUI: LegendUI | null = null;
+    foldersUI: GCFolders | null = null;
     viewsUI: ViewsUI;
 
     renderCallback: () => void;
@@ -35,6 +37,7 @@ export class GraphEventsDispatcher extends Component {
         this.graphsManager = graphsManager;
         this.initializeGraph();
         this.initializeUI();
+        this.initializeFoldersUI();
     }
 
     private initializeGraph(): void {
@@ -56,6 +59,18 @@ export class GraphEventsDispatcher extends Component {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
         }
+    }
+
+    private initializeFoldersUI(): void {
+        if (!this.graphsManager.plugin.settings.enableFeatures['folders']) return;
+
+        const graphControls = this.graphsManager.globalUIs.get(this.leaf.id)?.control;
+        if (!graphControls) return;
+
+        const foldersManager = this.graph.folderBlobs.managers.get(FOLDER_KEY);
+        if (!foldersManager) return;
+        this.foldersUI = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+        this.foldersUI.display();
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
@@ -323,19 +338,19 @@ export class GraphEventsDispatcher extends Component {
         this.graph.nodesSet.resetArcs(key);
         if (this.legendUI) {
             for (const [type, color] of colorMaps) {
-                this.legendUI.addLegend(key, type, color);
+                this.legendUI.add(key, type, color);
             }
         }
         this.graph.renderer.changed();
     }
 
     private onNodeInteractiveTypesRemoved(key: string, types: Set<string>) {
-        this.legendUI?.removeLegend(key, [...types]);
+        this.legendUI?.remove(key, [...types]);
     }
 
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
         this.graph.nodesSet.updateTypeColor(key, type, color);
-        this.legendUI?.updateLegend(key, type, color);
+        this.legendUI?.update(key, type, color);
         this.graph.renderer.changed();
     }
 
@@ -366,18 +381,18 @@ export class GraphEventsDispatcher extends Component {
     private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
         colorMaps.forEach((color, type) => {
             this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
-            this.legendUI?.addLegend(LINK_KEY, type, color);
+            this.legendUI?.add(LINK_KEY, type, color);
         });
         this.graph.renderer.changed();
     }
 
     private onLinkTypesRemoved(types: Set<string>) {
-        this.legendUI?.removeLegend(LINK_KEY, [...types]);
+        this.legendUI?.remove(LINK_KEY, [...types]);
     }
 
     private onLinkColorChanged(type: string, color: Uint8Array) {
         this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
-        this.legendUI?.updateLegend(LINK_KEY, type, color);
+        this.legendUI?.update(LINK_KEY, type, color);
         this.graph.renderer.changed();
     }
 
@@ -400,19 +415,24 @@ export class GraphEventsDispatcher extends Component {
     // ================================ FOLDERS ================================
 
     private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.display();
+        for (const [path, color] of colorMaps) {
+            this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
+            this.foldersUI?.add(FOLDER_KEY, path, color);
+            this.graph.renderer.changed();
+        }
     }
 
     private onFoldersRemoved(paths: Set<string>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.display();
+        this.foldersUI?.remove(FOLDER_KEY, [...paths]);
+
         for (const path of paths) {
             this.removeBBox(path);
         }
     }
 
     private onFolderColorChanged(path: string, color: Uint8Array) {
-        this.graph.folderBlobs.updateColor(path);
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.setColor(path);
+        this.graph.folderBlobs.updateColor(FOLDER_KEY, path);
+        this.foldersUI?.update(FOLDER_KEY, path, color);
         this.graph.renderer.changed();
     }
 
@@ -425,6 +445,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private enableFolders(paths: string[]) {
+        console.log(paths);
         this.listenStage = false;
         for (const path of paths) {
             this.addBBox(path);
@@ -433,7 +454,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private addBBox(path: string) {
-        this.graph.folderBlobs.addFolder(path);
+        this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
         this.graph.renderer.changed();
     }
 

@@ -1,7 +1,6 @@
 import { Component, setIcon, Setting } from "obsidian";
 import { EngineOptions } from "src/views/viewData";
 import { DEFAULT_VIEW_ID } from "src/globalVariables";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { GraphsManager } from "src/graphsManager";
 import { getEngine } from "src/helperFunctions";
 import { WorkspaceLeafExt } from "src/types/leaf";
@@ -119,7 +118,7 @@ export class GCSettings extends GCSection {
         if (!viewData) return;
         const engine = getEngine(this.leaf);
         viewData.engineOptions = new EngineOptions(engine.getOptions());
-        this.graphsManager.onViewNeedsSaving(viewData);
+        this.graphsManager.viewsManager.onViewNeedsSaving(viewData);
     }
 
     private saveForNormalView() {

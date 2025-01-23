@@ -1,13 +1,14 @@
-import { Setting } from "obsidian";
+import { Setting, ToggleComponent } from "obsidian";
 import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { GCSection } from "./GCSection";
 import { InteractiveManager } from "src/graph/interactiveManager";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
+import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
+import { FOLDER_KEY } from "src/globalVariables";
 
-export class GCFolders extends GCSection {
-    foldersManager: InteractiveManager | undefined;
-    settingsMap = new Map<string, Setting>();
+export class GCFolders extends GCSection implements InteractiveUI {
+    foldersManager: InteractiveManager;
+    settingsMap = new Map<string, {setting: Setting, toggle: ToggleComponent}>();
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, foldersManager: InteractiveManager) {
         super(leaf, graphsManager, "folders", "Folders");
@@ -24,35 +25,62 @@ export class GCFolders extends GCSection {
         this.createFolders();
     }
 
-
     private createFolders(): void {
         const paths = this.foldersManager?.getTypesWithoutNone();
         if (!paths) return;
         for (const path of paths) {
-            this.addFolder(path);
+            this.add(FOLDER_KEY, path, this.foldersManager.getColor(path));
         }
     }
 
-    private addFolder(path: string): Setting {
-        const setting = new Setting(this.treeItemChildren)
-            .setName(path)
+    // =========================================================================
+
+    update(key: string, path: string, color: Uint8Array): void {
+        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+    }
+
+    add(key: string, path: string, color: Uint8Array): void {
+        const setting = new Setting(this.treeItemChildren);
+        setting.setName(path)
             .addToggle(cb => {
+                cb.setValue(this.foldersManager.isActive(path))
                 cb.onChange(enable => {
-                    this.toggleFolder(path, enable);
-                })
+                    this.toggle(key, path);
+                });
+                this.settingsMap.set(path, {setting: setting, toggle: cb});
             });
-        this.settingsMap.set(path, setting);
-        this.setColor(path);
-        return setting;
+        this.update(key, path, color);
     }
 
-    setColor(path: string) {
-        const color = this.foldersManager?.getColor(path);
-        if (color) this.settingsMap.get(path)?.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+    remove(key: string, paths: string[]): void {
+        for (const path of paths) {
+            const setting = this.settingsMap.get(path);
+            if (!path) continue;
+            setting?.setting.settingEl.remove();
+            this.settingsMap.delete(path);
+        }
     }
 
-    private toggleFolder(path: string, enable: boolean) {
-        if (enable) this.foldersManager?.enable([path]);
-        else this.foldersManager?.disable([path]);
+    toggle(key: string, path: string): void {
+        if (this.foldersManager.isActive(path)) {
+            this.foldersManager.disable([path]);
+        }
+        else {
+            this.foldersManager.enable([path]);
+        }
+    }
+
+    disableUI(key: string, path: string): void {
+        this.foldersManager.disable([path]);
+    }
+
+    enableUI(key: string, path: string): void {
+        this.foldersManager.enable([path]);
+    }
+
+    enableAllUI(key: string): void {
+        for (const [path, setting] of this.settingsMap) {
+            setting.toggle.setValue(true);
+        }
     }
 }

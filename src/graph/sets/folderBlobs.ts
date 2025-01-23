@@ -105,7 +105,7 @@ export class FoldersSet {
     readonly graph: Graph;
 
     // Interactive manager
-    manager: InteractiveManager | null;
+    managers: Map<string, InteractiveManager>;
 
     // Set of blobs
     foldersMap = new Map<string, FolderBlob>();
@@ -117,11 +117,14 @@ export class FoldersSet {
 
     constructor(graph: Graph, managers: InteractiveManager[]) {
         this.graph = graph;
-        if (managers.length > 0) this.initializeManager(managers[0]);
+        this.initializeManager(managers);
     }
 
-    private initializeManager(manager: InteractiveManager | undefined) {
-        this.manager = manager ? manager : null;
+    private initializeManager(managers: InteractiveManager[]) {
+        this.managers = new Map<string, InteractiveManager>();
+        for (const manager of managers) {
+            this.managers.set(manager.name, manager);
+        }
     }
 
     // ================================ LOADING ================================
@@ -138,27 +141,30 @@ export class FoldersSet {
     }
 
     private addMissingFolders(): void {
-        if (!this.manager) return;
-
-        let missingFolders = new Set<string>();
-
-        for (const node of this.graph.renderer.nodes) {
-            if (this.foldersMap.has(node.id)) continue;
-
-            const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
-            if (!file) continue;
-
-            const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
-            this.addInteractivesToSet(interactives, missingFolders);
+        for (const [key, manager] of this.managers) {
+            let missingFolders = new Set<string>();
+    
+            for (const node of this.graph.renderer.nodes) {
+                if (this.foldersMap.has(node.id)) continue;
+    
+                const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+                if (!file) continue;
+    
+                const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
+                this.addInteractivesToSet(key, interactives, missingFolders);
+            }
+    
+            manager.addTypes(missingFolders);
         }
-
-        this.manager.addTypes(missingFolders);
     }
 
-    private addInteractivesToSet(interactives: Set<string>, missingFolders: Set<string>) {
+    private addInteractivesToSet(key: string, interactives: Set<string>, missingFolders: Set<string>) {
+        const manager = this.managers.get(key);
+        if (!manager) return;
+
         let hasType = false;
         for (const interactive of interactives) {
-            if (!this.manager?.interactives.has(interactive)) {
+            if (!manager.interactives.has(interactive)) {
                 if (this.isFolderValid(interactive)) {
                     missingFolders.add(interactive);
                     hasType = true;
@@ -168,7 +174,7 @@ export class FoldersSet {
                 hasType = true;
             }
         }
-        if (!hasType && !this.manager?.interactives.has(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType)) {
+        if (!hasType && !manager.interactives.has(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType)) {
             missingFolders.add(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType);
         }
     }
@@ -189,12 +195,12 @@ export class FoldersSet {
 
     // ========================= ADD AND REMOVE FOLDER =========================
 
-    addFolder(path: string): void {
+    addFolder(key: string, path: string): void {
         this.removeFolder(path);
-
+        const manager = this.managers.get(key);
         const folder = this.graph.dispatcher.graphsManager.plugin.app.vault.getFolderByPath(path);
-        if (folder) {
-            const blob = new FolderBlob(path, this.manager ? rgb2hex(this.manager.getColor(path)) : undefined);
+        if (folder && manager) {
+            const blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
             for (const file of folder.children) {
                 if (file instanceof TFile) {
                     const node = this.graph.nodesSet.extendedElementsMap.get(file.path)?.coreElement;
@@ -225,10 +231,11 @@ export class FoldersSet {
         }
     }
 
-    updateColor(path: string) {
+    updateColor(key: string, path: string) {
+        const manager = this.managers.get(key);
         const folderBlob = this.foldersMap.get(path);
-        if (!folderBlob || !this.manager) return;
-        folderBlob.color = rgb2hex(this.manager.getColor(path));
+        if (!folderBlob || !manager) return;
+        folderBlob.color = rgb2hex(manager.getColor(path));
         folderBlob.updateGraphics(this.graph.renderer.scale);
     }
 }

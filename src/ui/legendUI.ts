@@ -2,6 +2,7 @@ import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip } from "o
 import { FOLDER_KEY } from "src/globalVariables";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
+import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
 import ExtendedGraphPlugin from "src/main";
 
 class LegendRow extends Setting {
@@ -150,7 +151,7 @@ class LegendRow extends Setting {
     }
 }
 
-export class LegendUI extends Component {
+export class LegendUI extends Component implements InteractiveUI {
     dispatcher: GraphEventsDispatcher;
     plugin: ExtendedGraphPlugin;
 
@@ -206,15 +207,15 @@ export class LegendUI extends Component {
         this.toggleButton.extraSettingsEl.remove();
     }
 
-    updateLegend(row: string, type: string, color: Uint8Array) {
+    update(row: string, type: string, color: Uint8Array) {
         this.legendRows.get(row)?.updateLegend(type, color);
     }
 
-    addLegend(row: string, type: string, color: Uint8Array) {
+    add(row: string, type: string, color: Uint8Array) {
         this.legendRows.get(row)?.addLegend(type, color);
     }
 
-    removeLegend(row: string, types: string[]) {
+    remove(row: string, types: string[]) {
         this.legendRows.get(row)?.removeLegend(types);
     }
 
@@ -222,15 +223,15 @@ export class LegendUI extends Component {
         this.legendRows.get(row)?.toggle(type);
     }
 
-    disable(row: string, type: string) {
+    disableUI(row: string, type: string) {
         this.legendRows.get(row)?.disable(type);
     }
 
-    enable(row: string, type: string) {
+    enableUI(row: string, type: string) {
         this.legendRows.get(row)?.enable(type);
     }
 
-    enableAll(row: string) {
+    enableAllUI(row: string) {
         this.legendRows.get(row)?.manager.getTypes().forEach(type => {
             this.legendRows.get(row)?.enable(type);
         })
