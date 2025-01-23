@@ -7,7 +7,6 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphViewData } from "src/views/viewData";
-import { ExportExtendedGraphToSVG } from "../svg/exportToSVG";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -46,7 +45,6 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeUI(): void {
         this.initializeLegendUI();
-        if (this.graphsManager.plugin.settings.enableFeatures['folders']) this.initializeFoldersUI();
 
         this.viewsUI = new ViewsUI(this);
         this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
@@ -59,12 +57,6 @@ export class GraphEventsDispatcher extends Component {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
         }
-    }
-
-    private initializeFoldersUI(): void {
-        const foldersManager = this.graph.folderBlobs.manager;
-        if (!foldersManager) return;
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.addSectionFolder(foldersManager);
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
@@ -97,8 +89,6 @@ export class GraphEventsDispatcher extends Component {
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
         this.changeView(this.viewsUI.currentViewID);
-
-        console.log(this.graph.engine);
     }
 
     private updateOpacityLayerColor(): void {
@@ -389,11 +379,11 @@ export class GraphEventsDispatcher extends Component {
     // ================================ FOLDERS ================================
 
     private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.display();
     }
 
     private onFoldersRemoved(paths: Set<string>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
+        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.display();
         for (const path of paths) {
             this.removeBBox(path);
         }

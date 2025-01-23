@@ -7,12 +7,13 @@ import { getEngine } from "src/helperFunctions";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { GraphPlugin } from "obsidian-typings";
 import { GCSection } from "./GCSection";
+import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
 
 export class GCSettings extends GCSection {
     settingGlobalFilter: Setting;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
-        super(leaf, graphsManager, "settings");
+        super(leaf, graphsManager, "settings", "Extended Graph Settings");
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);
@@ -20,11 +21,14 @@ export class GCSettings extends GCSection {
         this.collapseGraphControlSection();
     }
 
+    // ================================ DISPLAY ================================
+
     override display(enable: boolean) {
         this.treeItemChildren.innerHTML = "";
         this.createSaveForDefaultView();
         if (enable) this.createSaveForNormalView();
         if (enable) this.settingGlobalFilter = this.createGlobalFilter();
+        if (enable) this.createZoomOnNode();
         this.createScreenshot().settingEl;
     }
 
@@ -94,6 +98,22 @@ export class GCSettings extends GCSection {
                 });
             });
     }
+
+    private createZoomOnNode(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName("Zoom on node")
+            .addSearch(cb => {
+                if (!this.dispatcher) return;
+                const callback = (value: string) => {
+                    this.dispatcher?.graph.zoomOnNode(value);
+                }
+                new NodeNameSuggester(this.dispatcher.graphsManager.plugin.app, cb.inputEl, this.dispatcher?.graph, callback);
+                cb.onChange(value => callback(value));
+            })
+            
+    }
+
+    // =============================== CALLBACKS ===============================
 
     private saveForDefaultView() {
         const viewData = this.graphsManager.plugin.settings.views.find(v => v.id === DEFAULT_VIEW_ID);
