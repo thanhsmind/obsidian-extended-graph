@@ -65,6 +65,7 @@ export class ExportSVGOptionModal extends Modal {
         this.addUseCurvedLinks();
         this.addUseNodeShapes();
         this.addShowArcs();
+        this.addShowFolders();
     }
 
     private addUseCurvedLinks() {
@@ -130,6 +131,27 @@ export class ExportSVGOptionModal extends Modal {
         if (this.graphSettings.enableFeatures['tags']) return true;
         if (!this.graphSettings.enableFeatures['properties']) return false;
         return Object.values(this.graphSettings.additionalProperties).some(b => b);
+    }
+
+    private addShowFolders() {
+        const canShowFolders = this.canShowFolders();
+        this.settings.exportSVGOptions.showFolders = canShowFolders;
+        if (!canShowFolders) return;
+
+        new Setting(this.contentEl)
+            .setName("Show folder boxes")
+            .addToggle(cb => {
+                cb.setValue(this.settings.exportSVGOptions.showFolders);
+                cb.onChange(value => {
+                    this.settings.exportSVGOptions.showFolders = value;
+                    this.saveSettings();
+                })
+            });
+    }
+
+    private canShowFolders(): boolean {
+        if (!this.graphSettings) return false;
+        return this.graphSettings.enableFeatures['folders'];
     }
 
     // ============================ APPLY AND CLOSE ============================

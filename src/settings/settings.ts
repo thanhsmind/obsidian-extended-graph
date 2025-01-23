@@ -21,6 +21,7 @@ export type ExportSVGOptions = {
     useCurvedLinks: boolean,
     useNodesShapes: boolean,
     showArcs: boolean,
+    showFolders: boolean,
 }
 
 export interface ExtendedGraphSettings {
@@ -142,6 +143,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         useCurvedLinks: false,
         useNodesShapes: false,
         showArcs: false,
+        showFolders: true,
     },
 
     // Display settings

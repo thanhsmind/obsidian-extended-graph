@@ -13,8 +13,12 @@ export class FolderBlob {
     area: Graphics;
     text: Text;
     color: string;
+    strokeOpacity: number = 0.5;
+    fillOpacity: number = 0.03;
+    radius: number = 50;
+    borderWidth: number = 2;
     textStyle: TextStyle;
-    BBox: {xMin: number, xMax: number, yMin: number, yMax: number};
+    BBox: {left: number, right: number, top: number, bottom: number};
 
     constructor(path: string, color?: string) {
         this.path = path;
@@ -60,9 +64,9 @@ export class FolderBlob {
     private drawBox() {
         this.area.clear();
 
-        this.area.lineStyle(2, this.color, 0.5)
-            .beginFill(this.color, 0.03)
-            .drawRoundedRect(this.BBox.xMin, this.BBox.yMin, (this.BBox.xMax - this.BBox.xMin), (this.BBox.yMax - this.BBox.yMin), 50)
+        this.area.lineStyle(this.borderWidth, this.color, this.strokeOpacity)
+            .beginFill(this.color, this.fillOpacity)
+            .drawRoundedRect(this.BBox.left, this.BBox.top, (this.BBox.right - this.BBox.left), (this.BBox.bottom - this.BBox.top), this.radius)
             .endFill();
     }
 
@@ -80,18 +84,18 @@ export class FolderBlob {
         }
 
         this.BBox = {
-            xMin: xMin - 50,
-            xMax: xMax + 50,
-            yMin: yMin - 50,
-            yMax: yMax + 50,
+            left: xMin - 50,
+            right: xMax + 50,
+            top: yMin - 50,
+            bottom: yMax + 50,
         };
     }
 
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
         this.text.style.fontSize = 14 * t;
-        this.text.x = this.BBox.xMin +  0.5 * (this.BBox.xMax - this.BBox.xMin);
-        this.text.y = this.BBox.yMin;
+        this.text.x = this.BBox.left +  0.5 * (this.BBox.right - this.BBox.left);
+        this.text.y = this.BBox.top;
         this.text.scale.set(1 / t);
     }
 }

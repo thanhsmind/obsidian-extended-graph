@@ -11,6 +11,7 @@ import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
 import { ArcsCircle } from "src/graph/graphicElements/nodes/arcsCircle";
 import { ExportSVGOptions } from "src/settings/settings";
 import ExtendedGraphPlugin from "src/main";
+import { FolderBlob } from "src/graph/sets/folderBlobs";
 
 export abstract class ExportGraphToSVG {
     plugin: ExtendedGraphPlugin;
@@ -19,7 +20,8 @@ export abstract class ExportGraphToSVG {
 
     groupLinks: SVGElement;
     groupNodes: SVGElement;
-    groupText: SVGElement;
+    groupText?: SVGElement;
+    groupFolders?: SVGElement;
     
     left: number;
     right: number;
@@ -33,22 +35,34 @@ export abstract class ExportGraphToSVG {
         this.renderer = renderer;
     }
 
-    protected createSVG(options: ExportSVGOptions) {
-        this.options = options;
+    protected createSVG() {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         
         this.svg.setAttributeNS(null, 'viewBox', this.getViewBox());
 
+        // Folders
+        if (this.options.showFolders) {
+            this.groupFolders = getSVGNode('g', {id: 'folders'});
+            this.addFolders();
+            this.svg.appendChild(this.groupFolders);
+        }
+
+        // Links
         this.groupLinks = getSVGNode('g', {id: 'links'});
-        this.groupNodes = getSVGNode('g', {id: 'nodes'});
-        this.groupText = getSVGNode('g', {id: 'texts'});
-
         this.addLinks();
-        this.addNodes();
+        this.svg.appendChild(this.groupLinks); 
 
-        this.svg.appendChild(this.groupLinks);
+        // Nodes
+        this.groupNodes = getSVGNode('g', {id: 'nodes'});
+        this.addNodes();
         this.svg.appendChild(this.groupNodes);
-        this.svg.appendChild(this.groupText);
+
+        // Text
+        if (this.options.showNodeNames) {
+            this.groupText    = getSVGNode('g', {id: 'texts'});
+            this.addNodeNames();
+            this.svg.appendChild(this.groupText);
+        }
     }
 
     private addNodes(): void {
@@ -57,9 +71,6 @@ export abstract class ExportGraphToSVG {
             const shape = this.getSVGForNode(node);
             if (!shape) continue;
             this.groupNodes.appendChild(shape);
-
-            const text = this.getSVGForText(node);
-            if (text) this.groupText.appendChild(text);
         }
     }
 
@@ -71,6 +82,17 @@ export abstract class ExportGraphToSVG {
             this.groupLinks.appendChild(link);
         }
     }
+
+    private addNodeNames(): void {
+        if (!this.groupText) return;
+        const visibleNodes = this.getVisibleNodes();
+        for (const node of visibleNodes) {
+            const text = this.getSVGForText(node);
+            if (text) this.groupText.appendChild(text);
+        }
+    }
+
+    protected addFolders(): void {};
 
     protected isNodeInVisibleArea(node: GraphNode): boolean {
         if (!this.options.onlyVisibleArea) return true;
@@ -153,7 +175,7 @@ export abstract class ExportGraphToSVG {
                     this.options = this.plugin.settings.exportSVGOptions;
 
                     // Create SVG
-                    this.createSVG(this.options);
+                    this.createSVG();
                     const svgString = this.toString();
                     
                     // Copy SVG as Image
@@ -197,6 +219,18 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     constructor(graph: Graph) {
         super(graph.dispatcher.graphsManager.plugin, graph.renderer);
         this.graph = graph;
+    }
+
+    protected override addFolders(): void {
+        if (!this.groupFolders) return;
+        const folderBlobs = this.graph.folderBlobs;
+        const manager = folderBlobs.manager;
+        if (!manager) return;
+        const visibleFolders = this.getVisibleFolders();
+        for (const blob of visibleFolders) {
+            const box = this.getSVGForFolder(blob);
+            this.groupFolders.appendChild(box);
+        }
     }
 
     protected override getSVGForNode(extendedNode: ExtendedGraphNode): SVGElement {
@@ -290,6 +324,41 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         return group;
     }
 
+    protected getSVGForFolder(folderBlob: FolderBlob): SVGElement {
+        const BBox = folderBlob.BBox;
+        const group = getSVGNode('g', {
+            class: 'folder-group',
+            id: 'folder:' + folderBlob.path
+        });
+        const box = getSVGNode('rect', {
+            class: 'folder-box',
+            x: BBox.left,
+            y: BBox.top,
+            height: BBox.bottom - BBox.top,
+            width: BBox.right - BBox.left,
+            rx: folderBlob.radius,
+            fill: folderBlob.color,
+            stroke: folderBlob.color,
+            'stroke-width': folderBlob.borderWidth,
+            'fill-opacity': folderBlob.fillOpacity,
+            'stroke-opacity': folderBlob.strokeOpacity,
+        });
+        const fontSize = 14;
+        const text = getSVGNode('text', {
+            class: 'folder-name',
+            x: (BBox.left + BBox.right) / 2,
+            y: BBox.top + fontSize + 2,
+            fill: folderBlob.color,
+            'text-anchor': "middle",
+            style: `font-size: ${fontSize}px;`
+        });
+        text.textContent = folderBlob.path;
+
+        group.appendChild(box);
+        group.appendChild(text);
+        return group;
+    }
+
     protected override getSVGForLink(extendedLink: ExtendedGraphLink): SVGElement {
         const link = extendedLink.coreElement;
 
@@ -339,6 +408,14 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
                 && this.isLinkInVisibleArea(l.coreElement)
             )
             .map(l => l as ExtendedGraphLink);
+    }
+
+    protected getVisibleFolders(): FolderBlob[] {
+        const visibleNodes = this.getVisibleNodes();
+        return [...this.graph.folderBlobs.foldersMap.values()]
+            .filter(blob => visibleNodes
+                .some(visibleNode => blob.nodes.includes(visibleNode.coreElement))
+            );
     }
 
     private createImageName(): string {
