@@ -339,7 +339,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     private createImageName(): string {
-        const viewName = this.graph.dispatcher.graphsManager.plugin.getViewDataById(this.graph.dispatcher.viewsUI.currentViewID);
+        const viewName = this.graph.dispatcher.graphsManager.viewsManager.getViewDataById(this.graph.dispatcher.viewsUI.currentViewID);
         const timestamp = window.moment().format("YYYYMMDDHHmmss");
         return `graph${viewName ? '-' + viewName : ''}-${timestamp}.svg`;
     }

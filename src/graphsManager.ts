@@ -1,7 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
 import ExtendedGraphPlugin from "./main";
-import { GraphViewData } from "./views/viewData";
 import { MenuUI } from "./ui/menu";
 import { GraphControlsUI } from "./ui/graphControl/graphControl";
 import { getEngine } from "./helperFunctions";
@@ -11,6 +10,7 @@ import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typing
 import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
 import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
 import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG } from "./svg/exportToSVG";
+import { ViewsManager } from "./viewsManager";
 
 
 export class GraphsManager extends Component {
@@ -22,6 +22,7 @@ export class GraphsManager extends Component {
     localGraphID: string | null = null;
     
     plugin: ExtendedGraphPlugin;
+    viewsManager: ViewsManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
     
     nodeSizeCalculator: NodeSizeCalculator | undefined;
@@ -31,6 +32,7 @@ export class GraphsManager extends Component {
     constructor(plugin: ExtendedGraphPlugin) {
         super();
         this.plugin = plugin;
+        this.viewsManager = new ViewsManager(this);
     }
 
     // ================================ LOADING ================================
@@ -89,42 +91,6 @@ export class GraphsManager extends Component {
         if (types) {
             dispatcher.graph.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
         }
-    }
-
-    // ================================ VIEWS =================================
-
-    onViewNeedsSaving(viewData: GraphViewData) {
-        this.updateViewArray(viewData);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${viewData.name}" has been saved`);
-            this.updateAllViews();
-        });
-    }
-
-    private updateViewArray(viewData: GraphViewData): void {
-        const index = this.plugin.settings.views.findIndex(v => v.name === viewData.name);
-        if (index >= 0) {
-            this.plugin.settings.views[index] = viewData;
-        }
-        else {
-            this.plugin.settings.views.push(viewData);
-        }
-    }
-
-    onViewNeedsDeletion(id: string) {
-        const view = this.plugin.getViewDataById(id);
-        if (!view) return;
-        this.plugin.settings.views.remove(view);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${view.name}" has been removed`);
-            this.updateAllViews();
-        });
-    }
-    
-    private updateAllViews(): void {
-        this.dispatchers.forEach(dispatcher => {
-            dispatcher.viewsUI.updateViewsList(this.plugin.settings.views);
-        });
     }
 
     // ================================ LAYOUT =================================

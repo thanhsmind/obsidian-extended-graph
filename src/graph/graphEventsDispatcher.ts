@@ -6,7 +6,6 @@ import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
-import { GraphViewData } from "src/views/viewData";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -46,7 +45,7 @@ export class GraphEventsDispatcher extends Component {
     private initializeUI(): void {
         this.initializeLegendUI();
 
-        this.viewsUI = new ViewsUI(this);
+        this.viewsUI = new ViewsUI(this.graph);
         this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
         this.addChild(this.viewsUI);
     }
@@ -88,7 +87,7 @@ export class GraphEventsDispatcher extends Component {
         this.observeOrphanSettings();
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
-        this.changeView(this.viewsUI.currentViewID);
+        this.graphsManager.viewsManager.changeView(this.graph, this.viewsUI.currentViewID);
     }
 
     private updateOpacityLayerColor(): void {
@@ -441,68 +440,6 @@ export class GraphEventsDispatcher extends Component {
     private removeBBox(path: string) {
         this.graph.folderBlobs.removeFolder(path);
         this.graph.renderer.changed();
-    }
-
-    // ================================= VIEWS =================================
-
-    /**
-     * Change the current view with the specified ID.
-     * @param id - The ID of the view to change to.
-     */
-    changeView(id: string) {
-        const viewData = this.graphsManager.plugin.getViewDataById(id);
-        if (!viewData) return;
-
-        this.updateInteractiveManagers(viewData).then(() => {
-            if (viewData.engineOptions) this.graph.engine.setOptions(viewData.engineOptions);
-            this.graph.updateWorker();
-            this.graph.nodesSet.setPinnedNodes(viewData.pinNodes ? viewData.pinNodes : {});
-            this.graph.engine.updateSearch();
-        });
-    }
-
-    private async updateInteractiveManagers(viewData: GraphViewData): Promise<void> {
-        await setTimeout(() => {
-            this.updateNodeManagers(viewData);
-            this.updateLinkManager(viewData);
-        }, 200);
-    }
-
-    private updateNodeManagers(viewData: GraphViewData): void {
-        for (const [key, manager] of this.graph.nodesSet.managers) {
-            manager.loadView(viewData);
-            if (this.legendUI && viewData.disabledTypes) {
-                this.legendUI.enableAll(key);
-                if (viewData.disabledTypes.hasOwnProperty(key)) {
-                    for (const type of viewData.disabledTypes[key]) {
-                        this.legendUI.disable(key, type);
-                    }
-                }
-            }
-        }
-    }
-    
-    private updateLinkManager(viewData: GraphViewData): void {
-        const linksManager = this.graph.linksSet.managers.get(LINK_KEY);
-        if (linksManager) {
-            linksManager.loadView(viewData);
-            if (this.legendUI && viewData.disabledTypes) {
-                this.legendUI.enableAll(LINK_KEY);
-                if (viewData.disabledTypes.hasOwnProperty(LINK_KEY)) {
-                    for (const type of viewData.disabledTypes[LINK_KEY]) {
-                        this.legendUI.disable(LINK_KEY, type);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Deletes the view with the specified ID.
-     * @param id - The ID of the view to delete.
-     */
-    deleteView(id: string): void {
-        this.graphsManager.onViewNeedsDeletion(id);
     }
 
 

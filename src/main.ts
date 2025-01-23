@@ -5,7 +5,6 @@ import { ExtendedGraphSettingTab } from './settings/settingTab';
 import { INVALID_KEYS } from './globalVariables';
 import { WorkspaceLeafExt } from './types/leaf';
 import { WorkspaceExt } from './types/workspace';
-import { GraphViewData } from './views/viewData';
 import { hasEngine } from './helperFunctions';
 
 // https://pixijs.download/v7.4.2/docs/index.html
@@ -141,12 +140,6 @@ export default class ExtendedGraphPlugin extends Plugin {
 
     private isGraph(leaf: WorkspaceLeaf): boolean {
         return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf as WorkspaceLeafExt);
-    }
-
-    // ================================= VIEWS =================================
-
-    getViewDataById(id: string): GraphViewData | undefined {
-        return this.settings.views.find(v => v.id === id);
     }
 }
 

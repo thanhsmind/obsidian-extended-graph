@@ -540,33 +540,4 @@ export class Graph extends Component {
         }
         return links;
     }
-
-    // ================================= VIEWS =================================
-
-    /**
-     * Creates a new view with the specified name from the current graph.
-     * @param name - The name of the new view.
-     * @returns string - The ID of the new view.
-     */
-    newView(name: string): string {
-        const view = new GraphView(name);
-        view.setID();
-        view.saveGraph(this);
-        this.dispatcher.graphsManager.onViewNeedsSaving(view.data);
-        return view.data.id;
-    }
-
-    /**
-     * Saves the current graph in the view with the specified ID.
-     * @param id - The ID of the view to save.
-     */
-    saveView(id: string): void {
-        if (id === DEFAULT_VIEW_ID) return;
-        const viewData = this.staticSettings.views.find(v => v.id == id);
-        if (!viewData) return;
-        const view = new GraphView(viewData?.name);
-        view.setID(id);
-        view.saveGraph(this);
-        this.dispatcher.graphsManager.onViewNeedsSaving(view.data);
-    }
 }

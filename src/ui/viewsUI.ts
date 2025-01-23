@@ -1,13 +1,15 @@
-import { Component, ExtraButtonComponent, setIcon, Setting } from "obsidian";
+import { Component, ExtraButtonComponent, Setting } from "obsidian";
 import { GraphViewData } from "src/views/viewData";
 import { DEFAULT_VIEW_ID } from "src/globalVariables";
 import ExtendedGraphPlugin from "src/main";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { NewNameModal } from "./modals/newNameModal";
 import { UIElements } from "./UIElements";
+import { Graph } from "src/graph/graph";
+import { ViewsManager } from "src/viewsManager";
 
 export class ViewsUI extends Component {
-    dispatcher: GraphEventsDispatcher;
+    viewsManager: ViewsManager;
+    graph: Graph;
     plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
@@ -22,12 +24,12 @@ export class ViewsUI extends Component {
     addButton: HTMLElement;
     deleteButton: HTMLElement;
     
-
-    constructor(dispatcher: GraphEventsDispatcher) {
+    constructor(graph: Graph) {
         super();
-        this.dispatcher = dispatcher;
-        this.plugin = dispatcher.graphsManager.plugin;
-        this.viewContent = dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.graph = graph;
+        this.viewsManager = this.graph.dispatcher.graphsManager.viewsManager;
+        this.plugin = this.viewsManager.graphsManager.plugin;
+        this.viewContent = this.graph.dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
         this.root.addClass("graph-views-container");
         
@@ -56,7 +58,7 @@ export class ViewsUI extends Component {
                 this.select.addEventListener('change', event => {
                     this.currentViewID = this.select.value;
                     this.displaySaveDeleteButton();
-                    this.dispatcher.changeView(this.select.value);
+                    this.viewsManager.changeView(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
@@ -71,14 +73,14 @@ export class ViewsUI extends Component {
                 this.saveButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'save');
                 this.saveButton.addEventListener('click', event => {
-                    this.dispatcher.graph.saveView(this.select.value);
+                    this.viewsManager.saveView(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
                 this.deleteButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'delete');
                 this.deleteButton.addEventListener('click', event => {
-                    this.dispatcher.deleteView(this.select.value);
+                    this.viewsManager.deleteView(this.select.value);
                 });
             });
 
@@ -127,7 +129,7 @@ export class ViewsUI extends Component {
 
     newView(name: string): boolean {
         if (name.length === 0) return false;
-        const id = this.dispatcher.graph.newView(name);
+        const id = this.viewsManager.newView(this.graph, name);
         this.currentViewID = id;
         return true;
     }

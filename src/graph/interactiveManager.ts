@@ -2,7 +2,6 @@
 import { Component } from "obsidian";
 import { getColor, hex2rgb } from "../colors/colors";
 import { INVALID_KEYS, NONE_COLOR } from "src/globalVariables";
-import { GraphViewData } from "src/views/viewData";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphEventsDispatcher } from "./graphEventsDispatcher";
 
@@ -58,29 +57,6 @@ export class InteractiveManager extends Component {
             }
         });
         if (enabledTypes.length > 0) this.dispatcher.onInteractivesEnabled(this.name, enabledTypes);
-    }
-
-    loadView(viewData: GraphViewData): void {
-        if (!viewData.disabledTypes) return;
-        const viewTypesToDisable: string[] = viewData.disabledTypes[this.name];
-        // Enable/Disable tags
-        const toDisable: string[] = [];
-        const toEnable: string[] = [];
-        this.getTypes().forEach(type => {
-            const interactive = this.interactives.get(type);
-            if (!interactive) return;
-            if (interactive.isActive && viewTypesToDisable?.includes(type)) {
-                interactive.isActive = false;
-                toDisable.push(type);
-            }
-            else if (!interactive.isActive && !viewTypesToDisable?.includes(type)) {
-                interactive.isActive = true;
-                toEnable.push(type);
-            }
-        });
-
-        if (toDisable.length > 0) this.dispatcher.onInteractivesDisabled(this.name, toDisable);
-        if (toEnable.length > 0) this.dispatcher.onInteractivesEnabled(this.name, toEnable);
     }
 
     isActive(type: string): boolean {
