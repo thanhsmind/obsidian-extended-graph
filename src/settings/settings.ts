@@ -1,15 +1,25 @@
 import { EngineOptions, GraphViewData } from "../views/viewData";
 import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
-import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
 import { QueryData } from "src/queries/queriesMatcher";
 import { Feature } from "src/types/features";
 import { NodeSizeFunction } from "src/nodeSizes/nodeSizeCalculator";
 
-interface InteractiveSettings {
+type InteractiveSettings = {
     colormap: string;
     colors: {type: string, color: string}[];
     unselected: string[];
     noneType: string;
+}
+
+export type ExportSVGOptions = {
+    asImage: boolean,
+    // Core options
+    onlyVisibleArea: boolean,
+    showNodeNames: boolean,
+    // Extended options
+    useCurvedLinks: boolean,
+    useNodesShapes: boolean,
+    showArcs: boolean,
 }
 
 export interface ExtendedGraphSettings {
@@ -42,6 +52,9 @@ export interface ExtendedGraphSettings {
 
     // Shapes
     shapeQueries: Record<string, QueryData>;
+
+    // Export SVG
+    exportSVGOptions: ExportSVGOptions;
 
     // Display settings
     fadeOnDisable: boolean;
@@ -116,6 +129,18 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'star (6)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'star (8)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'star (10)': {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+    },
+
+    // Export SVG
+    exportSVGOptions: {
+        asImage: true,
+        // Core options
+        onlyVisibleArea: false,
+        showNodeNames: true,
+        // Extended options
+        useCurvedLinks: false,
+        useNodesShapes: false,
+        showArcs: false,
     },
 
     // Display settings

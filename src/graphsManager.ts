@@ -396,10 +396,10 @@ export class GraphsManager extends Component {
         const dispatcher = this.dispatchers.get(leaf.id);
         let exportToSVG: ExportGraphToSVG;
         if (dispatcher) {
-            exportToSVG = new ExportExtendedGraphToSVG(this.plugin.app, dispatcher.graph);
+            exportToSVG = new ExportExtendedGraphToSVG(dispatcher.graph);
         }
         else {
-            exportToSVG = new ExportCoreGraphToSVG(this.plugin.app, getEngine(leaf));
+            exportToSVG = new ExportCoreGraphToSVG(this.plugin, getEngine(leaf));
         }
         exportToSVG.toClipboard();
     }

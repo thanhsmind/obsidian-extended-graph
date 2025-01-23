@@ -1,38 +1,21 @@
 import { App, Modal, Setting } from "obsidian";
 import { Graph } from "src/graph/graph";
+import ExtendedGraphPlugin from "src/main";
 import { ExtendedGraphSettings } from "src/settings/settings";
-
-export type ExportSVGOptions = {
-    asImage: boolean,
-    // Core options
-    onlyVisibleArea: boolean,
-    showNodeNames: boolean,
-    // Extended options
-    useCurvedLinks: boolean,
-    useNodesShapes: boolean,
-    showArcs: boolean,
-}
 
 export class ExportSVGOptionModal extends Modal {
     graph?: Graph;
-    settings?: ExtendedGraphSettings;
+    graphSettings?: ExtendedGraphSettings;
+    plugin: ExtendedGraphPlugin;
+    settings: ExtendedGraphSettings;
     isCanceled: boolean = true;
 
-    options: ExportSVGOptions = {
-        asImage: true,
-        // Core options
-        onlyVisibleArea: false,
-        showNodeNames: true,
-        // Extended options
-        useCurvedLinks: false,
-        useNodesShapes: false,
-        showArcs: false,
-    };
-
-    constructor(app: App, graph?: Graph) {
-        super(app);
+    constructor(plugin: ExtendedGraphPlugin, graph?: Graph) {
+        super(plugin.app);
         this.graph = graph;
-        this.settings = graph?.staticSettings;
+        this.plugin = plugin;
+        this.settings = plugin.settings;
+        this.graphSettings = graph?.staticSettings;
 
         this.setTitle("SVG Export options");
     }
@@ -54,9 +37,10 @@ export class ExportSVGOptionModal extends Modal {
         new Setting(this.contentEl)
             .setName("Export only visible area")
             .addToggle(cb => {
-                cb.setValue(this.options.onlyVisibleArea);
+                cb.setValue(this.settings.exportSVGOptions.onlyVisibleArea);
                 cb.onChange(value => {
-                    this.options.onlyVisibleArea = value;
+                    this.settings.exportSVGOptions.onlyVisibleArea = value;
+                    this.saveSettings();
                 })
             });
     }
@@ -65,9 +49,10 @@ export class ExportSVGOptionModal extends Modal {
         new Setting(this.contentEl)
             .setName("Show node names")
             .addToggle(cb => {
-                cb.setValue(this.options.showNodeNames);
+                cb.setValue(this.settings.exportSVGOptions.showNodeNames);
                 cb.onChange(value => {
-                    this.options.showNodeNames = value;
+                    this.settings.exportSVGOptions.showNodeNames = value;
+                    this.saveSettings();
                 })
             });
     }
@@ -84,64 +69,67 @@ export class ExportSVGOptionModal extends Modal {
 
     private addUseCurvedLinks() {
         const canUseCurvedLinks = this.canUseCurvedLinks();
-        this.options.useCurvedLinks = canUseCurvedLinks;
+        this.settings.exportSVGOptions.useCurvedLinks = canUseCurvedLinks;
         if (!canUseCurvedLinks) return;
 
         new Setting(this.contentEl)
             .setName("Use curved links")
             .addToggle(cb => {
-                cb.setValue(this.options.useCurvedLinks);
+                cb.setValue(this.settings.exportSVGOptions.useCurvedLinks);
                 cb.onChange(value => {
-                    this.options.useCurvedLinks = value;
+                    this.settings.exportSVGOptions.useCurvedLinks = value;
+                    this.saveSettings();
                 })
             });
     }
 
     private canUseCurvedLinks() {
-        if (!this.settings) return false;
-        return this.settings.enableFeatures['links'] && this.settings.enableFeatures['curvedLinks'];
+        if (!this.graphSettings) return false;
+        return this.graphSettings.enableFeatures['links'] && this.graphSettings.enableFeatures['curvedLinks'];
     }
 
     private addUseNodeShapes() {
         const canUseNodeShapes = this.canUseNodeShapes();
-        this.options.useNodesShapes = canUseNodeShapes;
+        this.settings.exportSVGOptions.useNodesShapes = canUseNodeShapes;
         if (!canUseNodeShapes) return;
 
         new Setting(this.contentEl)
             .setName("Use nodes shapes")
             .addToggle(cb => {
-                cb.setValue(this.options.useNodesShapes);
+                cb.setValue(this.settings.exportSVGOptions.useNodesShapes);
                 cb.onChange(value => {
-                    this.options.useNodesShapes = value;
+                    this.settings.exportSVGOptions.useNodesShapes = value;
+                    this.saveSettings();
                 })
             });
     }
 
     private canUseNodeShapes(): boolean {
-        if (!this.settings) return false;
-        return this.settings.enableFeatures['shapes'] ?? false
+        if (!this.graphSettings) return false;
+        return this.graphSettings.enableFeatures['shapes'] ?? false
     }
 
     private addShowArcs() {
         const canShowArcs = this.canShowArcs();
-        this.options.showArcs = canShowArcs;
+        this.settings.exportSVGOptions.showArcs = canShowArcs;
         if (!canShowArcs) return;
 
         new Setting(this.contentEl)
             .setName("Show arcs (tags and/or types)")
             .addToggle(cb => {
-                cb.setValue(this.options.showArcs);
+                cb.setValue(this.settings.exportSVGOptions.showArcs);
                 cb.onChange(value => {
-                    this.options.showArcs = value;
+                    this.settings.exportSVGOptions.showArcs = value;
+                    this.saveSettings();
                 })
             });
     }
 
     private canShowArcs(): boolean {
-        if (!this.settings) return false;
-        if (this.settings.enableFeatures['tags']) return true;
-        if (!this.settings.enableFeatures['properties']) return false;
-        return Object.values(this.settings.additionalProperties).some(b => b);
+        if (!this.graphSettings) return false;
+        if (this.graphSettings.enableFeatures['tags']) return true;
+        if (!this.graphSettings.enableFeatures['properties']) return false;
+        return Object.values(this.graphSettings.additionalProperties).some(b => b);
     }
 
     // ============================ APPLY AND CLOSE ============================
@@ -152,8 +140,8 @@ export class ExportSVGOptionModal extends Modal {
                 cb.setButtonText("Copy svg code to clipboard");
                 cb.onClick(() => {
                     this.isCanceled = false;
-                    this.options.asImage = false;
-                    this.close();
+                    this.settings.exportSVGOptions.asImage = false;
+                    this.applyAndClose();
                 })
             });
             
@@ -163,11 +151,22 @@ export class ExportSVGOptionModal extends Modal {
                 cb.setCta();
                 cb.onClick(() => {
                     this.isCanceled = false;
-                    this.options.asImage = true;
-                    this.close();
+                    this.settings.exportSVGOptions.asImage = true;
+                    this.applyAndClose();
                 })
             })
         }
+    }
+
+    private async saveSettings(): Promise<void> {
+        if (this.graphSettings) this.graphSettings.exportSVGOptions = this.settings.exportSVGOptions;
+        await this.plugin.saveSettings();
+    }
+
+    private applyAndClose() {
+        this.saveSettings().then(() => {
+            this.close();
+        })
     }
 }
 

@@ -4,14 +4,16 @@ import { getSVGNode, polar2Cartesian } from "src/helperFunctions";
 import { ExtendedGraphNode } from "../graph/extendedElements/extendedGraphNode";
 import { int2hex, rgb2hex } from "src/colors/colors";
 import { ExtendedGraphLink, getLinkID } from "../graph/extendedElements/extendedGraphLink";
-import { App, HexString } from "obsidian";
+import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ExportSVGOptionModal, ExportSVGOptions } from "./exportSVGOptionsModal";
+import { ExportSVGOptionModal } from "./exportSVGOptionsModal";
 import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
 import { ArcsCircle } from "src/graph/graphicElements/nodes/arcsCircle";
+import { ExportSVGOptions } from "src/settings/settings";
+import ExtendedGraphPlugin from "src/main";
 
 export abstract class ExportGraphToSVG {
-    app: App;
+    plugin: ExtendedGraphPlugin;
     svg: SVGSVGElement;
     renderer: GraphRenderer;
 
@@ -26,8 +28,8 @@ export abstract class ExportGraphToSVG {
 
     options: ExportSVGOptions;
 
-    constructor(app: App, renderer: GraphRenderer) {
-        this.app = app;
+    constructor(plugin: ExtendedGraphPlugin, renderer: GraphRenderer) {
+        this.plugin = plugin;
         this.renderer = renderer;
     }
 
@@ -148,13 +150,14 @@ export abstract class ExportGraphToSVG {
 
                 modal.onClose = (async function() {
                     if (modal.isCanceled) return;
+                    this.options = this.plugin.settings.exportSVGOptions;
 
                     // Create SVG
-                    this.createSVG(modal.options);
+                    this.createSVG(this.options);
                     const svgString = this.toString();
                     
                     // Copy SVG as Image
-                    if (modal.options.asImage) {
+                    if (this.options.asImage) {
                         const blob = new Blob([svgString], {type: "image/svg+xml"});
                         await navigator.clipboard.write([
                             new ClipboardItem({
@@ -191,8 +194,8 @@ export abstract class ExportGraphToSVG {
 export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     graph: Graph;
 
-    constructor(app: App, graph: Graph) {
-        super(app, graph.renderer);
+    constructor(graph: Graph) {
+        super(graph.dispatcher.graphsManager.plugin, graph.renderer);
         this.graph = graph;
     }
 
@@ -345,15 +348,15 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     protected getModal(): ExportSVGOptionModal {
-        return new ExportSVGOptionModal(this.app, this.graph);
+        return new ExportSVGOptionModal(this.plugin, this.graph);
     }
 }
 
 export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     engine: GraphEngine;
 
-    constructor(app: App, engine: GraphEngine) {
-        super(app, engine.renderer);
+    constructor(plugin: ExtendedGraphPlugin, engine: GraphEngine) {
+        super(plugin, engine.renderer);
         this.engine = engine;
     }
 
@@ -396,6 +399,6 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     }
 
     protected getModal(): ExportSVGOptionModal {
-        return new ExportSVGOptionModal(this.app);
+        return new ExportSVGOptionModal(this.plugin);
     }
 }
