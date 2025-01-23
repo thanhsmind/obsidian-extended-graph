@@ -1,7 +1,7 @@
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
-import { GraphicsWrapper } from "./graphicsWrapper";
 import { ExtendedGraphSettings } from "src/settings/settings";
+import { GraphicsWrapper } from "../graphicElements/links/graphicsWrapper";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     settings: ExtendedGraphSettings;
@@ -32,7 +32,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             this.createGraphicsWrapper();
         }
     }
-
+    
     protected abstract needGraphicsWrapper(): boolean;
     protected abstract createGraphicsWrapper(): void;
 

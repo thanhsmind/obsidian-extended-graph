@@ -3,12 +3,12 @@ import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
 import { ArcsCircle } from './arcsCircle';
 import { NodeImage } from './image';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { GraphicsWrapper } from '../../interfaces/graphicsWrapper';
 import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
 import { InteractiveManager } from 'src/graph/interactiveManager';
 import { NodeShape, ShapeEnum } from './shapes';
 import { QueryData, QueryMatcher } from 'src/queries/queriesMatcher';
-import { getFile, getFileInteractives } from 'src/helperFunctions';
+import { getFile } from 'src/helperFunctions';
+import { GraphicsWrapper } from '../links/graphicsWrapper';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;

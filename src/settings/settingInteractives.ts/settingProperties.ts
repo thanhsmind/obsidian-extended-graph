@@ -80,7 +80,8 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             colormap: "rainbow",
             colors: [],
             unselected: [],
-            noneType: "none"
+            noneType: "none",
+            showOnGraph: true
         }
         this.settingTab.plugin.saveSettings().then(() => {
             const setting = new SettingProperty(key, this.settingTab, this);
@@ -110,6 +111,22 @@ export class SettingProperty extends SettingInteractives {
             })
         });
         this.settingHeader.settingEl.addClass('setting-property-header');
+    }
+
+    protected override addBody(): void {
+        super.addBody();
+        
+        // Show on graph
+        this.elementsBody.push(new Setting(this.array.propertiesContainer)
+            .setName(`Add arcs`)
+            .setDesc(`Add arcs around the nodes to visualize the property values.`)
+            .addToggle(cb => {
+                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     remove(): void {

@@ -54,7 +54,16 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     public needOpacityLayer(): boolean { return this.settings.fadeOnDisable; }
     
     public needArcs(): boolean {
-        return this.coreElement.type === "" && this.managers.size > 0;
+        if (this.coreElement.type !== "" || this.managers.size === 0)
+            return false;
+        
+        for (const [key, manager] of this.managers) {
+            if (this.settings.interactiveSettings[key].showOnGraph) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public needPin(): boolean { return true; }
@@ -66,6 +75,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
+            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
             const validTypes = this.getTypes(key);
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;

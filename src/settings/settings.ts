@@ -9,6 +9,7 @@ type InteractiveSettings = {
     colors: {type: string, color: string}[];
     unselected: string[];
     noneType: string;
+    showOnGraph: boolean;
 }
 
 export type ExportSVGOptions = {
@@ -156,19 +157,22 @@ DEFAULT_SETTINGS.interactiveSettings[TAG_KEY] = {
     colormap: "hsv",
     colors: [],
     unselected: [],
-    noneType: "none"
+    noneType: "none",
+    showOnGraph: true,
 };
 
 DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
     colormap: "rainbow",
     colors: [],
     unselected: [],
-    noneType: "none"
+    noneType: "none",
+    showOnGraph: true,
 };
 
 DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
     colormap: "winter",
     colors: [],
     unselected: [],
-    noneType: "."
+    noneType: ".",
+    showOnGraph: true,
 };

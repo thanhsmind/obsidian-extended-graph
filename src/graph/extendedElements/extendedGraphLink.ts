@@ -25,7 +25,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         for (const [key, manager] of this.managers) {
             const types = this.types.get(key);
             if (!types || types.size === 0) continue;
-            if (!types.has(manager.settings.interactiveSettings[key].noneType)) {
+            if (this.settings.interactiveSettings[key].showOnGraph && !types.has(manager.settings.interactiveSettings[key].noneType)) {
                 return true;
             }
         }
@@ -43,6 +43,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
+            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
             const validTypes = this.getTypes(key);
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;

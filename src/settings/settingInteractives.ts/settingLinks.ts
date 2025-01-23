@@ -15,6 +15,8 @@ export class SettingLinks extends SettingInteractives {
     protected override addBody(): void {
         super.addBody();
 
+
+
         const labels = this.containerEl.querySelectorAll(`.settings-selection-container.${this.itemClasses} label`);
         const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === this.settingTab.plugin.settings.imageProperty) as HTMLLabelElement;
         if (imageLabel) {
@@ -23,6 +25,7 @@ export class SettingLinks extends SettingInteractives {
             imageLabel.parentNode?.removeChild(imageLabel);
         }
         
+        // Remove sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(`Remove sources`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
@@ -34,6 +37,7 @@ export class SettingLinks extends SettingInteractives {
                 })
             }).settingEl);
 
+        // Add sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(`Remove targets`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
@@ -44,7 +48,20 @@ export class SettingLinks extends SettingInteractives {
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
+        
+        // Show on graph
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(`Color links`)
+            .setDesc(`Add colors to the link rendered in the graph view.`)
+            .addToggle(cb => {
+                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            }).settingEl);
 
+        // Curved links
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(`Curved links`)
             .setDesc(`Use curved links instead of straight lines`)

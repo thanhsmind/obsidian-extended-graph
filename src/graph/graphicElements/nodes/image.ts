@@ -1,4 +1,4 @@
-import { ColorSource, Graphics, Sprite, Texture } from "pixi.js";
+import { Graphics, Sprite, Texture } from "pixi.js";
 import { NodeShape, ShapeEnum } from "./shapes";
 
 export class NodeImage extends Sprite {

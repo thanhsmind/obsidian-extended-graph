@@ -1,9 +1,8 @@
 import { GraphLink } from "obsidian-typings";
-import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
-import { InteractiveManager } from "../interactiveManager";
+import { ExtendedGraphLink } from "src/graph/extendedElements/extendedGraphLink";
+import { InteractiveManager } from "src/graph/interactiveManager";
 import { GraphicsWrapper } from "./graphicsWrapper";
-import { LinkGraphics } from "../graphicElements/links/linkGraphics";
-import { HexString } from "obsidian";
+import { LinkGraphics } from "./linkGraphics";
 
 export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values
