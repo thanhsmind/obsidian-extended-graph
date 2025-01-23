@@ -1,13 +1,16 @@
-import { Component, setIcon } from "obsidian";
+import { Component, ExtraButtonComponent, Setting } from "obsidian";
 import { GraphViewData } from "src/views/viewData";
 import { DEFAULT_VIEW_ID } from "src/globalVariables";
-import GraphExtendedPlugin from "src/main";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { NewNameModal } from "./newNameModal";
+import ExtendedGraphPlugin from "src/main";
+import { NewNameModal } from "./modals/newNameModal";
+import { UIElements } from "./UIElements";
+import { Graph } from "src/graph/graph";
+import { ViewsManager } from "src/viewsManager";
 
 export class ViewsUI extends Component {
-    dispatcher: GraphEventsDispatcher;
-    plugin: GraphExtendedPlugin;
+    viewsManager: ViewsManager;
+    graph: Graph;
+    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     currentViewID: string;
@@ -15,72 +18,71 @@ export class ViewsUI extends Component {
     isOpen: boolean;
 
     root: HTMLDivElement;
-    toggleDiv: HTMLDivElement;
+    toggleButton: ExtraButtonComponent;
     select: HTMLSelectElement;
-    saveButton: HTMLButtonElement;
-    addButton: HTMLButtonElement;
-    deleteButton: HTMLButtonElement;
+    saveButton: HTMLElement;
+    addButton: HTMLElement;
+    deleteButton: HTMLElement;
     
-
-    constructor(dispatcher: GraphEventsDispatcher) {
+    constructor(graph: Graph) {
         super();
-        this.dispatcher = dispatcher;
-        this.plugin = dispatcher.graphsManager.plugin;
-        this.viewContent = dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.graph = graph;
+        this.viewsManager = this.graph.dispatcher.graphsManager.viewsManager;
+        this.plugin = this.viewsManager.graphsManager.plugin;
+        this.viewContent = this.graph.dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
         this.root.addClass("graph-views-container");
         
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
-        this.toggleDiv = graphControls.createDiv("clickable-icon graph-controls-button mod-views");
-        this.toggleDiv.ariaLabel = "Open views settings";
-        setIcon(this.toggleDiv, "eye");
-        this.toggleDiv.onClickEvent(() => {
-            if (this.isOpen) {
-                this.close();
-            }
-            else {
-                this.open();
-            }
-        });
+        this.toggleButton = new ExtraButtonComponent(graphControls)
+            .setTooltip("Open views settings")
+            .setIcon("eye")
+            .onClick(() => {
+                if (this.isOpen) {
+                    this.close();
+                }
+                else {
+                    this.open();
+                }
+            })
+            .then(cb => {
+                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-views"]);
+            });
 
         // TITLE
-        const title = this.root.createSpan();
-        title.innerHTML = "views";
-        title.addClass("graph-views-title");
-
-        // SELECT
-        this.select = this.root.createEl("select");
-        this.select.addEventListener('change', event => {
-            this.currentViewID = this.select.value;
-            this.displaySaveDeleteButton();
-            this.dispatcher.changeView(this.select.value);
-        });
-
-        // ADD BUTTON
-        this.addButton = this.root.createEl("button");
-        setIcon(this.addButton, "plus");
-        const addText = this.addButton.createSpan();
-        addText.innerText = "Add view";
-
-        this.addButton.addEventListener('click', event => {
-            this.addButton.blur();
-            this.openModalToAddView();
-        })
-
-        // SAVE BUTTON
-        this.saveButton = this.root.createEl("button");
-        setIcon(this.saveButton, "save");
-        this.saveButton.addEventListener('click', event => {
-            this.dispatcher.graph.saveView(this.select.value);
-        });
-
-        // DELETE BUTTON
-        this.deleteButton = this.root.createEl("button");
-        setIcon(this.deleteButton, "trash-2");
-        this.deleteButton.addEventListener('click', event => {
-            this.dispatcher.deleteView(this.select.value);
-        });
+        new Setting(this.root)
+            .setName("Views")
+            .addDropdown(cb => {
+                this.select = cb.selectEl;
+                this.select.addEventListener('change', event => {
+                    this.currentViewID = this.select.value;
+                    this.displaySaveDeleteButton();
+                    this.viewsManager.changeView(this.graph, this.select.value);
+                });
+            })
+            .addExtraButton(cb => {
+                this.addButton = cb.extraSettingsEl;
+                UIElements.setupExtraButton(cb, 'add');
+                this.addButton.addEventListener('click', event => {
+                    this.addButton.blur();
+                    this.openModalToAddView();
+                })
+            })
+            .addExtraButton(cb => {
+                this.saveButton = cb.extraSettingsEl;
+                UIElements.setupExtraButton(cb, 'save');
+                this.saveButton.addEventListener('click', event => {
+                    this.viewsManager.saveView(this.graph, this.select.value);
+                });
+            })
+            .addExtraButton(cb => {
+                this.deleteButton = cb.extraSettingsEl;
+                UIElements.setupExtraButton(cb, 'delete');
+                this.deleteButton.addEventListener('click', event => {
+                    this.viewsManager.deleteView(this.select.value);
+                });
+            });
 
         // CURRENT VIEW ID
         this.currentViewID = this.select.value;
@@ -94,8 +96,8 @@ export class ViewsUI extends Component {
     }
 
     onunload(): void {
-        this.root.parentNode?.removeChild(this.root);
-        this.toggleDiv.parentNode?.removeChild(this.toggleDiv);
+        this.root.remove();
+        this.toggleButton.extraSettingsEl.remove();
     }
 
     private openModalToAddView() {
@@ -127,7 +129,7 @@ export class ViewsUI extends Component {
 
     newView(name: string): boolean {
         if (name.length === 0) return false;
-        const id = this.dispatcher.graph.newView(name);
+        const id = this.viewsManager.newView(this.graph, name);
         this.currentViewID = id;
         return true;
     }
@@ -159,7 +161,7 @@ export class ViewsUI extends Component {
 
     open() {
         this.root.removeClass("is-closed");
-        this.toggleDiv.addClass("is-active");
+        this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
         this.plugin.settings.collapseView = false;
         this.plugin.saveSettings();
@@ -167,7 +169,7 @@ export class ViewsUI extends Component {
 
     close() {
         this.root.addClass("is-closed");
-        this.toggleDiv.removeClass("is-active");
+        this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
         this.plugin.settings.collapseView = true;
         this.plugin.saveSettings();

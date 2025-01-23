@@ -1,42 +1,46 @@
-import { Component, setIcon, setTooltip } from "obsidian";
+import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip } from "obsidian";
 import { FOLDER_KEY } from "src/globalVariables";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
-import GraphExtendedPlugin from "src/main";
+import ExtendedGraphPlugin from "src/main";
 
-class LegendRow {
+class LegendRow extends Setting {
     name: string;
-    container: Element;
-    disableAllIcon: HTMLDivElement;
-    enableAllIcon: HTMLDivElement;
+    disableAllButton: ExtraButtonComponent;
+    enableAllButton: ExtraButtonComponent;
     cssBGColorVariable: string;
     cssTextColorVariable: string;
     manager: InteractiveManager;
 
-    constructor(name: string, manager: InteractiveManager, root: Element) {
+    constructor(name: string, manager: InteractiveManager, containerEl: HTMLElement) {
+        super(containerEl);
         this.name = name;
         this.manager = manager;
-        this.container = root.createDiv();
-        this.container.addClass(`graph-legend-row`);
-        this.container.addClass(`graph-legend-${name}s-row`);
         this.cssBGColorVariable = "--legend-color-rgb";
         this.cssTextColorVariable = "--legend-text-color";
 
-        
-        const title = this.container.createSpan("graph-legend-title");
-        title.innerText = this.name;
-        setTooltip(title, title.innerText);
-
-        this.disableAllIcon = this.container.createDiv("clickable-icon");
-        setIcon(this.disableAllIcon, "copy");
-        setTooltip(this.disableAllIcon, "Disable all " + this.name + (this.name.endsWith("s") ? "" : "s"));
-        this.disableAllIcon.onclick = this.disableAll.bind(this);
-
-        this.enableAllIcon = this.container.createDiv("clickable-icon");
-        setIcon(this.enableAllIcon, "copy-check");
-        setTooltip(this.enableAllIcon, "Enable all " + this.name + (this.name.endsWith("s") ? "" : "s"));
-        this.enableAllIcon.onclick = this.enableAll.bind(this);
-        this.enableAllIcon.style.display = "none";
+        this.setName(this.name)
+            .setTooltip(this.name)
+            .addExtraButton(cb => {
+                this.disableAllButton = cb;
+                cb.setIcon("copy")
+                    .setTooltip("Disable all " + this.name + (this.name.endsWith("s") ? "" : "s"))
+                    .onClick(() => {
+                        this.disableAll();
+                    });
+            })
+            .addExtraButton(cb => {
+                this.enableAllButton = cb;
+                cb.setIcon("copy-check")
+                    .setTooltip("Enable all " + this.name + (this.name.endsWith("s") ? "" : "s"))
+                    .onClick(() => {
+                        this.enableAll();
+                    })
+                    .then(cb => {
+                        cb.extraSettingsEl.style.display = "none";
+                    });
+            })
+            .setClass(`graph-legend-${name}s-row`);
     }
 
     private getClassName(type: string): string {
@@ -44,32 +48,34 @@ class LegendRow {
     }
 
     addLegend(type: string, color: Uint8Array): void {
-        if (!this.container.getElementsByClassName(this.getClassName(type))[0]) {
-            const button = this.container.createEl("button");
-            button.addClasses([this.getClassName(type), "graph-legend"]);
-            button.setText(type);
-            button.addEventListener('click', e => {
-                this.toggle(type);
-            })
-            button.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-            button.style.setProperty(this.cssTextColorVariable, this.textColor(color));
-            if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
-                button.addClass("graph-legend-none");
-            }
-        }
+        this.addButton(cb => {
+            cb.setClass(this.getClassName(type))
+                .setClass("graph-legend")
+                .setButtonText(type)
+                .onClick(() => {
+                    this.toggle(type);
+                })
+                .then(cb => {
+                    cb.buttonEl.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
+                    cb.buttonEl.style.setProperty(this.cssTextColorVariable, this.textColor(color));
+                    if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
+                        cb.buttonEl.addClass("graph-legend-none");
+                    }
+                });
+        })
 
         const sortByName = function(a: HTMLButtonElement, b: HTMLButtonElement) {
             return b.className.replace("graph-legend", "").toLowerCase().localeCompare(a.className.replace("graph-legend", "").toLowerCase());
         };
     
-        const sortedChildren = Array.from(this.container.getElementsByClassName("graph-legend")).sort(sortByName);
+        const sortedChildren = Array.from(this.controlEl.getElementsByClassName("graph-legend")).sort(sortByName);
         for (let i = sortedChildren.length-1; i >= 0; i--) {
-            this.container.appendChild(sortedChildren[i]);
+            this.controlEl.appendChild(sortedChildren[i]);
         }
     }
 
     updateLegend(type: string, color: Uint8Array): void {
-        const button = this.container.getElementsByClassName(this.getClassName(type))[0];
+        const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
         if (!button) {
             this.addLegend(type, color)
         }
@@ -81,7 +87,7 @@ class LegendRow {
 
     removeLegend(types: string[]) {
         types.forEach(type => {
-            const button = this.container.getElementsByClassName(this.getClassName(type))[0];
+            const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
             button?.parentNode?.removeChild(button);
         })
     }
@@ -95,8 +101,8 @@ class LegendRow {
             this.manager.disable([type]);
             const allAreDisabled = !this.manager.getTypes().some(t => this.manager.isActive(t));
             if (allAreDisabled) {
-                this.disableAllIcon.style.display = "none";
-                this.enableAllIcon.style.display = "";
+                this.disableAllButton.extraSettingsEl.style.display = "none";
+                this.enableAllButton.extraSettingsEl.style.display = "";
             }
         }
         else {
@@ -104,19 +110,19 @@ class LegendRow {
             this.manager.enable([type]);
             const allAreEnabled = !this.manager.getTypes().some(t => !this.manager.isActive(t));
             if (allAreEnabled) {
-                this.disableAllIcon.style.display = "";
-                this.enableAllIcon.style.display = "none";
+                this.disableAllButton.extraSettingsEl.style.display = "";
+                this.enableAllButton.extraSettingsEl.style.display = "none";
             }
         }
     }
 
     disable(type: string) {
-        const button = this.container.getElementsByClassName(this.getClassName(type))[0];
+        const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
         if (button) button.addClass("is-hidden");
     }
 
     enable(type: string) {
-        const button = this.container.getElementsByClassName(this.getClassName(type))[0];
+        const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
         if (button) button.removeClass("is-hidden");
     }
 
@@ -125,8 +131,8 @@ class LegendRow {
             this.disable(type);
         }
         this.manager.disable(this.manager.getTypes());
-        this.disableAllIcon.style.display = "none";
-        this.enableAllIcon.style.display = "";
+        this.disableAllButton.extraSettingsEl.style.display = "none";
+        this.enableAllButton.extraSettingsEl.style.display = "";
     }
 
     enableAll() {
@@ -134,8 +140,8 @@ class LegendRow {
             this.enable(type);
         }
         this.manager.enable(this.manager.getTypes());
-        this.disableAllIcon.style.display = "";
-        this.enableAllIcon.style.display = "none";
+        this.disableAllButton.extraSettingsEl.style.display = "";
+        this.enableAllButton.extraSettingsEl.style.display = "none";
     }
 
     private textColor(color: Uint8Array): string {
@@ -146,7 +152,7 @@ class LegendRow {
 
 export class LegendUI extends Component {
     dispatcher: GraphEventsDispatcher;
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     legendRows: Map<string, LegendRow>;
@@ -154,7 +160,7 @@ export class LegendUI extends Component {
     isOpen: boolean;
     
     root: HTMLDivElement;
-    toggleDiv: HTMLDivElement;
+    toggleButton: ExtraButtonComponent;
 
     constructor(dispatcher: GraphEventsDispatcher) {
         super();
@@ -164,17 +170,20 @@ export class LegendUI extends Component {
     
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
-        this.toggleDiv = graphControls.createDiv("clickable-icon graph-controls-button mod-legend");
-        this.toggleDiv.ariaLabel = "Open legend (tags/links)";
-        setIcon(this.toggleDiv, "tags");
-        this.toggleDiv.onClickEvent(() => {
-            if (this.isOpen) {
-                this.close();
-            }
-            else {
-                this.open();
-            }
-        });
+        this.toggleButton = new ExtraButtonComponent(graphControls)
+            .setTooltip("Open legend (tags, links, properties)")
+            .setIcon("tags")
+            .onClick(() => {
+                if (this.isOpen) {
+                    this.close();
+                }
+                else {
+                    this.open();
+                }
+            })
+            .then(cb => {
+                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-legend"]);
+            });
 
         this.legendRows = new Map<string, LegendRow>();
         this.root = this.viewContent.createDiv();
@@ -193,8 +202,8 @@ export class LegendUI extends Component {
     }
 
     onunload(): void {
-        this.root.parentNode?.removeChild(this.root);
-        this.toggleDiv.parentNode?.removeChild(this.toggleDiv);
+        this.root.remove();
+        this.toggleButton.extraSettingsEl.remove();
     }
 
     updateLegend(row: string, type: string, color: Uint8Array) {
@@ -229,7 +238,7 @@ export class LegendUI extends Component {
 
     open() {
         this.root.removeClass("is-closed");
-        this.toggleDiv.addClass("is-active");
+        this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
         this.plugin.settings.collapseLegend = false;
         this.plugin.saveSettings();
@@ -237,7 +246,7 @@ export class LegendUI extends Component {
 
     close() {
         this.root.addClass("is-closed");
-        this.toggleDiv.removeClass("is-active");
+        this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
         this.plugin.settings.collapseLegend = true;
         this.plugin.saveSettings();

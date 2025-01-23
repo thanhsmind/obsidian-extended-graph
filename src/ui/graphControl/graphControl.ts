@@ -15,34 +15,43 @@ export class GraphControlsUI extends Component {
 
     // Sections
     sectionSettings: GCSettings;
-    sectionFolders: GCFolders;
+    sectionFolders?: GCFolders;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
         super();
         this.leaf = leaf;
         this.graphsManager = graphsManager;
         this.graphControls = leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
-
-        const div = this.graphControls.createDiv("tree-item graph-control-section mod-extended-graph-title");
-        const header = div.createEl("header", {
-            cls: "graph-control-section-header",
-            text: "Extended Graph"
-        });
-
         this.sectionSettings = new GCSettings(leaf, graphsManager);
     }
 
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
+        this.dispatcher = dispatcher;
         this.sectionSettings.onPluginEnabled(dispatcher);
-        this.sectionFolders?.onPluginEnabled(dispatcher);
+        this.addSectionFolder();
     }
 
     onPluginDisabled(): void {
         this.sectionSettings.onPluginDisabled();
-        this.sectionFolders?.onPluginDisabled();
+        this.removeSectionFolder();
     }
 
-    addSectionFolder(foldersManager: InteractiveManager): void {
-        this.sectionFolders = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+    private addSectionFolder(): void {
+        if (!this.graphsManager.plugin.settings.enableFeatures['folders']) return;
+        if (!this.sectionFolders) {
+            const foldersManager = this.dispatcher?.graph.folderBlobs.manager;
+            if (!foldersManager) return;
+            this.sectionFolders = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+            this.sectionFolders.display();
+        }
+        else {
+            this.sectionFolders.foldersManager = this.dispatcher?.graph.folderBlobs.manager ?? undefined;
+            this.sectionFolders.graphControls.appendChild(this.sectionFolders.root);
+        }
+        console.log(this.sectionFolders);
+    }
+
+    private removeSectionFolder(): void {
+        this.sectionFolders?.root.remove();
     }
 }

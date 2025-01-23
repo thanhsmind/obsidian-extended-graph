@@ -4,6 +4,20 @@ import { WorkspaceLeafExt } from "./types/leaf";
 import { FOLDER_KEY, TAG_KEY } from "./globalVariables";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 
+export function getSVGNode(n: string, v?: any): SVGElement {
+    const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);
+    for (var p in v)
+        svgNode.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+    return svgNode;
+}
+
+export function polar2Cartesian(x: number, y: number, r: number, theta: number) {
+    return {
+        x: x + (r * Math.cos(theta)),
+        y: y + (r * Math.sin(theta))
+    };
+}
+
 export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
     let el: Element = renderer.interactiveEl;
@@ -18,6 +32,10 @@ export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
 
 export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+export function isNumber(value: string) {
+    return /^\d+(\.\d+)?$/.test(value);
 }
 
 interface Point {

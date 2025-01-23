@@ -1,13 +1,16 @@
-import { CachedMetadata, Component, FileView, TFile, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
-import GraphExtendedPlugin from "./main";
-import { GraphViewData } from "./views/viewData";
+import ExtendedGraphPlugin from "./main";
 import { MenuUI } from "./ui/menu";
 import { GraphControlsUI } from "./ui/graphControl/graphControl";
 import { getEngine } from "./helperFunctions";
 import { WorkspaceLeafExt } from "./types/leaf";
 import { TAG_KEY } from "./globalVariables";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
+import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
+import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG } from "./svg/exportToSVG";
+import { ViewsManager } from "./viewsManager";
 
 
 export class GraphsManager extends Component {
@@ -18,21 +21,31 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
     
-    plugin: GraphExtendedPlugin;
+    plugin: ExtendedGraphPlugin;
+    viewsManager: ViewsManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
+    
+    nodeSizeCalculator: NodeSizeCalculator | undefined;
 
     // ============================== CONSTRUCTOR ==============================
     
-    constructor(plugin: GraphExtendedPlugin) {
+    constructor(plugin: ExtendedGraphPlugin) {
         super();
         this.plugin = plugin;
+        this.viewsManager = new ViewsManager(this);
     }
 
     // ================================ LOADING ================================
 
     onload(): void {
+        this.initilizeNodeSizeCalculator();
         this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
         this.registerEvent(this.plugin.app.workspace.on('css-change', this.onThemeChange.bind(this)));
+    }
+
+    private initilizeNodeSizeCalculator(): void {
+        this.nodeSizeCalculator = NodeSizeCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app);
+        this.nodeSizeCalculator?.computeSizes();
     }
 
     // =============================== UNLOADING ===============================
@@ -51,15 +64,15 @@ export class GraphsManager extends Component {
     // ============================ METADATA CHANGES ===========================
 
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        if (this.plugin.settings.enableTags) {
+        if (this.plugin.settings.enableFeatures['tags']) {
             this.dispatchers.forEach(dispatcher => {
                 if (!dispatcher.graph || !dispatcher.graph.renderer) return;
         
-                const nodeWrapper = dispatcher.graph.nodesSet.getNodeWrapperFromFile(file);
-                if (!nodeWrapper) return;
+                const extendedNode = dispatcher.graph.nodesSet.extendedElementsMap.get(file.path);
+                if (!extendedNode) return;
         
                 const newTypes = this.extractTagsFromCache(cache);
-                const needsUpdate = !nodeWrapper.arcsWrappers.get(TAG_KEY)?.matchesTypes(newTypes);
+                const needsUpdate = !extendedNode.matchesTypes(TAG_KEY, newTypes);
 
                 if (needsUpdate) {
                     this.updateNodeTypes(dispatcher);
@@ -74,46 +87,10 @@ export class GraphsManager extends Component {
     }
 
     private updateNodeTypes(dispatcher: GraphEventsDispatcher): void {
-        const types = dispatcher.graph.nodesSet.getAllInteractivesInGraph(TAG_KEY);
+        const types = dispatcher.graph.nodesSet.getAllTypes(TAG_KEY);
         if (types) {
             dispatcher.graph.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
         }
-    }
-
-    // ================================ VIEWS =================================
-
-    onViewNeedsSaving(viewData: GraphViewData) {
-        this.updateViewArray(viewData);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${viewData.name}" has been saved`);
-            this.updateAllViews();
-        });
-    }
-
-    private updateViewArray(viewData: GraphViewData): void {
-        const index = this.plugin.settings.views.findIndex(v => v.name === viewData.name);
-        if (index >= 0) {
-            this.plugin.settings.views[index] = viewData;
-        }
-        else {
-            this.plugin.settings.views.push(viewData);
-        }
-    }
-
-    onViewNeedsDeletion(id: string) {
-        const view = this.plugin.getViewDataById(id);
-        if (!view) return;
-        this.plugin.settings.views.remove(view);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${view.name}" has been removed`);
-            this.updateAllViews();
-        });
-    }
-    
-    private updateAllViews(): void {
-        this.dispatchers.forEach(dispatcher => {
-            dispatcher.viewsUI.updateViewsList(this.plugin.settings.views);
-        });
     }
 
     // ================================ LAYOUT =================================
@@ -204,7 +181,6 @@ export class GraphsManager extends Component {
     }
 
     updateColor(key: string, type: string): void {
-        console.log("update color", key, type);
         this.dispatchers.forEach(dispatcher => {
             dispatcher.graph.interactiveManagers.get(key)?.recomputeColor(type);
         });
@@ -334,7 +310,7 @@ export class GraphsManager extends Component {
     }
 
     changeActiveFile(file: TFile | null): void {
-        if (!this.plugin.settings.enableFocusActiveNote) return;
+        if (!this.plugin.settings.enableFeatures['focus']) return;
 
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.leaf.view.getViewType() !== "graph") return;
@@ -403,5 +379,60 @@ export class GraphsManager extends Component {
             engine.setOptions(options);
             engine.updateSearch();
         }
+    }
+
+
+    // =============================== NODE MENU ===============================
+
+    onNodeMenuOpened(menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) {
+        if (source === "graph-context-menu" && leaf && file instanceof TFile) {
+            this.dispatchers.get(leaf.id)?.onNodeMenuOpened(menu, file);
+        }
+    }
+
+    // ============================== SCREENSHOT ===============================
+
+    getSVGScreenshot(leaf: WorkspaceLeafExt) {
+        const dispatcher = this.dispatchers.get(leaf.id);
+        let exportToSVG: ExportGraphToSVG;
+        if (dispatcher) {
+            exportToSVG = new ExportExtendedGraphToSVG(dispatcher.graph);
+        }
+        else {
+            exportToSVG = new ExportCoreGraphToSVG(this.plugin, getEngine(leaf));
+        }
+        exportToSVG.toClipboard();
+    }
+
+    // ============================= ZOOM ON NODE ==============================
+
+    zoomOnNode(leaf: WorkspaceLeafExt, nodeID: string) {
+        const renderer = leaf.view.renderer;
+        const node = renderer.nodes.find(node => node.id === nodeID);
+        if (!node) return;
+        
+        let scale = renderer.scale;
+        let targetScale = this.plugin.settings.zoomFactor;
+        let panX = renderer.panX
+        let panY = renderer.panY;
+        renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
+        
+        let zoomCenterX = renderer.zoomCenterX;
+        let zoomCenterY = renderer.zoomCenterY;
+
+        if (0 === zoomCenterX && 0 === zoomCenterY) {
+            var s = window.devicePixelRatio;
+            zoomCenterX = renderer.width / 2 * s;
+            zoomCenterY = renderer.height / 2 * s;
+        }
+
+        let n = 0.85;
+        scale = (void 0 === n && (n = .9), scale * n + targetScale * (1 - n));
+        console.log(n);
+        panX -= node.x * scale + panX - zoomCenterX;
+        panY -= node.y * scale + panY - zoomCenterY;
+        renderer.setPan(panX, panY);
+        renderer.setScale(scale);
+        renderer.changed();
     }
 }

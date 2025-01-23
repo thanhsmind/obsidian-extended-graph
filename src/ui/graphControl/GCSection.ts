@@ -5,7 +5,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 
 export abstract class GCSection extends Component {
     graphsManager: GraphsManager;
-    dispatcher: GraphEventsDispatcher | null;
+    dispatcher: GraphEventsDispatcher | undefined;
     leaf: WorkspaceLeafExt;
 
     graphControls: HTMLElement;
@@ -15,15 +15,14 @@ export abstract class GCSection extends Component {
     root: HTMLDivElement;
     treeItemChildren: HTMLDivElement;
     collapseIcon: HTMLDivElement;
-    onlyWhenPluginEnabled: HTMLElement[] = [];
     
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, title: string) {
+    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, sectionID: string, title: string) {
         super();
         this.leaf = leaf;
         this.graphsManager = graphsManager;
         this.graphControls = leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
 
-        this.root = this.graphControls.createDiv(`tree-item graph-control-section mod-extended-graph-${title}`);
+        this.root = this.graphControls.createDiv(`tree-item graph-control-section mod-extended-graph-${sectionID}`);
 
         const collapsible = this.root.createDiv("tree-item-self mod-collapsible");
         this.collapseIcon = collapsible.createDiv("tree-item-icon collapse-icon is-collapsed");
@@ -31,7 +30,7 @@ export abstract class GCSection extends Component {
         const inner = collapsible.createDiv("tree-item-inner");
         const header = inner.createEl("header", {
             cls: "graph-control-section-header",
-            text: String(title).charAt(0).toUpperCase() + String(title).slice(1)
+            text: title,
         });
 
         collapsible.onClickEvent(() => {
@@ -44,22 +43,16 @@ export abstract class GCSection extends Component {
         })
     }
 
+    abstract display(enabled: boolean): void;
+
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
         this.dispatcher = dispatcher;
-        this.onlyWhenPluginEnabled.forEach(el => {
-            this.treeItemChildren.appendChild(el);
-        });
+        this.display(true);
     }
 
     onPluginDisabled(): void {
-        this.onlyWhenPluginEnabled.forEach(el => {
-            try {
-                el.parentNode?.removeChild(el);
-            }
-            catch {
-
-            }
-        });
+        this.dispatcher = undefined;
+        this.display(false);
     }
 
     onunload(): void {
@@ -75,7 +68,7 @@ export abstract class GCSection extends Component {
 
     collapseGraphControlSection() {
         this.root.addClass("is-collapsed");
-        this.root.removeChild(this.treeItemChildren);
+        if (this.treeItemChildren) this.root.removeChild(this.treeItemChildren);
         this.collapseIcon.addClass("is-collapsed");
         
         this.isCollapsed = true;

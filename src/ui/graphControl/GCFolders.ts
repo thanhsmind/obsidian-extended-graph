@@ -10,21 +10,22 @@ export class GCFolders extends GCSection {
     settingsMap = new Map<string, Setting>();
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, foldersManager: InteractiveManager) {
-        super(leaf, graphsManager, "folders");
+        super(leaf, graphsManager, "folders", "Folders");
 
         this.foldersManager = foldersManager;
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
-        this.onlyWhenPluginEnabled.push(this.root);
 
         this.collapseGraphControlSection();
     }
-    
-    onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
-        //this.createFolders();
+
+    override display() {
+        this.treeItemChildren.innerHTML = "";
+        this.createFolders();
     }
 
-    createFolders(): void {
+
+    private createFolders(): void {
         const paths = this.foldersManager?.getTypesWithoutNone();
         if (!paths) return;
         for (const path of paths) {
@@ -32,7 +33,7 @@ export class GCFolders extends GCSection {
         }
     }
 
-    addFolder(path: string): Setting {
+    private addFolder(path: string): Setting {
         const setting = new Setting(this.treeItemChildren)
             .setName(path)
             .addToggle(cb => {
@@ -50,7 +51,7 @@ export class GCFolders extends GCSection {
         if (color) this.settingsMap.get(path)?.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
     }
 
-    toggleFolder(path: string, enable: boolean) {
+    private toggleFolder(path: string, enable: boolean) {
         if (enable) this.foldersManager?.enable([path]);
         else this.foldersManager?.disable([path]);
     }

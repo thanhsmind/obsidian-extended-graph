@@ -7,49 +7,60 @@ import { getEngine } from "src/helperFunctions";
 import { WorkspaceLeafExt } from "src/types/leaf";
 import { GraphPlugin } from "obsidian-typings";
 import { GCSection } from "./GCSection";
+import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
 
 export class GCSettings extends GCSection {
     settingGlobalFilter: Setting;
+    suggester: NodeNameSuggester;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
-        super(leaf, graphsManager, "settings");
+        super(leaf, graphsManager, "settings", "Extended Graph Settings");
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
-        this.createSaveForDefaultView();
-        this.onlyWhenPluginEnabled.push(this.createSaveForNormalView().settingEl);
-        this.settingGlobalFilter = this.createGlobalFilter();
-        this.onlyWhenPluginEnabled.push(this.settingGlobalFilter.settingEl);
+        this.display(true);
 
         this.collapseGraphControlSection();
     }
 
-    createSaveForDefaultView(): Setting {
-        const setting = new Setting(this.treeItemChildren)
+    // ================================ DISPLAY ================================
+
+    override display(enable: boolean) {
+        this.treeItemChildren.innerHTML = "";
+        this.createSaveForDefaultView();
+        if (enable) this.createSaveForNormalView();
+        if (enable) this.settingGlobalFilter = this.createGlobalFilter();
+        this.createZoomOnNode();
+        this.createScreenshot().settingEl;
+    }
+
+    private createSaveForDefaultView(): Setting {
+        return new Setting(this.treeItemChildren)
             .setName("Save for default view")
-            .setTooltip("Save the current settings as the default view settings");
-            const icon = setting.controlEl.createDiv("clickable-icon save-button");
-        setIcon(icon, "arrow-up-to-line");
-        icon.addEventListener('click', e => {
-            this.saveForDefaultView();
-        });
-        return setting;
+            .setTooltip("Save the current settings as the default view settings")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("save-button");
+                setIcon(cb.extraSettingsEl, "arrow-up-to-line");
+                cb.onClick(() => {
+                    this.saveForDefaultView();
+                });
+            });
     }
 
-    createSaveForNormalView(): Setting {
-        const setting = new Setting(this.treeItemChildren)
+    private createSaveForNormalView(): Setting {
+        return new Setting(this.treeItemChildren)
             .setName("Save for normal view")
-            .setTooltip("Save the current settings as the normal view settings (no plugin enabled)");
-        const icon = setting.controlEl.createDiv("clickable-icon save-button");
-        setIcon(icon, "arrow-down-to-line");
-        icon.addEventListener('click', e => {
-            this.saveForNormalView();
-        });
-        return setting;
+            .setTooltip("Save the current settings as the normal view settings (no plugin enabled)")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("save-button");
+                setIcon(cb.extraSettingsEl, "arrow-down-to-line");
+                cb.onClick(() => {
+                    this.saveForNormalView();
+                });
+            });
     }
 
-    createGlobalFilter(): Setting {
-        const filterHeader = new Setting(this.treeItemChildren).setName("Global filter");
-        this.onlyWhenPluginEnabled.push(filterHeader.settingEl);
+    private createGlobalFilter(): Setting {
+        new Setting(this.treeItemChildren).setName("Global filter").setHeading();
 
         return new Setting(this.treeItemChildren)
             .setClass("mod-search-setting")
@@ -77,7 +88,33 @@ export class GCSettings extends GCSection {
             });
     }
 
-    saveForDefaultView() {
+    private createScreenshot(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName("Copy SVG screenshot")
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("screenshot-button");
+                setIcon(cb.extraSettingsEl, "image");
+                cb.onClick(() => {
+                    this.getSVGScreenshot();
+                });
+            });
+    }
+
+    private createZoomOnNode(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName("Zoom on node")
+            .addSearch(cb => {
+                const callback = (value: string) => {
+                    console.log(value);
+                    this.graphsManager.zoomOnNode(this.leaf, value);
+                }
+                this.suggester = new NodeNameSuggester(this.graphsManager.plugin.app, cb.inputEl, this.leaf.view.renderer, callback);
+            });
+    }
+
+    // =============================== CALLBACKS ===============================
+
+    private saveForDefaultView() {
         const viewData = this.graphsManager.plugin.settings.views.find(v => v.id === DEFAULT_VIEW_ID);
         if (!viewData) return;
         const engine = getEngine(this.leaf);
@@ -85,7 +122,7 @@ export class GCSettings extends GCSection {
         this.graphsManager.onViewNeedsSaving(viewData);
     }
 
-    saveForNormalView() {
+    private saveForNormalView() {
         const globalFilter = this.graphsManager.plugin.settings.globalFilter;
         this.graphsManager.plugin.settings.globalFilter = "";
         const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
@@ -94,5 +131,9 @@ export class GCSettings extends GCSection {
         instance.options = engine.getOptions();
         instance.saveOptions();
         this.graphsManager.plugin.settings.globalFilter = globalFilter;
+    }
+
+    private getSVGScreenshot() {
+        this.graphsManager.getSVGScreenshot(this.leaf);
     }
 }

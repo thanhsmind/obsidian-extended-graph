@@ -14,11 +14,25 @@ export class GraphView {
     }
 
     saveGraph(graph: Graph) {
-        this.data.disabledTypes[LINK_KEY] = graph.linksSet.linksManager ? graph.linksSet.linksManager.getTypes().filter(type => !graph.linksSet.linksManager?.isActive(type)): [];
-        this.data.disabledTypes[FOLDER_KEY] =  graph.folderBlobs.manager.getTypes().filter(type => !graph.folderBlobs.manager.isActive(type));
+        // Disable types
+        this.data.disabledTypes = {};
+        const linksManager = graph.linksSet.managers.get(LINK_KEY);
+        this.data.disabledTypes[LINK_KEY] = linksManager?.getTypes().filter(type => !linksManager.isActive(type)) ?? [];
+        const folderManager = graph.folderBlobs.manager;
+        this.data.disabledTypes[FOLDER_KEY] = folderManager?.getTypes().filter(type => !folderManager.isActive(type)) ?? [];
         for (const [key, manager] of graph.nodesSet.managers) {
             this.data.disabledTypes[key] = manager.getTypes().filter(type => !manager.isActive(type));
         }
+
+        // Pinned nodes
+        this.data.pinNodes = {};
+        for (const [id, extendedNode] of graph.nodesSet.extendedElementsMap) {
+            if (extendedNode.isPinned) {
+                this.data.pinNodes[id] = {x: extendedNode.coreElement.x, y: extendedNode.coreElement.y};
+            }
+        }
+
+        // Engine options
         this.data.engineOptions = new EngineOptions(graph.engine.getOptions());
         this.data.engineOptions.search = graph.engine.filterOptions.search.inputEl.value;
     }

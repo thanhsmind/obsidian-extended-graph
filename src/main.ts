@@ -1,16 +1,15 @@
-import { Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
 import { GraphsManager } from './graphsManager';
 import { DEFAULT_SETTINGS, ExtendedGraphSettings } from './settings/settings';
 import { ExtendedGraphSettingTab } from './settings/settingTab';
 import { INVALID_KEYS } from './globalVariables';
 import { WorkspaceLeafExt } from './types/leaf';
 import { WorkspaceExt } from './types/workspace';
-import { GraphViewData } from './views/viewData';
 import { hasEngine } from './helperFunctions';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
-export default class GraphExtendedPlugin extends Plugin {
+export default class ExtendedGraphPlugin extends Plugin {
     settings: ExtendedGraphSettings;
     graphsManager: GraphsManager;
     waitingTime: number = 0;
@@ -22,8 +21,12 @@ export default class GraphExtendedPlugin extends Plugin {
 
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this.app, this));
-        this.loadGraphsManager();
-        this.registerEvents();
+
+        this.registerEvent(this.app.workspace.on('layout-ready', () => {
+            this.loadGraphsManager();
+            this.registerEvents();
+            this.onLayoutChange();
+        }));
     }
 
     private initializeInvalidKeys(): void {
@@ -57,6 +60,12 @@ export default class GraphExtendedPlugin extends Plugin {
             if (!this.isCoreGraphLoaded()) return;
             this.graphsManager.updateColor(key, type);
         }));
+
+        this.registerEvent(this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.graphsManager.onNodeMenuOpened(menu, file, source, leaf);
+        }));
+
     }
 
     private isCoreGraphLoaded(): boolean {
@@ -131,12 +140,6 @@ export default class GraphExtendedPlugin extends Plugin {
 
     private isGraph(leaf: WorkspaceLeaf): boolean {
         return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf as WorkspaceLeafExt);
-    }
-
-    // ================================= VIEWS =================================
-
-    getViewDataById(id: string): GraphViewData | undefined {
-        return this.settings.views.find(v => v.id === id);
     }
 }
 
