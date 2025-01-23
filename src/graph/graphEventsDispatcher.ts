@@ -104,6 +104,9 @@ export class GraphEventsDispatcher extends Component {
         this.onPointerDown = this.onPointerDown.bind(this);
         this.graph.renderer.px.stage.on('pointerdown', this.onPointerDown);
 
+        this.onPointerUp = this.onPointerUp.bind(this);
+        this.graph.renderer.px.stage.on('pointerup', this.onPointerUp);
+
         this.graph.renderer.interactiveEl.addEventListener("wheel", (ev) => {
             setTimeout(() => {
                 const renderer = this.graph.renderer;
@@ -174,6 +177,7 @@ export class GraphEventsDispatcher extends Component {
     private unbindStageEvents(): void {
         this.graph.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
         this.graph.renderer.px.stage.off('pointerdown', this.onPointerDown);
+        this.graph.renderer.px.stage.off('pointerup', this.onPointerUp);
     }
 
     // ============================= STAGE EVENTS ==============================
@@ -201,6 +205,10 @@ export class GraphEventsDispatcher extends Component {
 
     private onPointerDown(): void {
         this.preventDraggingPinnedNodes();
+    }
+
+    private onPointerUp(): void {
+        this.pinDraggingPinnedNode();
     }
 
     // ============================ SETTINGS EVENTS ============================
@@ -525,9 +533,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     preventDraggingPinnedNodes() {
-        var i = this.graph.renderer.dragNode;
-        if (i && this.graph.nodesSet.isNodePinned(i.id)) {
-            this.graph.renderer.dragNode = null;
+        var node = this.graph.renderer.dragNode;
+        if (node && this.graph.nodesSet.isNodePinned(node.id)) {
+            this.graph.nodesSet.setLastDraggedPinnedNode(node.id);
         }
+    }
+
+    pinDraggingPinnedNode() {
+        this.graph.nodesSet.pinLastDraggedPinnedNode();
     }
 }

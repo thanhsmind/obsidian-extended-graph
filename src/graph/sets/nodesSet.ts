@@ -10,6 +10,7 @@ import { Graph } from "../graph";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
+    lastDraggedPinnedNode: string | null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -236,6 +237,16 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode) return;
         return extendedNode.isPinned;
+    }
+
+    setLastDraggedPinnedNode(id: string): void {
+        this.lastDraggedPinnedNode = id;
+    }
+
+    pinLastDraggedPinnedNode(): void {
+        if (!this.lastDraggedPinnedNode) return;
+        this.pinNode(this.lastDraggedPinnedNode);
+        this.lastDraggedPinnedNode = null;
     }
 
     // ================================= DEBUG =================================
