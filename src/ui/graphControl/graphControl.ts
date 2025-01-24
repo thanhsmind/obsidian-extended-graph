@@ -2,7 +2,7 @@ import { Component, Setting } from "obsidian";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { GraphsManager } from "src/graphsManager";
 import { WorkspaceLeafExt } from "src/types/leaf";
-import { GCSettings } from "./GCSettings";
+import { GCOptions } from "./GCOptions";
 import { GCFolders } from "./GCFolders";
 import { InteractiveManager } from "src/graph/interactiveManager";
 
@@ -14,14 +14,14 @@ export class GraphControlsUI extends Component {
     graphControls: HTMLElement;
 
     // Sections
-    sectionSettings: GCSettings;
+    sectionSettings: GCOptions;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
         super();
         this.leaf = leaf;
         this.graphsManager = graphsManager;
         this.graphControls = leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
-        this.sectionSettings = new GCSettings(leaf, graphsManager);
+        this.sectionSettings = new GCOptions(leaf, graphsManager);
     }
 
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {

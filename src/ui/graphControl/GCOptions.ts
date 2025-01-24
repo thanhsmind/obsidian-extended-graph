@@ -8,12 +8,12 @@ import { GraphPlugin } from "obsidian-typings";
 import { GCSection } from "./GCSection";
 import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
 
-export class GCSettings extends GCSection {
+export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
     suggester: NodeNameSuggester;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
-        super(leaf, graphsManager, "settings", "Extended Graph Settings");
+        super(leaf, graphsManager, "options", "Options");
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);

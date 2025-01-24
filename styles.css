@@ -523,6 +523,5 @@ svg.shape-svg {
     svg {
         width: var(--icon-size);
         height: var(--icon-size);
-        transform: translateY(-7%);
     }
 }
