@@ -8,6 +8,7 @@ import ExtendedGraphPlugin from "src/main";
 import { Feature } from "src/types/features";
 import { SettingsSectionCollapsible } from "../settingCollapsible";
 import { UIElements } from "src/ui/UIElements";
+import { GradientPickerModal } from "src/ui/modals/gradientPickerModal";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";
@@ -54,21 +55,54 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected addColorPaletteSetting(): void {
         const setting = new Setting(this.containerEl)
             .setName(`Color palette`)
-            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`)
-            .addDropdown(cb => cb.addOptions(cmOptions).setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap)
-            .onChange(async (value) => {
-                plot_colormap(this.canvasPalette.id, value, false);
-                this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = value;
-                this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
-                await this.settingTab.plugin.saveSettings();
-            }));
+            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`);
         setting.controlEl.addClass("color-palette");
+
+        // Canvas
         this.canvasPalette = setting.controlEl.createEl("canvas");
         this.canvasPalette.id = `canvas-palette-${this.interactiveKey}`;
         this.canvasPalette.width = 100;
         this.canvasPalette.height = 20;
         plot_colormap(this.canvasPalette.id, this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap, false);
+
+        // Picker icon
+        setting.addExtraButton(cb => {
+            cb.setIcon("pipette");
+            cb.onClick(() => {
+                const modal = new GradientPickerModal(this.settingTab.app, (value: string) => {
+                    this.onPaletteChanged(value);
+                });
+                modal.open();
+            });
+        });
+
+        // Select
+        setting.addDropdown(cb => {
+                for (const [group, values] of Object.entries(cmOptions)) {
+                    const groupEl = cb.selectEl.createEl("optgroup");
+                    groupEl.label = group;
+                    for (const value of values) {
+                        const option = groupEl.createEl("option");
+                        option.value = value;
+                        option.text = value;
+                    }
+                }
+                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
+                cb.onChange(async (value) => {
+                    this.onPaletteChanged(value);
+                });
+            });
+
+        // Push to body list
         this.elementsBody.push(setting.settingEl);
+    }
+
+    private onPaletteChanged(palette: string) {
+        if (palette === "") return;
+        plot_colormap(this.canvasPalette.id, palette, false);
+        this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = palette;
+        this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
+        this.settingTab.plugin.saveSettings();
     }
 
     protected addSpecificColorHeaderSetting(): void {

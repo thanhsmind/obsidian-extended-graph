@@ -201,10 +201,6 @@ body {
         width: 100%;
     }
 
-    .color-palette {
-        flex-direction: row-reverse;
-        justify-content: flex-start;
-    }
 
     .color-palette canvas {
         border-radius: var(--radius-s);
@@ -292,6 +288,7 @@ body {
             border: 1px solid var(--background-modifier-border);
             border-radius: var(--radius-s);
             padding: var(--size-2-2);
+            margin: 0;
             display: flex;
             align-items: center;
             gap: var(--size-2-2);
@@ -450,6 +447,52 @@ body {
         opacity: var(--icon-opacity-hover);
         color: var(--icon-color-hover);
         background-color: var(--background-modifier-hover);
+    }
+}
+
+
+.graph-modal-palette-picker {
+    .setting-item-heading {
+        display: block;
+    }
+
+    .setting-item-heading:not(:first-child) {
+        border-top: 1px solid var(--background-modifier-border);
+    }
+
+    .setting-item-heading > .setting-item-info {
+        margin-bottom: 0.75em;
+    }
+
+    .setting-item-heading > .setting-item-info > .setting-item-name {
+        display: flex;
+        gap: var(--size-4-2);
+    }
+
+    .palette-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 120px);
+        text-align: center;
+
+        .setting-item {
+            flex-direction: column-reverse;
+            gap: 5px;
+            border: 0;
+            padding: 10px;
+        }
+
+        .setting-item > * {
+            margin: 0;
+        }
+    }
+}
+@media (hover: hover) {
+    .graph-modal-palette-picker .palette-group .setting-item:hover {
+        box-shadow: none;
+        opacity: var(--icon-opacity-hover);
+        color: var(--icon-color-hover);
+        background-color: var(--background-modifier-hover);
+        border-radius: var(--radius-s);
     }
 }
 
