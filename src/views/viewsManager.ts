@@ -75,6 +75,10 @@ export class ViewsManager {
     
     private updateManagers(viewData: GraphViewData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {
         for (const [key, manager] of managers) {
+            if (!this.graphsManager.plugin.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
+                this.graphsManager.plugin.settings.interactiveSettings[key].enableByDefault = key !== FOLDER_KEY;
+                this.graphsManager.plugin.saveSettings();
+            }
             const enableByDefault = this.graphsManager.plugin.settings.interactiveSettings[key].enableByDefault;
             this.loadViewForInteractiveManager(manager, viewData);
             if (interactiveUI && viewData.toggleTypes) {

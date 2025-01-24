@@ -60,8 +60,8 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
 
     initGraphics(): void {
         this.placeNode();
-        if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.extendedElement.needBackground()) this.initBackground();
+        if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         this.connect();
     }
@@ -74,7 +74,7 @@ export class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
         this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor, this.shape);
-        this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length - 2);
+        this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
     }
 
     private initArcsWrapper() {
