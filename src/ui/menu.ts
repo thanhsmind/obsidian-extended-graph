@@ -1,4 +1,5 @@
 import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip, WorkspaceLeaf } from "obsidian";
+import { setPluginIcon } from "../helperFunctions";
 
 export class MenuUI extends Component {
     viewContent: HTMLElement;
@@ -23,7 +24,7 @@ export class MenuUI extends Component {
     createEnableButton(graphControls: HTMLDivElement) {
         this.buttonEnable = new ExtraButtonComponent(graphControls)
             .setTooltip("Enable Extended Graph Plugin", {placement: 'top'})
-            .setIcon("sparkles")
+            //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
                     this.enable();
@@ -34,6 +35,7 @@ export class MenuUI extends Component {
                 }
             })
             .then(cb => {
+                setPluginIcon(cb.extraSettingsEl);
                 cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-extended-graph-toggle"]);
             });
     }

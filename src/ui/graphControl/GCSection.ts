@@ -1,6 +1,7 @@
 import { Component, setIcon } from "obsidian";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { GraphsManager } from "src/graphsManager";
+import { setPluginIcon } from "src/helperFunctions";
 import { WorkspaceLeafExt } from "src/types/leaf";
 
 export abstract class GCSection extends Component {
@@ -27,6 +28,8 @@ export abstract class GCSection extends Component {
         const collapsible = this.root.createDiv("tree-item-self mod-collapsible");
         this.collapseIcon = collapsible.createDiv("tree-item-icon collapse-icon is-collapsed");
         setIcon(this.collapseIcon, "right-triangle");
+        const icon = collapsible.createDiv("tree-item-header-icon");
+        setPluginIcon(icon);
         const inner = collapsible.createDiv("tree-item-inner");
         const header = inner.createEl("header", {
             cls: "graph-control-section-header",
