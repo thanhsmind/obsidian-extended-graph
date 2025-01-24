@@ -151,7 +151,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    // ================================ COLORS =================================
+    // ================================== CSS ==================================
     
     /**
      * Update the background color. Called when the theme changes.
@@ -160,6 +160,12 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const color = getBackgroundColor(this.graph.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
+        });
+    }
+
+    updateFontFamily(): void {
+        this.extendedElementsMap.forEach(extendedNode => {
+            extendedNode.updateFontFamily();
         });
     }
 

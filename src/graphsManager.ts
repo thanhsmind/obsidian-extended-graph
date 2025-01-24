@@ -40,7 +40,7 @@ export class GraphsManager extends Component {
     onload(): void {
         this.initilizeNodeSizeCalculator();
         this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
-        this.registerEvent(this.plugin.app.workspace.on('css-change', this.onThemeChange.bind(this)));
+        this.registerEvent(this.plugin.app.workspace.on('css-change', this.onCSSChange.bind(this)));
     }
 
     private initilizeNodeSizeCalculator(): void {
@@ -52,10 +52,12 @@ export class GraphsManager extends Component {
 
     // ============================= THEME CHANGE ==============================
 
-    private onThemeChange() {
+    private onCSSChange() {
+        console.log("CSSChange");
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.graph.nodesSet) {
                 dispatcher.graph.nodesSet.updateOpacityLayerColor();
+                dispatcher.graph.nodesSet.updateFontFamily();
                 dispatcher.graph.renderer.changed();
             }
         });

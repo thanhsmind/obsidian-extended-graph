@@ -27,6 +27,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
         this.initRadius();
         this.changeGetSize();
         this.initGraphicsWrapper();
+        this.updateFontFamily();
     }
 
     // ================================ UNLOAD =================================
@@ -152,6 +153,28 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
     override getCoreCollection(): GraphNode[] {
         return this.coreElement.renderer.nodes;
+    }
+
+    override setCoreElement(coreElement: GraphNode | undefined): void {
+        super.setCoreElement(coreElement);
+        if (coreElement) {
+            this.updateFontFamily();
+        }
+    }
+
+    updateFontFamily(): void {
+        const style = window.getComputedStyle(this.coreElement.renderer.interactiveEl);
+        const fontInterface = style.getPropertyValue("--font-interface");
+        const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
+            ? this.coreElement.text.style.fontFamily
+            : this.coreElement.text.style.fontFamily.join(', ');
+        if (fontNode !== fontInterface) {
+            console.log(fontInterface);
+            const textStyle = this.coreElement.text.style;
+            textStyle.fontFamily = fontInterface;
+            this.coreElement.text.style = textStyle;
+            this.coreElement.text.dirty = true;
+        }
     }
 
     // ================================ GETTERS ================================
