@@ -111,8 +111,9 @@ export class InteractiveManager extends Component {
             this.interactives.set(type, new Interactive(type, color));
         });
         this.interactives = new Map([...this.interactives.entries()].sort());
-        if (colorsMaps.size > 0)
+        if (colorsMaps.size > 0) {
             this.dispatcher.onInteractivesAdded(this.name, colorsMaps);
+        }
     }
 
     getColor(type: string): Uint8Array {

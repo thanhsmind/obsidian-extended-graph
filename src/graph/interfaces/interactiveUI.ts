@@ -6,4 +6,5 @@ export interface InteractiveUI {
     disableUI: (key: string, type: string) => void;
     enableUI: (key: string, type: string) => void;
     enableAllUI: (key: string) => void;
+    disableAllUI: (key: string) => void;
 }

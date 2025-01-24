@@ -45,7 +45,9 @@ export class GCFolders extends GCSection implements InteractiveUI {
             .addToggle(cb => {
                 cb.setValue(this.foldersManager.isActive(path))
                 cb.onChange(enable => {
-                    this.toggle(key, path);
+                    if (enable !== this.foldersManager.isActive(path)) {
+                        this.toggle(key, path);
+                    }
                 });
                 this.settingsMap.set(path, {setting: setting, toggle: cb});
             });
@@ -81,6 +83,12 @@ export class GCFolders extends GCSection implements InteractiveUI {
     enableAllUI(key: string): void {
         for (const [path, setting] of this.settingsMap) {
             setting.toggle.setValue(true);
+        }
+    }
+
+    disableAllUI(key: string): void {
+        for (const [path, setting] of this.settingsMap) {
+            setting.toggle.setValue(false);
         }
     }
 }

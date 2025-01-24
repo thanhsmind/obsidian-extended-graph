@@ -237,6 +237,12 @@ export class LegendUI extends Component implements InteractiveUI {
         })
     }
 
+    disableAllUI(row: string) {
+        this.legendRows.get(row)?.manager.getTypes().forEach(type => {
+            this.legendRows.get(row)?.disable(type);
+        })
+    }
+
     open() {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");

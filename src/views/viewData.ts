@@ -51,15 +51,15 @@ export class EngineOptions implements GraphPluginInstanceOptions {
 export class GraphViewData {
     id: string = "";
     name: string = "";
-    disabledTypes?: { [interactive: string] : string[] };
+    toggleTypes: { [interactive: string] : string[] };
     pinNodes?: { [nodeID: string] : {x: number, y: number} };
     engineOptions?: EngineOptions;
 
     constructor() {
-        this.disabledTypes = {};
-        this.disabledTypes[TAG_KEY] = [];
-        this.disabledTypes[LINK_KEY] = [];
-        this.disabledTypes[FOLDER_KEY] = [];
+        this.toggleTypes = {};
+        this.toggleTypes[TAG_KEY] = [];
+        this.toggleTypes[LINK_KEY] = [];
+        this.toggleTypes[FOLDER_KEY] = [];
 
         this.pinNodes = {};
 

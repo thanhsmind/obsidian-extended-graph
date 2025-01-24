@@ -1,8 +1,8 @@
 import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
 import { GraphsManager } from './graphsManager';
-import { DEFAULT_SETTINGS, ExtendedGraphSettings } from './settings/settings';
+import { DEFAULT_SETTINGS, DEFAULT_VIEW_SETTINGS, ExtendedGraphSettings } from './settings/settings';
 import { ExtendedGraphSettingTab } from './settings/settingTab';
-import { INVALID_KEYS } from './globalVariables';
+import { DEFAULT_VIEW_ID, FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from './globalVariables';
 import { WorkspaceLeafExt } from './types/leaf';
 import { WorkspaceExt } from './types/workspace';
 import { hasEngine } from './helperFunctions';
@@ -80,7 +80,67 @@ export default class ExtendedGraphPlugin extends Plugin {
     // ================================ SETTINGS ===============================
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const data = await this.loadData();
+        // Comlete default settings
+        this.completeDefaultSettings();
+        // Remove invalid shallow keys
+        for (const key in data) {
+            if (!DEFAULT_SETTINGS.hasOwnProperty(key)) {
+                delete data[key];
+            }
+        }
+        // Deep load default settings
+        this.loadSettingsRec(DEFAULT_SETTINGS, data);
+        this.settings = data;
+    }
+
+    private completeDefaultSettings() {
+        DEFAULT_SETTINGS.interactiveSettings[TAG_KEY] = {
+            colormap: "hsv",
+            colors: [],
+            unselected: [],
+            noneType: "none",
+            showOnGraph: true,
+            enableByDefault: true,
+        };
+        
+        DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
+            colormap: "rainbow",
+            colors: [],
+            unselected: [],
+            noneType: "none",
+            showOnGraph: true,
+            enableByDefault: true,
+        };
+        
+        DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
+            colormap: "winter",
+            colors: [],
+            unselected: [],
+            noneType: ".",
+            showOnGraph: true,
+            enableByDefault: false,
+        };
+    }
+
+    private loadSettingsRec(defaultSettings: any, userSettings: any) {
+        if (!defaultSettings || typeof defaultSettings !== 'object' || Array.isArray(defaultSettings)) {
+            return;
+        }
+        if (!userSettings || typeof userSettings !== 'object' || Array.isArray(userSettings)) {
+            return;
+        }
+        // Complete settings
+        for (const key in defaultSettings) {
+            // Add settings
+            if (!userSettings.hasOwnProperty(key)) {
+                userSettings[key] = defaultSettings[key];
+            }
+            // Or recursively complete settings
+            else {
+                this.loadSettingsRec(defaultSettings[key], userSettings[key]);
+            }
+        }
     }
 
     async saveSettings() {

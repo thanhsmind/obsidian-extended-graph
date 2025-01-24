@@ -10,6 +10,7 @@ type InteractiveSettings = {
     unselected: string[];
     noneType: string;
     showOnGraph: boolean;
+    enableByDefault: boolean;
 }
 
 export type ExportSVGOptions = {
@@ -67,6 +68,13 @@ export interface ExtendedGraphSettings {
     collapseLegend: boolean;
 }
 
+export const DEFAULT_VIEW_SETTINGS = {
+    id: DEFAULT_VIEW_ID,
+    name: "Vault (default)",
+    engineOptions: new EngineOptions(),
+    toggleTypes: { }
+};
+
 let shapeQueriesIndex = 0;
 export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Interactive settings
@@ -76,14 +84,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Graph settings
     globalFilter: "",
     backupGraphOptions: new EngineOptions(),
-    views: [
-        {
-            id: DEFAULT_VIEW_ID,
-            name: "Vault (default)",
-            engineOptions: new EngineOptions(),
-            disabledTypes: { }
-        }
-    ],
+    views: [DEFAULT_VIEW_SETTINGS],
 
     // Images
     imageProperty: "image",
@@ -155,26 +156,3 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     collapseLegend: true,
 };
 
-DEFAULT_SETTINGS.interactiveSettings[TAG_KEY] = {
-    colormap: "hsv",
-    colors: [],
-    unselected: [],
-    noneType: "none",
-    showOnGraph: true,
-};
-
-DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
-    colormap: "rainbow",
-    colors: [],
-    unselected: [],
-    noneType: "none",
-    showOnGraph: true,
-};
-
-DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
-    colormap: "winter",
-    colors: [],
-    unselected: [],
-    noneType: ".",
-    showOnGraph: true,
-};

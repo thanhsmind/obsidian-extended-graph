@@ -104,7 +104,6 @@ export class GCSettings extends GCSection {
             .setName("Zoom on node")
             .addSearch(cb => {
                 const callback = (value: string) => {
-                    console.log(value);
                     this.graphsManager.zoomOnNode(this.leaf, value);
                 }
                 this.suggester = new NodeNameSuggester(this.graphsManager.plugin.app, cb.inputEl, this.leaf.view.renderer, callback);

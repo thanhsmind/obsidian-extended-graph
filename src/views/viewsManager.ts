@@ -44,15 +44,25 @@ export class ViewsManager {
      * @param id - The ID of the view to change to.
      */
     changeView(graph: Graph, id: string) {
-        const viewData = this.getViewDataById(id);
+        let viewData = this.getViewDataById(id);
         if (!viewData) return;
 
+        viewData = this.validateViewData(viewData);
         this.updateInteractiveManagers(viewData, graph).then(() => {
             if (viewData.engineOptions) graph.engine.setOptions(viewData.engineOptions);
             graph.updateWorker();
             graph.nodesSet.setPinnedNodes(viewData.pinNodes ? viewData.pinNodes : {});
             graph.engine.updateSearch();
         });
+    }
+
+    private validateViewData(viewData: GraphViewData): GraphViewData {
+        const view = new GraphView(viewData.name);
+        const hasChanged = view.saveView(viewData);
+        if (hasChanged) {
+            this.onViewNeedsSaving(view.data);
+        }
+        return view.data;
     }
     
     private async updateInteractiveManagers(viewData: GraphViewData, graph: Graph): Promise<void> {
@@ -65,12 +75,15 @@ export class ViewsManager {
     
     private updateManagers(viewData: GraphViewData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {
         for (const [key, manager] of managers) {
+            const enableByDefault = this.graphsManager.plugin.settings.interactiveSettings[key].enableByDefault;
             this.loadViewForInteractiveManager(manager, viewData);
-            if (interactiveUI && viewData.disabledTypes) {
-                interactiveUI.enableAllUI(key);
-                if (viewData.disabledTypes.hasOwnProperty(key)) {
-                    for (const type of viewData.disabledTypes[key]) {
-                        interactiveUI.disableUI(key, type);
+            if (interactiveUI && viewData.toggleTypes) {
+                if (enableByDefault) interactiveUI.enableAllUI(key);
+                else interactiveUI.disableAllUI(key);
+                if (viewData.toggleTypes.hasOwnProperty(key)) {
+                    for (const type of viewData.toggleTypes[key]) {
+                        if (enableByDefault) interactiveUI.disableUI(key, type);
+                        else interactiveUI.enableUI(key, type);
                     }
                 }
             }
@@ -78,24 +91,25 @@ export class ViewsManager {
     }
 
     private loadViewForInteractiveManager(manager: InteractiveManager, viewData: GraphViewData): void {
-        if (!viewData.disabledTypes) return;
-        const viewTypesToDisable: string[] = viewData.disabledTypes[manager.name] ?? [];
-        // Enable/Disable tags
+        if (!viewData.toggleTypes) return;
+        const enableByDefault = this.graphsManager.plugin.settings.interactiveSettings[manager.name].enableByDefault;
+        const viewTypesToToggle: string[] = viewData.toggleTypes[manager.name] ?? [];
         const toDisable: string[] = [];
         const toEnable: string[] = [];
         manager.getTypes().forEach(type => {
             const interactive = manager.interactives.get(type);
-            if (manager.name === FOLDER_KEY) {
-                console.log(interactive);
-            }
             if (!interactive) return;
-            if (interactive.isActive && viewTypesToDisable.includes(type)) {
-                interactive.isActive = false;
-                toDisable.push(type);
+            // Type should be toggled (not default)
+            if ((enableByDefault === interactive.isActive) && viewTypesToToggle.includes(type)) {
+                interactive.isActive = !enableByDefault;
+                if (enableByDefault) toDisable.push(type);
+                else toEnable.push(type);
             }
-            else if (!interactive.isActive && !viewTypesToDisable.includes(type)) {
-                interactive.isActive = true;
-                toEnable.push(type);
+            // Type should be default
+            else if ((enableByDefault !== interactive.isActive) && !viewTypesToToggle.includes(type)) {
+                interactive.isActive = enableByDefault;
+                if (enableByDefault) toEnable.push(type);
+                else toDisable.push(type);
             }
         });
 

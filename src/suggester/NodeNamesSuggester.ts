@@ -7,7 +7,6 @@ export class NodeNameSuggester extends AbstractInputSuggest<string> {
 
     constructor(app: App, textInputEl: HTMLInputElement | HTMLDivElement, graph: GraphRenderer, callback: (value: string) => void) {
         super(app, textInputEl);
-        console.log(graph);
         this.graph = graph;
         this.callback = callback;
     }

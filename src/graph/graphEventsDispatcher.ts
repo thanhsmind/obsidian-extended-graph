@@ -120,20 +120,6 @@ export class GraphEventsDispatcher extends Component {
 
         this.onPointerUp = this.onPointerUp.bind(this);
         this.graph.renderer.px.stage.on('pointerup', this.onPointerUp);
-
-        this.graph.renderer.interactiveEl.addEventListener("wheel", (ev) => {
-            setTimeout(() => {
-                const renderer = this.graph.renderer;
-                console.log('--------');
-                console.log(renderer.viewport);
-                console.log("Pan:", renderer.panX, renderer.panY);
-                console.log("ZoomCenter:", renderer.zoomCenterX, renderer.zoomCenterY);
-                console.log("Scale:", renderer.scale, renderer.targetScale);
-                for (const [id, node] of this.graph.nodesSet.extendedElementsMap) {
-                    console.log(id + ":", node.coreElement.x, node.coreElement.y, node.coreElement.getSize());
-                }
-            }, 500)
-        });
     }
 
     private observeOrphanSettings(): void {
@@ -335,13 +321,17 @@ export class GraphEventsDispatcher extends Component {
     // TAGS
 
     private onNodeInteractiveTypesAdded(key: string, colorMaps: Map<string, Uint8Array>) {
-        this.graph.nodesSet.resetArcs(key);
+        // Update UI
         if (this.legendUI) {
             for (const [type, color] of colorMaps) {
                 this.legendUI.add(key, type, color);
             }
         }
-        this.graph.renderer.changed();
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[key].enableByDefault) {
+            this.graph.nodesSet.resetArcs(key);
+            this.graph.renderer.changed();
+        }
     }
 
     private onNodeInteractiveTypesRemoved(key: string, types: Set<string>) {
@@ -379,11 +369,19 @@ export class GraphEventsDispatcher extends Component {
     // ================================= LINKS =================================
 
     private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
-        colorMaps.forEach((color, type) => {
-            this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
-            this.legendUI?.add(LINK_KEY, type, color);
-        });
-        this.graph.renderer.changed();
+        // Update UI
+        if (this.legendUI) {
+            for (const [type, color] of colorMaps) {
+                this.legendUI.add(LINK_KEY, type, color);
+            }
+        }
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[LINK_KEY].enableByDefault) {
+            colorMaps.forEach((color, type) => {
+                this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
+            });
+            this.graph.renderer.changed();
+        }
     }
 
     private onLinkTypesRemoved(types: Set<string>) {
@@ -415,9 +413,17 @@ export class GraphEventsDispatcher extends Component {
     // ================================ FOLDERS ================================
 
     private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
-        for (const [path, color] of colorMaps) {
-            this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
-            this.foldersUI?.add(FOLDER_KEY, path, color);
+        // Update UI
+        if (this.foldersUI) {
+            for (const [path, color] of colorMaps) {
+                this.foldersUI.add(FOLDER_KEY, path, color);
+            }
+        }
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[FOLDER_KEY].enableByDefault) {
+            for (const [path, color] of colorMaps) {
+                this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
+            }
             this.graph.renderer.changed();
         }
     }
