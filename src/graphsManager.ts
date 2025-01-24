@@ -426,9 +426,8 @@ export class GraphsManager extends Component {
             zoomCenterY = renderer.height / 2 * s;
         }
 
-        let n = 0.85;
-        scale = (void 0 === n && (n = .9), scale * n + targetScale * (1 - n));
-        console.log(n);
+        const n = 0.85;
+        scale = scale * n + targetScale * (1 - n);
         panX -= node.x * scale + panX - zoomCenterX;
         panY -= node.y * scale + panY - zoomCenterY;
         renderer.setPan(panX, panY);
