@@ -117,7 +117,7 @@ body {
 }
 
 
-/* MODALS */
+/* MODAL NEW */
 
 .graph-modal-new .modal-content {
     display: flex;
@@ -128,6 +128,69 @@ body {
     font-size: var(--font-ui-medium);
     padding: var(--size-4-1) var(--size-4-3);
 }
+
+/* MODAL GRAPH STATE */
+
+.graph-modal-graph-state {
+    --dialog-width: 80vw;
+    font-family: var(--font-interface);
+
+    .tag {
+        text-decoration: none;
+        border-radius: var(--tag-radius);
+        padding: var(--tag-padding-y) var(--tag-padding-x);
+        line-height: 1;
+        font-size: var(--tag-size);
+        border: 1px solid rgba(var(--interactive-color), 0.6);
+        display: inline-block;
+        margin: 0.2em;
+
+        &:not(.is-disabled) {
+            background-color:  rgba(var(--interactive-color), 0.2);
+            color: var(--text-normal);
+        }
+        &.is-disabled {
+            border: 1px dashed rgba(var(--interactive-color), 0.2);
+            color: var(--text-faint);
+            background: none;
+        }
+    }
+
+    table {
+        border-collapse: collapse;
+        line-height: var(--table-line-height);
+        word-break: normal;
+        width: 100%;
+        
+        thead {
+            background-color: var(--background-secondary);
+
+            --icon-color: var(--text-faint);
+
+            .clickable-icon {
+                display: inline-block;
+                vertical-align: middle;
+                padding: 2px;
+                margin-left: var(--size-4-2);
+            }
+
+            .sorted-asc,
+            .sorted-desc {
+                --icon-color: var(--text-normal);
+            }
+
+            .sorted-desc svg {
+                transform: scaleY(-1);
+            }
+        }
+
+        td {
+            padding: var(--size-2-2) var(--size-4-2);
+            border: 1px solid var(--background-modifier-border);
+        }
+    }
+}
+
 
 /* GRAPH CONTROLS */
 

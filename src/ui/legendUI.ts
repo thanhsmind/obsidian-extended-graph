@@ -3,6 +3,7 @@ import { FOLDER_KEY } from "src/globalVariables";
 import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
+import { textColor } from "src/helperFunctions";
 import ExtendedGraphPlugin from "src/main";
 
 class LegendRow extends Setting {
@@ -58,7 +59,7 @@ class LegendRow extends Setting {
                 })
                 .then(cb => {
                     cb.buttonEl.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-                    cb.buttonEl.style.setProperty(this.cssTextColorVariable, this.textColor(color));
+                    cb.buttonEl.style.setProperty(this.cssTextColorVariable, textColor(color));
                     if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
                         cb.buttonEl.addClass("graph-legend-none");
                     }
@@ -82,7 +83,7 @@ class LegendRow extends Setting {
         }
         else {
             (button as HTMLElement).style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-            (button as HTMLElement).style.setProperty(this.cssTextColorVariable, this.textColor(color));
+            (button as HTMLElement).style.setProperty(this.cssTextColorVariable, textColor(color));
         }
     }
 
@@ -143,11 +144,6 @@ class LegendRow extends Setting {
         this.manager.enable(this.manager.getTypes());
         this.disableAllButton.extraSettingsEl.style.display = "";
         this.enableAllButton.extraSettingsEl.style.display = "none";
-    }
-
-    private textColor(color: Uint8Array): string {
-        const textColor = (color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114 > 150) ? "black" : "white";
-        return textColor;
     }
 }
 

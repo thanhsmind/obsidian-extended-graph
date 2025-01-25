@@ -7,6 +7,7 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { GraphPlugin } from "obsidian-typings";
 import { GCSection } from "./GCSection";
 import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
+import { GraphViewModal } from "../modals/viewModal";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
@@ -25,11 +26,13 @@ export class GCOptions extends GCSection {
 
     override display(enable: boolean) {
         this.treeItemChildren.innerHTML = "";
+
         this.createSaveForDefaultView();
         if (enable) this.createSaveForNormalView();
         if (enable) this.settingGlobalFilter = this.createGlobalFilter();
         this.createZoomOnNode();
-        this.createScreenshot().settingEl;
+        this.createScreenshot();
+        if (enable) this.createButtonViewState();
     }
 
     private createSaveForDefaultView(): Setting {
@@ -108,6 +111,20 @@ export class GCOptions extends GCSection {
                 }
                 this.suggester = new NodeNameSuggester(this.graphsManager.plugin.app, cb.inputEl, this.leaf.view.renderer, callback);
             });
+    }
+
+    private createButtonViewState(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName("Show graph state")
+            .addExtraButton(cb => {
+                cb.setIcon("info");
+                cb.onClick(() => {
+                    const graph = this.graphsManager.dispatchers.get(this.leaf.id)?.graph;
+                    if (!graph) return;
+                    const modal = new GraphViewModal(this.graphsManager.plugin.app, graph);
+                    modal.open();
+                })
+            })
     }
 
     // =============================== CALLBACKS ===============================
