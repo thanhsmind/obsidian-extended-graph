@@ -218,7 +218,7 @@ export class GraphsManager extends Component {
         
         const dispatcher = this.addGraph(leaf, viewID);
         const globalUI = this.setGlobalUI(leaf);
-        globalUI.menu.enable();
+        globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(dispatcher);
         
     }
@@ -246,7 +246,7 @@ export class GraphsManager extends Component {
     private disableUI(leafID: string) {
         const globalUI = this.globalUIs.get(leafID);
         if (globalUI) {
-            globalUI.menu.disable();
+            globalUI.menu.setDisableUIState();
             globalUI.control.onPluginDisabled();
         }
     }

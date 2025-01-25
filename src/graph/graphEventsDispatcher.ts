@@ -173,7 +173,6 @@ export class GraphEventsDispatcher extends Component {
         this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         this.graphsManager.onPluginUnloaded(this.leaf);
-        this.unload();
     }
 
     private unbindStageEvents(): void {
@@ -190,13 +189,15 @@ export class GraphEventsDispatcher extends Component {
     private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
         if (this.graphsManager.isNodeLimitExceeded(this.leaf)) {
-            this.graphsManager.disablePlugin(this.leaf);
+            this.listenStage = false;
+            setTimeout(() => {
+                this.graphsManager.disablePluginFromLeafID(this.leaf.id);
+            });
             return;
         }
         
         const node = this.graph.renderer.nodes.find(n => n.circle === child);
         if (node) {
-            console.log("Is a node", node.rendered, node.id);
             const extendedNode = this.graph.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
                 this.graph.nodesSet.load();

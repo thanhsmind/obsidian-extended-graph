@@ -525,18 +525,28 @@ export class Graph extends Component {
 
     private getNodesForWorker(): { [node: string]: number[] } {
         const nodes: { [node: string]: number[] } = {};
+        // Add connected nodes
         for (const id of this.nodesSet.connectedIDs) {
             const extendedNode = this.nodesSet.extendedElementsMap.get(id);
             if (extendedNode) nodes[id] = [extendedNode.coreElement.x, extendedNode.coreElement.y];
+        }
+        // Add tags
+        for (const node of this.renderer.nodes.filter(n => n.type === "tag")) {
+            nodes[node.id] = [node.x, node.y];
         }
         return nodes;
     }
 
     private getLinksForWorker(): string[][] {
         const links: string[][] = [];
+        // Add connected links
         for (const id of this.linksSet.connectedIDs) {
             const extendedLink = this.linksSet.extendedElementsMap.get(id);
             if (extendedLink) links.push([extendedLink.coreElement.source.id, extendedLink.coreElement.target.id]);
+        }
+        // Add links to tags
+        for (const link of this.renderer.links.filter(l => l.target.type === "tag")) {
+            links.push([link.source.id, link.target.id]);
         }
         return links;
     }

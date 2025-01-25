@@ -27,10 +27,8 @@ export class MenuUI extends Component {
             //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
-                    this.enable();
                     this.leaf.trigger("extended-graph:enable-plugin", this.leaf);
                 } else {
-                    this.disable();
                     this.leaf.trigger("extended-graph:disable-plugin", this.leaf);
                 }
             })
@@ -55,14 +53,14 @@ export class MenuUI extends Component {
             });
     }
 
-    enable() {
+    setEnableUIState() {
         this.enabled = true;
         this.buttonEnable.extraSettingsEl.addClass("is-active");
         this.buttonEnable.setTooltip("Enable Extended Graph Plugin", {placement: 'top'});
         this.buttonReset.extraSettingsEl.style.display = "";
     }
 
-    disable() {
+    setDisableUIState() {
         this.enabled = false;
         this.buttonEnable.extraSettingsEl.removeClass("is-active");
         this.buttonEnable.setTooltip("Disable Extended Graph Plugin", {placement: 'top'});
