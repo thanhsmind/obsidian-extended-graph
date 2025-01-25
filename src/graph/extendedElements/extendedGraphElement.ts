@@ -2,6 +2,7 @@ import { GraphLink, GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphicsWrapper } from "../graphicElements/links/graphicsWrapper";
+import { Graphics } from "pixi.js";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     settings: ExtendedGraphSettings;
@@ -43,12 +44,13 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     }
 
     setCoreElement(coreElement: T | undefined): void {
-        if (coreElement && this.coreElement !== coreElement) {
+        if (!coreElement) return;
+        if (this.coreElement !== coreElement) {
             this.coreElement.clearGraphics();
             this.graphicsWrapper?.disconnect();
-            this.coreElement = coreElement;
-            this.graphicsWrapper?.connect();
         }
+        this.coreElement = coreElement;
+        this.graphicsWrapper?.connect();
     }
 
     protected findCoreElement(): T | undefined {

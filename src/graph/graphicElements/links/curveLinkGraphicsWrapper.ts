@@ -15,6 +15,7 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
 
     override connect(): void {
         if (this.extendedElement.coreElement.px && !this.extendedElement.coreElement.px.getChildByName(this.pixiElement.name)) {
+            this.pixiElement.link = this.extendedElement.coreElement;
             this.extendedElement.coreElement.px.addChild(this.pixiElement);
         }
     }

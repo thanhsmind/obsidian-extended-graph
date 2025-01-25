@@ -3,9 +3,10 @@ import { LinkGraphics } from "./linkGraphics";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import { GraphLink } from "obsidian-typings";
 import { lengthQuadratic, quadratic } from "src/helperFunctions";
+import { getLinkID } from "src/graph/extendedElements/extendedGraphLink";
 
 export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
-    readonly link: GraphLink;
+    link: GraphLink;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: GraphLink) {
         super(manager, types, name);
@@ -16,6 +17,9 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
 
     redrawType(type: string, color?: Uint8Array): void {
         this.clear();
+        if (!this.link.px) {
+            return;
+        }
         const renderer = this.link.renderer;
         
         const f = renderer.nodeScale;

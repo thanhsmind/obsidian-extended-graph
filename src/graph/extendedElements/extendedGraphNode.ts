@@ -163,13 +163,13 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     }
 
     updateFontFamily(): void {
+        if (!this.coreElement.text) return;
         const style = window.getComputedStyle(this.coreElement.renderer.interactiveEl);
         const fontInterface = style.getPropertyValue("--font-interface");
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
         if (fontNode !== fontInterface) {
-            console.log(fontInterface);
             const textStyle = this.coreElement.text.style;
             textStyle.fontFamily = fontInterface;
             this.coreElement.text.style = textStyle;

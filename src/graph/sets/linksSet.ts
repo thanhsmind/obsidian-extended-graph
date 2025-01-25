@@ -9,6 +9,7 @@ import { getFile } from "src/helperFunctions";
 import { AbstractSet } from "./abstractSet";
 
 export class LinksSet extends AbstractSet<GraphLink> {
+    extendedElementsMap: Map<string, ExtendedGraphLink>;
 
     // ============================== CONSTRUCTOR ==============================
 

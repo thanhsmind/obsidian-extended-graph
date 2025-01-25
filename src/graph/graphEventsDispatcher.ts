@@ -7,6 +7,8 @@ import { WorkspaceLeafExt } from "src/types/leaf";
 import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GCFolders } from "src/ui/graphControl/GCFolders";
+import { Container, DisplayObject } from "pixi.js";
+import { getLinkID } from "./extendedElements/extendedGraphLink";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -185,22 +187,35 @@ export class GraphEventsDispatcher extends Component {
     /**
      * Called when a child is added to the stage by the engine.
      */
-    private onChildAddedToStage(): void {
+    private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
         if (this.graphsManager.isNodeLimitExceeded(this.leaf)) {
             this.graphsManager.disablePlugin(this.leaf);
             return;
         }
+        
+        const node = this.graph.renderer.nodes.find(n => n.circle === child);
+        if (node) {
+            console.log("Is a node", node.id);
+            const extendedNode = this.graph.nodesSet.extendedElementsMap.get(node.id);
+            if (!extendedNode) {
+                this.graph.nodesSet.load();
+            }
+            else {
+                extendedNode.setCoreElement(node);
+            }
+        }
 
-        this.loadAndConnectNodesAndLinks();
-        //this.disableDisconnectedLinks();
-    }
-
-    private loadAndConnectNodesAndLinks(): void {
-        this.graph.nodesSet.load();
-        this.graph.nodesSet.connectNodes();
-        this.graph.linksSet.load();
-        this.graph.linksSet.connectLinks();
+        const linkPx = this.graph.renderer.links.find(l => l.px === child);
+        if (linkPx) {
+            const extendedLink = this.graph.linksSet.extendedElementsMap.get(getLinkID(linkPx));
+            if (!extendedLink) {
+                this.graph.linksSet.load();
+            }
+            else {
+                extendedLink.setCoreElement(linkPx);
+            }
+        }
     }
 
     private onPointerDown(): void {
@@ -229,7 +244,6 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        //console.log(this.graph.renderer.idleFrames);
         if (this.graph.staticSettings.enableFeatures['folders']) this.graph.folderBlobs.updateGraphics();
         if (this.graph.staticSettings.enableFeatures['links'] && this.graph.staticSettings.enableFeatures['curvedLinks']) {
             for (const id of this.graph.linksSet.connectedIDs) {
@@ -451,7 +465,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private enableFolders(paths: string[]) {
-        console.log(paths);
         this.listenStage = false;
         for (const path of paths) {
             this.addBBox(path);
