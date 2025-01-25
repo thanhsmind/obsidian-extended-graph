@@ -196,7 +196,7 @@ export class GraphEventsDispatcher extends Component {
         
         const node = this.graph.renderer.nodes.find(n => n.circle === child);
         if (node) {
-            console.log("Is a node", node.id);
+            console.log("Is a node", node.rendered, node.id);
             const extendedNode = this.graph.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
                 this.graph.nodesSet.load();

@@ -1,5 +1,5 @@
 import { getIcon } from 'obsidian';
-import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
+import { Assets, ColorSource, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { ArcsCircle } from './arcsCircle';
 import { NodeImage } from './image';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';

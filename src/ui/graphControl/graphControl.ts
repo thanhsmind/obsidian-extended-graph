@@ -27,9 +27,21 @@ export class GraphControlsUI extends Component {
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
         this.dispatcher = dispatcher;
         this.sectionSettings.onPluginEnabled(dispatcher);
+        //this.removeFilters();
     }
 
     onPluginDisabled(): void {
         this.sectionSettings.onPluginDisabled();
+        //this.addFilters();
+    }
+
+    private removeFilters(): void {
+        const filterSection = this.leaf.containerEl.querySelector(".graph-controls .graph-control-section.mod-filter") as HTMLElement;
+        filterSection.style.setProperty("display", "none");
+    }
+
+    private addFilters(): void {
+        const filterSection = this.leaf.containerEl.querySelector(".graph-controls .graph-control-section.mod-filter") as HTMLElement;
+        filterSection.style.removeProperty("display");
     }
 }

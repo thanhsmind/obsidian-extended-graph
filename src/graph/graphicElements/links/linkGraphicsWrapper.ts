@@ -3,6 +3,7 @@ import { ExtendedGraphLink } from "src/graph/extendedElements/extendedGraphLink"
 import { InteractiveManager } from "src/graph/interactiveManager";
 import { GraphicsWrapper } from "./graphicsWrapper";
 import { LinkGraphics } from "./linkGraphics";
+import { Container, Graphics } from "pixi.js";
 
 export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values

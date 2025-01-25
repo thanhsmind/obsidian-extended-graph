@@ -1,6 +1,8 @@
 import { LinkLineGraphics } from "./line";
 import { InteractiveManager } from "src/graph/interactiveManager";
 import { LinkGraphicsWrapper } from "./linkGraphicsWrapper";
+import { GraphLink } from "obsidian-typings";
+import { Graphics } from "pixi.js";
 
 export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkLineGraphics> {
 

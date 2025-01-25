@@ -2,7 +2,7 @@ import { GraphLink, GraphNode } from "obsidian-typings";
 import { InteractiveManager } from "../interactiveManager";
 import { ExtendedGraphSettings } from "src/settings/settings";
 import { GraphicsWrapper } from "../graphicElements/links/graphicsWrapper";
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     settings: ExtendedGraphSettings;
@@ -45,7 +45,16 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     setCoreElement(coreElement: T | undefined): void {
         if (!coreElement) return;
-        if (this.coreElement !== coreElement) {
+        if (!this.getCoreCollection().includes(coreElement)) {
+            coreElement.clearGraphics();
+            return;
+        }
+        else if (this.getCoreCollection().includes(this.coreElement) && this.coreElement !== coreElement) {
+            this.getCoreCollection().remove(this.coreElement);
+            this.coreElement.clearGraphics();
+            this.graphicsWrapper?.disconnect();
+        }
+        else if (this.getCoreParentGraphics(this.coreElement) !== this.getCoreParentGraphics(coreElement)) {
             this.coreElement.clearGraphics();
             this.graphicsWrapper?.disconnect();
         }
@@ -61,9 +70,13 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         return this.coreElement;
     }
 
+    protected abstract clearGraphicsButKeepRendered(): void;
     protected abstract isCoreElementUptodate(): boolean;
     abstract isSameCoreElement(coreElement: T): boolean;
     abstract getCoreCollection(): T[];
+    protected abstract getCoreParentGraphics(coreElement: T): Container | null;
+    protected abstract setCoreParentGraphics(coreElement: T): void;
+
 
     // ================================ GETTERS ================================
 

@@ -53,7 +53,6 @@ export class GraphsManager extends Component {
     // ============================= THEME CHANGE ==============================
 
     private onCSSChange() {
-        console.log("CSSChange");
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.graph.nodesSet) {
                 dispatcher.graph.nodesSet.updateOpacityLayerColor();
