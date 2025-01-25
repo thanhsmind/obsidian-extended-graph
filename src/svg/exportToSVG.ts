@@ -12,6 +12,7 @@ import { ArcsCircle } from "src/graph/graphicElements/nodes/arcsCircle";
 import { ExportSVGOptions } from "src/settings/settings";
 import ExtendedGraphPlugin from "src/main";
 import { FolderBlob } from "src/graph/sets/folderBlobs";
+import { FOLDER_KEY } from "src/globalVariables";
 
 export abstract class ExportGraphToSVG {
     plugin: ExtendedGraphPlugin;
@@ -224,7 +225,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     protected override addFolders(): void {
         if (!this.groupFolders) return;
         const folderBlobs = this.graph.folderBlobs;
-        const manager = folderBlobs.manager;
+        const manager = folderBlobs.managers.get(FOLDER_KEY);
         if (!manager) return;
         const visibleFolders = this.getVisibleFolders();
         for (const blob of visibleFolders) {
