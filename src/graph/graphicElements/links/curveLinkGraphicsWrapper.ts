@@ -13,9 +13,10 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
     // ========================== CONNECT/DISCONNECT ===========================
 
     override connect(): void {
-        if (this.extendedElement.coreElement.px && !this.extendedElement.coreElement.px.getChildByName(this.pixiElement.name)) {
+        const hanger = this.extendedElement.coreElement.renderer.hanger;
+        if (!hanger.getChildByName(this.pixiElement.name)) {
             this.pixiElement.link = this.extendedElement.coreElement;
-            this.extendedElement.coreElement.px.addChild(this.pixiElement);
+            hanger.addChild(this.pixiElement);
         }
     }
 }

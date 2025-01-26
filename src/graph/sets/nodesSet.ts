@@ -13,6 +13,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         super(graph, managers);
 
         this.coreCollection = this.graph.renderer.nodes;
+        console.log(this.graph.renderer.links);
     }
 
     // ================================ LOADING ================================
@@ -78,7 +79,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     protected override createExtendedElement(node: GraphNode): void {
         const id = node.id;
-        console.log(id);
 
         const types = new Map<string, Set<string>>();
         for (const [key, manager] of this.managers) {

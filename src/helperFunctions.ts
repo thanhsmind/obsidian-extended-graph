@@ -66,6 +66,24 @@ export function quadratic(t: number, p0: Point, p1: Point, p2: Point): Point {
     return { x: x, y: y };
 }
 
+// https://math.stackexchange.com/questions/2149009/find-a-tangent-to-two-quadratic-bezier-curves
+export function tangentQuadratic(t: number, p0: Point, p1: Point, p2: Point): {m: number, c: number} {
+    // The tangent line at point x=t passes through the points A = [(1 - t) * p0 + t * p1] and B = [(1 - t) * p1 + t * p2]
+    const A: Point = {
+        x: (1 - t) * p0.x + t * p1.x,
+        y: (1 - t) * p0.y + t * p1.y,
+    };
+    const B: Point = {
+        x: (1 - t) * p1.x + t * p2.x,
+        y: (1 - t) * p1.y + t * p2.y,
+    };
+    const m = (B.y - A.y) / (B.x - A.x);
+    return {
+        m: m,
+        c: A.y - m * A.x
+    };
+}
+
 // https://stackoverflow.com/questions/11854907/calculate-the-length-of-a-segment-of-a-quadratic-bezier
 export function lengthQuadratic(t: number, p0: Point, p1: Point, p2: Point): number {
     const ax = p0.x - p1.x - p1.x + p2.x;
