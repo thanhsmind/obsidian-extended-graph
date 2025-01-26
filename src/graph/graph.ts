@@ -165,9 +165,13 @@ export class Graph extends Component {
      * @returns boolean - True if links were found and disabled, otherwise false.
      */
     disableLinkTypes(types: string[]): boolean {
-        const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
-        if (links) {
-            this.disableLinks(links);
+        //const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
+        let linksToDisable: string[] = [];
+        for (const type of types) {
+            linksToDisable = linksToDisable.concat(this.linksSet.disableType(LINK_KEY, type));
+        }
+        if (linksToDisable) {
+            this.disableLinks(new Set<string>(linksToDisable));
             return true;
         }
         return false;

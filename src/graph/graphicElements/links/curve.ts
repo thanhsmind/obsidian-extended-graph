@@ -31,6 +31,15 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         if(this.link.arrow) this.link.arrow.renderable = false;
     }
 
+    override toggleType(type: string, enable: boolean): void {
+        if (!enable && this.arrow) {
+            this.arrow.clear();
+            this.arrow.destroy();
+            this.arrow = null;
+        }
+        super.toggleType(type, enable);
+    }
+
     redrawType(type: string, color?: Uint8Array): void {
         this.clear();
         const renderer = this.link.renderer;
@@ -93,5 +102,10 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
     override destroy(options?: IDestroyOptions | boolean): void {
         if (this.link.arrow) this.link.arrow.renderable = true;
         super.destroy(options);
+    }
+
+    override clearGraphics(): void {
+        this.arrow?.clear();
+        super.clearGraphics();
     }
 }

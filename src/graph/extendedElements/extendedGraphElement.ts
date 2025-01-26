@@ -68,7 +68,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         return this.coreElement;
     }
 
-    protected abstract clearGraphicsButKeepRendered(): void;
     protected abstract isCoreElementUptodate(): boolean;
     abstract isSameCoreElement(coreElement: T): boolean;
     abstract getCoreCollection(): T[];

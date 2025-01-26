@@ -47,15 +47,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== CORE ELEMENT =============================
 
-    protected clearGraphicsButKeepRendered(): void {
-        var t = this.coreElement.px
-          , n = this.coreElement.line
-          , i = this.coreElement.arrow;
-        t && (this.coreElement.px = null, t.parent && t.parent.removeChild(t), t.destroy(), t.visible = !1),
-        n && (this.coreElement.line = null, n.destroy(), n.visible = !1),
-        i && (this.coreElement.arrow = null, i.parent && i.parent.removeChild(i), i.destroy(), i.visible = !1)
-    }
-
     protected override isCoreElementUptodate(): boolean {
         return !!this.coreElement.line;
     }

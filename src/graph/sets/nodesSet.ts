@@ -13,7 +13,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
         super(graph, managers);
 
         this.coreCollection = this.graph.renderer.nodes;
-        console.log(this.graph.renderer.links);
     }
 
     // ================================ LOADING ================================

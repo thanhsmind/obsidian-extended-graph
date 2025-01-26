@@ -34,7 +34,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     }
 
     destroyGraphics(): void {
-        this.pixiElement.destroy();
+        this.pixiElement.destroy({children: true});
     }
 
     // ============================ UPDATE GRAPHICS ============================

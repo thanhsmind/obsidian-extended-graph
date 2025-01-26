@@ -18,6 +18,8 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
 
     clearGraphics(): void {
         this.clear();
+        this.destroy({children: true});
+        this.removeFromParent();
     }
 
     initGraphics(): void {

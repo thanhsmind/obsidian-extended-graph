@@ -139,15 +139,6 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
 
     // ============================== CORE ELEMENT =============================
 
-    protected clearGraphicsButKeepRendered(): void {
-        var t = this.coreElement.circle
-        , n = this.coreElement.highlight
-        , i = this.coreElement.text;
-        t && (t.parent && t.parent.removeChild(t), t.destroy());
-        n && (n.parent && n.parent.removeChild(n), n.destroy());
-        i && (i.parent && i.parent.removeChild(i), i.destroy());
-    }
-
     protected override isCoreElementUptodate(): boolean {
         return !!this.coreElement.circle;
     }
