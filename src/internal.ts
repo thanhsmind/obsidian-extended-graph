@@ -3,6 +3,10 @@ export * from "./globalVariables";
 export * from "./helperFunctions";
 export * from "./logs";
 
+export * from "./views/view";
+export * from "./views/viewData";
+export * from "./views/viewsManager";
+
 export * from "./colors/colormaps";
 export * from "./colors/colors";
 
@@ -88,7 +92,3 @@ export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapePickerModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/viewModal";
-
-export * from "./views/view";
-export * from "./views/viewData";
-export * from "./views/viewsManager";

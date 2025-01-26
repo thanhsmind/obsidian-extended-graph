@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, DisconnectionCause, ExtendedGraphNode, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphNode, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
@@ -78,6 +78,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     protected override createExtendedElement(node: GraphNode): void {
         const id = node.id;
+        console.log(id);
 
         const types = new Map<string, Set<string>>();
         for (const [key, manager] of this.managers) {
