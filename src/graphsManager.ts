@@ -1,16 +1,8 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
-import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
-import ExtendedGraphPlugin from "./main";
-import { MenuUI } from "./ui/menu";
-import { GraphControlsUI } from "./ui/graphControl/graphControl";
-import { getEngine } from "./helperFunctions";
-import { WorkspaceLeafExt } from "./types/leaf";
-import { TAG_KEY } from "./globalVariables";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
-import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG } from "./svg/exportToSVG";
-import { ViewsManager } from "./views/viewsManager";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeSizeCalculator, NodeSizeCalculatorFactory, TAG_KEY, ViewsManager, WorkspaceLeafExt } from "./internal";
+import ExtendedGraphPlugin from "./main";
+
 
 
 export class GraphsManager extends Component {

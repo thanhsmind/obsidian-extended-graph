@@ -1,8 +1,5 @@
-import { EngineOptions, GraphViewData } from "../views/viewData";
-import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
-import { QueryData } from "src/queries/queriesMatcher";
-import { Feature } from "src/types/features";
-import { NodeSizeFunction } from "src/nodeSizes/nodeSizeCalculator";
+import { DEFAULT_VIEW_ID, EngineOptions, Feature, GraphViewData, NodeSizeFunction, QueryData } from "src/internal";
+
 
 type InteractiveSettings = {
     colormap: string;

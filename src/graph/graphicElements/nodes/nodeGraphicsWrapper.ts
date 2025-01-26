@@ -1,14 +1,7 @@
 import { getIcon } from 'obsidian';
-import { Assets, ColorSource, Container, Graphics, Sprite, Texture } from 'pixi.js';
-import { ArcsCircle } from './arcsCircle';
-import { NodeImage } from './image';
+import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { ExtendedGraphNode } from '../../extendedElements/extendedGraphNode';
-import { InteractiveManager } from 'src/graph/interactiveManager';
-import { NodeShape, ShapeEnum } from './shapes';
-import { QueryData, QueryMatcher } from 'src/queries/queriesMatcher';
-import { getFile } from 'src/helperFunctions';
-import { GraphicsWrapper } from '../links/graphicsWrapper';
+import { ArcsCircle, ExtendedGraphNode, getFile, GraphicsWrapper, InteractiveManager, NodeImage, NodeShape, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;

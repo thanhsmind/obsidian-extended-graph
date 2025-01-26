@@ -1,13 +1,8 @@
 import { App } from "obsidian";
-import { BacklinkCountCalculator } from "./backlinkCountCalculator";
-import { ForwardlinkCountCalculator } from "./forwardlinkCountCalculator";
-import { NodeSizeFunction, NodeSizeCalculator } from "./nodeSizeCalculator";
-import { FilenameLengthCalculator } from "./filenameLengthCalculator";
-import { TagsCountCalculator } from "./tagsCountCalculator";
-import { CreationTimeCalculator } from "./creationTimeCalculator";
-import { EccentricityCalculator } from "./eccentricityCalculator";
 import { GraphologySingleton } from "./graphology";
+import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, NodeSizeCalculator, NodeSizeFunction, TagsCountCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
+
 
 export class NodeSizeCalculatorFactory {
     static getCalculator(key: NodeSizeFunction, app: App): NodeSizeCalculator | undefined {

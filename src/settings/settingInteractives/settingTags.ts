@@ -1,7 +1,5 @@
-import { TAG_KEY } from "src/globalVariables";
-import { ExtendedGraphSettingTab } from "../settingTab";
-import { SettingInteractives } from "./settingInteractive";
 import { Setting } from "obsidian";
+import { ExtendedGraphSettingTab, SettingInteractives, TAG_KEY } from "src/internal";
 
 export class SettingTags extends SettingInteractives {
 

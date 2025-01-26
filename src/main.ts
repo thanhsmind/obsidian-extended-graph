@@ -1,12 +1,5 @@
 import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
-import { GraphsManager } from './graphsManager';
-import { DEFAULT_SETTINGS, DEFAULT_VIEW_SETTINGS, ExtendedGraphSettings } from './settings/settings';
-import { ExtendedGraphSettingTab } from './settings/settingTab';
-import { DEFAULT_VIEW_ID, FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from './globalVariables';
-import { WorkspaceLeafExt } from './types/leaf';
-import { WorkspaceExt } from './types/workspace';
-import { hasEngine } from './helperFunctions';
-
+import { DEFAULT_SETTINGS, ExtendedGraphSettings, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, TAG_KEY, WorkspaceExt, WorkspaceLeafExt } from './internal';
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {

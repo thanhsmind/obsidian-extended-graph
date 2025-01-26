@@ -1,7 +1,7 @@
-import { getFile } from "src/helperFunctions";
 import Graphology from 'graphology';
 import { App, TFile } from "obsidian";
 import { dfsFromNode } from "graphology-traversal/dfs";
+import { getFile } from 'src/internal';
 
 export class GraphologySingleton {
     static _instance: GraphologySingleton;

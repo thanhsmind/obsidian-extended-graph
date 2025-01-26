@@ -1,10 +1,5 @@
-import { Component, Setting } from "obsidian";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { GraphsManager } from "src/graphsManager";
-import { WorkspaceLeafExt } from "src/types/leaf";
-import { GCOptions } from "./GCOptions";
-import { GCFolders } from "./GCFolders";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { Component } from "obsidian";
+import { GCOptions, GraphEventsDispatcher, GraphsManager, WorkspaceLeafExt } from "src/internal";
 
 export class GraphControlsUI extends Component {
     graphsManager: GraphsManager;

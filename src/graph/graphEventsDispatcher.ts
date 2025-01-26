@@ -1,14 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
-import { Graph } from "./graph";
-import { LegendUI } from "../ui/legendUI";
-import { ViewsUI } from "../ui/viewsUI";
-import { GraphsManager } from "src/graphsManager";
-import { WorkspaceLeafExt } from "src/types/leaf";
-import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { GCFolders } from "src/ui/graphControl/GCFolders";
 import { Container, DisplayObject } from "pixi.js";
-import { getLinkID } from "./extendedElements/extendedGraphLink";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, ViewsUI, WorkspaceLeafExt } from "src/internal";
 
 export class GraphEventsDispatcher extends Component {
     type: string;

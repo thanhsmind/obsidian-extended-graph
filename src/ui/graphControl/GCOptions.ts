@@ -1,13 +1,6 @@
-import { Component, setIcon, Setting } from "obsidian";
-import { EngineOptions } from "src/views/viewData";
-import { DEFAULT_VIEW_ID } from "src/globalVariables";
-import { GraphsManager } from "src/graphsManager";
-import { getEngine } from "src/helperFunctions";
-import { WorkspaceLeafExt } from "src/types/leaf";
+import { setIcon, Setting } from "obsidian";
 import { GraphPlugin } from "obsidian-typings";
-import { GCSection } from "./GCSection";
-import { NodeNameSuggester } from "src/suggester/NodeNamesSuggester";
-import { GraphViewModal } from "../modals/viewModal";
+import { DEFAULT_VIEW_ID, EngineOptions, GCSection, getEngine, GraphsManager, GraphViewModal, NodeNameSuggester, WorkspaceLeafExt } from "src/internal";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;

@@ -1,8 +1,5 @@
 import { Component, setIcon } from "obsidian";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { GraphsManager } from "src/graphsManager";
-import { setPluginIcon } from "src/helperFunctions";
-import { WorkspaceLeafExt } from "src/types/leaf";
+import { GraphEventsDispatcher, GraphsManager, setPluginIcon, WorkspaceLeafExt } from "src/internal";
 
 export abstract class GCSection extends Component {
     graphsManager: GraphsManager;

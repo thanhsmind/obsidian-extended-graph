@@ -1,9 +1,6 @@
-import { INVALID_KEYS, LINK_KEY } from "src/globalVariables";
-import { SettingInteractives } from "./settingInteractive";
-import { ExtendedGraphSettingTab } from "../settingTab";
 import { Setting } from "obsidian";
-import { isPropertyKeyValid } from "src/helperFunctions";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
+import { ExtendedGraphSettingTab, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, SettingInteractives } from "src/internal";
 
 
 export class SettingLinks extends SettingInteractives {

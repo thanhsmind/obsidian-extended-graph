@@ -1,7 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { isPropertyKeyValid } from "src/helperFunctions";
-import { SettingsSectionCollapsible } from "./settingCollapsible";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, SettingsSectionCollapsible } from "src/internal";
 
 export class SettingImages extends SettingsSectionCollapsible {
     constructor(settingTab: ExtendedGraphSettingTab) {

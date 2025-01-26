@@ -1,10 +1,6 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
-import { ShapeQueryModal } from "src/ui/modals/shapeQueryModal";
-import { QueryData, QueryMatcher } from "src/queries/queriesMatcher";
+import { ExtendedGraphSettingTab, NodeShape, QueryData, QueryMatcher, SettingsSectionCollapsible, ShapeEnum, ShapeQueryModal } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { SettingsSectionCollapsible } from "./settingCollapsible";
 
 export class SettingShapes extends SettingsSectionCollapsible {
     settingsShape: SettingShape[] = [];

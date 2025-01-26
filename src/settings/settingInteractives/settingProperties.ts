@@ -1,11 +1,5 @@
-import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "../settingTab";
-import { SettingInteractives } from "./settingInteractive";
-import { isPropertyKeyValid } from "src/helperFunctions";
-import { NewNameModal } from "src/ui/modals/newNameModal";
-import { FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
-import { SettingsSectionCollapsible } from "../settingCollapsible";
-import { UIElements } from "src/ui/UIElements";
+import { Setting } from "obsidian";
+import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
     settingInteractives: SettingInteractives[] = [];
@@ -81,7 +75,8 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             colors: [],
             unselected: [],
             noneType: "none",
-            showOnGraph: true
+            showOnGraph: true,
+            enableByDefault: true,
         }
         this.settingTab.plugin.saveSettings().then(() => {
             const setting = new SettingProperty(key, this.settingTab, this);

@@ -1,6 +1,5 @@
 import { App, TFile, TFolder } from "obsidian";
-import { TAG_KEY, LINK_KEY } from "src/globalVariables";
-import { getFileInteractives } from "src/helperFunctions";
+import { getFileInteractives, LINK_KEY, TAG_KEY } from "src/internal";
 
 export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folder_rec';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot';

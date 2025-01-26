@@ -1,16 +1,7 @@
 
 import { Component } from 'obsidian';
-import { InteractiveManager } from './interactiveManager';
-import { GraphView } from 'src/views/view';
-import { DEFAULT_VIEW_ID, DisconnectionCause, FOLDER_KEY, LINK_KEY, TAG_KEY } from 'src/globalVariables';
-import { GraphEventsDispatcher } from './graphEventsDispatcher';
-import { ExtendedGraphSettings } from 'src/settings/settings';
-import { getLinkID } from './extendedElements/extendedGraphLink';
-import { getEngine } from 'src/helperFunctions';
-import { GraphEngine, GraphNode, GraphRenderer } from 'obsidian-typings';
-import { NodesSet } from './sets/nodesSet';
-import { LinksSet } from './sets/linksSet';
-import { FoldersSet } from './sets/folderBlobs';
+import { GraphEngine, GraphRenderer } from 'obsidian-typings';
+import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     // Parent dispatcher

@@ -1,9 +1,5 @@
-import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip } from "obsidian";
-import { FOLDER_KEY } from "src/globalVariables";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
-import { textColor } from "src/helperFunctions";
+import { Component, ExtraButtonComponent, Setting } from "obsidian";
+import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, textColor } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 class LegendRow extends Setting {

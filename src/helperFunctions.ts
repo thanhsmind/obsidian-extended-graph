@@ -1,8 +1,7 @@
 import { App, getAllTags, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { WorkspaceLeafExt } from "./types/leaf";
-import { FOLDER_KEY, TAG_KEY } from "./globalVariables";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
+import { FOLDER_KEY, TAG_KEY, WorkspaceLeafExt } from "./internal";
 
 export function getSVGNode(n: string, v?: any): SVGElement {
     const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);

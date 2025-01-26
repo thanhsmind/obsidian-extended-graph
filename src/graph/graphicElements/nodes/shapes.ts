@@ -1,5 +1,5 @@
 import { ColorSource, Graphics } from "pixi.js";
-import { getSVGNode } from "src/helperFunctions";
+import { getSVGNode } from "src/internal";
 
 export enum ShapeEnum {
     CIRCLE = "circle",

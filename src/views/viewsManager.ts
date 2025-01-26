@@ -1,11 +1,5 @@
-import { DEFAULT_VIEW_ID, FOLDER_KEY } from "src/globalVariables";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { GraphsManager } from "src/graphsManager";
-import { LegendUI } from "src/ui/legendUI";
-import { GraphView } from "./view";
-import { GraphViewData } from "./viewData";
-import { Graph } from "src/graph/graph";
-import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
+import { DEFAULT_VIEW_ID, FOLDER_KEY, Graph, GraphsManager, GraphView, GraphViewData, InteractiveManager, InteractiveUI } from "src/internal";
+
 
 
 export class ViewsManager {

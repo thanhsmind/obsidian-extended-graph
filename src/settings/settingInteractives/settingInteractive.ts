@@ -1,14 +1,6 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions } from "src/colors/colormaps";
-import { ExtendedGraphSettingTab } from "../settingTab";
-import { getFileInteractives } from "src/helperFunctions";
-import { plot_colormap, randomColor } from "src/colors/colors";
-import { INVALID_KEYS } from "src/globalVariables";
+import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { Feature } from "src/types/features";
-import { SettingsSectionCollapsible } from "../settingCollapsible";
-import { UIElements } from "src/ui/UIElements";
-import { GradientPickerModal } from "src/ui/modals/gradientPickerModal";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";

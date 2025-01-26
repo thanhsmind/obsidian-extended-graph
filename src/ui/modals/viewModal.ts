@@ -1,7 +1,5 @@
 import { App, ExtraButtonComponent, Modal, TFile } from "obsidian";
-import { Graph } from "src/graph/graph";
-import { getFile } from "src/helperFunctions";
-import { GraphView } from "src/views/view";
+import { getFile, Graph, GraphView } from "src/internal";
 
 export class GraphViewModal extends Modal {
     view: GraphView;

@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { SettingsSectionCollapsible } from "./settingCollapsible";
+import { ExtendedGraphSettingTab, SettingsSectionCollapsible } from "src/internal";
 
 export class SettingFocus extends SettingsSectionCollapsible {
     allTopElements: HTMLElement[] = [];

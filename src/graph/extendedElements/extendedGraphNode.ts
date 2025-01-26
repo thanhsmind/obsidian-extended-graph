@@ -1,13 +1,8 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { NodeGraphicsWrapper } from "../graphicElements/nodes/nodeGraphicsWrapper";
 import { GraphNode } from "obsidian-typings";
-import { InteractiveManager } from "../interactiveManager";
-import { NodeShape, ShapeEnum } from "../graphicElements/nodes/shapes";
-import { getFile, getFileInteractives, isNumber } from "src/helperFunctions";
-import ExtendedGraphPlugin from "src/main";
-import { ExtendedGraphElement } from "./extendedGraphElement";
 import { Graphics } from "pixi.js";
+import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, ShapeEnum } from "src/internal";
+import ExtendedGraphPlugin from "src/main";
 
 export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;

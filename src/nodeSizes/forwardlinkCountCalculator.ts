@@ -1,5 +1,5 @@
 import { App, TFile } from "obsidian";
-import { NodeSizeCalculator } from "./nodeSizeCalculator";
+import { NodeSizeCalculator } from "src/internal";
 
 export class ForwardlinkCountCalculator extends NodeSizeCalculator {
     countDuplicates: boolean;

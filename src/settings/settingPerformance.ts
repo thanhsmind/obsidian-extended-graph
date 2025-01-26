@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { SettingsSection } from "./settingsSection";
+import { ExtendedGraphSettingTab, SettingsSection } from "src/internal";
 
 export class SettingPerformance extends SettingsSection {
     

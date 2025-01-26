@@ -1,7 +1,5 @@
 import { TFile } from "obsidian";
-import { NodeSizeCalculator } from "./nodeSizeCalculator";
-import { getFileInteractives } from "src/helperFunctions";
-import { TAG_KEY } from "src/globalVariables";
+import { getFileInteractives, NodeSizeCalculator, TAG_KEY } from "src/internal";
 
 export class TagsCountCalculator extends NodeSizeCalculator {
 

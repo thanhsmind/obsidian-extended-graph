@@ -1,6 +1,5 @@
-import { Feature } from "src/types/features";
-import { SettingsSection } from "./settingsSection";
-import { ExtendedGraphSettingTab } from "./settingTab";
+import { ExtendedGraphSettingTab, Feature, SettingsSection } from "src/internal";
+
 
 export abstract class SettingsSectionCollapsible extends SettingsSection {
     feature: Feature;

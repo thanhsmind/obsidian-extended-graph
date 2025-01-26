@@ -1,18 +1,7 @@
-
-import { Graph } from "../graph/graph";
-import { getSVGNode, polar2Cartesian } from "src/helperFunctions";
-import { ExtendedGraphNode } from "../graph/extendedElements/extendedGraphNode";
-import { int2hex, rgb2hex } from "src/colors/colors";
-import { ExtendedGraphLink, getLinkID } from "../graph/extendedElements/extendedGraphLink";
 import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ExportSVGOptionModal } from "./exportSVGOptionsModal";
-import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
-import { ArcsCircle } from "src/graph/graphicElements/nodes/arcsCircle";
-import { ExportSVGOptions } from "src/settings/settings";
+import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, polar2Cartesian, rgb2hex } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { FolderBlob } from "src/graph/sets/folderBlobs";
-import { FOLDER_KEY } from "src/globalVariables";
 
 export abstract class ExportGraphToSVG {
     plugin: ExtendedGraphPlugin;
@@ -376,9 +365,9 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         else {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
-        const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : int2hex(Number(link.line.tint));
+        const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : link.line ? int2hex(Number(link.line.tint)) : "#000000";
         const width: number = (this.graph.engine.options.lineSizeMultiplier ?? 1) * 4;
-        const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line.alpha;
+        const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
@@ -405,7 +394,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             .filter(l =>
                 this.graph.linksSet.connectedIDs.has(l.id)
                 && l.coreElement.rendered
-                && l.coreElement.line.visible
+                && l.coreElement.line?.visible
                 && this.isLinkInVisibleArea(l.coreElement)
             )
             .map(l => l as ExtendedGraphLink);
@@ -453,9 +442,9 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
 
     protected override getSVGForLink(link: GraphLink): SVGElement {
         const path: string = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
-        const color: HexString = int2hex(Number(link.line.tint));
+        const color: HexString = int2hex(Number(link.line?.tint)) ?? "#000000";
         const width: number = (this.engine.options.lineSizeMultiplier ?? 1) * 4;
-        const opacity: number = link.line.alpha;
+        const opacity: number = link.line?.alpha ?? 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
@@ -473,7 +462,7 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     }
 
     protected override getVisibleLinks(): GraphLink[] {
-        return this.renderer.links.filter(l => l.rendered && l.line.visible && this.isLinkInVisibleArea(l));
+        return this.renderer.links.filter(l => l.rendered && l.line?.visible && this.isLinkInVisibleArea(l));
     }
 
     protected getModal(): ExportSVGOptionModal {

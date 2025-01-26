@@ -1,8 +1,6 @@
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { InteractiveManager } from "../interactiveManager";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { GraphicsWrapper } from "../graphicElements/links/graphicsWrapper";
-import { Container, Graphics } from "pixi.js";
+import { Container } from "pixi.js";
+import { ExtendedGraphSettings, GraphicsWrapper, InteractiveManager } from "src/internal";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     settings: ExtendedGraphSettings;

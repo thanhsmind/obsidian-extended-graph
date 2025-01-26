@@ -1,8 +1,5 @@
-import { LinkCurveGraphics } from "./curve";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { LinkGraphicsWrapper } from "./linkGraphicsWrapper";
-import { GraphLink } from "obsidian-typings";
-import { Container, Graphics } from "pixi.js";
+import { InteractiveManager, LinkCurveGraphics, LinkGraphicsWrapper } from "src/internal";
+
 
 export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraphics> {
     

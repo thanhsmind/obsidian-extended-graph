@@ -1,5 +1,5 @@
-import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip, WorkspaceLeaf } from "obsidian";
-import { setPluginIcon } from "../helperFunctions";
+import { Component, ExtraButtonComponent, WorkspaceLeaf } from "obsidian";
+import { setPluginIcon } from "src/internal";
 
 export class MenuUI extends Component {
     viewContent: HTMLElement;

@@ -1,12 +1,7 @@
-import { TAbstractFile, TFile } from "obsidian";
-import { getBackgroundColor, getFile, getFileInteractives, getImageUri } from "src/helperFunctions";
+import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
-import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
-import { InteractiveManager } from "../interactiveManager";
-import { Graph } from "../graph";
-import { AbstractSet } from "./abstractSet";
+import { AbstractSet, DisconnectionCause, ExtendedGraphNode, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS } from "src/internal";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;

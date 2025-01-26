@@ -1,11 +1,7 @@
 import { TFile, TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { randomColor, rgb2hex } from "src/colors/colors";
-import { getFile, getFileInteractives } from "src/helperFunctions";
-import { FOLDER_KEY, INVALID_KEYS } from "src/globalVariables";
-import { InteractiveManager } from "../interactiveManager";
-import { Graph } from "../graph";
+import { FOLDER_KEY, getFile, getFileInteractives, Graph, InteractiveManager, INVALID_KEYS, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;

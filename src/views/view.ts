@@ -1,6 +1,4 @@
-import { Graph } from "src/graph/graph";
-import { EngineOptions, GraphViewData } from "./viewData";
-import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/globalVariables";
+import { EngineOptions, FOLDER_KEY, Graph, GraphViewData, LINK_KEY, TAG_KEY } from "src/internal";
 
 export class GraphView {
     data = new GraphViewData();

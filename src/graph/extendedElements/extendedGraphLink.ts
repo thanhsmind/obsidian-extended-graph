@@ -1,12 +1,6 @@
 import { GraphLink } from "obsidian-typings";
-import { InteractiveManager } from "../interactiveManager";
-import { LineLinkGraphicsWrapper } from "../graphicElements/links/lineLinkGraphicsWrapper";
-import { LinkGraphics } from "../graphicElements/links/linkGraphics";
-import { CurveLinkGraphicsWrapper } from "../graphicElements/links/curveLinkGraphicsWrapper";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { ExtendedGraphElement } from "./extendedGraphElement";
-import { LinkGraphicsWrapper } from "../graphicElements/links/linkGraphicsWrapper";
 import { Container } from "pixi.js";
+import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;

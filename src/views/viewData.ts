@@ -1,5 +1,5 @@
 import { GraphColorGroup, GraphPluginInstanceOptions } from "obsidian-typings";
-import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/globalVariables";
+import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/internal";
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];

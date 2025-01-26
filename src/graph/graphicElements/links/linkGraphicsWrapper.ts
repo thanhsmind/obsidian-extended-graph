@@ -1,9 +1,5 @@
 import { GraphLink } from "obsidian-typings";
-import { ExtendedGraphLink } from "src/graph/extendedElements/extendedGraphLink";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { GraphicsWrapper } from "./graphicsWrapper";
-import { LinkGraphics } from "./linkGraphics";
-import { Container, Graphics } from "pixi.js";
+import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkGraphics } from "src/internal";
 
 export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values

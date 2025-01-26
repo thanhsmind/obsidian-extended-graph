@@ -1,9 +1,6 @@
 
 import { Component } from "obsidian";
-import { getColor, hex2rgb } from "../colors/colors";
-import { INVALID_KEYS, NONE_COLOR } from "src/globalVariables";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { GraphEventsDispatcher } from "./graphEventsDispatcher";
+import { ExtendedGraphSettings, getColor, GraphEventsDispatcher, hex2rgb, INVALID_KEYS, NONE_COLOR } from "src/internal";
 
 class Interactive {
     type: string;

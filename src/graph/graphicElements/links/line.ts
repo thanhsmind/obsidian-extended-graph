@@ -1,6 +1,5 @@
-import { ManagerGraphics } from "src/graph/interfaces/managerGraphics";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { LinkGraphics } from "./linkGraphics";
+import { InteractiveManager, LinkGraphics, ManagerGraphics } from "src/internal";
+
 
 export class LinkLineGraphics extends LinkGraphics implements ManagerGraphics {
 

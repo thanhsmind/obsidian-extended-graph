@@ -1,7 +1,6 @@
-import { App, Modal, Setting } from "obsidian";
-import { Graph } from "src/graph/graph";
+import { Modal, Setting } from "obsidian";
+import { ExtendedGraphSettings, Graph } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { ExtendedGraphSettings } from "src/settings/settings";
 
 export class ExportSVGOptionModal extends Modal {
     graph?: Graph;

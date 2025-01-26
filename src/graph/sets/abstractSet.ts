@@ -1,9 +1,6 @@
-import { DisconnectionCause } from "src/globalVariables";
-import { Graph } from "../graph";
-import { InteractiveManager } from "../interactiveManager";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphElement } from "../extendedElements/extendedGraphElement";
+import { DisconnectionCause, ExtendedGraphElement, Graph, InteractiveManager } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {

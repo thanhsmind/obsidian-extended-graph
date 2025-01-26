@@ -1,6 +1,5 @@
 import { Graphics } from "pixi.js";
-import { ManagerGraphics } from "src/graph/interfaces/managerGraphics";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { InteractiveManager, ManagerGraphics } from "src/internal";
 
 export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     // Instance values

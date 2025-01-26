@@ -1,11 +1,6 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { GraphViewData } from "src/views/viewData";
-import { DEFAULT_VIEW_ID } from "src/globalVariables";
+import { DEFAULT_VIEW_ID, Graph, GraphViewData, NewNameModal, UIElements, ViewsManager } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { NewNameModal } from "./modals/newNameModal";
-import { UIElements } from "./UIElements";
-import { ViewsManager } from "src/views/viewsManager";
-import { Graph } from "src/graph/graph";
 
 export class ViewsUI extends Component {
     viewsManager: ViewsManager;

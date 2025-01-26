@@ -1,9 +1,5 @@
-import { App, ButtonComponent, DropdownComponent, Modal, setIcon, Setting, TextComponent } from "obsidian";
-import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
-import { CombinationLogic, QueryData, QueryMatcher } from "src/queries/queriesMatcher";
-import { logicKeyLabel, RuleQuery, sourceKeyLabels } from "src/queries/ruleQuery";
-import { QueryMatchesModal } from "./queryMatchesModal";
-import { UIElements } from "../UIElements";
+import { App, ButtonComponent, DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
+import { CombinationLogic, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, sourceKeyLabels, UIElements } from "src/internal";
 
 export class ShapeQueryModal extends Modal {
     saveCallback: (shape: ShapeEnum, queryData: QueryData) => void;

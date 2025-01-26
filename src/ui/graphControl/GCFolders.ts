@@ -1,10 +1,5 @@
 import { Setting, ToggleComponent } from "obsidian";
-import { GraphsManager } from "src/graphsManager";
-import { WorkspaceLeafExt } from "src/types/leaf";
-import { GCSection } from "./GCSection";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { InteractiveUI } from "src/graph/interfaces/interactiveUI";
-import { FOLDER_KEY } from "src/globalVariables";
+import { FOLDER_KEY, GCSection, GraphsManager, InteractiveManager, InteractiveUI, WorkspaceLeafExt } from "src/internal";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;

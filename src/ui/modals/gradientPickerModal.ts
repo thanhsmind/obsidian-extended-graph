@@ -1,6 +1,5 @@
 import { App, Modal, setIcon, Setting } from "obsidian";
-import { cmOptions } from "src/colors/colormaps";
-import { plot_colormap } from "src/colors/colors";
+import { cmOptions, plot_colormap } from "src/internal";
 
 export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;

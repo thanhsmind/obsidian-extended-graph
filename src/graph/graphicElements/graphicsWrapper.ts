@@ -1,10 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode } from "src/graph/extendedElements/extendedGraphNode";
-import { ExtendedGraphLink } from "src/graph/extendedElements/extendedGraphLink";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { ArcsCircle } from "../nodes/arcsCircle";
-import { LinkLineGraphics } from "./line";
+import { ArcsCircle, ExtendedGraphLink, ExtendedGraphNode, InteractiveManager, LinkLineGraphics } from "src/internal";
 
 export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     name: string;

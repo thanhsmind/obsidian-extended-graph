@@ -1,9 +1,6 @@
-import { ManagerGraphics } from "src/graph/interfaces/managerGraphics";
-import { LinkGraphics } from "./linkGraphics";
-import { InteractiveManager } from "src/graph/interactiveManager";
 import { GraphLink } from "obsidian-typings";
-import { lengthQuadratic, quadratic } from "src/helperFunctions";
-import { getLinkID } from "src/graph/extendedElements/extendedGraphLink";
+import { InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, quadratic } from "src/internal";
+
 
 export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
     link: GraphLink;
@@ -42,13 +39,15 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         this.lineStyle({width: h, color: "white"});
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1_.x, P1_.y, P3_.x, P3_.y);
         this.alpha = 1;
-        if (this.link.line.tint !== renderer.colors.line.rgb) {
+        if (this.link.line && this.link.line.tint !== renderer.colors.line.rgb) {
             this.tint = this.link.line.tint;
         }
         else {
             this.tint = this.color;
         }
-        this.alpha = this.link.line.alpha + this.targetAlpha;
-        this.link.line.alpha = -0.2;
+        if (this.link.line) {
+            this.alpha = this.link.line.alpha + this.targetAlpha;
+            this.link.line.alpha = -0.2;
+        }
     }
 }
