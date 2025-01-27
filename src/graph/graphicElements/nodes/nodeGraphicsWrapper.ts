@@ -29,7 +29,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     }
 
     private initShape() {
-        if (!this.extendedElement.settings.enableFeatures['shapes']) return;
+        if (!this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) return;
         const app = this.extendedElement.app;
         const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.extendedElement.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return a[1].index - b[1].index;

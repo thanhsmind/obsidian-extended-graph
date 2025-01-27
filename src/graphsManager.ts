@@ -64,10 +64,10 @@ export class GraphsManager extends Component {
     // ============================ METADATA CHANGES ===========================
 
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        if (this.plugin.settings.enableFeatures['tags']) {
-            this.dispatchers.forEach(dispatcher => {
-                if (!dispatcher.graph || !dispatcher.graph.renderer) return;
-        
+        this.dispatchers.forEach(dispatcher => {
+            if (!dispatcher.graph || !dispatcher.graph.renderer) return;
+    
+            if (this.plugin.settings.enableFeatures[dispatcher.graph.type]['tags']) {
                 const extendedNode = dispatcher.graph.nodesSet.extendedElementsMap.get(file.path);
                 if (!extendedNode) return;
         
@@ -77,8 +77,8 @@ export class GraphsManager extends Component {
                 if (needsUpdate) {
                     this.updateNodeTypes(dispatcher);
                 }
-            });
-        }
+            }
+        });
     }
 
     private extractTagsFromCache(cache: CachedMetadata): string[] {
@@ -310,10 +310,10 @@ export class GraphsManager extends Component {
     }
 
     changeActiveFile(file: TFile | null): void {
-        if (!this.plugin.settings.enableFeatures['focus']) return;
+        if (!this.plugin.settings.enableFeatures['graph']['focus']) return;
 
         this.dispatchers.forEach(dispatcher => {
-            if (dispatcher.leaf.view.getViewType() !== "graph") return;
+            if (dispatcher.graph.type !== "graph") return;
             this.deEmphasizePreviousActiveFile(dispatcher);
             this.emphasizeActiveFile(dispatcher, file);
         })

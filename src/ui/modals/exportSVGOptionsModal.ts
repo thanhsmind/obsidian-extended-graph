@@ -84,8 +84,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canUseCurvedLinks() {
-        if (!this.graphSettings) return false;
-        return this.graphSettings.enableFeatures['links'] && this.graphSettings.enableFeatures['curvedLinks'];
+        if (!this.graphSettings || !this.graph) return false;
+        return this.graphSettings.enableFeatures[this.graph.type]['links'] && this.graphSettings.enableFeatures[this.graph.type]['curvedLinks'];
     }
 
     private addUseNodeShapes() {
@@ -105,8 +105,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canUseNodeShapes(): boolean {
-        if (!this.graphSettings) return false;
-        return this.graphSettings.enableFeatures['shapes'] ?? false
+        if (!this.graphSettings || !this.graph) return false;
+        return this.graphSettings.enableFeatures[this.graph.type]['shapes'] ?? false
     }
 
     private addShowArcs() {
@@ -126,9 +126,9 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canShowArcs(): boolean {
-        if (!this.graphSettings) return false;
-        if (this.graphSettings.enableFeatures['tags']) return true;
-        if (!this.graphSettings.enableFeatures['properties']) return false;
+        if (!this.graphSettings || !this.graph) return false;
+        if (this.graphSettings.enableFeatures[this.graph.type]['tags']) return true;
+        if (!this.graphSettings.enableFeatures[this.graph.type]['properties']) return false;
         return Object.values(this.graphSettings.additionalProperties).some(b => b);
     }
 
@@ -149,8 +149,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canShowFolders(): boolean {
-        if (!this.graphSettings) return false;
-        return this.graphSettings.enableFeatures['folders'];
+        if (!this.graphSettings || !this.graph) return false;
+        return this.graphSettings.enableFeatures[this.graph.type]['folders'];
     }
 
     // ============================ APPLY AND CLOSE ============================

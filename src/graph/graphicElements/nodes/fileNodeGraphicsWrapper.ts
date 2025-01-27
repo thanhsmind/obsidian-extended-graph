@@ -24,7 +24,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     private initBackground() {
         this.background = new NodeShape(this.shape);
-        if (this.extendedElement.settings.enableFeatures['shapes']) {
+        if (this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) {
             this.background.drawFill(this.getFillColor().rgb);
         }
         this.background.scale.set(this.background.getDrawingResolution());
@@ -78,7 +78,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         if (!this.background) return;
 
         this.scaleFactor = scale;
-        if (this.scaleFactor > 1 || this.extendedElement.settings.enableFeatures['shapes']) {
+        if (this.scaleFactor > 1 || this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) {
             color = color ? color : this.getFillColor().rgb;
             this.background.clear();
             this.background.drawFill(color);

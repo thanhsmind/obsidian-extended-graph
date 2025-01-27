@@ -52,11 +52,11 @@ export class GraphStateModal extends Modal {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
-        if (this.graph.staticSettings.enableFeatures['shapes']) {
+        if (this.graph.staticSettings.enableFeatures[this.graph.type]['shapes']) {
             cell = tr_thead.insertCell(); cell.setText("Shape");
             colgroup.createEl("col").addClass("col-shape");
         }
-        if (this.graph.staticSettings.enableFeatures['node-size']) {
+        if (this.graph.staticSettings.enableFeatures[this.graph.type]['node-size']) {
             cell = tr_thead.insertCell(); cell.setText("Size");
             colgroup.createEl("col").addClass("col-size");
         }
@@ -90,12 +90,12 @@ export class GraphStateModal extends Modal {
                 }
             }
 
-            if (this.graph.staticSettings.enableFeatures['shapes'] && extendedNode.graphicsWrapper) {
+            if (this.graph.staticSettings.enableFeatures[this.graph.type]['shapes'] && extendedNode.graphicsWrapper) {
                 cell = tr.insertCell();
                 cell.createDiv().appendChild(NodeShape.getSVG(extendedNode.graphicsWrapper.shape)).addClass("shape-svg");
             }
 
-            if (this.graph.staticSettings.enableFeatures['node-size']) {
+            if (this.graph.staticSettings.enableFeatures[this.graph.type]['node-size']) {
                 cell = tr.insertCell(); cell.setText(extendedNode.getSizeWithoutScaling().toFixed(2));
             }
         }

@@ -49,14 +49,14 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeLegendUI(): void {
         const settings = this.graphsManager.plugin.settings;
-        if (settings.enableFeatures['links'] || settings.enableFeatures['tags'] || this.hasAdditionalProperties(settings)) {
+        if (settings.enableFeatures[this.graph.type]['links'] || settings.enableFeatures[this.graph.type]['tags'] || this.hasAdditionalProperties(settings)) {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
         }
     }
 
     private initializeFoldersUI(): void {
-        if (!this.graphsManager.plugin.settings.enableFeatures['folders']) return;
+        if (!this.graphsManager.plugin.settings.enableFeatures[this.graph.type]['folders']) return;
 
         const graphControls = this.graphsManager.globalUIs.get(this.leaf.id)?.control;
         if (!graphControls) return;
@@ -68,7 +68,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
-        return settings.enableFeatures['properties'] && Object.values(settings.additionalProperties).some(p => p);
+        return settings.enableFeatures[this.graph.type]['properties'] && Object.values(settings.additionalProperties).some(p => p);
     }
 
     // ================================ LOADING ================================
@@ -237,8 +237,8 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        if (this.graph.staticSettings.enableFeatures['folders']) this.graph.folderBlobs.updateGraphics();
-        if (this.graph.staticSettings.enableFeatures['links'] && this.graph.staticSettings.enableFeatures['curvedLinks']) {
+        if (this.graph.staticSettings.enableFeatures[this.graph.type]['folders']) this.graph.folderBlobs.updateGraphics();
+        if (this.graph.staticSettings.enableFeatures[this.graph.type]['links'] && this.graph.staticSettings.enableFeatures[this.graph.type]['curvedLinks']) {
             for (const id of this.graph.linksSet.connectedIDs) {
                 this.graph.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.updateGraphics();
             }

@@ -23,7 +23,8 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             cb.onClick((e) => {
                 cb.buttonEl.blur();
                 this.openModalToAddInteractive();
-            })
+            });
+            this.settingHeader.controlEl.insertAdjacentElement("afterbegin", cb.buttonEl);
         });
     }
 
@@ -103,7 +104,8 @@ export class SettingProperty extends SettingInteractives {
             UIElements.setupExtraButton(cb, 'delete');
             cb.onClick(() => {
                 this.remove();
-            })
+            });
+            this.settingHeader.controlEl.insertAdjacentElement("afterbegin", cb.extraSettingsEl);
         });
         this.settingHeader.settingEl.addClass('setting-property-header');
     }

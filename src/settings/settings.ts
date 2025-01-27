@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeStatFunction, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, NodeStatFunction, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -51,7 +51,7 @@ export interface ExtendedGraphSettings {
     delay: number;
 
     // Feature toggles
-    enableFeatures: Record<Feature, boolean>;
+    enableFeatures: Record<GraphType, Record<Feature, boolean>>;
 
     // Shapes
     shapeQueries: Record<string, QueryData>;
@@ -106,19 +106,36 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Feature toggles
     enableFeatures: {
-        'tags'        : true,
-        'properties'  : false,
-        'property-key': true,
-        'links'       : true,
-        'curvedLinks' : false,
-        'folders'     : false,
-        'images'      : true,
-        'focus'       : false,
-        'shapes'      : true,
-        'source'      : false,
-        'target'      : false,
-        'node-size'    : false,
-        'node-color'    : false,
+        'graph': {
+            'tags'        : false,
+            'properties'  : false,
+            'property-key': true,
+            'links'       : false,
+            'curvedLinks' : false,
+            'folders'     : false,
+            'images'      : false,
+            'focus'       : true,
+            'shapes'      : false,
+            'source'      : false,
+            'target'      : false,
+            'node-size'    : true,
+            'node-color'    : false,
+        },
+        'localgraph': {
+            'tags'        : true,
+            'properties'  : false,
+            'property-key': true,
+            'links'       : true,
+            'curvedLinks' : false,
+            'folders'     : false,
+            'images'      : true,
+            'focus'       : false,
+            'shapes'      : true,
+            'source'      : false,
+            'target'      : false,
+            'node-size'    : true,
+            'node-color'    : false,
+        }
     },
 
     // Shapes

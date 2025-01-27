@@ -1,7 +1,7 @@
 
 import { Component } from 'obsidian';
 import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
+import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, GraphType, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     // Parent dispatcher
@@ -12,6 +12,9 @@ export class Graph extends Component {
     readonly renderer: GraphRenderer;
     readonly dynamicSettings: ExtendedGraphSettings;
     readonly staticSettings: ExtendedGraphSettings;
+
+    // Type
+    type: GraphType;
 
     // Interactive managers
     interactiveManagers = new Map<string, InteractiveManager>();
@@ -43,6 +46,9 @@ export class Graph extends Component {
         this.dynamicSettings = dispatcher.graphsManager.plugin.settings;
         this.staticSettings  = structuredClone(this.dynamicSettings);
 
+        // Type
+        this.type = this.dispatcher.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
+
         // Interactive managers
         this.initializeInteractiveManagers();
 
@@ -67,14 +73,14 @@ export class Graph extends Component {
 
     private getInteractiveManagerKeys(): string[] {
         const keys: string[] = [];
-        if (this.staticSettings.enableFeatures['properties']) {
+        if (this.staticSettings.enableFeatures[this.type]['properties']) {
             for (const property in this.staticSettings.additionalProperties) {
                 if (this.staticSettings.additionalProperties[property]) keys.push(property);
             }
         }
-        if (this.staticSettings.enableFeatures['tags'])    keys.push(TAG_KEY);
-        if (this.staticSettings.enableFeatures['links'])   keys.push(LINK_KEY);
-        if (this.staticSettings.enableFeatures['folders']) keys.push(FOLDER_KEY);
+        if (this.staticSettings.enableFeatures[this.type]['tags'])    keys.push(TAG_KEY);
+        if (this.staticSettings.enableFeatures[this.type]['links'])   keys.push(LINK_KEY);
+        if (this.staticSettings.enableFeatures[this.type]['folders']) keys.push(FOLDER_KEY);
         return keys;
     }
 
@@ -198,7 +204,7 @@ export class Graph extends Component {
     private disableLinks(ids: Set<string>): boolean {
         const disabledLinks = this.linksSet.disableElements([...ids], DisconnectionCause.USER);
 
-        if (this.staticSettings.enableFeatures['source'] || this.staticSettings.enableFeatures['target']) {
+        if (this.staticSettings.enableFeatures[this.type]['source'] || this.staticSettings.enableFeatures[this.type]['target']) {
             for (const linkID of ids) {
                 const cascade = this.linksDisconnectionCascade.get(linkID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
 
@@ -228,10 +234,10 @@ export class Graph extends Component {
         const link = this.linksSet.extendedElementsMap.get(linkID)?.coreElement;
         if (!link) return nodesToDisable;
 
-        if (this.staticSettings.enableFeatures['source'] && !invalidNodeIDs.includes(link.source.id)) {
+        if (this.staticSettings.enableFeatures[this.type]['source'] && !invalidNodeIDs.includes(link.source.id)) {
             nodesToDisable.add(link.source.id);
         }
-        if (this.staticSettings.enableFeatures['target'] && !invalidNodeIDs.includes(link.target.id)) {
+        if (this.staticSettings.enableFeatures[this.type]['target'] && !invalidNodeIDs.includes(link.target.id)) {
             nodesToDisable.add(link.target.id);
         }
         return nodesToDisable;

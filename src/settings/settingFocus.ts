@@ -8,6 +8,11 @@ export class SettingFocus extends SettingsSectionCollapsible {
         super(settingTab, 'focus', '', "Focus", 'telescope', "Scale up the node corresponding to the active note");
     }
 
+    protected override addHeader(): void {
+        super.addHeader();
+        this.toggles['localgraph']?.style.setProperty("display", "none");
+    }
+
     protected override addBody(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)

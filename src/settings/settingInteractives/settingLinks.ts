@@ -1,6 +1,6 @@
 import { Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettingTab, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, SettingInteractives } from "src/internal";
+import { ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, SettingInteractives } from "src/internal";
 
 
 export class SettingLinks extends SettingInteractives {
@@ -27,9 +27,18 @@ export class SettingLinks extends SettingInteractives {
             .setName(`Remove sources`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['source']);
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['source']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['source'] = value;
+                    this.settingTab.plugin.settings.enableFeatures['graph']['source'] = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['source']);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.enableFeatures['localgraph']['source'] = value;
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
@@ -39,9 +48,18 @@ export class SettingLinks extends SettingInteractives {
             .setName(`Remove targets`)
             .setDesc(`When disabling a link type, also disable the source nodes`)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['target']);
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['target']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['target'] = value;
+                    this.settingTab.plugin.settings.enableFeatures['graph']['target'] = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['target']);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.enableFeatures['localgraph']['target'] = value;
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);
@@ -63,9 +81,16 @@ export class SettingLinks extends SettingInteractives {
             .setName(`Curved links`)
             .setDesc(`Use curved links instead of straight lines`)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['curvedLinks']);
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['curvedLinks'] = value;
+                    this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks'] = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks']);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks'] = value;
                     this.settingTab.plugin.saveSettings();
                 })
             }).settingEl);

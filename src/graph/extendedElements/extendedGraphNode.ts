@@ -1,7 +1,7 @@
 import { App } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
-import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, ShapeEnum } from "src/internal";
+import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, ShapeEnum } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
@@ -16,8 +16,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, app: App) {
-        super(node, types, managers, settings);
+    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
+        super(node, types, managers, settings, graphType);
         this.app = app;
 
         this.initRadius();
@@ -47,7 +47,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== NODE SIZE ===============================
 
     private initRadius() {
-        if (!this.settings.enableFeatures['node-size']) return;
+        if (!this.settings.enableFeatures[this.graphType]['node-size']) return;
 
         const property = this.settings.nodeSizeProperty;
         if (!property || property === "") return;
@@ -95,7 +95,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     getSizeWithoutScaling(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.enableFeatures['node-size'] && this.settings.nodeSizeFunction !== 'default') {
+        if (this.settings.enableFeatures[this.graphType]['node-size'] && this.settings.nodeSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
             let customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileStats.get(this.id);
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);

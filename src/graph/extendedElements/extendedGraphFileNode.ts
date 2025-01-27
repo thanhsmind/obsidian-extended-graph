@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, InteractiveManager, NodeShape, ShapeEnum } from "src/internal";
+import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, GraphType, InteractiveManager, NodeShape, ShapeEnum } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 
@@ -8,9 +8,9 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
     
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, app: App) {
-        super(node, types, managers, settings, app);
-        if (settings.enableFeatures['node-color']) {
+    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
+        super(node, types, managers, settings, graphType, app);
+        if (settings.enableFeatures[this.graphType]['node-color']) {
             this.changeGetFillColor();
         }
     }
@@ -31,10 +31,10 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             || this.needArcs();
     }
 
-    public needImage(): boolean { return this.settings.enableFeatures['images']; }
+    public needImage(): boolean { return this.settings.enableFeatures[this.graphType]['images']; }
     
     public needBackground(): boolean {
-        return this.settings.enableFeatures['focus']
+        return this.settings.enableFeatures[this.graphType]['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
         
@@ -68,7 +68,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
     
     private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.settings.enableFeatures["node-color"] || this.settings.nodeColorFunction === "default") {
+        if (this.coreGetFillColor || !this.settings.enableFeatures[this.graphType]["node-color"] || this.settings.nodeColorFunction === "default") {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;

@@ -78,7 +78,7 @@ export * from "./suggester/NodeNamesSuggester";
 
 export * from "./svg/exportToSVG";
 
-export * from "./types/features";
+export * from "./types/restrictedStrings";
 export * from "./types/leaf";
 export * from "./types/workspace";
 

@@ -28,7 +28,8 @@ export class LinksSet extends AbstractSet<GraphLink> {
             link,
             types,
             [...this.managers.values()],
-            this.graph.staticSettings
+            this.graph.staticSettings,
+            this.graph.type
         );
 
         this.extendedElementsMap.set(id, extendedGraphLink);

@@ -1,4 +1,5 @@
-import { ExtendedGraphSettingTab, Feature, SettingsSection } from "src/internal";
+import { ToggleComponent } from "obsidian";
+import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, SettingsSection } from "src/internal";
 
 
 export abstract class SettingsSectionCollapsible extends SettingsSection {
@@ -6,6 +7,7 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
     interactiveKey: string;
     itemClasses: string[] = [];
     cssDisplayProperty: string;
+    toggles: Partial<Record<GraphType, HTMLDivElement>> = {};
     
     constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, key: string, title: string, icon: string, description: string) {
         super(settingTab, title, icon, description);
@@ -20,41 +22,50 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
     override display() {
         super.display();
 
-        this.addToggle();
-
         this.elementsBody.forEach(el => {
             el.addClasses(this.itemClasses);
         });
     }
 
-    protected addToggle() {
-        const enableFeature = this.settingTab.plugin.settings.enableFeatures[this.feature];
-        let enable = enableFeature;
+    protected override addHeader(): void {
+        super.addHeader();
+        this.addToggle('graph');
+        this.addToggle('localgraph');
+    }
+
+    protected addToggle(graphType: GraphType) {
+        let enable = this.settingTab.plugin.settings.enableFeatures[graphType][this.feature];
         if (this.feature === 'property-key') {
             enable = this.settingTab.plugin.settings.additionalProperties[this.interactiveKey];
         }
-        this.settingHeader.addToggle(cb => {
-            cb.setValue(enable);
-            cb.onChange(value => {
-                this.toggle(value);
+        this.toggles[graphType] = this.settingHeader.controlEl.createDiv();
+        this.toggles[graphType].addClass("toggle-labelled");
+        this.toggles[graphType].insertAdjacentText("afterbegin", graphTypeLabels[graphType])
+        new ToggleComponent(this.toggles[graphType])
+            .setValue(enable)
+            .onChange(value => {
+                this.toggle(graphType, value);
             });
-        });
-        this.toggle(enable);
+        this.toggle(graphType, enable);
     }
 
-    private toggle(enable: boolean) {
+    private toggle(graphType: GraphType, enable: boolean) {
         if (this.feature === 'property-key') {
             this.settingTab.plugin.settings.additionalProperties[this.interactiveKey] = enable;
         }
         else {
-            this.settingTab.plugin.settings.enableFeatures[this.feature] = enable;
+            this.settingTab.plugin.settings.enableFeatures[graphType][this.feature] = enable;
         }
         this.settingTab.plugin.saveSettings();
-        this.containerEl.style.setProperty(this.cssDisplayProperty, enable ? 'flex' : 'none');
-        if (enable) {
+
+        if ((this.settingTab.plugin.settings.enableFeatures['graph'][this.feature]
+            || this.settingTab.plugin.settings.enableFeatures['localgraph'][this.feature])
+            || (this.feature === 'property-key' && enable)) {
+            this.containerEl.style.setProperty(this.cssDisplayProperty, 'flex');
             this.settingHeader.settingEl.removeClass('is-collapsed');
         }
         else {
+            this.containerEl.style.setProperty(this.cssDisplayProperty, 'none');
             this.settingHeader.settingEl.addClass('is-collapsed');
         }
     }

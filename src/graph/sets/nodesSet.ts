@@ -47,7 +47,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const emptyTextures: string[] = [];
         for (const id of ids) {
             const imageUri = getImageUri(this.graph.dispatcher.graphsManager.plugin.app, this.graph.staticSettings.imageProperty, id);
-            if (imageUri && this.graph.staticSettings.enableFeatures['images']) {
+            if (imageUri && this.graph.staticSettings.enableFeatures[this.graph.type]['images']) {
                 imageURIs.set(id, imageUri);
             } else {
                 emptyTextures.push(id);
@@ -97,6 +97,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 types,
                 [...this.managers.values()],
                 this.graph.staticSettings,
+                this.graph.type,
                 this.graph.dispatcher.graphsManager.plugin.app,
             );
         }
@@ -106,6 +107,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 types,
                 [...this.managers.values()],
                 this.graph.staticSettings,
+                this.graph.type,
                 this.graph.dispatcher.graphsManager.plugin.app,
             );
         }
@@ -140,7 +142,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * Reset arcs for each node
      */
     resetArcs(key: string): void {
-        if (!this.graph.staticSettings.enableFeatures['tags']) return;
+        if (!this.graph.staticSettings.enableFeatures[this.graph.type]['tags']) return;
         for (const [id, extendedElement] of this.extendedElementsMap) {
             try {
                 const manager = this.managers.get(key);
@@ -190,7 +192,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * @param emphasize - Whether to highlight or unhighlight the node.
      */
     emphasizeNode(file: TFile, emphasize: boolean): void {
-        if (!this.graph.staticSettings.enableFeatures['focus']) return;
+        if (!this.graph.staticSettings.enableFeatures[this.graph.type]['focus']) return;
 
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
