@@ -38,12 +38,12 @@ export class GraphsManager extends Component {
     }
 
     private initilizeNodeSizeCalculator(): void {
-        this.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app);
+        this.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app, this.plugin.settings, 'size');
         this.nodeSizeCalculator?.computeStats();
     }
 
     private initilizeNodeColorCalculator(): void {
-        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeColorFunction, this.plugin.app);
+        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeColorFunction, this.plugin.app, this.plugin.settings, 'color');
         this.nodeColorCalculator?.computeStats();
     }
 

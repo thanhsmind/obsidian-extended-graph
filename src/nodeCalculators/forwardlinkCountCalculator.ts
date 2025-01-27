@@ -1,11 +1,11 @@
 import { App, TFile } from "obsidian";
-import { NodeStatCalculator } from "src/internal";
+import { ExtendedGraphSettings, NodeStat, NodeStatCalculator } from "src/internal";
 
 export class ForwardlinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
 
-    constructor(app: App, countDuplicates: boolean) {
-        super(app);
+    constructor(app: App, settings: ExtendedGraphSettings, stat: NodeStat, countDuplicates: boolean) {
+        super(app, settings, stat);
         this.countDuplicates = countDuplicates;
     }
 

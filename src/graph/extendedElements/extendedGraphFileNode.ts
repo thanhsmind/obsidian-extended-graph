@@ -1,13 +1,25 @@
 import { App } from "obsidian";
-import { GraphNode } from "obsidian-typings";
+import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, InteractiveManager, NodeShape, ShapeEnum } from "src/internal";
+import ExtendedGraphPlugin from "src/main";
 
 
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
+    coreGetFillColor: (() => GraphColorAttributes) | undefined;
     
     constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, app: App) {
         super(node, types, managers, settings, app);
+        if (settings.enableFeatures['node-color']) {
+            this.changeGetFillColor();
+        }
+    }
+
+    // ================================ UNLOAD =================================
+
+    unload(): void {
+        this.restoreGetFillColor();
+        super.unload();
     }
 
     // =============================== GRAPHICS ================================
@@ -51,5 +63,32 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;
         }
+    }
+
+    // ============================== NODE COLOR ===============================
+    
+    private changeGetFillColor() {
+        if (this.coreGetFillColor || !this.settings.enableFeatures["node-color"] || this.settings.nodeColorFunction === "default") {
+            return;
+        }
+        this.coreGetFillColor = this.coreElement.getFillColor;
+        const getFillColor = this.getFillColor.bind(this);
+        this.coreElement.getFillColor = new Proxy(this.coreElement.getFillColor, {
+            apply(target, thisArg, args) {
+                return getFillColor.call(this, ...args) ?? target.call(thisArg, ...args);
+            }
+        });
+    }
+
+    private restoreGetFillColor() {
+        if (!this.coreGetFillColor) return;
+        this.coreElement.getFillColor = this.coreGetFillColor;
+        this.coreGetFillColor = undefined;
+    }
+
+    private getFillColor(): GraphColorAttributes | undefined {
+        const rgb = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeColorCalculator?.fileStats.get(this.id);
+        if (!rgb) return undefined;
+        return { rgb: rgb, a: 1 }
     }
 }

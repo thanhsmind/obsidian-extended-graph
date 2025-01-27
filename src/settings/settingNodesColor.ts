@@ -20,7 +20,7 @@ export class SettingNodeColor extends SettingsSectionCollapsible {
             .setDesc("Select how the graph engine should compute the color of the nodes.")
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
-                cb.setValue(this.settingTab.plugin.settings.nodeSizeFunction);
+                cb.setValue(this.settingTab.plugin.settings.nodeColorFunction);
                 cb.onChange((value) => {
                     this.recomputeNodeColors(value as NodeStatFunction);
                 });
@@ -71,7 +71,7 @@ export class SettingNodeColor extends SettingsSectionCollapsible {
 
     private recomputeNodeColors(functionKey: NodeStatFunction): void {
         this.settingTab.plugin.settings.nodeColorFunction = functionKey;
-        this.settingTab.plugin.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app);
+        this.settingTab.plugin.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, this.settingTab.plugin.settings, 'color');
         this.settingTab.plugin.graphsManager.nodeColorCalculator?.computeStats();
         this.setWarning();
         this.settingTab.plugin.saveSettings();

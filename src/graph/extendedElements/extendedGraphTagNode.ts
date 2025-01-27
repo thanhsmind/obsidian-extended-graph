@@ -4,7 +4,6 @@ import { ExtendedGraphNode, ExtendedGraphSettings, InteractiveManager, NodeShape
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
-
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
 
     constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, app: App) {

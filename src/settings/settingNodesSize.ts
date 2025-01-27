@@ -71,7 +71,7 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
 
     private recomputeNodeSizes(functionKey: NodeStatFunction): void {
         this.settingTab.plugin.settings.nodeSizeFunction = functionKey;
-        this.settingTab.plugin.graphsManager.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app);
+        this.settingTab.plugin.graphsManager.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, this.settingTab.plugin.settings, 'size');
         this.settingTab.plugin.graphsManager.nodeSizeCalculator?.computeStats();
         this.setWarning();
         this.settingTab.plugin.saveSettings();

@@ -97,7 +97,6 @@ export class GraphEventsDispatcher extends Component {
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
         this.graphsManager.statesManager.changeState(this.graph, this.statesUI.currentStateID);
-        console.log(this);
     }
 
     private updateOpacityLayerColor(): void {

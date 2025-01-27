@@ -5,7 +5,7 @@ import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { NodeStatCalculator } from "src/internal";
+import { ExtendedGraphSettings, NodeStat, NodeStatCalculator } from "src/internal";
 
 type CentralityMapping = Record<string, number>;
 
@@ -13,8 +13,8 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
-    constructor(app: App, g: Graphology, link: string = "") {
-        super(app);
+    constructor(app: App, settings: ExtendedGraphSettings, stat: NodeStat, g: Graphology, link: string = "") {
+        super(app, settings, stat);
         this.link = link;
         this.computeCentralityMap(g);
     }
