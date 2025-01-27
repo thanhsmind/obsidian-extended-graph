@@ -1,10 +1,11 @@
 import { TFile } from "obsidian";
 import { ExtendedGraphSettingTab, FOLDER_KEY, SettingInteractives } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'folders', FOLDER_KEY, "Folders", 'folder', "Display folder boxes");
+        super(settingTab, 'folders', FOLDER_KEY, STRINGS.features.folders, 'folder', STRINGS.features.foldersDesc);
     }
 
     protected override isValueValid(name: string): boolean {

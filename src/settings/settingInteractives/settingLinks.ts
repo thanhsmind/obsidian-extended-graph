@@ -1,12 +1,13 @@
 import { Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, SettingInteractives } from "src/internal";
+import STRINGS from "src/Strings";
 
 
 export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'links', LINK_KEY, "Links", 'link', "Display and filter link types");
+        super(settingTab, 'links', LINK_KEY, STRINGS.features.interactives.links, 'link', STRINGS.features.interactives.linksDesc);
     }
 
     protected override addBody(): void {
@@ -24,8 +25,8 @@ export class SettingLinks extends SettingInteractives {
         
         // Remove sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(`Remove sources`)
-            .setDesc(`When disabling a link type, also disable the source nodes`)
+            .setName(STRINGS.features.removeSources)
+            .setDesc(STRINGS.features.removeSourcesDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
                 cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['source']);
@@ -45,8 +46,8 @@ export class SettingLinks extends SettingInteractives {
 
         // Add sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(`Remove targets`)
-            .setDesc(`When disabling a link type, also disable the source nodes`)
+            .setName(STRINGS.features.removeTargets)
+            .setDesc(STRINGS.features.removeTargetsDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
                 cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['target']);
@@ -66,8 +67,8 @@ export class SettingLinks extends SettingInteractives {
         
         // Show on graph
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(`Color links`)
-            .setDesc(`Add colors to the link rendered in the graph view.`)
+            .setName(STRINGS.features.interactives.colorLinks)
+            .setDesc(STRINGS.features.interactives.colorLinksDesc)
             .addToggle(cb => {
                 cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
@@ -78,8 +79,8 @@ export class SettingLinks extends SettingInteractives {
 
         // Curved links
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(`Curved links`)
-            .setDesc(`Use curved links instead of straight lines`)
+            .setName(STRINGS.features.interactives.curvedLinks)
+            .setDesc(STRINGS.features.interactives.curvedLinksDesc)
             .addToggle(cb => {
                 cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks']);
                 cb.onChange(value => {

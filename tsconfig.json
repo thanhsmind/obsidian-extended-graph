@@ -10,6 +10,7 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
@@ -30,5 +31,5 @@
   },
   "include": [
     "**/*.ts"
-, "src/settings/settingInteractives"  ]
+  ]
 }

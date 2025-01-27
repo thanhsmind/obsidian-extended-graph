@@ -1,6 +1,7 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
 import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";
@@ -28,8 +29,8 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected addNoneTypeSetting() {
         this.noneType = this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType;
         const setting = new Setting(this.containerEl)
-            .setName('None type id')
-            .setDesc(`The id which will be given if no ${this.interactiveKey} is found.`)
+            .setName(STRINGS.features.interactives.noneTypeID)
+            .setDesc(STRINGS.features.interactives.noneTypeIDDesc + this.interactiveKey)
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType)
                 .onChange(async (value) => {
@@ -46,7 +47,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
 
     protected addColorPaletteSetting(): void {
         const setting = new SettingColorPalette(this.containerEl, this.settingTab.plugin.app, this.interactiveKey)
-            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`);
+            .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
 
         setting.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
         
@@ -62,8 +63,8 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
 
     protected addSpecificColorHeaderSetting(): void {
         this.settingInteractiveColor = new Setting(this.containerEl)
-            .setName(`Specific ${this.interactiveKey} colors`)
-            .setDesc(`Choose specific ${this.interactiveKey} colors that will not be affected by the color palette`)
+            .setName(STRINGS.features.interactives.specificColors)
+            .setDesc(STRINGS.features.interactives.specificColorsDesc)
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
@@ -75,8 +76,8 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
 
     protected addFilterTypeSetting(): void {
         this.settingInteractiveFilter = new Setting(this.containerEl)
-            .setName(`${this.interactiveKey}s selection`)
-            .setDesc(`Choose which ${this.interactiveKey}s should be considered by the plugin`);
+            .setName(STRINGS.features.interactives.selection)
+            .setDesc(STRINGS.features.interactives.selectionDesc);
         this.elementsBody.push(this.settingInteractiveFilter.settingEl);
         
         this.selectionContainer = this.containerEl.createDiv({cls: "setting-item settings-selection-container"});

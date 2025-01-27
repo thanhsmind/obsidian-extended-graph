@@ -1,5 +1,6 @@
 import { App, DropdownComponent, Setting } from "obsidian";
 import { cmOptions, GradientPickerModal, plot_colormap } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingColorPalette extends Setting {
     canvasPalette: HTMLCanvasElement;
@@ -9,7 +10,7 @@ export class SettingColorPalette extends Setting {
 
     constructor(containerEl: HTMLElement, app: App, key: string) {
         super(containerEl);
-        this.setName(`Color palette`);
+        this.setName(STRINGS.features.interactives.palette);
         this.controlEl.addClass("color-palette");
     
         // Canvas

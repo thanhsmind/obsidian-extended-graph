@@ -1,6 +1,7 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin } from "obsidian-typings";
 import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphsManager, GraphStateModal, NodeNameSuggester, WorkspaceLeafExt } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
@@ -30,8 +31,8 @@ export class GCOptions extends GCSection {
 
     private createSaveForDefaultState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Save for default state")
-            .setTooltip("Save the current settings as the default state settings")
+            .setName(STRINGS.states.saveForDefaultState)
+            .setTooltip(STRINGS.states.saveForDefaultStateDesc)
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-up-to-line");
@@ -43,8 +44,8 @@ export class GCOptions extends GCSection {
 
     private createSaveForNormalState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Save for normal state")
-            .setTooltip("Save the current settings as the normal state settings (no plugin enabled)")
+            .setName(STRINGS.states.saveForNormalState)
+            .setTooltip(STRINGS.states.saveForNormalStateDesc)
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
@@ -55,12 +56,12 @@ export class GCOptions extends GCSection {
     }
 
     private createGlobalFilter(): Setting {
-        new Setting(this.treeItemChildren).setName("Global filter").setHeading();
+        new Setting(this.treeItemChildren).setName(STRINGS.features.globalFilter).setHeading();
 
         return new Setting(this.treeItemChildren)
             .setClass("mod-search-setting")
             .addTextArea(cb => {
-                cb.setPlaceholder("Global filter")
+                cb.setPlaceholder(STRINGS.features.globalFilter)
                   .setValue(this.graphsManager.plugin.settings.globalFilter);
                 cb.inputEl.addClass("search-input-container");
                 cb.inputEl.onblur = (async e => {
@@ -85,7 +86,7 @@ export class GCOptions extends GCSection {
 
     private createScreenshot(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Copy SVG screenshot")
+            .setName(STRINGS.features.svgScreenshotCopy)
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("screenshot-button");
                 setIcon(cb.extraSettingsEl, "image");
@@ -97,7 +98,7 @@ export class GCOptions extends GCSection {
 
     private createZoomOnNode(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Zoom on node")
+            .setName(STRINGS.features.zoomOnNode)
             .addSearch(cb => {
                 const callback = (value: string) => {
                     this.graphsManager.zoomOnNode(this.leaf, value);
@@ -108,7 +109,7 @@ export class GCOptions extends GCSection {
 
     private createButtonViewState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Show graph state")
+            .setName(STRINGS.states.showGraphState)
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
