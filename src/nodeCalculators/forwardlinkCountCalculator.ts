@@ -1,7 +1,7 @@
 import { App, TFile } from "obsidian";
-import { NodeSizeCalculator } from "src/internal";
+import { NodeStatCalculator } from "src/internal";
 
-export class ForwardlinkCountCalculator extends NodeSizeCalculator {
+export class ForwardlinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
 
     constructor(app: App, countDuplicates: boolean) {
@@ -9,7 +9,7 @@ export class ForwardlinkCountCalculator extends NodeSizeCalculator {
         this.countDuplicates = countDuplicates;
     }
 
-    override async getSize(file: TFile): Promise<number> {
+    override async getStat(file: TFile): Promise<number> {
         const links = this.app.metadataCache.resolvedLinks[file.path];
         if (this.countDuplicates) {
             return Object.values(links).reduce((a: number, b: number, i: number, arr: number[]) => a + b, 0);

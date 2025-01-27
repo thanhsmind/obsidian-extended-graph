@@ -1,12 +1,11 @@
 import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isPropertyKeyValid, NodeShape, NodeSizeCalculatorFactory, NodeSizeFunction, nodeSizeFunctionLabels, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, NodeShape, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, SettingsSectionCollapsible } from "src/internal";
 
 export class SettingNodeSize extends SettingsSectionCollapsible {
-    allTopElements: HTMLElement[] = [];
     warningSetting: Setting;
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'node-size', '', "Nodes size", 'circle-arrow-out-up-right', "Choose how nodes sizes must be computed");
+        super(settingTab, 'node-size', '', "Nodes sizes", 'circle-arrow-out-up-right', "Choose how nodes sizes must be computed");
     }
 
     protected override addBody(): void {
@@ -36,10 +35,10 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
             .setName('Node size function')
             .setDesc("Select how the graph engine should compute the size of the nodes.")
             .addDropdown(cb => {
-                cb.addOptions(nodeSizeFunctionLabels);
+                cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(this.settingTab.plugin.settings.nodeSizeFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodeSizes(value as NodeSizeFunction);
+                    this.recomputeNodeSizes(value as NodeStatFunction);
                 });
             });
             
@@ -70,10 +69,10 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
         }
     }
 
-    private recomputeNodeSizes(functionKey: NodeSizeFunction): void {
+    private recomputeNodeSizes(functionKey: NodeStatFunction): void {
         this.settingTab.plugin.settings.nodeSizeFunction = functionKey;
-        this.settingTab.plugin.graphsManager.nodeSizeCalculator = NodeSizeCalculatorFactory.getCalculator(functionKey, this.settingTab.app);
-        this.settingTab.plugin.graphsManager.nodeSizeCalculator?.computeSizes();
+        this.settingTab.plugin.graphsManager.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app);
+        this.settingTab.plugin.graphsManager.nodeSizeCalculator?.computeStats();
         this.setWarning();
         this.settingTab.plugin.saveSettings();
     }

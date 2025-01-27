@@ -1,5 +1,4 @@
-import { GraphColorAttributes } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeSizeFunction, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeStatFunction, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -39,7 +38,10 @@ export interface ExtendedGraphSettings {
 
     // Nodes sizes
     nodeSizeProperty: string;
-    nodeSizeFunction: NodeSizeFunction;
+    nodeSizeFunction: NodeStatFunction;
+    // Nodes colors
+    nodeColorColormap: string;
+    nodeColorFunction: NodeStatFunction;
 
     // Zoom on node
     zoomFactor: number;
@@ -91,6 +93,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Nodes sizes
     nodeSizeProperty: "",
     nodeSizeFunction: 'default',
+    // Nodes colors
+    nodeColorColormap: 'YlOrRd',
+    nodeColorFunction: 'default',
 
     // Zoom on node
     zoomFactor: 2,
@@ -113,6 +118,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'source'      : false,
         'target'      : false,
         'node-size'    : false,
+        'node-color'    : false,
     },
 
     // Shapes

@@ -1,8 +1,8 @@
 import { App, TFile } from "obsidian";
 
-export type NodeSizeFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
+export type NodeStatFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
 
-export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
+export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': "Default",
     'backlinksCount': "Number of backlinks",
     'forwardlinksCount': "Number of forward links",
@@ -20,7 +20,7 @@ export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
     'authority': "Authority centrality (from HITS)",
 }
 
-export abstract class NodeSizeCalculator {
+export abstract class NodeStatCalculator {
     app: App;
     fileSizes: Map<string, number>;
 
@@ -28,17 +28,17 @@ export abstract class NodeSizeCalculator {
         this.app = app;
     }
 
-    async computeSizes(): Promise<void> {
-        await this.getSizes();
+    async computeStats(): Promise<void> {
+        await this.getStats();
         this.normalize();
         this.cleanNanAndInfinite();
     }
 
-    private async getSizes(): Promise<void> {
+    private async getStats(): Promise<void> {
         this.fileSizes = new Map<string, number>();
         const files = this.app.vault.getMarkdownFiles();
         for (const file of files) {
-            this.getSize(file).then(size => this.fileSizes.set(file.path, size));
+            this.getStat(file).then(size => this.fileSizes.set(file.path, size));
         }
     }
 
@@ -63,7 +63,7 @@ export abstract class NodeSizeCalculator {
         });
     }
 
-    abstract getSize(file: TFile): Promise<number>;
+    abstract getStat(file: TFile): Promise<number>;
 
     getWarning(): string { return ""; }
     getLink(): string { return ""; }

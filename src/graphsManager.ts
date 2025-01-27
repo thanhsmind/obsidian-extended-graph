@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeSizeCalculator, NodeSizeCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt } from "./internal";
 import ExtendedGraphPlugin from "./main";
 
 
@@ -17,7 +17,8 @@ export class GraphsManager extends Component {
     statesManager: StatesManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
     
-    nodeSizeCalculator: NodeSizeCalculator | undefined;
+    nodeSizeCalculator: NodeStatCalculator | undefined;
+    nodeColorCalculator: NodeStatCalculator | undefined;
 
     // ============================== CONSTRUCTOR ==============================
     
@@ -31,13 +32,19 @@ export class GraphsManager extends Component {
 
     onload(): void {
         this.initilizeNodeSizeCalculator();
+        this.initilizeNodeColorCalculator();
         this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
         this.registerEvent(this.plugin.app.workspace.on('css-change', this.onCSSChange.bind(this)));
     }
 
     private initilizeNodeSizeCalculator(): void {
-        this.nodeSizeCalculator = NodeSizeCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app);
-        this.nodeSizeCalculator?.computeSizes();
+        this.nodeSizeCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeSizeFunction, this.plugin.app);
+        this.nodeSizeCalculator?.computeStats();
+    }
+
+    private initilizeNodeColorCalculator(): void {
+        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodeColorFunction, this.plugin.app);
+        this.nodeColorCalculator?.computeStats();
     }
 
     // =============================== UNLOADING ===============================

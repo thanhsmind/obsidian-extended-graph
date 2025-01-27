@@ -1,9 +1,9 @@
 import { TFile } from "obsidian";
-import { NodeSizeCalculator } from "src/internal";
+import { NodeStatCalculator } from "src/internal";
 
-export class ModifiedTimeCalculator extends NodeSizeCalculator {
+export class ModifiedTimeCalculator extends NodeStatCalculator {
 
-    override async getSize(file: TFile): Promise<number> {
+    override async getStat(file: TFile): Promise<number> {
         return  file.stat.mtime;
     }
 

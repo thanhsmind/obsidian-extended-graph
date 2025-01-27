@@ -5,11 +5,10 @@ export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;
     selectedPalette: string = "";
 
-    constructor(app: App, callback: (palette: string) => void) {
+    constructor(app: App) {
         super(app);
         this.setTitle("Pick palette gradient");
         this.modalEl.addClass("graph-modal-palette-picker");
-        this.callback = callback;
     }
 
     onOpen() {
@@ -65,6 +64,10 @@ export class GradientPickerModal extends Modal {
     
 	onClose(): void {
 		this.contentEl.empty();
-        this.callback(this.selectedPalette);
+        if (this.selectedPalette !== "") this.callback(this.selectedPalette);
 	}
+
+    onSelected(callback: (palette: string) => void) {
+        this.callback = callback;
+    }
 }

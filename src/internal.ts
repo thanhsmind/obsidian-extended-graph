@@ -41,17 +41,17 @@ export * from "./graph/sets/folderBlobs";
 export * from "./graph/sets/linksSet";
 export * from "./graph/sets/nodesSet";
 
-export * from "./nodeSizes/graphology";
-export * from "./nodeSizes/nodeSizeCalculator";
-export * from "./nodeSizes/nodeSizeCalculatorFactory";
-export * from "./nodeSizes/backlinkCountCalculator";
-export * from "./nodeSizes/centralityCalculator";
-export * from "./nodeSizes/creationTimeCalculator";
-export * from "./nodeSizes/eccentricityCalculator";
-export * from "./nodeSizes/filenameLengthCalculator";
-export * from "./nodeSizes/forwardlinkCountCalculator";
-export * from "./nodeSizes/modifiedTimeCalculator";
-export * from "./nodeSizes/tagsCountCalculator";
+export * from "./nodeCalculators/graphology";
+export * from "./nodeCalculators/nodeStatCalculator";
+export * from "./nodeCalculators/nodeStatCalculatorFactory";
+export * from "./nodeCalculators/backlinkCountCalculator";
+export * from "./nodeCalculators/centralityCalculator";
+export * from "./nodeCalculators/creationTimeCalculator";
+export * from "./nodeCalculators/eccentricityCalculator";
+export * from "./nodeCalculators/filenameLengthCalculator";
+export * from "./nodeCalculators/forwardlinkCountCalculator";
+export * from "./nodeCalculators/modifiedTimeCalculator";
+export * from "./nodeCalculators/tagsCountCalculator";
 
 export * from "./queries/queriesMatcher";
 export * from "./queries/ruleQuery";
@@ -62,6 +62,7 @@ export * from "./settings/settingsSection";
 export * from "./settings/settingCollapsible";
 export * from "./settings/settingFocus";
 export * from "./settings/settingImages";
+export * from "./settings/settingNodesColor";
 export * from "./settings/settingNodesSize";
 export * from "./settings/settingPerformance";
 export * from "./settings/settingShapes";
@@ -71,6 +72,7 @@ export * from "./settings/settingInteractives/settingTags";
 export * from "./settings/settingInteractives/settingProperties";
 export * from "./settings/settingInteractives/settingLinks";
 export * from "./settings/settingInteractives/settingFolders";
+export * from "./settings/components/settingColorPalette";
 
 export * from "./suggester/NodeNamesSuggester";
 

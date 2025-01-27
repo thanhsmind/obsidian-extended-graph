@@ -1,5 +1,5 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingsSectionCollapsible, UIElements } from "src/internal";
+import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
@@ -45,56 +45,19 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     }
 
     protected addColorPaletteSetting(): void {
-        const setting = new Setting(this.containerEl)
-            .setName(`Color palette`)
+        const setting = new SettingColorPalette(this.containerEl, this.settingTab.plugin.app, this.interactiveKey)
             .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`);
-        setting.controlEl.addClass("color-palette");
 
-        // Canvas
-        this.canvasPalette = setting.controlEl.createEl("canvas");
-        this.canvasPalette.id = `canvas-palette-${this.interactiveKey}`;
-        this.canvasPalette.width = 100;
-        this.canvasPalette.height = 20;
-        plot_colormap(this.canvasPalette.id, this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap, false);
-
-        // Picker icon
-        setting.addExtraButton(cb => {
-            cb.setIcon("pipette");
-            cb.onClick(() => {
-                const modal = new GradientPickerModal(this.settingTab.app, (value: string) => {
-                    this.onPaletteChanged(value);
-                });
-                modal.open();
-            });
+        setting.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
+        
+        setting.onPaletteChange((palette: string) => {
+            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = palette;
+            this.settingTab.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
+            this.settingTab.plugin.saveSettings();
         });
-
-        // Select
-        setting.addDropdown(cb => {
-                for (const [group, values] of Object.entries(cmOptions)) {
-                    const groupEl = cb.selectEl.createEl("optgroup");
-                    groupEl.label = group;
-                    for (const value of values) {
-                        const option = groupEl.createEl("option");
-                        option.value = value;
-                        option.text = value;
-                    }
-                }
-                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
-                cb.onChange(async (value) => {
-                    this.onPaletteChanged(value);
-                });
-            });
 
         // Push to body list
         this.elementsBody.push(setting.settingEl);
-    }
-
-    private onPaletteChanged(palette: string) {
-        if (palette === "") return;
-        plot_colormap(this.canvasPalette.id, palette, false);
-        this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = palette;
-        this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
-        this.settingTab.plugin.saveSettings();
     }
 
     protected addSpecificColorHeaderSetting(): void {

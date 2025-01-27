@@ -407,15 +407,16 @@ body {
         order: 10;
     }
 
-    .setting-tags         { display: var(--display-settings-tags);      }
+    .setting-tags         { display: var(--display-settings-tags); }
     .setting-properties   { display: var(--display-settings-properties); }
     .setting-property-key { display: var(--display-settings-property-key); }
-    .setting-links        { display: var(--display-settings-links);     }
-    .setting-folders      { display: var(--display-settings-folders);   }
-    .setting-images       { display: var(--display-settings-images);    }
-    .setting-focus        { display: var(--display-settings-focus);    }
-    .setting-shapes       { display: var(--display-settings-shapes);   }
-    .setting-node-size    { display: var(--display-settings-node-size);   }
+    .setting-links        { display: var(--display-settings-links); }
+    .setting-folders      { display: var(--display-settings-folders); }
+    .setting-images       { display: var(--display-settings-images); }
+    .setting-focus        { display: var(--display-settings-focus); }
+    .setting-shapes       { display: var(--display-settings-shapes); }
+    .setting-node-size    { display: var(--display-settings-node-size); }
+    .setting-node-color   { display: var(--display-settings-node-color); }
 
     .settings-colors-container,
     .settings-properties-container {

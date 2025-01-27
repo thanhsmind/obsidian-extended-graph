@@ -5,11 +5,11 @@ import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { NodeSizeCalculator } from "src/internal";
+import { NodeStatCalculator } from "src/internal";
 
 type CentralityMapping = Record<string, number>;
 
-export abstract class CentralityCalculator extends NodeSizeCalculator {
+export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
@@ -19,7 +19,7 @@ export abstract class CentralityCalculator extends NodeSizeCalculator {
         this.computeCentralityMap(g);
     }
 
-    override async getSize(file: TFile): Promise<number> {
+    override async getStat(file: TFile): Promise<number> {
         return this.cm[file.path];
     }
 

@@ -1,11 +1,11 @@
 import { App } from "obsidian";
 import { GraphologySingleton } from "./graphology";
-import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeSizeCalculator, NodeSizeFunction, TagsCountCalculator } from "src/internal";
+import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStatCalculator, NodeStatFunction, TagsCountCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
 
 
-export class NodeSizeCalculatorFactory {
-    static getCalculator(key: NodeSizeFunction, app: App): NodeSizeCalculator | undefined {
+export class NodeStatCalculatorFactory {
+    static getCalculator(key: NodeStatFunction, app: App): NodeStatCalculator | undefined {
         switch (key) {
             case 'backlinksCount':
                 return new BacklinkCountCalculator(app);
