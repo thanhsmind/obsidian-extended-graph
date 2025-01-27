@@ -1,7 +1,5 @@
 import { Graphics } from "pixi.js";
-import { InteractiveManager } from "../../interactiveManager";
-import { ManagerGraphics } from "../../abstractAndInterfaces/managerGraphics";
-import { NodeShape, ShapeEnum } from "./shapes";
+import { InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
 
 export class ArcsCircle extends Graphics implements ManagerGraphics {
     // Static values

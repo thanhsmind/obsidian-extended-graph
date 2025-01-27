@@ -1,6 +1,5 @@
-import { Feature } from "src/types/features";
-import { SettingsSection } from "./settingsSection";
-import { ExtendedGraphSettingTab } from "./settingTab";
+import { ExtendedGraphSettingTab, Feature, SettingsSection } from "src/internal";
+
 
 export abstract class SettingsSectionCollapsible extends SettingsSection {
     feature: Feature;
@@ -36,17 +35,27 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
         }
         this.settingHeader.addToggle(cb => {
             cb.setValue(enable);
-            this.containerEl.style.setProperty(this.cssDisplayProperty, enable ? 'flex' : 'none');
             cb.onChange(value => {
-                if (this.feature === 'property-key') {
-                    this.settingTab.plugin.settings.additionalProperties[this.interactiveKey] = value;
-                }
-                else {
-                    this.settingTab.plugin.settings.enableFeatures[this.feature] = value;
-                }
-                this.settingTab.plugin.saveSettings();
-                this.containerEl.style.setProperty(this.cssDisplayProperty, value ? 'flex' : 'none');
+                this.toggle(value);
             });
         });
+        this.toggle(enable);
+    }
+
+    private toggle(enable: boolean) {
+        if (this.feature === 'property-key') {
+            this.settingTab.plugin.settings.additionalProperties[this.interactiveKey] = enable;
+        }
+        else {
+            this.settingTab.plugin.settings.enableFeatures[this.feature] = enable;
+        }
+        this.settingTab.plugin.saveSettings();
+        this.containerEl.style.setProperty(this.cssDisplayProperty, enable ? 'flex' : 'none');
+        if (enable) {
+            this.settingHeader.settingEl.removeClass('is-collapsed');
+        }
+        else {
+            this.settingHeader.settingEl.addClass('is-collapsed');
+        }
     }
 }

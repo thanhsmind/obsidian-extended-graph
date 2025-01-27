@@ -1,10 +1,6 @@
-import { DisconnectionCause, LINK_KEY } from "src/globalVariables";
-import { Graph } from "../graph";
-import { InteractiveManager } from "../interactiveManager";
-import { getFile } from "src/helperFunctions";
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphElement } from "./extendedGraphElement";
+import { DisconnectionCause, ExtendedGraphElement, Graph, InteractiveManager, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
@@ -76,12 +72,22 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             if (this.extendedElementsMap.has(id)) continue;
 
             const file = this.getAbstractFile(element);
-            if (!file || file instanceof TFolder) continue;
-
             isElementMissing = true;
-            const types = this.getTypesFromFile(key, element, (file as TFile));
-            if (types.size === 0) {
-                types.add(this.graph.staticSettings.interactiveSettings[key].noneType);
+            
+            let types: Set<string> = new Set<string>();
+            if ((element as GraphNode).type === "tag") {
+                if (key === TAG_KEY) {
+                    types.add((element as GraphNode).id.replace("#", ""));
+                }
+            }
+            else if (file && file instanceof TFile) {
+                types = this.getTypesFromFile(key, element, (file as TFile));
+                if (types.size === 0) {
+                    types.add(this.graph.staticSettings.interactiveSettings[key].noneType);
+                }
+            }
+            else {
+                continue;
             }
             this.addTypes(key, types, id, missingTypes);
         }

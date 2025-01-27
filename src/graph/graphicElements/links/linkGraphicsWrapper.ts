@@ -1,8 +1,5 @@
 import { GraphLink } from "obsidian-typings";
-import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
-import { InteractiveManager } from "../interactiveManager";
-import { GraphicsWrapper } from "./graphicsWrapper";
-import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
+import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkGraphics } from "src/internal";
 
 export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
     // Interface instance values
@@ -10,7 +7,6 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     extendedElement: ExtendedGraphLink;
     managerGraphicsMap?: Map<string, T>;
     pixiElement: T;
-
 
     constructor(extendedElement: ExtendedGraphLink) {
         this.name = extendedElement.id;
@@ -38,7 +34,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     }
 
     destroyGraphics(): void {
-        this.pixiElement.destroy();
+        this.pixiElement.destroy({children: true});
     }
 
     // ============================ UPDATE GRAPHICS ============================
@@ -51,7 +47,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
 
     updateCoreElement(): void {
         const link = this.extendedElement.coreElement;
-        if (!link.line) {
+        if (!link.line || !link.px) {
             const newLink = link.renderer.links.find(l => l.source.id === link.source.id && l.target.id === link.target.id);
             if (newLink && link !== newLink) {
                 this.disconnect();

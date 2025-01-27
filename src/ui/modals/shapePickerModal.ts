@@ -1,5 +1,5 @@
-import { App, Modal, setIcon, Setting, TextComponent } from "obsidian";
-import { NodeShape, ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
+import { App, Modal, Setting } from "obsidian";
+import { NodeShape, ShapeEnum } from "src/internal";
 
 export class ShapePickerModal extends Modal {
     callback: (shape: ShapeEnum) => void;

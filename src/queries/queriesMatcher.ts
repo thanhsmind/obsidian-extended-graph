@@ -1,5 +1,5 @@
 import { App, TFile } from "obsidian";
-import { RuleQuery } from "./ruleQuery";
+import { RuleQuery } from "src/internal";
 
 export type CombinationLogic = 'AND' | 'OR';
 export type QueryData = {

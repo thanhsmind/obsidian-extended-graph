@@ -1,15 +1,8 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
-import { GraphEventsDispatcher } from "./graph/graphEventsDispatcher";
-import ExtendedGraphPlugin from "./main";
-import { GraphViewData } from "./views/viewData";
-import { MenuUI } from "./ui/menu";
-import { GraphControlsUI } from "./ui/graphControl/graphControl";
-import { getEngine } from "./helperFunctions";
-import { WorkspaceLeafExt } from "./types/leaf";
-import { TAG_KEY } from "./globalVariables";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { NodeSizeCalculatorFactory } from "./nodeSizes/nodeSizeCalculatorFactory";
-import { NodeSizeCalculator } from "./nodeSizes/nodeSizeCalculator";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeSizeCalculator, NodeSizeCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt } from "./internal";
+import ExtendedGraphPlugin from "./main";
+
 
 
 export class GraphsManager extends Component {
@@ -21,6 +14,7 @@ export class GraphsManager extends Component {
     localGraphID: string | null = null;
     
     plugin: ExtendedGraphPlugin;
+    statesManager: StatesManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
     
     nodeSizeCalculator: NodeSizeCalculator | undefined;
@@ -30,6 +24,7 @@ export class GraphsManager extends Component {
     constructor(plugin: ExtendedGraphPlugin) {
         super();
         this.plugin = plugin;
+        this.statesManager = new StatesManager(this);
     }
 
     // ================================ LOADING ================================
@@ -37,7 +32,7 @@ export class GraphsManager extends Component {
     onload(): void {
         this.initilizeNodeSizeCalculator();
         this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
-        this.registerEvent(this.plugin.app.workspace.on('css-change', this.onThemeChange.bind(this)));
+        this.registerEvent(this.plugin.app.workspace.on('css-change', this.onCSSChange.bind(this)));
     }
 
     private initilizeNodeSizeCalculator(): void {
@@ -49,10 +44,11 @@ export class GraphsManager extends Component {
 
     // ============================= THEME CHANGE ==============================
 
-    private onThemeChange() {
+    private onCSSChange() {
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.graph.nodesSet) {
                 dispatcher.graph.nodesSet.updateOpacityLayerColor();
+                dispatcher.graph.nodesSet.updateFontFamily();
                 dispatcher.graph.renderer.changed();
             }
         });
@@ -88,42 +84,6 @@ export class GraphsManager extends Component {
         if (types) {
             dispatcher.graph.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
         }
-    }
-
-    // ================================ VIEWS =================================
-
-    onViewNeedsSaving(viewData: GraphViewData) {
-        this.updateViewArray(viewData);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${viewData.name}" has been saved`);
-            this.updateAllViews();
-        });
-    }
-
-    private updateViewArray(viewData: GraphViewData): void {
-        const index = this.plugin.settings.views.findIndex(v => v.name === viewData.name);
-        if (index >= 0) {
-            this.plugin.settings.views[index] = viewData;
-        }
-        else {
-            this.plugin.settings.views.push(viewData);
-        }
-    }
-
-    onViewNeedsDeletion(id: string) {
-        const view = this.plugin.getViewDataById(id);
-        if (!view) return;
-        this.plugin.settings.views.remove(view);
-        this.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: view "${view.name}" has been removed`);
-            this.updateAllViews();
-        });
-    }
-    
-    private updateAllViews(): void {
-        this.dispatchers.forEach(dispatcher => {
-            dispatcher.viewsUI.updateViewsList(this.plugin.settings.views);
-        });
     }
 
     // ================================ LAYOUT =================================
@@ -221,14 +181,14 @@ export class GraphsManager extends Component {
 
     // ============================= ENABLE PLUGIN =============================
 
-    addGraph(leaf: WorkspaceLeafExt, viewID?: string): GraphEventsDispatcher {
+    addGraph(leaf: WorkspaceLeafExt, stateID?: string): GraphEventsDispatcher {
         let dispatcher = this.dispatchers.get(leaf.id);
         if (dispatcher) return dispatcher;
 
         dispatcher = new GraphEventsDispatcher(leaf, this);
-        if (viewID) {
-            dispatcher.viewsUI.currentViewID = viewID;
-            dispatcher.viewsUI.select.value = viewID;
+        if (stateID) {
+            dispatcher.statesUI.currentStateID = stateID;
+            dispatcher.statesUI.select.value = stateID;
         }
 
         this.dispatchers.set(leaf.id, dispatcher);
@@ -242,15 +202,15 @@ export class GraphsManager extends Component {
         return dispatcher;
     }
 
-    enablePlugin(leaf: WorkspaceLeafExt, viewID?: string): void {
+    enablePlugin(leaf: WorkspaceLeafExt, stateID?: string): void {
         this.backupOptions(leaf);
 
         if (this.isPluginAlreadyEnabled(leaf)) return;
         if (this.isNodeLimitExceeded(leaf)) return;
         
-        const dispatcher = this.addGraph(leaf, viewID);
+        const dispatcher = this.addGraph(leaf, stateID);
         const globalUI = this.setGlobalUI(leaf);
-        globalUI.menu.enable();
+        globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(dispatcher);
         
     }
@@ -278,7 +238,7 @@ export class GraphsManager extends Component {
     private disableUI(leafID: string) {
         const globalUI = this.globalUIs.get(leafID);
         if (globalUI) {
-            globalUI.menu.disable();
+            globalUI.menu.setDisableUIState();
             globalUI.control.onPluginDisabled();
         }
     }
@@ -296,7 +256,7 @@ export class GraphsManager extends Component {
         if (this.localGraphID === leaf.id) this.localGraphID = null;
 
         if (leaf.view._loaded) {
-            this.applyNormalView(leaf);
+            this.applyNormalState(leaf);
         }
         this.restoreBackup();
     }
@@ -305,10 +265,10 @@ export class GraphsManager extends Component {
 
     resetPlugin(leaf: WorkspaceLeafExt): void {
         const dispatcher = this.dispatchers.get(leaf.id);
-        const viewID = dispatcher?.viewsUI.currentViewID;
+        const stateID = dispatcher?.statesUI.currentStateID;
         const scale = dispatcher ? dispatcher.graph.renderer.targetScale : false;
         this.disablePlugin(leaf);
-        this.enablePlugin(leaf, viewID);
+        this.enablePlugin(leaf, stateID);
         const newDispatcher = this.dispatchers.get(leaf.id);
         if (newDispatcher && scale) {
             newDispatcher.graph.renderer.targetScale = scale;
@@ -364,7 +324,7 @@ export class GraphsManager extends Component {
         }
     }
 
-    // ==================== HANDLE NORMAL AND DEFAULT VIEW =====================
+    // ==================== HANDLE NORMAL AND DEFAULT STATE ====================
 
     backupOptions(leaf: WorkspaceLeafExt) {
         const engine = getEngine(leaf);
@@ -405,7 +365,7 @@ export class GraphsManager extends Component {
         return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
-    applyNormalView(leaf: WorkspaceLeafExt) {
+    applyNormalState(leaf: WorkspaceLeafExt) {
         const engine = getEngine(leaf);
         const options = this.optionsBackup.get(leaf.id);
         if (engine && options) {
@@ -421,5 +381,50 @@ export class GraphsManager extends Component {
         if (source === "graph-context-menu" && leaf && file instanceof TFile) {
             this.dispatchers.get(leaf.id)?.onNodeMenuOpened(menu, file);
         }
+    }
+
+    // ============================== SCREENSHOT ===============================
+
+    getSVGScreenshot(leaf: WorkspaceLeafExt) {
+        const dispatcher = this.dispatchers.get(leaf.id);
+        let exportToSVG: ExportGraphToSVG;
+        if (dispatcher) {
+            exportToSVG = new ExportExtendedGraphToSVG(dispatcher.graph);
+        }
+        else {
+            exportToSVG = new ExportCoreGraphToSVG(this.plugin, getEngine(leaf));
+        }
+        exportToSVG.toClipboard();
+    }
+
+    // ============================= ZOOM ON NODE ==============================
+
+    zoomOnNode(leaf: WorkspaceLeafExt, nodeID: string) {
+        const renderer = leaf.view.renderer;
+        const node = renderer.nodes.find(node => node.id === nodeID);
+        if (!node) return;
+        
+        let scale = renderer.scale;
+        let targetScale = this.plugin.settings.zoomFactor;
+        let panX = renderer.panX
+        let panY = renderer.panY;
+        renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
+        
+        let zoomCenterX = renderer.zoomCenterX;
+        let zoomCenterY = renderer.zoomCenterY;
+
+        if (0 === zoomCenterX && 0 === zoomCenterY) {
+            var s = window.devicePixelRatio;
+            zoomCenterX = renderer.width / 2 * s;
+            zoomCenterY = renderer.height / 2 * s;
+        }
+
+        const n = 0.85;
+        scale = scale * n + targetScale * (1 - n);
+        panX -= node.x * scale + panX - zoomCenterX;
+        panY -= node.y * scale + panY - zoomCenterY;
+        renderer.setPan(panX, panY);
+        renderer.setScale(scale);
+        renderer.changed();
     }
 }

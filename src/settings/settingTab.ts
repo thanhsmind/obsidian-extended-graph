@@ -1,15 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingNodeSize, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { SettingImages } from "./settingImages";
-import { SettingFocus } from "./settingFocus";
-import { SettingTags } from "./settingInteractives.ts/settingTags";
-import { SettingPropertiesArray } from "./settingInteractives.ts/settingProperties";
-import { SettingLinks } from "./settingInteractives.ts/settingLinks";
-import { SettingFolders } from "./settingInteractives.ts/settingFolders";
-import { SettingPerformance } from "./settingPerformance";
-import { SettingShapes } from "./settingShapes";
-import { SettingsSection } from "./settingsSection";
-import { SettingNodeSize } from "./settingNodesSize";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     plugin: ExtendedGraphPlugin;
@@ -27,6 +18,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingFocus(this));
         this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingNodeSize(this));
+        this.sections.push(new SettingZoom(this));
         this.sections.push(new SettingPerformance(this));
     }
 

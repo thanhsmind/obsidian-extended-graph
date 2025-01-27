@@ -1,10 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
-import { ExtendedGraphLink } from "../extendedElements/extendedGraphLink";
-import { ArcsCircle } from "../graphicElements/nodes/arcsCircle";
-import { LinkLineGraphics } from "../graphicElements/lines/line";
-import { InteractiveManager } from "../interactiveManager";
+import { ArcsCircle, ExtendedGraphLink, ExtendedGraphNode, InteractiveManager, LinkLineGraphics } from "src/internal";
 
 export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     name: string;
@@ -14,6 +10,7 @@ export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     
     initGraphics(): void;
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
+    resetManagerGraphics(manager: InteractiveManager): void;
     clearGraphics(): void;
     destroyGraphics(): void;
     updateGraphics(): void;

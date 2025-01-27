@@ -1,8 +1,21 @@
 import { App, getAllTags, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { WorkspaceLeafExt } from "./types/leaf";
-import { FOLDER_KEY, TAG_KEY } from "./globalVariables";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
+import { FOLDER_KEY, TAG_KEY, WorkspaceLeafExt } from "./internal";
+
+export function getSVGNode(n: string, v?: any): SVGElement {
+    const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);
+    for (var p in v)
+        svgNode.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+    return svgNode;
+}
+
+export function polar2Cartesian(x: number, y: number, r: number, theta: number) {
+    return {
+        x: x + (r * Math.cos(theta)),
+        y: y + (r * Math.sin(theta))
+    };
+}
 
 export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
@@ -51,6 +64,24 @@ export function quadratic(t: number, p0: Point, p1: Point, p2: Point): Point {
     const x = c1x + c2x;
     const y = c1y + c2y;
     return { x: x, y: y };
+}
+
+// https://math.stackexchange.com/questions/2149009/find-a-tangent-to-two-quadratic-bezier-curves
+export function tangentQuadratic(t: number, p0: Point, p1: Point, p2: Point): {m: number, c: number} {
+    // The tangent line at point x=t passes through the points A = [(1 - t) * p0 + t * p1] and B = [(1 - t) * p1 + t * p2]
+    const A: Point = {
+        x: (1 - t) * p0.x + t * p1.x,
+        y: (1 - t) * p0.y + t * p1.y,
+    };
+    const B: Point = {
+        x: (1 - t) * p1.x + t * p2.x,
+        y: (1 - t) * p1.y + t * p2.y,
+    };
+    const m = (B.y - A.y) / (B.x - A.x);
+    return {
+        m: m,
+        c: A.y - m * A.x
+    };
 }
 
 // https://stackoverflow.com/questions/11854907/calculate-the-length-of-a-segment-of-a-quadratic-bezier
@@ -198,5 +229,18 @@ export function isPropertyKeyValid(key: string): boolean {
         new Notice("Invalid character ':'");
         return false;
     }
-    return (key.length > 0);
+    return (key.length> 0);
+}
+
+export function setPluginIcon(parent: HTMLElement): void {
+    parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon git-fork-sparkles"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/><path d="m 20.509365,13.686388 v 4"/><path d="m 22.509365,15.686388 h -4"/><path d="m 18.125575,20.191752 v 2"/><path d="m 19.125575,21.191752 h -2"/><path d="m 3.6865316,13.537545 v 2"/><path d="m 4.6865316,14.537545 h -2"/></svg>`;
+}
+
+export function textColor(backgroundColor: Uint8Array, dark: string = "black", light: string = "white"): string {
+    const textColor = (backgroundColor[0] * 0.299 + backgroundColor[1] * 0.587 + backgroundColor[2] * 0.114 > 150) ? dark : light;
+    return textColor;
+}
+
+export function isTagValid(name: string): boolean {
+    return /^[a-zA-Z/]+$/.test(name);
 }

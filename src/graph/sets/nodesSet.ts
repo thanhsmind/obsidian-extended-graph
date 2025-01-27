@@ -1,15 +1,12 @@
-import { TAbstractFile, TFile } from "obsidian";
-import { getBackgroundColor, getFile, getFileInteractives, getImageUri } from "src/helperFunctions";
+import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
-import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
 import { GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode } from "../extendedElements/extendedGraphNode";
-import { AbstractSet } from "../abstractAndInterfaces/abstractSet";
-import { InteractiveManager } from "../interactiveManager";
-import { Graph } from "../graph";
+import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
+    lastDraggedPinnedNode: string | null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -73,9 +70,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     private initNodeGraphics(id: string, texture: Texture | undefined, backgroundColor: Uint8Array): void {
         const extendedNode = this.extendedElementsMap.get(id);
-        if (!extendedNode) return;
-        extendedNode.graphicsWrapper?.initNodeImage(texture);
-        extendedNode.graphicsWrapper?.updateOpacityLayerColor(backgroundColor);
+        if (!extendedNode || !extendedNode.graphicsWrapper) return;
+        try {
+            (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
+            extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
+        }
+        catch {
+
+        }
     }
 
     // =========================== EXTENDED ELEMENTS ===========================
@@ -88,13 +90,25 @@ export class NodesSet extends AbstractSet<GraphNode> {
             types.set(key, this.getTypes(key, node));
         }
 
-        const extendedGraphNode = new ExtendedGraphNode(
-            node,
-            types,
-            [...this.managers.values()],
-            this.graph.staticSettings,
-            this.graph.dispatcher.graphsManager.plugin.app,
-        );
+        let extendedGraphNode: ExtendedGraphNode;
+        if (node.type === "tag") {
+            extendedGraphNode = new ExtendedGraphTagNode(
+                node,
+                types,
+                [...this.managers.values()],
+                this.graph.staticSettings,
+                this.graph.dispatcher.graphsManager.plugin.app,
+            );
+        }
+        else {
+            extendedGraphNode = new ExtendedGraphFileNode(
+                node,
+                types,
+                [...this.managers.values()],
+                this.graph.staticSettings,
+                this.graph.dispatcher.graphsManager.plugin.app,
+            );
+        }
 
         this.extendedElementsMap.set(id, extendedGraphNode);
         this.connectedIDs.add(id);
@@ -128,14 +142,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
     resetArcs(key: string): void {
         if (!this.graph.staticSettings.enableFeatures['tags']) return;
         for (const [id, extendedElement] of this.extendedElementsMap) {
-            const file = getFile(extendedElement.app, id);
-            const arcCicle = extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key);
-            if (!arcCicle || !file) continue;
-
-            arcCicle.clearGraphics();
-            arcCicle.setTypes(getFileInteractives(key, extendedElement.app, file));
-            arcCicle.initGraphics();
-            arcCicle.updateGraphics();
+            try {
+                const manager = this.managers.get(key);
+                if (!manager) continue;
+                (extendedElement.graphicsWrapper as FileNodeGraphicsWrapper).resetManagerGraphics(manager);
+            }
+            catch {
+                
+            }
         }
     }
 
@@ -150,7 +164,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    // ================================ COLORS =================================
+    // ================================== CSS ==================================
     
     /**
      * Update the background color. Called when the theme changes.
@@ -159,6 +173,12 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const color = getBackgroundColor(this.graph.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
+        });
+    }
+
+    updateFontFamily(): void {
+        this.extendedElementsMap.forEach(extendedNode => {
+            extendedNode.updateFontFamily();
         });
     }
 
@@ -173,13 +193,18 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (!this.graph.staticSettings.enableFeatures['focus']) return;
 
         const extendedNode = this.extendedElementsMap.get(file.path);
-        if (!extendedNode) return;
+        if (!extendedNode || !extendedNode.graphicsWrapper) return;
 
-        if (emphasize) {
-            let color = this.graph.renderer.colors.fillFocused.rgb;
-            extendedNode.graphicsWrapper?.emphasize(this.graph.dynamicSettings.focusScaleFactor, color);
-        } else {
-            extendedNode.graphicsWrapper?.emphasize(1);
+        try {
+            if (emphasize) {
+                let color = this.graph.renderer.colors.fillFocused.rgb;
+                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(this.graph.dynamicSettings.focusScaleFactor, color);
+            } else {
+                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(1);
+            }
+        }
+        catch {
+
         }
     }
 
@@ -236,6 +261,16 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode) return;
         return extendedNode.isPinned;
+    }
+
+    setLastDraggedPinnedNode(id: string): void {
+        this.lastDraggedPinnedNode = id;
+    }
+
+    pinLastDraggedPinnedNode(): void {
+        if (!this.lastDraggedPinnedNode) return;
+        this.pinNode(this.lastDraggedPinnedNode);
+        this.lastDraggedPinnedNode = null;
     }
 
     // ================================= DEBUG =================================

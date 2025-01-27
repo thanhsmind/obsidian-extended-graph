@@ -1,57 +1,89 @@
-import { Setting } from "obsidian";
-import { GraphsManager } from "src/graphsManager";
-import { WorkspaceLeafExt } from "src/types/leaf";
-import { GCSection } from "./GCSection";
-import { InteractiveManager } from "src/graph/interactiveManager";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
+import { Setting, ToggleComponent } from "obsidian";
+import { FOLDER_KEY, GCSection, GraphsManager, InteractiveManager, InteractiveUI, WorkspaceLeafExt } from "src/internal";
 
-export class GCFolders extends GCSection {
-    foldersManager: InteractiveManager | undefined;
-    settingsMap = new Map<string, Setting>();
+export class GCFolders extends GCSection implements InteractiveUI {
+    foldersManager: InteractiveManager;
+    settingsMap = new Map<string, {setting: Setting, toggle: ToggleComponent}>();
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, foldersManager: InteractiveManager) {
-        super(leaf, graphsManager, "folders");
+        super(leaf, graphsManager, "folders", "Folders");
 
         this.foldersManager = foldersManager;
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
-        this.onlyWhenPluginEnabled.push(this.root);
 
         this.collapseGraphControlSection();
     }
-    
-    onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
-        //this.createFolders();
+
+    override display() {
+        this.treeItemChildren.innerHTML = "";
+        this.createFolders();
     }
 
-    createFolders(): void {
+    private createFolders(): void {
         const paths = this.foldersManager?.getTypesWithoutNone();
         if (!paths) return;
         for (const path of paths) {
-            this.addFolder(path);
+            this.add(FOLDER_KEY, path, this.foldersManager.getColor(path));
         }
     }
 
-    addFolder(path: string): Setting {
-        const setting = new Setting(this.treeItemChildren)
-            .setName(path)
+    // =========================================================================
+
+    update(key: string, path: string, color: Uint8Array): void {
+        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+    }
+
+    add(key: string, path: string, color: Uint8Array): void {
+        const setting = new Setting(this.treeItemChildren);
+        setting.setName(path)
             .addToggle(cb => {
+                cb.setValue(this.foldersManager.isActive(path))
                 cb.onChange(enable => {
-                    this.toggleFolder(path, enable);
-                })
+                    if (enable !== this.foldersManager.isActive(path)) {
+                        this.toggle(key, path);
+                    }
+                });
+                this.settingsMap.set(path, {setting: setting, toggle: cb});
             });
-        this.settingsMap.set(path, setting);
-        this.setColor(path);
-        return setting;
+        this.update(key, path, color);
     }
 
-    setColor(path: string) {
-        const color = this.foldersManager?.getColor(path);
-        if (color) this.settingsMap.get(path)?.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+    remove(key: string, paths: string[]): void {
+        for (const path of paths) {
+            const setting = this.settingsMap.get(path);
+            if (!path) continue;
+            setting?.setting.settingEl.remove();
+            this.settingsMap.delete(path);
+        }
     }
 
-    toggleFolder(path: string, enable: boolean) {
-        if (enable) this.foldersManager?.enable([path]);
-        else this.foldersManager?.disable([path]);
+    toggle(key: string, path: string): void {
+        if (this.foldersManager.isActive(path)) {
+            this.foldersManager.disable([path]);
+        }
+        else {
+            this.foldersManager.enable([path]);
+        }
+    }
+
+    disableUI(key: string, path: string): void {
+        this.foldersManager.disable([path]);
+    }
+
+    enableUI(key: string, path: string): void {
+        this.foldersManager.enable([path]);
+    }
+
+    enableAllUI(key: string): void {
+        for (const [path, setting] of this.settingsMap) {
+            setting.toggle.setValue(true);
+        }
+    }
+
+    disableAllUI(key: string): void {
+        for (const [path, setting] of this.settingsMap) {
+            setting.toggle.setValue(false);
+        }
     }
 }

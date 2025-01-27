@@ -1,11 +1,6 @@
 import { GraphLink } from "obsidian-typings";
-import { InteractiveManager } from "../interactiveManager";
-import { ExtendedGraphElement } from "../abstractAndInterfaces/extendedGraphElement";
-import { LineLinkGraphicsWrapper } from "../graphicElements/lines/lineLinkGraphicsWrapper";
-import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
-import { LinkGraphics } from "../graphicElements/lines/linkGraphics";
-import { CurveLinkGraphicsWrapper } from "../graphicElements/lines/curveLinkGraphicsWrapper";
-import { ExtendedGraphSettings } from "src/settings/settings";
+import { Container } from "pixi.js";
+import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
@@ -25,7 +20,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         for (const [key, manager] of this.managers) {
             const types = this.types.get(key);
             if (!types || types.size === 0) continue;
-            if (!types.has(manager.settings.interactiveSettings[key].noneType)) {
+            if (this.settings.interactiveSettings[key].showOnGraph && !types.has(manager.settings.interactiveSettings[key].noneType)) {
                 return true;
             }
         }
@@ -43,6 +38,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
+            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
             const validTypes = this.getTypes(key);
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;
@@ -61,6 +57,23 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override getCoreCollection(): GraphLink[] {
         return this.coreElement.renderer.links;
+    }
+    
+    protected override getCoreParentGraphics(coreElement: GraphLink): Container | null {
+        if (this.settings.enableFeatures['curvedLinks']) {
+            return coreElement.px;
+        }
+        else {
+            return coreElement.line;
+        }
+    }
+    protected override setCoreParentGraphics(coreElement: GraphLink): void {
+        if (this.settings.enableFeatures['curvedLinks']) {
+            this.coreElement.px = coreElement.px;
+        }
+        else {
+            this.coreElement.line = coreElement.line;
+        }
     }
 
     // ================================ GETTERS ================================

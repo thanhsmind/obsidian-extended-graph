@@ -1,5 +1,5 @@
 import { App, Modal, Setting, TFile } from "obsidian";
-import { QueryData, QueryMatcher } from "src/queries/queriesMatcher";
+import { QueryData, QueryMatcher } from "src/internal";
 
 export class QueryMatchesModal extends Modal {
     matcher: QueryMatcher;

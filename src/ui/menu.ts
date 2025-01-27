@@ -1,4 +1,5 @@
-import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip, WorkspaceLeaf } from "obsidian";
+import { Component, ExtraButtonComponent, WorkspaceLeaf } from "obsidian";
+import { setPluginIcon } from "src/internal";
 
 export class MenuUI extends Component {
     viewContent: HTMLElement;
@@ -23,17 +24,16 @@ export class MenuUI extends Component {
     createEnableButton(graphControls: HTMLDivElement) {
         this.buttonEnable = new ExtraButtonComponent(graphControls)
             .setTooltip("Enable Extended Graph Plugin", {placement: 'top'})
-            .setIcon("sparkles")
+            //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
-                    this.enable();
                     this.leaf.trigger("extended-graph:enable-plugin", this.leaf);
                 } else {
-                    this.disable();
                     this.leaf.trigger("extended-graph:disable-plugin", this.leaf);
                 }
             })
             .then(cb => {
+                setPluginIcon(cb.extraSettingsEl);
                 cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-extended-graph-toggle"]);
             });
     }
@@ -53,14 +53,14 @@ export class MenuUI extends Component {
             });
     }
 
-    enable() {
+    setEnableUIState() {
         this.enabled = true;
         this.buttonEnable.extraSettingsEl.addClass("is-active");
         this.buttonEnable.setTooltip("Enable Extended Graph Plugin", {placement: 'top'});
         this.buttonReset.extraSettingsEl.style.display = "";
     }
 
-    disable() {
+    setDisableUIState() {
         this.enabled = false;
         this.buttonEnable.extraSettingsEl.removeClass("is-active");
         this.buttonEnable.setTooltip("Disable Extended Graph Plugin", {placement: 'top'});

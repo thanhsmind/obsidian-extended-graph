@@ -1,15 +1,26 @@
-import { EngineOptions, GraphViewData } from "../views/viewData";
-import { DEFAULT_VIEW_ID, FOLDER_KEY, LINK_KEY, TAG_KEY } from "../globalVariables";
-import { ShapeEnum } from "src/graph/graphicElements/nodes/shapes";
-import { QueryData } from "src/queries/queriesMatcher";
-import { Feature } from "src/types/features";
-import { NodeSizeFunction } from "src/nodeSizes/nodeSizeCalculator";
+import { GraphColorAttributes } from "obsidian-typings";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeSizeFunction, QueryData } from "src/internal";
 
-interface InteractiveSettings {
+
+type InteractiveSettings = {
     colormap: string;
     colors: {type: string, color: string}[];
     unselected: string[];
     noneType: string;
+    showOnGraph: boolean;
+    enableByDefault: boolean;
+}
+
+export type ExportSVGOptions = {
+    asImage: boolean,
+    // Core options
+    onlyVisibleArea: boolean,
+    showNodeNames: boolean,
+    // Extended options
+    useCurvedLinks: boolean,
+    useNodesShapes: boolean,
+    showArcs: boolean,
+    showFolders: boolean,
 }
 
 export interface ExtendedGraphSettings {
@@ -20,7 +31,7 @@ export interface ExtendedGraphSettings {
     // Graph settings
     globalFilter: string;
     backupGraphOptions: EngineOptions;
-    views: GraphViewData[];
+    states: GraphStateData[];
 
     // Image
     imageProperty: string;
@@ -29,6 +40,9 @@ export interface ExtendedGraphSettings {
     // Nodes sizes
     nodeSizeProperty: string;
     nodeSizeFunction: NodeSizeFunction;
+
+    // Zoom on node
+    zoomFactor: number;
 
     // Performances
     maxNodes: number;
@@ -40,14 +54,24 @@ export interface ExtendedGraphSettings {
     // Shapes
     shapeQueries: Record<string, QueryData>;
 
+    // Export SVG
+    exportSVGOptions: ExportSVGOptions;
+
     // Display settings
     fadeOnDisable: boolean;
     focusScaleFactor: number;
 
     // Internal settings (not set by the user)
-    collapseView: boolean;
+    collapseState: boolean;
     collapseLegend: boolean;
 }
+
+export const DEFAULT_STATE_SETTINGS = {
+    id: DEFAULT_STATE_ID,
+    name: "Vault (default)",
+    engineOptions: new EngineOptions(),
+    toggleTypes: { }
+};
 
 let shapeQueriesIndex = 0;
 export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
@@ -58,14 +82,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Graph settings
     globalFilter: "",
     backupGraphOptions: new EngineOptions(),
-    views: [
-        {
-            id: DEFAULT_VIEW_ID,
-            name: "Vault (default)",
-            engineOptions: new EngineOptions(),
-            disabledTypes: { }
-        }
-    ],
+    states: [DEFAULT_STATE_SETTINGS],
 
     // Images
     imageProperty: "image",
@@ -74,6 +91,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Nodes sizes
     nodeSizeProperty: "",
     nodeSizeFunction: 'default',
+
+    // Zoom on node
+    zoomFactor: 2,
 
     // Performances
     maxNodes: 20,
@@ -112,32 +132,25 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'star (10)': {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
     },
 
+    // Export SVG
+    exportSVGOptions: {
+        asImage: true,
+        // Core options
+        onlyVisibleArea: false,
+        showNodeNames: true,
+        // Extended options
+        useCurvedLinks: false,
+        useNodesShapes: false,
+        showArcs: false,
+        showFolders: true,
+    },
+
     // Display settings
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
 
     // Internal settings (not set by the user)
-    collapseView: true,
+    collapseState: true,
     collapseLegend: true,
 };
 
-DEFAULT_SETTINGS.interactiveSettings[TAG_KEY] = {
-    colormap: "hsv",
-    colors: [],
-    unselected: [],
-    noneType: "none"
-};
-
-DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
-    colormap: "rainbow",
-    colors: [],
-    unselected: [],
-    noneType: "none"
-};
-
-DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
-    colormap: "winter",
-    colors: [],
-    unselected: [],
-    noneType: "."
-};

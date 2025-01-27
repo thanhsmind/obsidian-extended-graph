@@ -1,7 +1,5 @@
-import { Component, ExtraButtonComponent, setIcon, Setting, setTooltip } from "obsidian";
-import { FOLDER_KEY } from "src/globalVariables";
-import { GraphEventsDispatcher } from "src/graph/graphEventsDispatcher";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { Component, ExtraButtonComponent, Setting } from "obsidian";
+import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, textColor } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 class LegendRow extends Setting {
@@ -57,7 +55,7 @@ class LegendRow extends Setting {
                 })
                 .then(cb => {
                     cb.buttonEl.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-                    cb.buttonEl.style.setProperty(this.cssTextColorVariable, this.textColor(color));
+                    cb.buttonEl.style.setProperty(this.cssTextColorVariable, textColor(color));
                     if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
                         cb.buttonEl.addClass("graph-legend-none");
                     }
@@ -81,7 +79,7 @@ class LegendRow extends Setting {
         }
         else {
             (button as HTMLElement).style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
-            (button as HTMLElement).style.setProperty(this.cssTextColorVariable, this.textColor(color));
+            (button as HTMLElement).style.setProperty(this.cssTextColorVariable, textColor(color));
         }
     }
 
@@ -143,14 +141,9 @@ class LegendRow extends Setting {
         this.disableAllButton.extraSettingsEl.style.display = "";
         this.enableAllButton.extraSettingsEl.style.display = "none";
     }
-
-    private textColor(color: Uint8Array): string {
-        const textColor = (color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114 > 150) ? "black" : "white";
-        return textColor;
-    }
 }
 
-export class LegendUI extends Component {
+export class LegendUI extends Component implements InteractiveUI {
     dispatcher: GraphEventsDispatcher;
     plugin: ExtendedGraphPlugin;
 
@@ -206,15 +199,15 @@ export class LegendUI extends Component {
         this.toggleButton.extraSettingsEl.remove();
     }
 
-    updateLegend(row: string, type: string, color: Uint8Array) {
+    update(row: string, type: string, color: Uint8Array) {
         this.legendRows.get(row)?.updateLegend(type, color);
     }
 
-    addLegend(row: string, type: string, color: Uint8Array) {
+    add(row: string, type: string, color: Uint8Array) {
         this.legendRows.get(row)?.addLegend(type, color);
     }
 
-    removeLegend(row: string, types: string[]) {
+    remove(row: string, types: string[]) {
         this.legendRows.get(row)?.removeLegend(types);
     }
 
@@ -222,17 +215,23 @@ export class LegendUI extends Component {
         this.legendRows.get(row)?.toggle(type);
     }
 
-    disable(row: string, type: string) {
+    disableUI(row: string, type: string) {
         this.legendRows.get(row)?.disable(type);
     }
 
-    enable(row: string, type: string) {
+    enableUI(row: string, type: string) {
         this.legendRows.get(row)?.enable(type);
     }
 
-    enableAll(row: string) {
+    enableAllUI(row: string) {
         this.legendRows.get(row)?.manager.getTypes().forEach(type => {
             this.legendRows.get(row)?.enable(type);
+        })
+    }
+
+    disableAllUI(row: string) {
+        this.legendRows.get(row)?.manager.getTypes().forEach(type => {
+            this.legendRows.get(row)?.disable(type);
         })
     }
 

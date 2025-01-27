@@ -1,6 +1,5 @@
 import { Graphics } from "pixi.js";
-import { ManagerGraphics } from "src/graph/abstractAndInterfaces/managerGraphics";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { InteractiveManager, ManagerGraphics } from "src/internal";
 
 export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     // Instance values
@@ -8,6 +7,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     types: Set<string>;
     name: string;
     targetAlpha: number = 0.6;
+    color: Uint8Array;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string) {
         super();
@@ -18,6 +18,8 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
 
     clearGraphics(): void {
         this.clear();
+        this.destroy({children: true});
+        this.removeFromParent();
     }
 
     initGraphics(): void {
@@ -27,6 +29,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     updateGraphics(): void {
         const type = Array.from(this.types.values()).find(t => this.manager.isActive(t));
         if (!type) return;
+        this.color = this.manager.getColor(type);
         this.redrawType(type);
     }
 

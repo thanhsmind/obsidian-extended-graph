@@ -1,6 +1,5 @@
-import { LinkGraphicsWrapper } from "src/graph/abstractAndInterfaces/linkGraphicsWrapper";
-import { LinkCurveGraphics } from "./curve";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { InteractiveManager, LinkCurveGraphics, LinkGraphicsWrapper } from "src/internal";
+
 
 export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraphics> {
     
@@ -14,8 +13,10 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
     // ========================== CONNECT/DISCONNECT ===========================
 
     override connect(): void {
-        if (this.extendedElement.coreElement.px && !this.extendedElement.coreElement.px.getChildByName(this.pixiElement.name)) {
-            this.extendedElement.coreElement.px.addChild(this.pixiElement);
+        const hanger = this.extendedElement.coreElement.renderer.hanger;
+        if (!hanger.getChildByName(this.pixiElement.name)) {
+            this.pixiElement.link = this.extendedElement.coreElement;
+            hanger.addChild(this.pixiElement);
         }
     }
 }

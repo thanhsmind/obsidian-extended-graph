@@ -1,6 +1,5 @@
-import { LinkGraphicsWrapper } from "../../abstractAndInterfaces/linkGraphicsWrapper";
-import { LinkLineGraphics } from "./line";
-import { InteractiveManager } from "src/graph/interactiveManager";
+import { InteractiveManager, LinkGraphicsWrapper, LinkLineGraphics } from "src/internal";
+
 
 export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkLineGraphics> {
 

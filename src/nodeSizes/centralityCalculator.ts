@@ -1,11 +1,11 @@
 import { App, TFile } from "obsidian";
-import { NodeSizeCalculator } from "./nodeSizeCalculator";
 import Graphology from 'graphology';
 import { degreeCentrality } from "graphology-metrics/centrality/degree";
 import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
+import { NodeSizeCalculator } from "src/internal";
 
 type CentralityMapping = Record<string, number>;
 

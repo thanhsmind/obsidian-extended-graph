@@ -1,13 +1,6 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions } from "src/colors/colormaps";
-import { ExtendedGraphSettingTab } from "../settingTab";
-import { getFileInteractives } from "src/helperFunctions";
-import { plot_colormap, randomColor } from "src/colors/colors";
-import { INVALID_KEYS } from "src/globalVariables";
+import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import { Feature } from "src/types/features";
-import { SettingsSectionCollapsible } from "../settingCollapsible";
-import { UIElements } from "src/ui/UIElements";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";
@@ -54,21 +47,54 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected addColorPaletteSetting(): void {
         const setting = new Setting(this.containerEl)
             .setName(`Color palette`)
-            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`)
-            .addDropdown(cb => cb.addOptions(cmOptions).setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap)
-            .onChange(async (value) => {
-                plot_colormap(this.canvasPalette.id, value, false);
-                this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = value;
-                this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
-                await this.settingTab.plugin.saveSettings();
-            }));
+            .setDesc(`Choose the color palette for the ${this.interactiveKey}s visualizations`);
         setting.controlEl.addClass("color-palette");
+
+        // Canvas
         this.canvasPalette = setting.controlEl.createEl("canvas");
         this.canvasPalette.id = `canvas-palette-${this.interactiveKey}`;
         this.canvasPalette.width = 100;
         this.canvasPalette.height = 20;
         plot_colormap(this.canvasPalette.id, this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap, false);
+
+        // Picker icon
+        setting.addExtraButton(cb => {
+            cb.setIcon("pipette");
+            cb.onClick(() => {
+                const modal = new GradientPickerModal(this.settingTab.app, (value: string) => {
+                    this.onPaletteChanged(value);
+                });
+                modal.open();
+            });
+        });
+
+        // Select
+        setting.addDropdown(cb => {
+                for (const [group, values] of Object.entries(cmOptions)) {
+                    const groupEl = cb.selectEl.createEl("optgroup");
+                    groupEl.label = group;
+                    for (const value of values) {
+                        const option = groupEl.createEl("option");
+                        option.value = value;
+                        option.text = value;
+                    }
+                }
+                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
+                cb.onChange(async (value) => {
+                    this.onPaletteChanged(value);
+                });
+            });
+
+        // Push to body list
         this.elementsBody.push(setting.settingEl);
+    }
+
+    private onPaletteChanged(palette: string) {
+        if (palette === "") return;
+        plot_colormap(this.canvasPalette.id, palette, false);
+        this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = palette;
+        this.settingTab.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
+        this.settingTab.plugin.saveSettings();
     }
 
     protected addSpecificColorHeaderSetting(): void {
@@ -90,7 +116,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
             .setDesc(`Choose which ${this.interactiveKey}s should be considered by the plugin`);
         this.elementsBody.push(this.settingInteractiveFilter.settingEl);
         
-        this.selectionContainer = this.containerEl.createDiv({cls: "settings-selection-container"});
+        this.selectionContainer = this.containerEl.createDiv({cls: "setting-item settings-selection-container"});
         this.elementsBody.push(this.selectionContainer);
 
         const allTypes = this.getAllTypes();
@@ -196,10 +222,10 @@ class SettingColor extends Setting {
     }
 
     private save() {
-        if (!this.isValid(this.type)) return;
-
         const newType = this.textComponent.getValue().trim();
         const newColor = this.colorComponent.getValue();
+
+        if (!this.isValid(newType)) return;
 
         const colors = this.plugin.settings.interactiveSettings[this.key].colors;
 
@@ -234,15 +260,13 @@ class SettingColor extends Setting {
     }
 
     protected remove() {
-        const type = this.textComponent.getValue().trim();
-
         const colors = this.plugin.settings.interactiveSettings[this.key].colors;
         const oldIndex = colors.findIndex(c => c.type === this.type);
         if (oldIndex !== -1) {
             colors.remove(colors[oldIndex]);
         }
         this.plugin.saveSettings();
-        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, type);
+        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
 
         this.settingEl.remove();
     }

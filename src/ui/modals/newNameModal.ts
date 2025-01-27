@@ -1,5 +1,5 @@
-import { App, Modal, setIcon, Setting, TextComponent } from "obsidian";
-import { UIElements } from "../UIElements";
+import { App, Modal, Setting, TextComponent } from "obsidian";
+import { UIElements } from "src/internal";
 
 export class NewNameModal extends Modal {
     callback: (name: string) => boolean;

@@ -1,11 +1,5 @@
-import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "../settingTab";
-import { SettingInteractives } from "./settingInteractive";
-import { isPropertyKeyValid } from "src/helperFunctions";
-import { NewNameModal } from "src/ui/modals/newNameModal";
-import { FOLDER_KEY, INVALID_KEYS, LINK_KEY, TAG_KEY } from "src/globalVariables";
-import { SettingsSectionCollapsible } from "../settingCollapsible";
-import { UIElements } from "src/ui/UIElements";
+import { Setting } from "obsidian";
+import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
     settingInteractives: SettingInteractives[] = [];
@@ -34,7 +28,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     protected override addBody() {
-        this.propertiesContainer = this.settingTab.containerEl.createDiv("settings-properties-container");
+        this.propertiesContainer = this.settingTab.containerEl.createDiv("setting-item settings-properties-container");
         this.elementsBody.push(this.propertiesContainer);
 
         for (const setting of this.settingInteractives) {
@@ -80,7 +74,9 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             colormap: "rainbow",
             colors: [],
             unselected: [],
-            noneType: "none"
+            noneType: "none",
+            showOnGraph: true,
+            enableByDefault: true,
         }
         this.settingTab.plugin.saveSettings().then(() => {
             const setting = new SettingProperty(key, this.settingTab, this);
@@ -103,13 +99,29 @@ export class SettingProperty extends SettingInteractives {
 
     protected override addHeader() {
         super.addHeader();
-        this.settingHeader.addButton(cb => {
-            UIElements.setupButton(cb, 'delete');
-            cb.onClick((e) => {
+        this.settingHeader.addExtraButton(cb => {
+            UIElements.setupExtraButton(cb, 'delete');
+            cb.onClick(() => {
                 this.remove();
             })
         });
         this.settingHeader.settingEl.addClass('setting-property-header');
+    }
+
+    protected override addBody(): void {
+        super.addBody();
+        
+        // Show on graph
+        this.elementsBody.push(new Setting(this.array.propertiesContainer)
+            .setName(`Add arcs`)
+            .setDesc(`Add arcs around the nodes to visualize the property values.`)
+            .addToggle(cb => {
+                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.onChange(value => {
+                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    this.settingTab.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     remove(): void {

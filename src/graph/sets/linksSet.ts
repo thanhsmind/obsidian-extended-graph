@@ -1,14 +1,10 @@
-import { DisconnectionCause, INVALID_KEYS, LINK_KEY } from "src/globalVariables";
-import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { TAbstractFile, TFile } from "obsidian";
+import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
-import { AbstractSet } from "../abstractAndInterfaces/abstractSet";
-import { ExtendedGraphLink, getLinkID } from "../extendedElements/extendedGraphLink";
-import { InteractiveManager } from "../interactiveManager";
-import { Graph } from "../graph";
-import { getFile } from "src/helperFunctions";
+import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
+import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, InteractiveManager, INVALID_KEYS, LINK_KEY } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
+    extendedElementsMap: Map<string, ExtendedGraphLink>;
 
     // ============================== CONSTRUCTOR ==============================
 

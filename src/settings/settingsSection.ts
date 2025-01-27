@@ -1,5 +1,5 @@
 import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
+import { ExtendedGraphSettingTab } from "src/internal";
 
 export abstract class SettingsSection {
     settingTab: ExtendedGraphSettingTab;

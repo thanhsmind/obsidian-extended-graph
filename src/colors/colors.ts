@@ -10,6 +10,10 @@ export function rgb2int(rgb: Uint8Array): number {
     return rgb[0] * (256*256) + rgb[1] * 256 + rgb[2];
 }
 
+export function int2hex(n: number): HexString {
+    return "#" + n.toString(16);
+}
+
 /**
  * Convert HSV to RGB
  * @param hsv h: 0-360, s: 0-100, v: 0-100
@@ -35,6 +39,10 @@ export function hsv2rgb(hsv: {h: number, s: number, v: number}): Uint8Array {
     }
   
     return new Uint8Array([ r * 255, g * 255, b * 255 ]);
+}
+
+export function hex2int(hex: string): number {
+    return rgb2int(hex2rgb(hex));
 }
 
 /**

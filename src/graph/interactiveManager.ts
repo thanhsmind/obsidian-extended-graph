@@ -1,10 +1,6 @@
 
 import { Component } from "obsidian";
-import { getColor, hex2rgb } from "../colors/colors";
-import { INVALID_KEYS, NONE_COLOR } from "src/globalVariables";
-import { GraphViewData } from "src/views/viewData";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { GraphEventsDispatcher } from "./graphEventsDispatcher";
+import { ExtendedGraphSettings, getColor, GraphEventsDispatcher, hex2rgb, INVALID_KEYS, NONE_COLOR } from "src/internal";
 
 class Interactive {
     type: string;
@@ -60,29 +56,6 @@ export class InteractiveManager extends Component {
         if (enabledTypes.length > 0) this.dispatcher.onInteractivesEnabled(this.name, enabledTypes);
     }
 
-    loadView(viewData: GraphViewData): void {
-        if (!viewData.disabledTypes) return;
-        const viewTypesToDisable: string[] = viewData.disabledTypes[this.name];
-        // Enable/Disable tags
-        const toDisable: string[] = [];
-        const toEnable: string[] = [];
-        this.getTypes().forEach(type => {
-            const interactive = this.interactives.get(type);
-            if (!interactive) return;
-            if (interactive.isActive && viewTypesToDisable?.includes(type)) {
-                interactive.isActive = false;
-                toDisable.push(type);
-            }
-            else if (!interactive.isActive && !viewTypesToDisable?.includes(type)) {
-                interactive.isActive = true;
-                toEnable.push(type);
-            }
-        });
-
-        if (toDisable.length > 0) this.dispatcher.onInteractivesDisabled(this.name, toDisable);
-        if (toEnable.length > 0) this.dispatcher.onInteractivesEnabled(this.name, toEnable);
-    }
-
     isActive(type: string): boolean {
         const interactive = this.interactives.get(type);
         if (!interactive) return false;
@@ -135,8 +108,9 @@ export class InteractiveManager extends Component {
             this.interactives.set(type, new Interactive(type, color));
         });
         this.interactives = new Map([...this.interactives.entries()].sort());
-        if (colorsMaps.size > 0)
+        if (colorsMaps.size > 0) {
             this.dispatcher.onInteractivesAdded(this.name, colorsMaps);
+        }
     }
 
     getColor(type: string): Uint8Array {

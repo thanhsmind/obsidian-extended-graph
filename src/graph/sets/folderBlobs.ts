@@ -1,11 +1,7 @@
 import { TFile, TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { randomColor, rgb2hex } from "src/colors/colors";
-import { getFile, getFileInteractives } from "src/helperFunctions";
-import { FOLDER_KEY, INVALID_KEYS } from "src/globalVariables";
-import { InteractiveManager } from "../interactiveManager";
-import { Graph } from "../graph";
+import { FOLDER_KEY, getFile, getFileInteractives, Graph, InteractiveManager, INVALID_KEYS, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -13,8 +9,12 @@ export class FolderBlob {
     area: Graphics;
     text: Text;
     color: string;
+    strokeOpacity: number = 0.5;
+    fillOpacity: number = 0.03;
+    radius: number = 50;
+    borderWidth: number = 2;
     textStyle: TextStyle;
-    BBox: {xMin: number, xMax: number, yMin: number, yMax: number};
+    BBox: {left: number, right: number, top: number, bottom: number};
 
     constructor(path: string, color?: string) {
         this.path = path;
@@ -60,9 +60,9 @@ export class FolderBlob {
     private drawBox() {
         this.area.clear();
 
-        this.area.lineStyle(2, this.color, 0.5)
-            .beginFill(this.color, 0.03)
-            .drawRoundedRect(this.BBox.xMin, this.BBox.yMin, (this.BBox.xMax - this.BBox.xMin), (this.BBox.yMax - this.BBox.yMin), 50)
+        this.area.lineStyle(this.borderWidth, this.color, this.strokeOpacity)
+            .beginFill(this.color, this.fillOpacity)
+            .drawRoundedRect(this.BBox.left, this.BBox.top, (this.BBox.right - this.BBox.left), (this.BBox.bottom - this.BBox.top), this.radius)
             .endFill();
     }
 
@@ -80,18 +80,18 @@ export class FolderBlob {
         }
 
         this.BBox = {
-            xMin: xMin - 50,
-            xMax: xMax + 50,
-            yMin: yMin - 50,
-            yMax: yMax + 50,
+            left: xMin - 50,
+            right: xMax + 50,
+            top: yMin - 50,
+            bottom: yMax + 50,
         };
     }
 
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
         this.text.style.fontSize = 14 * t;
-        this.text.x = this.BBox.xMin +  0.5 * (this.BBox.xMax - this.BBox.xMin);
-        this.text.y = this.BBox.yMin;
+        this.text.x = this.BBox.left +  0.5 * (this.BBox.right - this.BBox.left);
+        this.text.y = this.BBox.top;
         this.text.scale.set(1 / t);
     }
 }
@@ -101,7 +101,7 @@ export class FoldersSet {
     readonly graph: Graph;
 
     // Interactive manager
-    manager: InteractiveManager | null;
+    managers: Map<string, InteractiveManager>;
 
     // Set of blobs
     foldersMap = new Map<string, FolderBlob>();
@@ -113,11 +113,14 @@ export class FoldersSet {
 
     constructor(graph: Graph, managers: InteractiveManager[]) {
         this.graph = graph;
-        if (managers.length > 0) this.initializeManager(managers[0]);
+        this.initializeManager(managers);
     }
 
-    private initializeManager(manager: InteractiveManager | undefined) {
-        this.manager = manager ? manager : null;
+    private initializeManager(managers: InteractiveManager[]) {
+        this.managers = new Map<string, InteractiveManager>();
+        for (const manager of managers) {
+            this.managers.set(manager.name, manager);
+        }
     }
 
     // ================================ LOADING ================================
@@ -134,27 +137,30 @@ export class FoldersSet {
     }
 
     private addMissingFolders(): void {
-        if (!this.manager) return;
-
-        let missingFolders = new Set<string>();
-
-        for (const node of this.graph.renderer.nodes) {
-            if (this.foldersMap.has(node.id)) continue;
-
-            const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
-            if (!file) continue;
-
-            const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
-            this.addInteractivesToSet(interactives, missingFolders);
+        for (const [key, manager] of this.managers) {
+            let missingFolders = new Set<string>();
+    
+            for (const node of this.graph.renderer.nodes) {
+                if (this.foldersMap.has(node.id)) continue;
+    
+                const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+                if (!file) continue;
+    
+                const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
+                this.addInteractivesToSet(key, interactives, missingFolders);
+            }
+    
+            manager.addTypes(missingFolders);
         }
-
-        this.manager.addTypes(missingFolders);
     }
 
-    private addInteractivesToSet(interactives: Set<string>, missingFolders: Set<string>) {
+    private addInteractivesToSet(key: string, interactives: Set<string>, missingFolders: Set<string>) {
+        const manager = this.managers.get(key);
+        if (!manager) return;
+
         let hasType = false;
         for (const interactive of interactives) {
-            if (!this.manager?.interactives.has(interactive)) {
+            if (!manager.interactives.has(interactive)) {
                 if (this.isFolderValid(interactive)) {
                     missingFolders.add(interactive);
                     hasType = true;
@@ -164,7 +170,7 @@ export class FoldersSet {
                 hasType = true;
             }
         }
-        if (!hasType && !this.manager?.interactives.has(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType)) {
+        if (!hasType && !manager.interactives.has(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType)) {
             missingFolders.add(this.graph.staticSettings.interactiveSettings[FOLDER_KEY].noneType);
         }
     }
@@ -185,12 +191,12 @@ export class FoldersSet {
 
     // ========================= ADD AND REMOVE FOLDER =========================
 
-    addFolder(path: string): void {
+    addFolder(key: string, path: string): void {
         this.removeFolder(path);
-
+        const manager = this.managers.get(key);
         const folder = this.graph.dispatcher.graphsManager.plugin.app.vault.getFolderByPath(path);
-        if (folder) {
-            const blob = new FolderBlob(path, this.manager ? rgb2hex(this.manager.getColor(path)) : undefined);
+        if (folder && manager) {
+            const blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
             for (const file of folder.children) {
                 if (file instanceof TFile) {
                     const node = this.graph.nodesSet.extendedElementsMap.get(file.path)?.coreElement;
@@ -221,10 +227,11 @@ export class FoldersSet {
         }
     }
 
-    updateColor(path: string) {
+    updateColor(key: string, path: string) {
+        const manager = this.managers.get(key);
         const folderBlob = this.foldersMap.get(path);
-        if (!folderBlob || !this.manager) return;
-        folderBlob.color = rgb2hex(this.manager.getColor(path));
+        if (!folderBlob || !manager) return;
+        folderBlob.color = rgb2hex(manager.getColor(path));
         folderBlob.updateGraphics(this.graph.renderer.scale);
     }
 }

@@ -1,16 +1,7 @@
 
 import { Component } from 'obsidian';
-import { InteractiveManager } from './interactiveManager';
-import { GraphView } from 'src/views/view';
-import { DEFAULT_VIEW_ID, DisconnectionCause, FOLDER_KEY, LINK_KEY, TAG_KEY } from 'src/globalVariables';
-import { GraphEventsDispatcher } from './graphEventsDispatcher';
-import { ExtendedGraphSettings } from 'src/settings/settings';
-import { getLinkID } from './extendedElements/extendedGraphLink';
-import { getEngine } from 'src/helperFunctions';
 import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { NodesSet } from './sets/nodesSet';
-import { LinksSet } from './sets/linksSet';
-import { FoldersSet } from './sets/folderBlobs';
+import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     // Parent dispatcher
@@ -174,9 +165,13 @@ export class Graph extends Component {
      * @returns boolean - True if links were found and disabled, otherwise false.
      */
     disableLinkTypes(types: string[]): boolean {
-        const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
-        if (links) {
-            this.disableLinks(links);
+        //const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
+        let linksToDisable: string[] = [];
+        for (const type of types) {
+            linksToDisable = linksToDisable.concat(this.linksSet.disableType(LINK_KEY, type));
+        }
+        if (linksToDisable) {
+            this.disableLinks(new Set<string>(linksToDisable));
             return true;
         }
         return false;
@@ -525,48 +520,29 @@ export class Graph extends Component {
 
     private getNodesForWorker(): { [node: string]: number[] } {
         const nodes: { [node: string]: number[] } = {};
+        // Add connected nodes
         for (const id of this.nodesSet.connectedIDs) {
             const extendedNode = this.nodesSet.extendedElementsMap.get(id);
             if (extendedNode) nodes[id] = [extendedNode.coreElement.x, extendedNode.coreElement.y];
+        }
+        // Add tags
+        for (const node of this.renderer.nodes.filter(n => n.type === "tag")) {
+            nodes[node.id] = [node.x, node.y];
         }
         return nodes;
     }
 
     private getLinksForWorker(): string[][] {
         const links: string[][] = [];
+        // Add connected links
         for (const id of this.linksSet.connectedIDs) {
             const extendedLink = this.linksSet.extendedElementsMap.get(id);
             if (extendedLink) links.push([extendedLink.coreElement.source.id, extendedLink.coreElement.target.id]);
         }
+        // Add links to tags
+        for (const link of this.renderer.links.filter(l => l.target.type === "tag")) {
+            links.push([link.source.id, link.target.id]);
+        }
         return links;
-    }
-
-    // ================================= VIEWS =================================
-
-    /**
-     * Creates a new view with the specified name from the current graph.
-     * @param name - The name of the new view.
-     * @returns string - The ID of the new view.
-     */
-    newView(name: string): string {
-        const view = new GraphView(name);
-        view.setID();
-        view.saveGraph(this);
-        this.dispatcher.graphsManager.onViewNeedsSaving(view.data);
-        return view.data.id;
-    }
-
-    /**
-     * Saves the current graph in the view with the specified ID.
-     * @param id - The ID of the view to save.
-     */
-    saveView(id: string): void {
-        if (id === DEFAULT_VIEW_ID) return;
-        const viewData = this.staticSettings.views.find(v => v.id == id);
-        if (!viewData) return;
-        const view = new GraphView(viewData?.name);
-        view.setID(id);
-        view.saveGraph(this);
-        this.dispatcher.graphsManager.onViewNeedsSaving(view.data);
     }
 }

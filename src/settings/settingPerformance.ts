@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { SettingsSection } from "./settingsSection";
+import { ExtendedGraphSettingTab, SettingsSection } from "src/internal";
 
 export class SettingPerformance extends SettingsSection {
     
@@ -9,9 +8,12 @@ export class SettingPerformance extends SettingsSection {
     }
 
     protected override addBody() {
-        const containerEl = this.settingTab.containerEl;
+        this.addDelay();
+        this.addNumberOfNodes();
+    }
 
-        new Setting(containerEl)
+    private addNumberOfNodes() {
+        const setting = new Setting(this.settingTab.containerEl)
             .setName('Maximum number of nodes')
             .setDesc('If the graph contains more nodes than this setting, the plugin will be disabled.')
             .addText(cb => cb
@@ -23,8 +25,12 @@ export class SettingPerformance extends SettingsSection {
                         await this.settingTab.plugin.saveSettings();
                     }
             }));
-        
-        new Setting(containerEl)
+
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    private addDelay() {
+        const setting = new Setting(this.settingTab.containerEl)
             .setName('Initialization delay (milliseconds)')
             .setDesc('Because of asynchronous mechanics, it can be needed to wait a time before starting initializing the extended features')
             .addText(cb => cb
@@ -36,5 +42,7 @@ export class SettingPerformance extends SettingsSection {
                         await this.settingTab.plugin.saveSettings();
                     }
             }));
+
+        this.elementsBody.push(setting.settingEl);
     }
 }

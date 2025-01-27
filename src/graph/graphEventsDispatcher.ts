@@ -1,12 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
-import { Graph } from "./graph";
-import { LegendUI } from "../ui/legendUI";
-import { ViewsUI } from "../ui/viewsUI";
-import { GraphsManager } from "src/graphsManager";
-import { WorkspaceLeafExt } from "src/types/leaf";
-import { FOLDER_KEY, LINK_KEY } from "src/globalVariables";
-import { ExtendedGraphSettings } from "src/settings/settings";
-import { GraphViewData } from "src/views/viewData";
+import { Container, DisplayObject } from "pixi.js";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, StatesUI, WorkspaceLeafExt } from "src/internal";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -17,7 +11,8 @@ export class GraphEventsDispatcher extends Component {
     observerOrphans: MutationObserver;
 
     legendUI: LegendUI | null = null;
-    viewsUI: ViewsUI;
+    foldersUI: GCFolders | null = null;
+    statesUI: StatesUI;
 
     renderCallback: () => void;
 
@@ -36,6 +31,7 @@ export class GraphEventsDispatcher extends Component {
         this.graphsManager = graphsManager;
         this.initializeGraph();
         this.initializeUI();
+        this.initializeFoldersUI();
     }
 
     private initializeGraph(): void {
@@ -45,11 +41,10 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeUI(): void {
         this.initializeLegendUI();
-        if (this.graphsManager.plugin.settings.enableFeatures['folders']) this.initializeFoldersUI();
 
-        this.viewsUI = new ViewsUI(this);
-        this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
-        this.addChild(this.viewsUI);
+        this.statesUI = new StatesUI(this.graph);
+        this.statesUI.updateStatesList(this.graphsManager.plugin.settings.states);
+        this.addChild(this.statesUI);
     }
 
     private initializeLegendUI(): void {
@@ -61,9 +56,15 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private initializeFoldersUI(): void {
-        const foldersManager = this.graph.folderBlobs.manager;
+        if (!this.graphsManager.plugin.settings.enableFeatures['folders']) return;
+
+        const graphControls = this.graphsManager.globalUIs.get(this.leaf.id)?.control;
+        if (!graphControls) return;
+
+        const foldersManager = this.graph.folderBlobs.managers.get(FOLDER_KEY);
         if (!foldersManager) return;
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.addSectionFolder(foldersManager);
+        this.foldersUI = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+        this.foldersUI.display();
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
@@ -76,13 +77,13 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is loaded.
      */
     onload(): void {
-        this.loadCurrentView();
+        this.loadCurrentState();
     }
 
-    private loadCurrentView(): void {
-        const view = this.graphsManager.plugin.settings.views.find(v => v.id === this.viewsUI.currentViewID);
-        if (view) {
-            this.graph.engine.setOptions(view.engineOptions);
+    private loadCurrentState(): void {
+        const state = this.graphsManager.plugin.settings.states.find(v => v.id === this.statesUI.currentStateID);
+        if (state) {
+            this.graph.engine.setOptions(state.engineOptions);
         }
     }
 
@@ -95,7 +96,8 @@ export class GraphEventsDispatcher extends Component {
         this.observeOrphanSettings();
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
-        this.changeView(this.viewsUI.currentViewID);
+        this.graphsManager.statesManager.changeState(this.graph, this.statesUI.currentStateID);
+        console.log(this);
     }
 
     private updateOpacityLayerColor(): void {
@@ -110,6 +112,9 @@ export class GraphEventsDispatcher extends Component {
 
         this.onPointerDown = this.onPointerDown.bind(this);
         this.graph.renderer.px.stage.on('pointerdown', this.onPointerDown);
+
+        this.onPointerUp = this.onPointerUp.bind(this);
+        this.graph.renderer.px.stage.on('pointerup', this.onPointerUp);
     }
 
     private observeOrphanSettings(): void {
@@ -161,12 +166,12 @@ export class GraphEventsDispatcher extends Component {
         this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         this.graphsManager.onPluginUnloaded(this.leaf);
-        this.unload();
     }
 
     private unbindStageEvents(): void {
         this.graph.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
         this.graph.renderer.px.stage.off('pointerdown', this.onPointerDown);
+        this.graph.renderer.px.stage.off('pointerup', this.onPointerUp);
     }
 
     // ============================= STAGE EVENTS ==============================
@@ -174,26 +179,45 @@ export class GraphEventsDispatcher extends Component {
     /**
      * Called when a child is added to the stage by the engine.
      */
-    private onChildAddedToStage(): void {
+    private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
         if (this.graphsManager.isNodeLimitExceeded(this.leaf)) {
-            this.graphsManager.disablePlugin(this.leaf);
+            this.listenStage = false;
+            setTimeout(() => {
+                this.graphsManager.disablePluginFromLeafID(this.leaf.id);
+            });
             return;
         }
+        
+        const node = this.graph.renderer.nodes.find(n => n.circle === child);
+        if (node) {
+            const extendedNode = this.graph.nodesSet.extendedElementsMap.get(node.id);
+            if (!extendedNode) {
+                this.graph.nodesSet.load();
+            }
+            else {
+                extendedNode.setCoreElement(node);
+            }
+        }
 
-        this.loadAndConnectNodesAndLinks();
-        //this.disableDisconnectedLinks();
-    }
-
-    private loadAndConnectNodesAndLinks(): void {
-        this.graph.nodesSet.load();
-        this.graph.nodesSet.connectNodes();
-        this.graph.linksSet.load();
-        this.graph.linksSet.connectLinks();
+        const linkPx = this.graph.renderer.links.find(l => l.px === child);
+        if (linkPx) {
+            const extendedLink = this.graph.linksSet.extendedElementsMap.get(getLinkID(linkPx));
+            if (!extendedLink) {
+                this.graph.linksSet.load();
+            }
+            else {
+                extendedLink.setCoreElement(linkPx);
+            }
+        }
     }
 
     private onPointerDown(): void {
         this.preventDraggingPinnedNodes();
+    }
+
+    private onPointerUp(): void {
+        this.pinDraggingPinnedNode();
     }
 
     // ============================ SETTINGS EVENTS ============================
@@ -214,7 +238,6 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        //console.log(this.graph.renderer.idleFrames);
         if (this.graph.staticSettings.enableFeatures['folders']) this.graph.folderBlobs.updateGraphics();
         if (this.graph.staticSettings.enableFeatures['links'] && this.graph.staticSettings.enableFeatures['curvedLinks']) {
             for (const id of this.graph.linksSet.connectedIDs) {
@@ -306,22 +329,26 @@ export class GraphEventsDispatcher extends Component {
     // TAGS
 
     private onNodeInteractiveTypesAdded(key: string, colorMaps: Map<string, Uint8Array>) {
-        this.graph.nodesSet.resetArcs(key);
+        // Update UI
         if (this.legendUI) {
             for (const [type, color] of colorMaps) {
-                this.legendUI.addLegend(key, type, color);
+                this.legendUI.add(key, type, color);
             }
         }
-        this.graph.renderer.changed();
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[key].enableByDefault) {
+            this.graph.nodesSet.resetArcs(key);
+            this.graph.renderer.changed();
+        }
     }
 
     private onNodeInteractiveTypesRemoved(key: string, types: Set<string>) {
-        this.legendUI?.removeLegend(key, [...types]);
+        this.legendUI?.remove(key, [...types]);
     }
 
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
         this.graph.nodesSet.updateTypeColor(key, type, color);
-        this.legendUI?.updateLegend(key, type, color);
+        this.legendUI?.update(key, type, color);
         this.graph.renderer.changed();
     }
 
@@ -350,20 +377,28 @@ export class GraphEventsDispatcher extends Component {
     // ================================= LINKS =================================
 
     private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
-        colorMaps.forEach((color, type) => {
-            this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
-            this.legendUI?.addLegend(LINK_KEY, type, color);
-        });
-        this.graph.renderer.changed();
+        // Update UI
+        if (this.legendUI) {
+            for (const [type, color] of colorMaps) {
+                this.legendUI.add(LINK_KEY, type, color);
+            }
+        }
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[LINK_KEY].enableByDefault) {
+            colorMaps.forEach((color, type) => {
+                this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
+            });
+            this.graph.renderer.changed();
+        }
     }
 
     private onLinkTypesRemoved(types: Set<string>) {
-        this.legendUI?.removeLegend(LINK_KEY, [...types]);
+        this.legendUI?.remove(LINK_KEY, [...types]);
     }
 
     private onLinkColorChanged(type: string, color: Uint8Array) {
         this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
-        this.legendUI?.updateLegend(LINK_KEY, type, color);
+        this.legendUI?.update(LINK_KEY, type, color);
         this.graph.renderer.changed();
     }
 
@@ -386,19 +421,32 @@ export class GraphEventsDispatcher extends Component {
     // ================================ FOLDERS ================================
 
     private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
+        // Update UI
+        if (this.foldersUI) {
+            for (const [path, color] of colorMaps) {
+                this.foldersUI.add(FOLDER_KEY, path, color);
+            }
+        }
+        // Update Graph is needed
+        if (this.graph.dynamicSettings.interactiveSettings[FOLDER_KEY].enableByDefault) {
+            for (const [path, color] of colorMaps) {
+                this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
+            }
+            this.graph.renderer.changed();
+        }
     }
 
     private onFoldersRemoved(paths: Set<string>) {
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.createFolders();
+        this.foldersUI?.remove(FOLDER_KEY, [...paths]);
+
         for (const path of paths) {
             this.removeBBox(path);
         }
     }
 
     private onFolderColorChanged(path: string, color: Uint8Array) {
-        this.graph.folderBlobs.updateColor(path);
-        this.graphsManager.globalUIs.get(this.leaf.id)?.control.sectionFolders?.setColor(path);
+        this.graph.folderBlobs.updateColor(FOLDER_KEY, path);
+        this.foldersUI?.update(FOLDER_KEY, path, color);
         this.graph.renderer.changed();
     }
 
@@ -419,75 +467,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private addBBox(path: string) {
-        this.graph.folderBlobs.addFolder(path);
+        this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
         this.graph.renderer.changed();
     }
 
     private removeBBox(path: string) {
         this.graph.folderBlobs.removeFolder(path);
         this.graph.renderer.changed();
-    }
-
-    // ================================= VIEWS =================================
-
-    /**
-     * Change the current view with the specified ID.
-     * @param id - The ID of the view to change to.
-     */
-    changeView(id: string) {
-        const viewData = this.graphsManager.plugin.getViewDataById(id);
-        if (!viewData) return;
-
-        this.updateInteractiveManagers(viewData).then(() => {
-            if (viewData.engineOptions) this.graph.engine.setOptions(viewData.engineOptions);
-            this.graph.updateWorker();
-            this.graph.nodesSet.setPinnedNodes(viewData.pinNodes ? viewData.pinNodes : {});
-            this.graph.engine.updateSearch();
-        });
-    }
-
-    private async updateInteractiveManagers(viewData: GraphViewData): Promise<void> {
-        await setTimeout(() => {
-            this.updateNodeManagers(viewData);
-            this.updateLinkManager(viewData);
-        }, 200);
-    }
-
-    private updateNodeManagers(viewData: GraphViewData): void {
-        for (const [key, manager] of this.graph.nodesSet.managers) {
-            manager.loadView(viewData);
-            if (this.legendUI && viewData.disabledTypes) {
-                this.legendUI.enableAll(key);
-                if (viewData.disabledTypes.hasOwnProperty(key)) {
-                    for (const type of viewData.disabledTypes[key]) {
-                        this.legendUI.disable(key, type);
-                    }
-                }
-            }
-        }
-    }
-    
-    private updateLinkManager(viewData: GraphViewData): void {
-        const linksManager = this.graph.linksSet.managers.get(LINK_KEY);
-        if (linksManager) {
-            linksManager.loadView(viewData);
-            if (this.legendUI && viewData.disabledTypes) {
-                this.legendUI.enableAll(LINK_KEY);
-                if (viewData.disabledTypes.hasOwnProperty(LINK_KEY)) {
-                    for (const type of viewData.disabledTypes[LINK_KEY]) {
-                        this.legendUI.disable(LINK_KEY, type);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Deletes the view with the specified ID.
-     * @param id - The ID of the view to delete.
-     */
-    deleteView(id: string): void {
-        this.graphsManager.onViewNeedsDeletion(id);
     }
 
 
@@ -518,9 +504,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     preventDraggingPinnedNodes() {
-        var i = this.graph.renderer.dragNode;
-        if (i && this.graph.nodesSet.isNodePinned(i.id)) {
-            this.graph.renderer.dragNode = null;
+        var node = this.graph.renderer.dragNode;
+        if (node && this.graph.nodesSet.isNodePinned(node.id)) {
+            this.graph.nodesSet.setLastDraggedPinnedNode(node.id);
         }
+    }
+
+    pinDraggingPinnedNode() {
+        this.graph.nodesSet.pinLastDraggedPinnedNode();
     }
 }

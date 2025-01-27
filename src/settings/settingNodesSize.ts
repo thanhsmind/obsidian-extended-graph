@@ -1,10 +1,5 @@
 import { setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "./settingTab";
-import { SettingsSectionCollapsible } from "./settingCollapsible";
-import { isPropertyKeyValid } from "src/helperFunctions";
-import { NodeShape } from "src/graph/graphicElements/nodes/shapes";
-import { NodeSizeFunction, nodeSizeFunctionLabels } from "src/nodeSizes/nodeSizeCalculator";
-import { NodeSizeCalculatorFactory } from "src/nodeSizes/nodeSizeCalculatorFactory";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, NodeShape, NodeSizeCalculatorFactory, NodeSizeFunction, nodeSizeFunctionLabels, SettingsSectionCollapsible } from "src/internal";
 
 export class SettingNodeSize extends SettingsSectionCollapsible {
     allTopElements: HTMLElement[] = [];

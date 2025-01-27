@@ -1,7 +1,7 @@
 import { App, TFile } from "obsidian";
-import { NodeSizeCalculator } from "./nodeSizeCalculator";
 import eccentricity from "graphology-metrics/node/eccentricity";
 import { GraphologySingleton } from "./graphology";
+import { NodeSizeCalculator } from "src/internal";
 
 export class EccentricityCalculator extends NodeSizeCalculator {
 
