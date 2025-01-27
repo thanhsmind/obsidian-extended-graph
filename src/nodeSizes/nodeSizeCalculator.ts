@@ -1,6 +1,6 @@
 import { App, TFile } from "obsidian";
 
-export type NodeSizeFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
+export type NodeSizeFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
 
 export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
     'default': "Default",
@@ -10,6 +10,7 @@ export const nodeSizeFunctionLabels: Record<NodeSizeFunction, string> = {
     'filenameLength': "File name length",
     'tagsCount': "Number of tags",
     'creationTime': "Time since file creation",
+    'modifiedTime': "Time since last modification",
     'eccentricity': "Eccentricity in the connected graph",
     'betweenness': "Betweenness centrality",
     'closeness': "Closeness centrality",

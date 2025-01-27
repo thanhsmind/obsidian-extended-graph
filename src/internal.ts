@@ -50,6 +50,7 @@ export * from "./nodeSizes/creationTimeCalculator";
 export * from "./nodeSizes/eccentricityCalculator";
 export * from "./nodeSizes/filenameLengthCalculator";
 export * from "./nodeSizes/forwardlinkCountCalculator";
+export * from "./nodeSizes/modifiedTimeCalculator";
 export * from "./nodeSizes/tagsCountCalculator";
 
 export * from "./queries/queriesMatcher";
