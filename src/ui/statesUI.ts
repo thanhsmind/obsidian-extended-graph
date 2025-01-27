@@ -1,14 +1,14 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_VIEW_ID, Graph, GraphViewData, NewNameModal, UIElements, ViewsManager } from "src/internal";
+import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
-export class ViewsUI extends Component {
-    viewsManager: ViewsManager;
+export class StatesUI extends Component {
+    statesManager: StatesManager;
     graph: Graph;
     plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
-    currentViewID: string;
+    currentStateID: string;
 
     isOpen: boolean;
 
@@ -22,16 +22,16 @@ export class ViewsUI extends Component {
     constructor(graph: Graph) {
         super();
         this.graph = graph;
-        this.viewsManager = this.graph.dispatcher.graphsManager.viewsManager;
-        this.plugin = this.viewsManager.graphsManager.plugin;
+        this.statesManager = this.graph.dispatcher.graphsManager.statesManager;
+        this.plugin = this.statesManager.graphsManager.plugin;
         this.viewContent = this.graph.dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
-        this.root.addClass("graph-views-container");
+        this.root.addClass("graph-states-container");
         
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
-            .setTooltip("Open views settings")
+            .setTooltip("Open states settings")
             .setIcon("eye")
             .onClick(() => {
                 if (this.isOpen) {
@@ -42,18 +42,18 @@ export class ViewsUI extends Component {
                 }
             })
             .then(cb => {
-                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-views"]);
+                cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-states"]);
             });
 
         // TITLE
         new Setting(this.root)
-            .setName("Views")
+            .setName("States")
             .addDropdown(cb => {
                 this.select = cb.selectEl;
                 this.select.addEventListener('change', event => {
-                    this.currentViewID = this.select.value;
+                    this.currentStateID = this.select.value;
                     this.displaySaveDeleteButton();
-                    this.viewsManager.changeView(this.graph, this.select.value);
+                    this.statesManager.changeState(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
@@ -61,28 +61,28 @@ export class ViewsUI extends Component {
                 UIElements.setupExtraButton(cb, 'add');
                 this.addButton.addEventListener('click', event => {
                     this.addButton.blur();
-                    this.openModalToAddView();
+                    this.openModalToAddState();
                 })
             })
             .addExtraButton(cb => {
                 this.saveButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'save');
                 this.saveButton.addEventListener('click', event => {
-                    this.viewsManager.saveView(this.graph, this.select.value);
+                    this.statesManager.saveState(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
                 this.deleteButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'delete');
                 this.deleteButton.addEventListener('click', event => {
-                    this.viewsManager.deleteView(this.select.value);
+                    this.statesManager.deleteState(this.select.value);
                 });
             });
 
-        // CURRENT VIEW ID
-        this.currentViewID = this.select.value;
+        // CURRENT STATE ID
+        this.currentStateID = this.select.value;
 
-        if (this.plugin.settings.collapseView) {
+        if (this.plugin.settings.collapseState) {
             this.close();
         }
         else {
@@ -95,11 +95,11 @@ export class ViewsUI extends Component {
         this.toggleButton.extraSettingsEl.remove();
     }
 
-    private openModalToAddView() {
+    private openModalToAddState() {
         const modal = new NewNameModal(
             this.plugin.app,
-            "New view name",
-            this.newView.bind(this)
+            "New state name",
+            this.newState.bind(this)
         );
         modal.open();
     }
@@ -117,28 +117,28 @@ export class ViewsUI extends Component {
         this.select.appendChild(option);
     }
 
-    addView(key: string, name: string) {
+    addState(key: string, name: string) {
         this.addOption(key, name);
         this.select.value = key;
     }
 
-    newView(name: string): boolean {
+    newState(name: string): boolean {
         if (name.length === 0) return false;
-        const id = this.viewsManager.newView(this.graph, name);
-        this.currentViewID = id;
+        const id = this.statesManager.newState(this.graph, name);
+        this.currentStateID = id;
         return true;
     }
     
-    updateViewsList(views: GraphViewData[]): void {
+    updateStatesList(states: GraphStateData[]): void {
         this.clear();
-        views.forEach(view => {
-            this.addOption(view.id, view.name);
+        states.forEach(state => {
+            this.addOption(state.id, state.name);
         });
-        if (views.find(v => v.id === this.currentViewID)) {
-            this.select.value = this.currentViewID;
+        if (states.find(v => v.id === this.currentStateID)) {
+            this.select.value = this.currentStateID;
         }
         else {
-            this.currentViewID = this.select.value;
+            this.currentStateID = this.select.value;
         }
         this.displaySaveDeleteButton();
     }
@@ -150,15 +150,15 @@ export class ViewsUI extends Component {
     }
 
     private displaySaveDeleteButton() {
-        this.saveButton.style.display   = this.select.value !== DEFAULT_VIEW_ID ? "" : "none";
-        this.deleteButton.style.display = this.select.value !== DEFAULT_VIEW_ID ? "" : "none";
+        this.saveButton.style.display   = this.select.value !== DEFAULT_STATE_ID ? "" : "none";
+        this.deleteButton.style.display = this.select.value !== DEFAULT_STATE_ID ? "" : "none";
     }
 
     open() {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
-        this.plugin.settings.collapseView = false;
+        this.plugin.settings.collapseState = false;
         this.plugin.saveSettings();
     }
 
@@ -166,7 +166,7 @@ export class ViewsUI extends Component {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
-        this.plugin.settings.collapseView = true;
+        this.plugin.settings.collapseState = true;
         this.plugin.saveSettings();
     }
 }

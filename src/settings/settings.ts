@@ -1,4 +1,4 @@
-import { DEFAULT_VIEW_ID, EngineOptions, Feature, GraphViewData, NodeSizeFunction, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeSizeFunction, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -30,7 +30,7 @@ export interface ExtendedGraphSettings {
     // Graph settings
     globalFilter: string;
     backupGraphOptions: EngineOptions;
-    views: GraphViewData[];
+    states: GraphStateData[];
 
     // Image
     imageProperty: string;
@@ -61,12 +61,12 @@ export interface ExtendedGraphSettings {
     focusScaleFactor: number;
 
     // Internal settings (not set by the user)
-    collapseView: boolean;
+    collapseState: boolean;
     collapseLegend: boolean;
 }
 
-export const DEFAULT_VIEW_SETTINGS = {
-    id: DEFAULT_VIEW_ID,
+export const DEFAULT_STATE_SETTINGS = {
+    id: DEFAULT_STATE_ID,
     name: "Vault (default)",
     engineOptions: new EngineOptions(),
     toggleTypes: { }
@@ -81,7 +81,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Graph settings
     globalFilter: "",
     backupGraphOptions: new EngineOptions(),
-    views: [DEFAULT_VIEW_SETTINGS],
+    states: [DEFAULT_STATE_SETTINGS],
 
     // Images
     imageProperty: "image",
@@ -149,7 +149,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     focusScaleFactor: 1.8,
 
     // Internal settings (not set by the user)
-    collapseView: true,
+    collapseState: true,
     collapseLegend: true,
 };
 

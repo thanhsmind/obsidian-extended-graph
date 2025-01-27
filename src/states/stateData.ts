@@ -48,7 +48,7 @@ export class EngineOptions implements GraphPluginInstanceOptions {
     }
 }
 
-export class GraphViewData {
+export class GraphStateData {
     id: string = "";
     name: string = "";
     toggleTypes: { [interactive: string] : string[] };

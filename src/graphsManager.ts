@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeSizeCalculator, NodeSizeCalculatorFactory, TAG_KEY, ViewsManager, WorkspaceLeafExt } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeSizeCalculator, NodeSizeCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt } from "./internal";
 import ExtendedGraphPlugin from "./main";
 
 
@@ -14,7 +14,7 @@ export class GraphsManager extends Component {
     localGraphID: string | null = null;
     
     plugin: ExtendedGraphPlugin;
-    viewsManager: ViewsManager;
+    statesManager: StatesManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
     
     nodeSizeCalculator: NodeSizeCalculator | undefined;
@@ -24,7 +24,7 @@ export class GraphsManager extends Component {
     constructor(plugin: ExtendedGraphPlugin) {
         super();
         this.plugin = plugin;
-        this.viewsManager = new ViewsManager(this);
+        this.statesManager = new StatesManager(this);
     }
 
     // ================================ LOADING ================================
@@ -181,14 +181,14 @@ export class GraphsManager extends Component {
 
     // ============================= ENABLE PLUGIN =============================
 
-    addGraph(leaf: WorkspaceLeafExt, viewID?: string): GraphEventsDispatcher {
+    addGraph(leaf: WorkspaceLeafExt, stateID?: string): GraphEventsDispatcher {
         let dispatcher = this.dispatchers.get(leaf.id);
         if (dispatcher) return dispatcher;
 
         dispatcher = new GraphEventsDispatcher(leaf, this);
-        if (viewID) {
-            dispatcher.viewsUI.currentViewID = viewID;
-            dispatcher.viewsUI.select.value = viewID;
+        if (stateID) {
+            dispatcher.statesUI.currentStateID = stateID;
+            dispatcher.statesUI.select.value = stateID;
         }
 
         this.dispatchers.set(leaf.id, dispatcher);
@@ -202,13 +202,13 @@ export class GraphsManager extends Component {
         return dispatcher;
     }
 
-    enablePlugin(leaf: WorkspaceLeafExt, viewID?: string): void {
+    enablePlugin(leaf: WorkspaceLeafExt, stateID?: string): void {
         this.backupOptions(leaf);
 
         if (this.isPluginAlreadyEnabled(leaf)) return;
         if (this.isNodeLimitExceeded(leaf)) return;
         
-        const dispatcher = this.addGraph(leaf, viewID);
+        const dispatcher = this.addGraph(leaf, stateID);
         const globalUI = this.setGlobalUI(leaf);
         globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(dispatcher);
@@ -256,7 +256,7 @@ export class GraphsManager extends Component {
         if (this.localGraphID === leaf.id) this.localGraphID = null;
 
         if (leaf.view._loaded) {
-            this.applyNormalView(leaf);
+            this.applyNormalState(leaf);
         }
         this.restoreBackup();
     }
@@ -265,10 +265,10 @@ export class GraphsManager extends Component {
 
     resetPlugin(leaf: WorkspaceLeafExt): void {
         const dispatcher = this.dispatchers.get(leaf.id);
-        const viewID = dispatcher?.viewsUI.currentViewID;
+        const stateID = dispatcher?.statesUI.currentStateID;
         const scale = dispatcher ? dispatcher.graph.renderer.targetScale : false;
         this.disablePlugin(leaf);
-        this.enablePlugin(leaf, viewID);
+        this.enablePlugin(leaf, stateID);
         const newDispatcher = this.dispatchers.get(leaf.id);
         if (newDispatcher && scale) {
             newDispatcher.graph.renderer.targetScale = scale;
@@ -324,7 +324,7 @@ export class GraphsManager extends Component {
         }
     }
 
-    // ==================== HANDLE NORMAL AND DEFAULT VIEW =====================
+    // ==================== HANDLE NORMAL AND DEFAULT STATE ====================
 
     backupOptions(leaf: WorkspaceLeafExt) {
         const engine = getEngine(leaf);
@@ -365,7 +365,7 @@ export class GraphsManager extends Component {
         return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
-    applyNormalView(leaf: WorkspaceLeafExt) {
+    applyNormalState(leaf: WorkspaceLeafExt) {
         const engine = getEngine(leaf);
         const options = this.optionsBackup.get(leaf.id);
         if (engine && options) {

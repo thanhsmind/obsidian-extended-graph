@@ -1,6 +1,6 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin } from "obsidian-typings";
-import { DEFAULT_VIEW_ID, EngineOptions, GCSection, getEngine, GraphsManager, GraphViewModal, NodeNameSuggester, WorkspaceLeafExt } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphsManager, GraphStateModal, NodeNameSuggester, WorkspaceLeafExt } from "src/internal";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
@@ -20,36 +20,36 @@ export class GCOptions extends GCSection {
     override display(enable: boolean) {
         this.treeItemChildren.innerHTML = "";
 
-        this.createSaveForDefaultView();
-        if (enable) this.createSaveForNormalView();
+        this.createSaveForDefaultState();
+        if (enable) this.createSaveForNormalState();
         if (enable) this.settingGlobalFilter = this.createGlobalFilter();
         this.createZoomOnNode();
         this.createScreenshot();
         if (enable) this.createButtonViewState();
     }
 
-    private createSaveForDefaultView(): Setting {
+    private createSaveForDefaultState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Save for default view")
-            .setTooltip("Save the current settings as the default view settings")
+            .setName("Save for default state")
+            .setTooltip("Save the current settings as the default state settings")
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-up-to-line");
                 cb.onClick(() => {
-                    this.saveForDefaultView();
+                    this.saveForDefaultState();
                 });
             });
     }
 
-    private createSaveForNormalView(): Setting {
+    private createSaveForNormalState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName("Save for normal view")
-            .setTooltip("Save the current settings as the normal view settings (no plugin enabled)")
+            .setName("Save for normal state")
+            .setTooltip("Save the current settings as the normal state settings (no plugin enabled)")
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
                 cb.onClick(() => {
-                    this.saveForNormalView();
+                    this.saveForNormalState();
                 });
             });
     }
@@ -114,7 +114,7 @@ export class GCOptions extends GCSection {
                 cb.onClick(() => {
                     const graph = this.graphsManager.dispatchers.get(this.leaf.id)?.graph;
                     if (!graph) return;
-                    const modal = new GraphViewModal(this.graphsManager.plugin.app, graph);
+                    const modal = new GraphStateModal(this.graphsManager.plugin.app, graph);
                     modal.open();
                 })
             })
@@ -122,15 +122,15 @@ export class GCOptions extends GCSection {
 
     // =============================== CALLBACKS ===============================
 
-    private saveForDefaultView() {
-        const viewData = this.graphsManager.plugin.settings.views.find(v => v.id === DEFAULT_VIEW_ID);
-        if (!viewData) return;
+    private saveForDefaultState() {
+        const stateData = this.graphsManager.plugin.settings.states.find(v => v.id === DEFAULT_STATE_ID);
+        if (!stateData) return;
         const engine = getEngine(this.leaf);
-        viewData.engineOptions = new EngineOptions(engine.getOptions());
-        this.graphsManager.viewsManager.onViewNeedsSaving(viewData);
+        stateData.engineOptions = new EngineOptions(engine.getOptions());
+        this.graphsManager.statesManager.onStateNeedsSaving(stateData);
     }
 
-    private saveForNormalView() {
+    private saveForNormalState() {
         const globalFilter = this.graphsManager.plugin.settings.globalFilter;
         this.graphsManager.plugin.settings.globalFilter = "";
         const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;

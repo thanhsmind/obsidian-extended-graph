@@ -1,6 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, ViewsUI, WorkspaceLeafExt } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, StatesUI, WorkspaceLeafExt } from "src/internal";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -12,7 +12,7 @@ export class GraphEventsDispatcher extends Component {
 
     legendUI: LegendUI | null = null;
     foldersUI: GCFolders | null = null;
-    viewsUI: ViewsUI;
+    statesUI: StatesUI;
 
     renderCallback: () => void;
 
@@ -42,9 +42,9 @@ export class GraphEventsDispatcher extends Component {
     private initializeUI(): void {
         this.initializeLegendUI();
 
-        this.viewsUI = new ViewsUI(this.graph);
-        this.viewsUI.updateViewsList(this.graphsManager.plugin.settings.views);
-        this.addChild(this.viewsUI);
+        this.statesUI = new StatesUI(this.graph);
+        this.statesUI.updateStatesList(this.graphsManager.plugin.settings.states);
+        this.addChild(this.statesUI);
     }
 
     private initializeLegendUI(): void {
@@ -77,13 +77,13 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is loaded.
      */
     onload(): void {
-        this.loadCurrentView();
+        this.loadCurrentState();
     }
 
-    private loadCurrentView(): void {
-        const view = this.graphsManager.plugin.settings.views.find(v => v.id === this.viewsUI.currentViewID);
-        if (view) {
-            this.graph.engine.setOptions(view.engineOptions);
+    private loadCurrentState(): void {
+        const state = this.graphsManager.plugin.settings.states.find(v => v.id === this.statesUI.currentStateID);
+        if (state) {
+            this.graph.engine.setOptions(state.engineOptions);
         }
     }
 
@@ -96,7 +96,7 @@ export class GraphEventsDispatcher extends Component {
         this.observeOrphanSettings();
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
-        this.graphsManager.viewsManager.changeView(this.graph, this.viewsUI.currentViewID);
+        this.graphsManager.statesManager.changeState(this.graph, this.statesUI.currentStateID);
     }
 
     private updateOpacityLayerColor(): void {

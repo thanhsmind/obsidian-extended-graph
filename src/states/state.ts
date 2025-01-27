@@ -1,7 +1,7 @@
-import { EngineOptions, FOLDER_KEY, Graph, GraphViewData, LINK_KEY, TAG_KEY } from "src/internal";
+import { EngineOptions, FOLDER_KEY, Graph, GraphStateData, LINK_KEY, TAG_KEY } from "src/internal";
 
-export class GraphView {
-    data = new GraphViewData();
+export class GraphState {
+    data = new GraphStateData();
 
     constructor(name: string) {
         this.data.name = name;
@@ -41,8 +41,8 @@ export class GraphView {
         this.data.engineOptions.search = graph.engine.filterOptions.search.inputEl.value;
     }
 
-    saveView(viewData: GraphViewData): boolean {
-        this.data = viewData;
+    saveState(stateData: GraphStateData): boolean {
+        this.data = stateData;
         return this.completeDefaultOptions();
     }
 

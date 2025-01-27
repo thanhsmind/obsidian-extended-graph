@@ -409,9 +409,9 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     private createImageName(): string {
-        const viewName = this.graph.dispatcher.graphsManager.viewsManager.getViewDataById(this.graph.dispatcher.viewsUI.currentViewID);
+        const stateName = this.graph.dispatcher.graphsManager.statesManager.getStateDataById(this.graph.dispatcher.statesUI.currentStateID);
         const timestamp = window.moment().format("YYYYMMDDHHmmss");
-        return `graph${viewName ? '-' + viewName : ''}-${timestamp}.svg`;
+        return `graph${stateName ? '-' + stateName : ''}-${timestamp}.svg`;
     }
 
     protected getModal(): ExportSVGOptionModal {

@@ -3,9 +3,9 @@ export * from "./globalVariables";
 export * from "./helperFunctions";
 export * from "./logs";
 
-export * from "./views/view";
-export * from "./views/viewData";
-export * from "./views/viewsManager";
+export * from "./states/state";
+export * from "./states/stateData";
+export * from "./states/statesManager";
 
 export * from "./colors/colormaps";
 export * from "./colors/colors";
@@ -78,7 +78,7 @@ export * from "./types/workspace";
 export * from "./ui/UIElements";
 export * from "./ui/legendUI";
 export * from "./ui/menu";
-export * from "./ui/viewsUI";
+export * from "./ui/statesUI";
 
 export * from "./ui/graphControl/graphControl";
 export * from "./ui/graphControl/GCSection";
@@ -91,4 +91,4 @@ export * from "./ui/modals/newNameModal";
 export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapePickerModal";
 export * from "./ui/modals/shapeQueryModal";
-export * from "./ui/modals/viewModal";
+export * from "./ui/modals/stateModal";
