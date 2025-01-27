@@ -1,3 +1,4 @@
+import { GraphColorAttributes } from "obsidian-typings";
 import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, NodeSizeFunction, QueryData } from "src/internal";
 
 

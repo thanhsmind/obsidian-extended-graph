@@ -222,10 +222,10 @@ class SettingColor extends Setting {
     }
 
     private save() {
-        if (!this.isValid(this.type)) return;
-
         const newType = this.textComponent.getValue().trim();
         const newColor = this.colorComponent.getValue();
+
+        if (!this.isValid(newType)) return;
 
         const colors = this.plugin.settings.interactiveSettings[this.key].colors;
 
@@ -260,15 +260,13 @@ class SettingColor extends Setting {
     }
 
     protected remove() {
-        const type = this.textComponent.getValue().trim();
-
         const colors = this.plugin.settings.interactiveSettings[this.key].colors;
         const oldIndex = colors.findIndex(c => c.type === this.type);
         if (oldIndex !== -1) {
             colors.remove(colors[oldIndex]);
         }
         this.plugin.saveSettings();
-        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, type);
+        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
 
         this.settingEl.remove();
     }

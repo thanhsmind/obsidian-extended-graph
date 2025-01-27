@@ -41,6 +41,10 @@ export function hsv2rgb(hsv: {h: number, s: number, v: number}): Uint8Array {
     return new Uint8Array([ r * 255, g * 255, b * 255 ]);
 }
 
+export function hex2int(hex: string): number {
+    return rgb2int(hex2rgb(hex));
+}
+
 /**
  * Convert a hex color to an RGB array
  * @param hex format: #RRGGBB

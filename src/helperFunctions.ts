@@ -240,3 +240,7 @@ export function textColor(backgroundColor: Uint8Array, dark: string = "black", l
     const textColor = (backgroundColor[0] * 0.299 + backgroundColor[1] * 0.587 + backgroundColor[2] * 0.114 > 150) ? dark : light;
     return textColor;
 }
+
+export function isTagValid(name: string): boolean {
+    return /^[a-zA-Z/]+$/.test(name);
+}

@@ -4,7 +4,7 @@ import { Graphics } from "pixi.js";
 import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, ShapeEnum } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
-export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
+export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     app: App;
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
@@ -12,7 +12,7 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     // Size
     graphicsWrapperScale: number = 1;
     radius: number = NodeShape.RADIUS;
-    getSizeCallback?: () => number;
+    coreGetSize?: () => number;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -35,49 +35,14 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     // =============================== GRAPHICS ================================
 
     protected needGraphicsWrapper(): boolean {
-        return this.needImage()
-            || this.needBackground()
-            || this.needArcs()
-            || this.needPin();
-    }
-
-    public needImage(): boolean { return this.settings.enableFeatures['images']; }
-    
-    public needBackground(): boolean {
-        return this.settings.enableFeatures['focus']
-            || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
+        return this.needPin() || this.needOpacityLayer();
     }
     
     public needOpacityLayer(): boolean { return this.settings.fadeOnDisable; }
-    
-    public needArcs(): boolean {
-        if (this.coreElement.type !== "" || this.managers.size === 0)
-            return false;
-        
-        for (const [key, manager] of this.managers) {
-            if (this.settings.interactiveSettings[key].showOnGraph) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     public needPin(): boolean { return true; }
 
-    protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new NodeGraphicsWrapper(this);
-        this.graphicsWrapper.initGraphics();
-        this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
-
-        let layer = 1;
-        for (const [key, manager] of this.managers) {
-            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
-            const validTypes = this.getTypes(key);
-            this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
-            layer++;
-        }
-    }
+    protected abstract createGraphicsWrapper(): void;
 
     // =============================== NODE SIZE ===============================
 
@@ -101,14 +66,14 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     }
     
     private changeGetSize() {
-        if (this.getSizeCallback && (!this.graphicsWrapper || this.graphicsWrapper?.shape === ShapeEnum.CIRCLE)) {
+        if (this.coreGetSize && (!this.graphicsWrapper || this.graphicsWrapper?.shape === ShapeEnum.CIRCLE)) {
             this.restoreGetSize();
             return;
         }
-        else if (this.getSizeCallback) {
+        else if (this.coreGetSize) {
             return;
         }
-        this.getSizeCallback = this.coreElement.getSize;
+        this.coreGetSize = this.coreElement.getSize;
         const getSize = this.getSize.bind(this);
         this.coreElement.getSize = new Proxy(this.coreElement.getSize, {
             apply(target, thisArg, args) {
@@ -118,9 +83,9 @@ export class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     }
 
     private restoreGetSize() {
-        if (!this.getSizeCallback) return;
-        this.coreElement.getSize = this.getSizeCallback;
-        this.getSizeCallback = undefined;
+        if (!this.coreGetSize) return;
+        this.coreElement.getSize = this.coreGetSize;
+        this.coreGetSize = undefined;
     }
 
     getSize(): number {

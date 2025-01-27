@@ -10,6 +10,7 @@ export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     
     initGraphics(): void;
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
+    resetManagerGraphics(manager: InteractiveManager): void;
     clearGraphics(): void;
     destroyGraphics(): void;
     updateGraphics(): void;

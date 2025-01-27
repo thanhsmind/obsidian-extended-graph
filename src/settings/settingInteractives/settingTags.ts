@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, SettingInteractives, TAG_KEY } from "src/internal";
+import { ExtendedGraphSettingTab, isTagValid, SettingInteractives, TAG_KEY } from "src/internal";
 
 export class SettingTags extends SettingInteractives {
 
@@ -24,7 +24,7 @@ export class SettingTags extends SettingInteractives {
     }
 
     protected override isValueValid(name: string): boolean {
-        return /^[a-zA-Z/]+$/.test(name);
+        return isTagValid(name);
     }
 
     protected override getPlaceholder(): string {
