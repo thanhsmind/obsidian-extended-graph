@@ -1,7 +1,7 @@
 
 import { Component } from 'obsidian';
 import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, GraphType, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
+import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, GraphType, InteractiveManager, LINK_KEY, LinksSet, NodesSet, PluginInstances, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     // Parent dispatcher
@@ -10,7 +10,6 @@ export class Graph extends Component {
     // Elements
     readonly engine: GraphEngine;
     readonly renderer: GraphRenderer;
-    readonly dynamicSettings: ExtendedGraphSettings;
     readonly staticSettings: ExtendedGraphSettings;
 
     // Type
@@ -43,8 +42,7 @@ export class Graph extends Component {
         // Elements
         this.engine          = getEngine(this.dispatcher.leaf);
         this.renderer        = dispatcher.leaf.view.renderer;
-        this.dynamicSettings = dispatcher.graphsManager.plugin.settings;
-        this.staticSettings  = structuredClone(this.dynamicSettings);
+        this.staticSettings  = structuredClone(PluginInstances.settings);
 
         // Type
         this.type = this.dispatcher.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
@@ -65,7 +63,7 @@ export class Graph extends Component {
     private initializeInteractiveManagers(): void {
         const keys = this.getInteractiveManagerKeys();
         for (const key of keys) {
-            const manager = new InteractiveManager(this.dispatcher, this.dynamicSettings, key);
+            const manager = new InteractiveManager(this.dispatcher, PluginInstances.settings, key);
             this.interactiveManagers.set(key, manager);
             this.addChild(manager);
         }
@@ -101,7 +99,7 @@ export class Graph extends Component {
     private overrideSearchGetValue(): void {
         this.searchGetValueOriginal = this.engine.filterOptions.search.getValue;
         this.engine.filterOptions.search.getValue = (() => {
-            const prepend = this.dynamicSettings.globalFilter + " ";
+            const prepend = PluginInstances.settings.globalFilter + " ";
             return prepend + this.engine.filterOptions.search.inputEl.value;
         }).bind(this);
     }

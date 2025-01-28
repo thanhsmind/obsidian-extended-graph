@@ -1,5 +1,5 @@
 import { ToggleComponent } from "obsidian";
-import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, PluginInstances, SettingsSection } from "src/internal";
 
 
 export abstract class SettingsSectionCollapsible extends SettingsSection {
@@ -34,32 +34,33 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
     }
 
     protected addToggle(graphType: GraphType) {
-        let enable = this.settingTab.plugin.settings.enableFeatures[graphType][this.feature];
+        let enable = PluginInstances.settings.enableFeatures[graphType][this.feature];
         if (this.feature === 'property-key') {
-            enable = this.settingTab.plugin.settings.additionalProperties[this.interactiveKey];
+            enable = PluginInstances.settings.additionalProperties[this.interactiveKey];
         }
-        this.toggles[graphType] = this.settingHeader.controlEl.createDiv();
-        this.toggles[graphType].addClass("toggle-labelled");
-        this.toggles[graphType].insertAdjacentText("afterbegin", graphTypeLabels[graphType])
-        new ToggleComponent(this.toggles[graphType])
+        const toggle = this.settingHeader.controlEl.createDiv();
+        toggle.addClass("toggle-labelled");
+        toggle.insertAdjacentText("afterbegin", graphTypeLabels[graphType])
+        new ToggleComponent(toggle)
             .setValue(enable)
             .onChange(value => {
                 this.toggle(graphType, value);
             });
+        this.toggles[graphType] = toggle;
         this.toggle(graphType, enable);
     }
 
     private toggle(graphType: GraphType, enable: boolean) {
         if (this.feature === 'property-key') {
-            this.settingTab.plugin.settings.additionalProperties[this.interactiveKey] = enable;
+            PluginInstances.settings.additionalProperties[this.interactiveKey] = enable;
         }
         else {
-            this.settingTab.plugin.settings.enableFeatures[graphType][this.feature] = enable;
+            PluginInstances.settings.enableFeatures[graphType][this.feature] = enable;
         }
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.plugin.saveSettings();
 
-        if ((this.settingTab.plugin.settings.enableFeatures['graph'][this.feature]
-            || this.settingTab.plugin.settings.enableFeatures['localgraph'][this.feature])
+        if ((PluginInstances.settings.enableFeatures['graph'][this.feature]
+            || PluginInstances.settings.enableFeatures['localgraph'][this.feature])
             || (this.feature === 'property-key' && enable)) {
             this.containerEl.style.setProperty(this.cssDisplayProperty, 'flex');
             this.settingHeader.settingEl.removeClass('is-collapsed');

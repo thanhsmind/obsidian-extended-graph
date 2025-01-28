@@ -1,8 +1,7 @@
 import { Component } from "obsidian";
-import { GCOptions, GraphEventsDispatcher, GraphsManager, WorkspaceLeafExt } from "src/internal";
+import { GCOptions, GraphEventsDispatcher, WorkspaceLeafExt } from "src/internal";
 
 export class GraphControlsUI extends Component {
-    graphsManager: GraphsManager;
     dispatcher: GraphEventsDispatcher | null;
     leaf: WorkspaceLeafExt;
 
@@ -11,12 +10,11 @@ export class GraphControlsUI extends Component {
     // Sections
     sectionSettings: GCOptions;
     
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
+    constructor(leaf: WorkspaceLeafExt) {
         super();
         this.leaf = leaf;
-        this.graphsManager = graphsManager;
         this.graphControls = leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
-        this.sectionSettings = new GCOptions(leaf, graphsManager);
+        this.sectionSettings = new GCOptions(leaf);
     }
 
     onPluginEnabled(dispatcher: GraphEventsDispatcher): void {

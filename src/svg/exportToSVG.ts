@@ -1,6 +1,6 @@
 import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, polar2Cartesian, rgb2hex } from "src/internal";
+import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, PluginInstances, polar2Cartesian, rgb2hex } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -208,7 +208,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     graph: Graph;
 
     constructor(graph: Graph) {
-        super(graph.dispatcher.graphsManager.plugin, graph.renderer);
+        super(PluginInstances.plugin, graph.renderer);
         this.graph = graph;
     }
 
@@ -411,13 +411,13 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     private createImageName(): string {
-        const stateName = this.graph.dispatcher.graphsManager.statesManager.getStateDataById(this.graph.dispatcher.statesUI.currentStateID);
+        const stateName = PluginInstances.statesManager.getStateDataById(this.graph.dispatcher.statesUI.currentStateID);
         const timestamp = window.moment().format("YYYYMMDDHHmmss");
         return `graph${stateName ? '-' + stateName : ''}-${timestamp}.svg`;
     }
 
     protected getModal(): ExportSVGOptionModal {
-        return new ExportSVGOptionModal(this.plugin, this.graph);
+        return new ExportSVGOptionModal(this.graph);
     }
 }
 
@@ -468,6 +468,6 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     }
 
     protected getModal(): ExportSVGOptionModal {
-        return new ExportSVGOptionModal(this.plugin);
+        return new ExportSVGOptionModal();
     }
 }

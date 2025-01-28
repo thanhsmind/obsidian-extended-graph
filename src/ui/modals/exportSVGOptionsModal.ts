@@ -1,20 +1,15 @@
 import { Modal, Setting } from "obsidian";
-import { ExtendedGraphSettings, Graph } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import { ExtendedGraphSettings, Graph, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class ExportSVGOptionModal extends Modal {
     graph?: Graph;
     graphSettings?: ExtendedGraphSettings;
-    plugin: ExtendedGraphPlugin;
-    settings: ExtendedGraphSettings;
     isCanceled: boolean = true;
 
-    constructor(plugin: ExtendedGraphPlugin, graph?: Graph) {
-        super(plugin.app);
+    constructor(graph?: Graph) {
+        super(PluginInstances.app);
         this.graph = graph;
-        this.plugin = plugin;
-        this.settings = plugin.settings;
         this.graphSettings = graph?.staticSettings;
 
         this.setTitle(STRINGS.features.svgScreenshotOptions);
@@ -37,9 +32,9 @@ export class ExportSVGOptionModal extends Modal {
         new Setting(this.contentEl)
             .setName(STRINGS.features.svgScreenshotVisibleArea)
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.onlyVisibleArea);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.onlyVisibleArea);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.onlyVisibleArea = value;
+                    PluginInstances.settings.exportSVGOptions.onlyVisibleArea = value;
                     this.saveSettings();
                 })
             });
@@ -49,9 +44,9 @@ export class ExportSVGOptionModal extends Modal {
         new Setting(this.contentEl)
             .setName(STRINGS.features.svgScreenshotNodeNames)
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.showNodeNames);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.showNodeNames);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.showNodeNames = value;
+                    PluginInstances.settings.exportSVGOptions.showNodeNames = value;
                     this.saveSettings();
                 })
             });
@@ -70,15 +65,15 @@ export class ExportSVGOptionModal extends Modal {
 
     private addUseCurvedLinks() {
         const canUseCurvedLinks = this.canUseCurvedLinks();
-        this.settings.exportSVGOptions.useCurvedLinks = canUseCurvedLinks;
+        PluginInstances.settings.exportSVGOptions.useCurvedLinks = canUseCurvedLinks;
         if (!canUseCurvedLinks) return;
 
         new Setting(this.contentEl)
             .setName(STRINGS.features.svgScreenshotCurvedLinks)
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.useCurvedLinks);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.useCurvedLinks);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.useCurvedLinks = value;
+                    PluginInstances.settings.exportSVGOptions.useCurvedLinks = value;
                     this.saveSettings();
                 })
             });
@@ -91,15 +86,15 @@ export class ExportSVGOptionModal extends Modal {
 
     private addUseNodeShapes() {
         const canUseNodeShapes = this.canUseNodeShapes();
-        this.settings.exportSVGOptions.useNodesShapes = canUseNodeShapes;
+        PluginInstances.settings.exportSVGOptions.useNodesShapes = canUseNodeShapes;
         if (!canUseNodeShapes) return;
 
         new Setting(this.contentEl)
             .setName(STRINGS.features.svgScreenshotNodeShapes)
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.useNodesShapes);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.useNodesShapes);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.useNodesShapes = value;
+                    PluginInstances.settings.exportSVGOptions.useNodesShapes = value;
                     this.saveSettings();
                 })
             });
@@ -112,15 +107,15 @@ export class ExportSVGOptionModal extends Modal {
 
     private addShowArcs() {
         const canShowArcs = this.canShowArcs();
-        this.settings.exportSVGOptions.showArcs = canShowArcs;
+        PluginInstances.settings.exportSVGOptions.showArcs = canShowArcs;
         if (!canShowArcs) return;
 
         new Setting(this.contentEl)
             .setName(STRINGS.features.svgScreenshotArcs)
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.showArcs);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.showArcs);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.showArcs = value;
+                    PluginInstances.settings.exportSVGOptions.showArcs = value;
                     this.saveSettings();
                 })
             });
@@ -135,15 +130,15 @@ export class ExportSVGOptionModal extends Modal {
 
     private addShowFolders() {
         const canShowFolders = this.canShowFolders();
-        this.settings.exportSVGOptions.showFolders = canShowFolders;
+        PluginInstances.settings.exportSVGOptions.showFolders = canShowFolders;
         if (!canShowFolders) return;
 
         new Setting(this.contentEl)
             .setName("Show folder boxes")
             .addToggle(cb => {
-                cb.setValue(this.settings.exportSVGOptions.showFolders);
+                cb.setValue(PluginInstances.settings.exportSVGOptions.showFolders);
                 cb.onChange(value => {
-                    this.settings.exportSVGOptions.showFolders = value;
+                    PluginInstances.settings.exportSVGOptions.showFolders = value;
                     this.saveSettings();
                 })
             });
@@ -162,18 +157,19 @@ export class ExportSVGOptionModal extends Modal {
                 cb.setButtonText(STRINGS.features.svgScreenshotCopyCode);
                 cb.onClick(() => {
                     this.isCanceled = false;
-                    this.settings.exportSVGOptions.asImage = false;
+                    PluginInstances.settings.exportSVGOptions.asImage = false;
                     this.applyAndClose();
                 })
             });
             
+        // @ts-ignore
         if (ClipboardItem.supports("image/svg+xml")) {
             setting.addButton(cb => {
                 cb.setButtonText(STRINGS.features.svgScreenshotCopyImage);
                 cb.setCta();
                 cb.onClick(() => {
                     this.isCanceled = false;
-                    this.settings.exportSVGOptions.asImage = true;
+                    PluginInstances.settings.exportSVGOptions.asImage = true;
                     this.applyAndClose();
                 })
             })
@@ -181,8 +177,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private async saveSettings(): Promise<void> {
-        if (this.graphSettings) this.graphSettings.exportSVGOptions = this.settings.exportSVGOptions;
-        await this.plugin.saveSettings();
+        if (this.graphSettings) this.graphSettings.exportSVGOptions = PluginInstances.settings.exportSVGOptions;
+        await PluginInstances.plugin.saveSettings();
     }
 
     private applyAndClose() {

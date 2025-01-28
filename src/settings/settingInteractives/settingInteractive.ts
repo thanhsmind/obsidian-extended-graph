@@ -1,5 +1,5 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
+import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, PluginInstances, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -20,41 +20,41 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
         this.addNoneTypeSetting();
         this.addColorPaletteSetting();
         this.addSpecificColorHeaderSetting();
-        this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colors.forEach((interactive) => {
+        PluginInstances.settings.interactiveSettings[this.interactiveKey].colors.forEach((interactive) => {
             this.addColor(interactive.type, interactive.color);
         })
         this.addFilterTypeSetting();
     }
 
     protected addNoneTypeSetting() {
-        this.noneType = this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType;
+        this.noneType = PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType;
         const setting = new Setting(this.containerEl)
             .setName(STRINGS.features.interactives.noneTypeID)
             .setDesc(STRINGS.features.interactives.noneTypeIDDesc + this.interactiveKey)
             .addText(cb => cb
-                .setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType)
+                .setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType)
                 .onChange(async (value) => {
                     value = value.trim();
                     if (value == this.noneType) return;
-                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].noneType = value;
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType = value;
                     INVALID_KEYS[this.interactiveKey].remove(this.noneType);
                     INVALID_KEYS[this.interactiveKey].push(value);
                     this.noneType = value;
-                    await this.settingTab.plugin.saveSettings();
+                    await PluginInstances.plugin.saveSettings();
             }));
         this.elementsBody.push(setting.settingEl);
     }
 
     protected addColorPaletteSetting(): void {
-        const setting = new SettingColorPalette(this.containerEl, this.settingTab.plugin.app, this.interactiveKey)
+        const setting = new SettingColorPalette(this.containerEl, PluginInstances.plugin.app, this.interactiveKey)
             .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
 
-        setting.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap);
+        setting.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
         
         setting.onPaletteChange((palette: string) => {
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].colormap = palette;
-            this.settingTab.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
-            this.settingTab.plugin.saveSettings();
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = palette;
+            PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
+            PluginInstances.plugin.saveSettings();
         });
 
         // Push to body list
@@ -85,7 +85,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
 
         const allTypes = this.getAllTypes();
         for (const type of allTypes) {
-            const isActive = !this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(type);
+            const isActive = !PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(type);
             const label = this.selectionContainer.createEl("label");
             const text = label.createSpan({text: type});
             const toggle = label.createEl("input", {type: "checkbox"});
@@ -97,7 +97,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     }
 
     protected addColor(type: string, color: HexString): void {
-        const setting = new SettingColor(this.containerEl, this.settingTab.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this));
+        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this));
         this.elementsBody.push(setting.settingEl);
 
         let previous = this.colors.last() ?? this.settingInteractiveColor;
@@ -108,18 +108,18 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected selectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.addClass("is-active");
         toggle.checked = true;
-        if (this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.remove(label.innerText);
-            this.settingTab.plugin.saveSettings();
+        if (PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.remove(label.innerText);
+            PluginInstances.plugin.saveSettings();
         }
     }
 
     protected deselectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.removeClass("is-active");
         toggle.checked = false;
-        if (!this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
-            this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].unselected.push(label.innerText);
-            this.settingTab.plugin.saveSettings();
+        if (!PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.push(label.innerText);
+            PluginInstances.plugin.saveSettings();
         }
     }
 
@@ -191,7 +191,7 @@ class SettingColor extends Setting {
 
         if (!this.isValid(newType)) return;
 
-        const colors = this.plugin.settings.interactiveSettings[this.key].colors;
+        const colors = PluginInstances.settings.interactiveSettings[this.key].colors;
 
         // Remove old data
         const oldIndex = colors.findIndex(c => c.type === this.type);
@@ -224,13 +224,13 @@ class SettingColor extends Setting {
     }
 
     protected remove() {
-        const colors = this.plugin.settings.interactiveSettings[this.key].colors;
+        const colors = PluginInstances.settings.interactiveSettings[this.key].colors;
         const oldIndex = colors.findIndex(c => c.type === this.type);
         if (oldIndex !== -1) {
             colors.remove(colors[oldIndex]);
         }
-        this.plugin.saveSettings();
-        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
+        PluginInstances.plugin.saveSettings();
+        PluginInstances.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
 
         this.settingEl.remove();
     }

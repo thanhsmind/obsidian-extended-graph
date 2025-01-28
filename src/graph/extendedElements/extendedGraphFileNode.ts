@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, GraphType, InteractiveManager, NodeShape, ShapeEnum } from "src/internal";
+import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, GraphType, InteractiveManager, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 
@@ -87,7 +87,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     private getFillColor(): GraphColorAttributes | undefined {
-        const rgb = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeColorCalculator?.filesStats.get(this.id);
+        const rgb = PluginInstances.graphsManager.nodeColorCalculator?.filesStats.get(this.id);
         if (!rgb) return undefined;
         return { rgb: rgb, a: 1 }
     }

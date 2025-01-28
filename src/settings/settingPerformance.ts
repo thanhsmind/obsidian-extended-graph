@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingPerformance extends SettingsSection {
@@ -18,12 +18,12 @@ export class SettingPerformance extends SettingsSection {
             .setName(STRINGS.features.performanceMaxNodes)
             .setDesc(STRINGS.features.performanceMaxNodesDesc)
             .addText(cb => cb
-                .setValue(this.settingTab.plugin.settings.maxNodes.toString())
+                .setValue(PluginInstances.settings.maxNodes.toString())
                 .onChange(async (value) => {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
-                        this.settingTab.plugin.settings.maxNodes = intValue;
-                        await this.settingTab.plugin.saveSettings();
+                        PluginInstances.settings.maxNodes = intValue;
+                        await PluginInstances.plugin.saveSettings();
                     }
             }));
 
@@ -35,12 +35,12 @@ export class SettingPerformance extends SettingsSection {
             .setName(STRINGS.features.performanceDelay)
             .setDesc(STRINGS.features.performanceDelayDesc)
             .addText(cb => cb
-                .setValue(this.settingTab.plugin.settings.delay.toString())
+                .setValue(PluginInstances.settings.delay.toString())
                 .onChange(async (value) => {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
-                        this.settingTab.plugin.settings.delay = intValue;
-                        await this.settingTab.plugin.saveSettings();
+                        PluginInstances.settings.delay = intValue;
+                        await PluginInstances.plugin.saveSettings();
                     }
             }));
 

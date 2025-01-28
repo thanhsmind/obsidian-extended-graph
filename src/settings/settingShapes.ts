@@ -1,5 +1,5 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, NodeShape, QueryData, QueryMatcher, SettingsSectionCollapsible, ShapeEnum, ShapeQueryModal } from "src/internal";
+import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionCollapsible, ShapeEnum, ShapeQueryModal } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -11,7 +11,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
     }
 
     protected override addBody() {
-        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.settingTab.plugin.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(PluginInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return a[1].index - b[1].index;
         }));
         const values = Object.keys(shapeQueries);
@@ -23,7 +23,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
     }
 
     private addShape(shape: ShapeEnum): SettingShape {
-        return new SettingShape(this.settingTab.containerEl, this.settingTab.plugin, shape, this.moveDown.bind(this), this.moveUp.bind(this));
+        return new SettingShape(this.settingTab.containerEl, PluginInstances.plugin, shape, this.moveDown.bind(this), this.moveUp.bind(this));
     }
 
     private moveDown(settingShape: SettingShape) {
@@ -34,9 +34,9 @@ export class SettingShapes extends SettingsSectionCollapsible {
         const next = settingShape.settingEl.nextSibling;
         this.settingTab.containerEl?.insertAfter(settingShape.settingEl, next);
 
-        this.settingTab.plugin.settings.shapeQueries[settingShape.shape].index = index + 1;
-        this.settingTab.plugin.settings.shapeQueries[this.settingsShape[index].shape].index = index;
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.settings.shapeQueries[settingShape.shape].index = index + 1;
+        PluginInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
+        PluginInstances.plugin.saveSettings();
     }
 
     private moveUp(settingShape: SettingShape) {
@@ -47,15 +47,14 @@ export class SettingShapes extends SettingsSectionCollapsible {
         const previous = settingShape.settingEl.previousSibling;
         this.settingTab.containerEl?.insertBefore(settingShape.settingEl, previous);
 
-        this.settingTab.plugin.settings.shapeQueries[settingShape.shape].index = index - 1;
-        this.settingTab.plugin.settings.shapeQueries[this.settingsShape[index].shape].index = index;
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.settings.shapeQueries[settingShape.shape].index = index - 1;
+        PluginInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
+        PluginInstances.plugin.saveSettings();
     }
 }
 
 class SettingShape extends Setting {
     shape: ShapeEnum;
-    plugin: ExtendedGraphPlugin;
     queryStringDiv: HTMLDivElement;
 
     moveDown: (settingShape: SettingShape) => void;
@@ -65,7 +64,6 @@ class SettingShape extends Setting {
         super(containerEl);
 
         this.shape = shape;
-        this.plugin = plugin;
 
         this.moveDown = moveDown;
         this.moveUp = moveUp;
@@ -79,7 +77,7 @@ class SettingShape extends Setting {
 
     private addQueryStringDiv(): SettingShape {
         this.queryStringDiv = this.controlEl.createDiv({ cls: "query-string" });
-        this.setQueryText(this.shape, this.plugin.settings.shapeQueries[this.shape]);
+        this.setQueryText(this.shape, PluginInstances.settings.shapeQueries[this.shape]);
         return this;
     }
 
@@ -95,9 +93,9 @@ class SettingShape extends Setting {
             cb.setTooltip(STRINGS.query.editShapeQuery);
             cb.onClick(() => {
                 const modal = new ShapeQueryModal(
-                    this.plugin.app,
+                    PluginInstances.app,
                     this.shape,
-                    this.plugin.settings.shapeQueries[this.shape],
+                    PluginInstances.settings.shapeQueries[this.shape],
                     this.saveShapeQuery.bind(this)
                 );
                 modal.open();
@@ -134,8 +132,8 @@ class SettingShape extends Setting {
 
     private saveShapeQuery(shape: ShapeEnum, queryData: QueryData) {
         this.setQueryText(shape, queryData);
-        this.plugin.settings.shapeQueries[shape].combinationLogic = queryData.combinationLogic;
-        this.plugin.settings.shapeQueries[shape].rules = queryData.rules;
-        this.plugin.saveSettings();
+        PluginInstances.settings.shapeQueries[shape].combinationLogic = queryData.combinationLogic;
+        PluginInstances.settings.shapeQueries[shape].rules = queryData.rules;
+        PluginInstances.plugin.saveSettings();
     }
 }

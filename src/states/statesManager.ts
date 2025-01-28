@@ -1,19 +1,14 @@
-import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphsManager, GraphState, GraphStateData, InteractiveManager, InteractiveUI } from "src/internal";
+import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 
 
 export class StatesManager {
-    graphsManager: GraphsManager;
-
-    constructor(graphsManager: GraphsManager) {
-        this.graphsManager = graphsManager;
-    }
 
     // ================================ GETTERS ================================
     
     getStateDataById(id: string): GraphStateData | undefined {
-        return this.graphsManager.plugin.settings.states.find(v => v.id === id);
+        return PluginInstances.settings.states.find(v => v.id === id);
     }
 
     // ============================= CREATE STATE ==============================
@@ -44,9 +39,10 @@ export class StatesManager {
 
         stateData = this.validateStateData(stateData);
         this.updateInteractiveManagers(stateData, graph).then(() => {
+            if (!stateData) return;
             if (stateData.engineOptions) graph.engine.setOptions(stateData.engineOptions);
             graph.updateWorker();
-            graph.nodesSet.setPinnedNodes(stateData.pinNodes ? stateData.pinNodes : {});
+            graph.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
             graph.engine.updateSearch();
         });
     }
@@ -70,11 +66,11 @@ export class StatesManager {
     
     private updateManagers(stateData: GraphStateData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {
         for (const [key, manager] of managers) {
-            if (!this.graphsManager.plugin.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
-                this.graphsManager.plugin.settings.interactiveSettings[key].enableByDefault = key !== FOLDER_KEY;
-                this.graphsManager.plugin.saveSettings();
+            if (!PluginInstances.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
+                PluginInstances.settings.interactiveSettings[key].enableByDefault = key !== FOLDER_KEY;
+                PluginInstances.plugin.saveSettings();
             }
-            const enableByDefault = this.graphsManager.plugin.settings.interactiveSettings[key].enableByDefault;
+            const enableByDefault = PluginInstances.settings.interactiveSettings[key].enableByDefault;
             this.loadStateForInteractiveManager(manager, stateData);
             if (interactiveUI && stateData.toggleTypes) {
                 if (enableByDefault) interactiveUI.enableAllUI(key);
@@ -91,7 +87,7 @@ export class StatesManager {
 
     private loadStateForInteractiveManager(manager: InteractiveManager, stateData: GraphStateData): void {
         if (!stateData.toggleTypes) return;
-        const enableByDefault = this.graphsManager.plugin.settings.interactiveSettings[manager.name].enableByDefault;
+        const enableByDefault = PluginInstances.settings.interactiveSettings[manager.name].enableByDefault;
         const stateTypesToToggle: string[] = stateData.toggleTypes[manager.name] ?? [];
         const toDisable: string[] = [];
         const toEnable: string[] = [];
@@ -125,7 +121,7 @@ export class StatesManager {
      */
     saveState(graph: Graph, id: string): void {
         if (id === DEFAULT_STATE_ID) return;
-        const stateData = this.graphsManager.plugin.settings.states.find(v => v.id == id);
+        const stateData = PluginInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
         const state = new GraphState(stateData?.name);
         state.setID(id);
@@ -135,7 +131,7 @@ export class StatesManager {
 
     onStateNeedsSaving(stateData: GraphStateData) {
         this.updateStateArray(stateData);
-        this.graphsManager.plugin.saveSettings().then(() => {
+        PluginInstances.plugin.saveSettings().then(() => {
             new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
             this.updateAllStates();
         });
@@ -144,18 +140,18 @@ export class StatesManager {
     // ============================= UPDATE STATE ==============================
 
     private updateStateArray(stateData: GraphStateData): void {
-        const index = this.graphsManager.plugin.settings.states.findIndex(v => v.name === stateData.name);
+        const index = PluginInstances.settings.states.findIndex(v => v.name === stateData.name);
         if (index >= 0) {
-            this.graphsManager.plugin.settings.states[index] = stateData;
+            PluginInstances.settings.states[index] = stateData;
         }
         else {
-            this.graphsManager.plugin.settings.states.push(stateData);
+            PluginInstances.settings.states.push(stateData);
         }
     }
     
     private updateAllStates(): void {
-        this.graphsManager.dispatchers.forEach(dispatcher => {
-            dispatcher.statesUI.updateStatesList(this.graphsManager.plugin.settings.states);
+        PluginInstances.graphsManager.dispatchers.forEach(dispatcher => {
+            dispatcher.statesUI.updateStatesList(PluginInstances.settings.states);
         });
     }
 
@@ -168,8 +164,8 @@ export class StatesManager {
     deleteState(id: string): void {
         const state = this.getStateDataById(id);
         if (!state) return;
-        this.graphsManager.plugin.settings.states.remove(state);
-        this.graphsManager.plugin.saveSettings().then(() => {
+        PluginInstances.settings.states.remove(state);
+        PluginInstances.plugin.saveSettings().then(() => {
             new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateDeleted} (${state.name})`);
             this.updateAllStates();
         });

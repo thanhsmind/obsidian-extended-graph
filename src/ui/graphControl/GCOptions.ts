@@ -1,14 +1,14 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphsManager, GraphStateModal, NodeNameSuggester, WorkspaceLeafExt } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, NodeNameSuggester, PluginInstances, WorkspaceLeafExt } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
     suggester: NodeNameSuggester;
     
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
-        super(leaf, graphsManager, "options", STRINGS.plugin.options);
+    constructor(leaf: WorkspaceLeafExt) {
+        super(leaf, "options", STRINGS.plugin.options);
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);
@@ -62,22 +62,22 @@ export class GCOptions extends GCSection {
             .setClass("mod-search-setting")
             .addTextArea(cb => {
                 cb.setPlaceholder(STRINGS.features.globalFilter)
-                  .setValue(this.graphsManager.plugin.settings.globalFilter);
+                  .setValue(PluginInstances.settings.globalFilter);
                 cb.inputEl.addClass("search-input-container");
                 cb.inputEl.onblur = (async e => {
-                    if (this.graphsManager.plugin.settings.globalFilter !== cb.getValue()) {
-                        this.graphsManager.plugin.settings.globalFilter = cb.getValue();
-                        await this.graphsManager.plugin.saveSettings();
-                        this.graphsManager.plugin.graphsManager.onGlobalFilterChanged(cb.getValue());
+                    if (PluginInstances.settings.globalFilter !== cb.getValue()) {
+                        PluginInstances.settings.globalFilter = cb.getValue();
+                        await PluginInstances.plugin.saveSettings();
+                        PluginInstances.graphsManager.onGlobalFilterChanged(cb.getValue());
                     }
                 });
                 cb.inputEl.onkeydown = (async e => {
                     if ("Enter" === e.key) {
                         e.preventDefault();
-                        if (this.graphsManager.plugin.settings.globalFilter !== cb.getValue()) {
-                            this.graphsManager.plugin.settings.globalFilter = cb.getValue();
-                            await this.graphsManager.plugin.saveSettings();
-                            this.graphsManager.plugin.graphsManager.onGlobalFilterChanged(cb.getValue());
+                        if (PluginInstances.settings.globalFilter !== cb.getValue()) {
+                            PluginInstances.settings.globalFilter = cb.getValue();
+                            await PluginInstances.plugin.saveSettings();
+                            PluginInstances.graphsManager.onGlobalFilterChanged(cb.getValue());
                         }
                     }
                 });
@@ -101,9 +101,9 @@ export class GCOptions extends GCSection {
             .setName(STRINGS.features.zoomOnNode)
             .addSearch(cb => {
                 const callback = (value: string) => {
-                    this.graphsManager.zoomOnNode(this.leaf, value);
+                    PluginInstances.graphsManager.zoomOnNode(this.leaf, value);
                 }
-                this.suggester = new NodeNameSuggester(this.graphsManager.plugin.app, cb.inputEl, this.leaf.view.renderer, callback);
+                this.suggester = new NodeNameSuggester(PluginInstances.app, cb.inputEl, this.leaf.view.renderer, callback);
             });
     }
 
@@ -113,9 +113,9 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
-                    const graph = this.graphsManager.dispatchers.get(this.leaf.id)?.graph;
+                    const graph = PluginInstances.graphsManager.dispatchers.get(this.leaf.id)?.graph;
                     if (!graph) return;
-                    const modal = new GraphStateModal(this.graphsManager.plugin.app, graph);
+                    const modal = new GraphStateModal(PluginInstances.app, graph);
                     modal.open();
                 })
             })
@@ -124,25 +124,25 @@ export class GCOptions extends GCSection {
     // =============================== CALLBACKS ===============================
 
     private saveForDefaultState() {
-        const stateData = this.graphsManager.plugin.settings.states.find(v => v.id === DEFAULT_STATE_ID);
+        const stateData = PluginInstances.settings.states.find(v => v.id === DEFAULT_STATE_ID);
         if (!stateData) return;
         const engine = getEngine(this.leaf);
         stateData.engineOptions = new EngineOptions(engine.getOptions());
-        this.graphsManager.statesManager.onStateNeedsSaving(stateData);
+        PluginInstances.statesManager.onStateNeedsSaving(stateData);
     }
 
     private saveForNormalState() {
-        const globalFilter = this.graphsManager.plugin.settings.globalFilter;
-        this.graphsManager.plugin.settings.globalFilter = "";
+        const globalFilter = PluginInstances.settings.globalFilter;
+        PluginInstances.settings.globalFilter = "";
         const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
         
         const engine = getEngine(this.leaf);
         instance.options = engine.getOptions();
         instance.saveOptions();
-        this.graphsManager.plugin.settings.globalFilter = globalFilter;
+        PluginInstances.settings.globalFilter = globalFilter;
     }
 
     private getSVGScreenshot() {
-        this.graphsManager.getSVGScreenshot(this.leaf);
+        PluginInstances.graphsManager.getSVGScreenshot(this.leaf);
     }
 }

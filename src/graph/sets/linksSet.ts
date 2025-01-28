@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, InteractiveManager, INVALID_KEYS, LINK_KEY } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
     extendedElementsMap: Map<string, ExtendedGraphLink>;
@@ -30,7 +30,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
             [...this.managers.values()],
             this.graph.staticSettings,
             this.graph.type,
-            this.graph.dispatcher.graphsManager.plugin.app
+            PluginInstances.app
         );
 
         this.extendedElementsMap.set(id, extendedGraphLink);
@@ -44,7 +44,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
     }
 
     protected override getTypesFromFile(key: string, element: GraphLink, file: TFile): Set<string> {
-        const dv = getDataviewAPI(this.graph.dispatcher.graphsManager.plugin.app);
+        const dv = getDataviewAPI(PluginInstances.app);
         return dv ? this.getLinkTypesWithDataview(dv, element) : this.getLinkTypesWithFrontmatter(element, file);
     }
 
@@ -71,12 +71,12 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
     private getLinkTypesWithFrontmatter(link: GraphLink, file: TFile): Set<string> {
         const linkTypes = new Set<string>();
-        const frontmatterLinks = this.graph.dispatcher.graphsManager.plugin.app.metadataCache.getFileCache(file)?.frontmatterLinks;
+        const frontmatterLinks = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
         if (frontmatterLinks) {
             // For each link in the frontmatters, check if target matches
             for (const linkCache of frontmatterLinks) {
                 const linkType = linkCache.key.split('.')[0];
-                const targetID = this.graph.dispatcher.graphsManager.plugin.app.metadataCache.getFirstLinkpathDest(linkCache.link, ".")?.path;
+                const targetID = PluginInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, ".")?.path;
                 if (targetID === link.target.id) {
                     linkTypes.add(linkType);
                 }
@@ -92,7 +92,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
     }
 
     protected getAbstractFile(link: GraphLink): TFile | null {
-        return getFile(this.graph.dispatcher.graphsManager.plugin.app, link.source.id);
+        return getFile(PluginInstances.app, link.source.id);
     }
 
     // ============================ TOGGLE ELEMENTS ============================

@@ -1,4 +1,4 @@
-import { EngineOptions, FOLDER_KEY, Graph, GraphStateData, LINK_KEY, TAG_KEY } from "src/internal";
+import { EngineOptions, FOLDER_KEY, Graph, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
 
 export class GraphState {
     data = new GraphStateData();
@@ -17,15 +17,15 @@ export class GraphState {
         
         const linksManager = graph.linksSet.managers.get(LINK_KEY);
         this.data.toggleTypes[LINK_KEY] = linksManager?.getTypes()
-            .filter(type => graph.dynamicSettings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
+            .filter(type => PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
 
         const folderManager = graph.folderBlobs.managers.get(FOLDER_KEY);
         this.data.toggleTypes[FOLDER_KEY] = folderManager?.getTypes()
-            .filter(type => graph.dynamicSettings.interactiveSettings[FOLDER_KEY].enableByDefault !== folderManager.isActive(type)) ?? [];
+            .filter(type => PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault !== folderManager.isActive(type)) ?? [];
 
         for (const [key, manager] of graph.nodesSet.managers) {
             this.data.toggleTypes[key] = manager.getTypes()
-                .filter(type => graph.dynamicSettings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
+                .filter(type => PluginInstances.settings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
         }
 
         // Pinned nodes

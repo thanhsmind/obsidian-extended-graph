@@ -1,7 +1,7 @@
 import { App } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, GraphType, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper } from "src/internal";
+import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, GraphType, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
@@ -50,8 +50,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     // ========================= LINK SIZE (THICKNESS) =========================
 
     getSize(): number {
-        const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin)
-            .graphsManager.linksSizeCalculator
+        const customFunctionFactor = PluginInstances.graphsManager.linksSizeCalculator
             ?.linksStats[this.coreElement.source.id][this.coreElement.target.id];
         const originalWidth = this.coreElement.renderer.fLineSizeMult;
         return originalWidth * (customFunctionFactor ?? 1);

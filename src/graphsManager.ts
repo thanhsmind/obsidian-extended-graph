@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import STRINGS from "./Strings";
 
@@ -14,8 +14,6 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
     
-    plugin: ExtendedGraphPlugin;
-    statesManager: StatesManager;
     dispatchers = new Map<string, GraphEventsDispatcher>();
     
     nodesSizeCalculator: NodeStatCalculator | undefined;
@@ -24,10 +22,8 @@ export class GraphsManager extends Component {
 
     // ============================== CONSTRUCTOR ==============================
     
-    constructor(plugin: ExtendedGraphPlugin) {
+    constructor() {
         super();
-        this.plugin = plugin;
-        this.statesManager = new StatesManager(this);
     }
 
     // ================================ LOADING ================================
@@ -36,17 +32,17 @@ export class GraphsManager extends Component {
         this.initiliazeNodeSizeCalculator();
         this.initializeNodeColorCalculator();
         this.initializeLinkSizeCalculator();
-        this.registerEvent(this.plugin.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
-        this.registerEvent(this.plugin.app.workspace.on('css-change', this.onCSSChange.bind(this)));
+        this.registerEvent(PluginInstances.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
+        this.registerEvent(PluginInstances.app.workspace.on('css-change', this.onCSSChange.bind(this)));
     }
 
     private initiliazeNodeSizeCalculator(): void {
-        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodesSizeFunction, this.plugin.app, this.plugin.settings, 'size');
+        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(PluginInstances.settings.nodesSizeFunction, PluginInstances.app, PluginInstances.settings, 'size');
         this.nodesSizeCalculator?.computeStats();
     }
 
     private initializeNodeColorCalculator(): void {
-        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(this.plugin.settings.nodesColorFunction, this.plugin.app, this.plugin.settings, 'color');
+        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(PluginInstances.settings.nodesColorFunction, PluginInstances.app, PluginInstances.settings, 'color');
         this.nodeColorCalculator?.computeStats();
     }
 
@@ -59,16 +55,16 @@ export class GraphsManager extends Component {
             return;
         }
 
-        if (!ga.nlp && linkStatFunctionNeedsNLP[this.plugin.settings.linksSizeFunction]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${this.plugin.settings.linksSizeFunction})`);
+        if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksSizeFunction]) {
+            new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksSizeFunction})`);
             this.linksSizeCalculator = undefined;
-            this.plugin.settings.linksSizeFunction = 'default';
-            this.plugin.saveSettings();
+            PluginInstances.settings.linksSizeFunction = 'default';
+            PluginInstances.plugin.saveSettings();
             return;
         }
 
-        this.linksSizeCalculator = new LinkStatCalculator(this.plugin.app, this.plugin.settings, 'size', g);
-        this.linksSizeCalculator.computeStats(this.plugin.settings.linksSizeFunction);
+        this.linksSizeCalculator = new LinkStatCalculator(PluginInstances.app, PluginInstances.settings, 'size', g);
+        this.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
     }
 
     // =============================== UNLOADING ===============================
@@ -91,7 +87,7 @@ export class GraphsManager extends Component {
         this.dispatchers.forEach(dispatcher => {
             if (!dispatcher.graph || !dispatcher.graph.renderer) return;
     
-            if (this.plugin.settings.enableFeatures[dispatcher.graph.type]['tags']) {
+            if (PluginInstances.settings.enableFeatures[dispatcher.graph.type]['tags']) {
                 const extendedNode = dispatcher.graph.nodesSet.extendedElementsMap.get(file.path);
                 if (!extendedNode) return;
         
@@ -165,7 +161,7 @@ export class GraphsManager extends Component {
         const menuUI = new MenuUI(leaf);
         leaf.view.addChild(menuUI);
 
-        const controlsUI = new GraphControlsUI(leaf, this);
+        const controlsUI = new GraphControlsUI(leaf);
         controlsUI.onPluginDisabled();
         leaf.view.addChild(controlsUI);
 
@@ -234,7 +230,7 @@ export class GraphsManager extends Component {
         let dispatcher = this.dispatchers.get(leaf.id);
         if (dispatcher) return dispatcher;
 
-        dispatcher = new GraphEventsDispatcher(leaf, this);
+        dispatcher = new GraphEventsDispatcher(leaf);
         if (stateID) {
             dispatcher.statesUI.currentStateID = stateID;
             dispatcher.statesUI.select.value = stateID;
@@ -252,17 +248,17 @@ export class GraphsManager extends Component {
     }
 
     isNodeLimitExceeded(leaf: WorkspaceLeafExt): boolean {
-        if (leaf.view.renderer.nodes.length > this.plugin.settings.maxNodes) {
-            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${leaf.view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${this.plugin.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
+        if (leaf.view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
+            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${leaf.view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
             return true;
         }
         return false;
     }
     
     getGraphAnalysis(): {"graph-analysis": Plugin | null, "nlp": Plugin | null} {
-        const ga = this.plugin.app.plugins.getPlugin("graph-analysis");
+        const ga = PluginInstances.app.plugins.getPlugin("graph-analysis");
         if (ga && ga._loaded) {
-            let nlp = this.plugin.app.plugins.getPlugin("nlp");
+            let nlp = PluginInstances.app.plugins.getPlugin("nlp");
             return {
                 "graph-analysis": ga,
                 // @ts-ignore
@@ -358,7 +354,7 @@ export class GraphsManager extends Component {
     }
 
     changeActiveFile(file: TFile | null): void {
-        if (!this.plugin.settings.enableFeatures['graph']['focus']) return;
+        if (!PluginInstances.settings.enableFeatures['graph']['focus']) return;
 
         this.dispatchers.forEach(dispatcher => {
             if (dispatcher.graph.type !== "graph") return;
@@ -386,8 +382,8 @@ export class GraphsManager extends Component {
         const options = structuredClone(engine.getOptions());
         this.optionsBackup.set(leaf.id, options);
         this.lastBackup = leaf.id;
-        this.plugin.settings.backupGraphOptions = options;
-        this.plugin.saveSettings();
+        PluginInstances.settings.backupGraphOptions = options;
+        PluginInstances.plugin.saveSettings();
     }
 
     restoreBackup() {
@@ -417,7 +413,7 @@ export class GraphsManager extends Component {
     }
 
     private getCorePluginInstance(): GraphPluginInstance | undefined {
-        return this.plugin.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
+        return PluginInstances.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
     applyNormalState(leaf: WorkspaceLeafExt) {
@@ -447,7 +443,7 @@ export class GraphsManager extends Component {
             exportToSVG = new ExportExtendedGraphToSVG(dispatcher.graph);
         }
         else {
-            exportToSVG = new ExportCoreGraphToSVG(this.plugin, getEngine(leaf));
+            exportToSVG = new ExportCoreGraphToSVG(PluginInstances.plugin, getEngine(leaf));
         }
         exportToSVG.toClipboard();
     }
@@ -460,7 +456,7 @@ export class GraphsManager extends Component {
         if (!node) return;
         
         let scale = renderer.scale;
-        let targetScale = this.plugin.settings.zoomFactor;
+        let targetScale = PluginInstances.settings.zoomFactor;
         let panX = renderer.panX
         let panY = renderer.panY;
         renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));

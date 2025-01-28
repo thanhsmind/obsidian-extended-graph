@@ -1,7 +1,7 @@
 import { App } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
-import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, ShapeEnum } from "src/internal";
+import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
@@ -45,7 +45,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== NODE SIZE ===============================
 
     private initRadius() {
-        if (!this.settings.enableFeatures[this.graphType]['elements-size']) return;
+        if (!this.settings.enableFeatures[this.graphType]['elements-stats']) return;
 
         const property = this.settings.nodesSizeProperty;
         if (!property || property === "") return;
@@ -93,9 +93,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     getSizeWithoutScaling(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.enableFeatures[this.graphType]['elements-size'] && this.settings.nodesSizeFunction !== 'default') {
+        if (this.settings.enableFeatures[this.graphType]['elements-stats'] && this.settings.nodesSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
-            const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodesSizeCalculator?.filesStats.get(this.id);
+            const customFunctionFactor = PluginInstances.graphsManager.nodesSizeCalculator?.filesStats.get(this.id);
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);
         }
         else {

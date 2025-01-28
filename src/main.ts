@@ -1,15 +1,15 @@
 import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettings, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, TAG_KEY, WorkspaceExt, WorkspaceLeafExt } from './internal';
+import { DEFAULT_SETTINGS, ExtendedGraphSettings, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY, WorkspaceExt, WorkspaceLeafExt } from './internal';
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {
-    settings: ExtendedGraphSettings;
-    graphsManager: GraphsManager;
     waitingTime: number = 0;
 
     // ================================ LOADING ================================
 
     async onload(): Promise<void> {
+        PluginInstances.plugin = this;
+        PluginInstances.app = this.app;
         await this.loadSettings();
 
         this.initializeInvalidKeys();
@@ -23,15 +23,16 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private initializeInvalidKeys(): void {
-        for (const key of Object.keys(this.settings.additionalProperties)) {
+        for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
             INVALID_KEYS[key] = [];
         }
     }
 
     private loadGraphsManager() {
-        this.graphsManager = new GraphsManager(this);
-        this.addChild(this.graphsManager);
-        this.graphsManager.load();
+        PluginInstances.graphsManager = new GraphsManager();
+        PluginInstances.statesManager = new StatesManager();
+        this.addChild(PluginInstances.graphsManager);
+        PluginInstances.graphsManager.load();
     }
 
     private registerEvents() {
@@ -41,22 +42,22 @@ export default class ExtendedGraphPlugin extends Plugin {
         }));
         this.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
             if (!this.isCoreGraphLoaded()) return;
-            this.graphsManager.onActiveLeafChange(leaf);
+            PluginInstances.graphsManager.onActiveLeafChange(leaf);
         }));
 
 
         this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
             if (!this.isCoreGraphLoaded()) return;
-            this.graphsManager.updatePalette(key);
+            PluginInstances.graphsManager.updatePalette(key);
         }));
         this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
             if (!this.isCoreGraphLoaded()) return;
-            this.graphsManager.updateColor(key, type);
+            PluginInstances.graphsManager.updateColor(key, type);
         }));
 
         this.registerEvent(this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
             if (!this.isCoreGraphLoaded()) return;
-            this.graphsManager.onNodeMenuOpened(menu, file, source, leaf);
+            PluginInstances.graphsManager.onNodeMenuOpened(menu, file, source, leaf);
         }));
 
     }
@@ -84,7 +85,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         }
         // Deep load default settings
         this.loadSettingsRec(DEFAULT_SETTINGS, data);
-        this.settings = data;
+        PluginInstances.settings = data;
     }
 
     private completeDefaultSettings() {
@@ -137,7 +138,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     async saveSettings() {
-        await this.saveData(this.settings);
+        await this.saveData(PluginInstances.settings);
     }
 
     // ============================= LAYOUT CHANGE =============================
@@ -149,9 +150,9 @@ export default class ExtendedGraphPlugin extends Plugin {
         try {
             const found = await this.waitForRenderer();
             const leaves = found ? this.getAllGraphLeaves(): [];
-            this.graphsManager.syncWithLeaves(leaves);
+            PluginInstances.graphsManager.syncWithLeaves(leaves);
             leaves.forEach(leaf => {
-                this.graphsManager.onNewLeafOpen(leaf as WorkspaceLeafExt);
+                PluginInstances.graphsManager.onNewLeafOpen(leaf as WorkspaceLeafExt);
             });
         } catch (e) {
             console.error(e);

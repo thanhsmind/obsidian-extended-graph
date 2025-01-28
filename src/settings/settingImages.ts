@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isPropertyKeyValid, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionCollapsible } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingImages extends SettingsSectionCollapsible {
@@ -17,11 +17,11 @@ export class SettingImages extends SettingsSectionCollapsible {
             .setName(STRINGS.features.imageProperty)
             .setDesc(STRINGS.features.imagePropertyDesc)
             .addText(cb => cb
-                .setValue(this.settingTab.plugin.settings.imageProperty)
+                .setValue(PluginInstances.settings.imageProperty)
                 .onChange(async (key) => {
                     if (isPropertyKeyValid(key)) {
-                        this.settingTab.plugin.settings.imageProperty = key;
-                        await this.settingTab.plugin.saveSettings();
+                        PluginInstances.settings.imageProperty = key;
+                        await PluginInstances.plugin.saveSettings();
                     }
             }));
             
@@ -33,16 +33,16 @@ export class SettingImages extends SettingsSectionCollapsible {
             .setName(STRINGS.features.imageBorderWidth)
             .setDesc(STRINGS.features.imageBorderWidthDesc)
             .addSlider(cb => {
-                const preview = document.createTextNode(this.settingTab.plugin.settings.borderFactor.toString() + "%");
+                const preview = document.createTextNode(PluginInstances.settings.borderFactor.toString() + "%");
                 if (preview) {
                     cb.sliderEl.parentElement?.insertBefore(preview, cb.sliderEl);
                 }
                 cb.setLimits(0, 50, 1)
-                    .setValue(this.settingTab.plugin.settings.borderFactor * 100)
+                    .setValue(PluginInstances.settings.borderFactor * 100)
                     .onChange(value => {
-                        this.settingTab.plugin.settings.borderFactor = value / 100;
-                        if (preview) preview.textContent = this.settingTab.plugin.settings.borderFactor.toString() + "%";
-                        this.settingTab.plugin.saveSettings();
+                        PluginInstances.settings.borderFactor = value / 100;
+                        if (preview) preview.textContent = PluginInstances.settings.borderFactor.toString() + "%";
+                        PluginInstances.plugin.saveSettings();
                     });
             });
         setting.controlEl.addClass("setting-item-description");

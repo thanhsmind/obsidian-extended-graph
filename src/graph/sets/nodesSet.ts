@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS, PluginInstances, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 
 export class NodesSet extends AbstractSet<GraphNode> {
@@ -46,7 +46,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const imageURIs = new Map<string, string>();
         const emptyTextures: string[] = [];
         for (const id of ids) {
-            const imageUri = getImageUri(this.graph.dispatcher.graphsManager.plugin.app, this.graph.staticSettings.imageProperty, id);
+            const imageUri = getImageUri(PluginInstances.app, this.graph.staticSettings.imageProperty, id);
             if (imageUri && this.graph.staticSettings.enableFeatures[this.graph.type]['images']) {
                 imageURIs.set(id, imageUri);
             } else {
@@ -98,7 +98,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 [...this.managers.values()],
                 this.graph.staticSettings,
                 this.graph.type,
-                this.graph.dispatcher.graphsManager.plugin.app,
+                PluginInstances.app,
             );
         }
         else {
@@ -108,7 +108,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 [...this.managers.values()],
                 this.graph.staticSettings,
                 this.graph.type,
-                this.graph.dispatcher.graphsManager.plugin.app,
+                PluginInstances.app,
             );
         }
 
@@ -123,7 +123,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     protected override getTypesFromFile(key: string, element: GraphNode, file: TFile): Set<string> {
-        return getFileInteractives(key, this.graph.dispatcher.graphsManager.plugin.app, file);
+        return getFileInteractives(key, PluginInstances.app, file);
     }
 
     protected override isTypeValid(key: string, type: string): boolean {
@@ -133,7 +133,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
     
     protected getAbstractFile(node: GraphNode): TFile | null {
-        return getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+        return getFile(PluginInstances.app, node.id);
     }
 
     // ============================= INTERACTIVES ==============================
@@ -200,7 +200,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         try {
             if (emphasize) {
                 let color = this.graph.renderer.colors.fillFocused.rgb;
-                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(this.graph.dynamicSettings.focusScaleFactor, color);
+                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(PluginInstances.settings.focusScaleFactor, color);
             } else {
                 (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(1);
             }

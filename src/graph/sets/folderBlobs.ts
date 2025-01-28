@@ -1,7 +1,7 @@
 import { TFile, TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { FOLDER_KEY, getFile, getFileInteractives, Graph, InteractiveManager, INVALID_KEYS, randomColor, rgb2hex } from "src/internal";
+import { FOLDER_KEY, getFile, getFileInteractives, Graph, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -143,10 +143,10 @@ export class FoldersSet {
             for (const node of this.graph.renderer.nodes) {
                 if (this.foldersMap.has(node.id)) continue;
     
-                const file = getFile(this.graph.dispatcher.graphsManager.plugin.app, node.id);
+                const file = getFile(PluginInstances.app, node.id);
                 if (!file) continue;
     
-                const interactives = getFileInteractives(FOLDER_KEY, this.graph.dispatcher.graphsManager.plugin.app, file);
+                const interactives = getFileInteractives(FOLDER_KEY, PluginInstances.app, file);
                 this.addInteractivesToSet(key, interactives, missingFolders);
             }
     
@@ -194,7 +194,7 @@ export class FoldersSet {
     addFolder(key: string, path: string): void {
         this.removeFolder(path);
         const manager = this.managers.get(key);
-        const folder = this.graph.dispatcher.graphsManager.plugin.app.vault.getFolderByPath(path);
+        const folder = PluginInstances.app.vault.getFolderByPath(path);
         if (folder && manager) {
             const blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
             for (const file of folder.children) {

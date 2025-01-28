@@ -1,5 +1,5 @@
 import { DropdownComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, SettingColorPalette, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionCollapsible } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingElementsStats extends SettingsSectionCollapsible {
@@ -20,7 +20,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         this.addNodeColorWarning();
         this.addColorPaletteSetting();
 
-        if (this.settingTab.plugin.graphsManager?.getGraphAnalysis()["graph-analysis"]) {
+        if (PluginInstances.graphsManager?.getGraphAnalysis()["graph-analysis"]) {
             this.addLinkSizeFunction();
         }
     }
@@ -30,11 +30,11 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .setName(STRINGS.features.nodeSizesProperty)
             .setDesc(STRINGS.features.nodeSizesPropertyDesc)
             .addText(cb => cb
-                .setValue(this.settingTab.plugin.settings.nodesSizeProperty)
+                .setValue(PluginInstances.settings.nodesSizeProperty)
                 .onChange(async (key) => {
                     if (key === "" || isPropertyKeyValid(key)) {
-                        this.settingTab.plugin.settings.nodesSizeProperty = key;
-                        await this.settingTab.plugin.saveSettings();
+                        PluginInstances.settings.nodesSizeProperty = key;
+                        await PluginInstances.plugin.saveSettings();
                     }
             }));
             
@@ -47,7 +47,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .setDesc(STRINGS.features.nodeSizesFunctionDesc)
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
-                cb.setValue(this.settingTab.plugin.settings.nodesSizeFunction);
+                cb.setValue(PluginInstances.settings.nodesSizeFunction);
                 cb.onChange((value) => {
                     this.recomputeNodesSizes(value as NodeStatFunction);
                 });
@@ -62,13 +62,13 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .setDesc(STRINGS.features.linkSizesFunctionDesc)
             .addDropdown(cb => {
                 this.linksSizeFunctionDropdown = cb;
-                const nlp = this.settingTab.plugin.graphsManager?.getGraphAnalysis().nlp;
+                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
                         .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
                     )
                 );
-                cb.setValue(this.settingTab.plugin.settings.linksSizeFunction);
+                cb.setValue(PluginInstances.settings.linksSizeFunction);
                 cb.onChange((value) => {
                     this.recomputeLinksSizes(value as LinkStatFunction);
                 });
@@ -95,7 +95,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .setDesc(STRINGS.features.nodeColorsFunctionDesc)
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
-                cb.setValue(this.settingTab.plugin.settings.nodesColorFunction);
+                cb.setValue(PluginInstances.settings.nodesColorFunction);
                 cb.onChange((value) => {
                     this.recomputeNodeColors(value as NodeStatFunction);
                 });
@@ -105,15 +105,15 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
     }
     
     private addColorPaletteSetting(): void {
-        const setting = new SettingColorPalette(this.containerEl, this.settingTab.plugin.app, 'elements-stats')
+        const setting = new SettingColorPalette(this.containerEl, PluginInstances.plugin.app, 'elements-stats')
             .setDesc(STRINGS.features.nodeColorsPaletteDesc);
 
-        setting.setValue(this.settingTab.plugin.settings.nodesColorColormap);
+        setting.setValue(PluginInstances.settings.nodesColorColormap);
 
         setting.onPaletteChange((palette: string) => {
-            this.settingTab.plugin.settings.nodesColorColormap = palette;
-            this.settingTab.plugin.app.workspace.trigger('extended-graph:settings-nodecolorpalette-changed');
-            this.settingTab.plugin.saveSettings();
+            PluginInstances.settings.nodesColorColormap = palette;
+            PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-nodecolorpalette-changed');
+            PluginInstances.plugin.saveSettings();
         });
 
         // Push to body list
@@ -139,7 +139,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
 
 
     private setWarning(warningSetting: Setting): void {
-        const warning = this.settingTab.plugin.graphsManager?.nodesSizeCalculator?.getWarning();
+        const warning = PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning();
         if (warning && warning !== "") {
             warningSetting.setDesc(warning);
             warningSetting.settingEl.style.setProperty("display", "");
@@ -151,26 +151,24 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
     }
 
     private recomputeNodesSizes(functionKey: NodeStatFunction): void {
-        this.settingTab.plugin.settings.nodesSizeFunction = functionKey;
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.settings.nodesSizeFunction = functionKey;
+        PluginInstances.plugin.saveSettings();
 
-        this.settingTab.plugin.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, this.settingTab.plugin.settings, 'size');
-        this.settingTab.plugin.graphsManager.nodesSizeCalculator?.computeStats();
+        PluginInstances.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, PluginInstances.settings, 'size');
+        PluginInstances.graphsManager.nodesSizeCalculator?.computeStats();
         this.setWarning(this.warningNodeSizeSetting);
     }
 
     private recomputeNodeColors(functionKey: NodeStatFunction): void {
-        this.settingTab.plugin.settings.nodesColorFunction = functionKey;
-        this.settingTab.plugin.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, this.settingTab.plugin.settings, 'color');
-        this.settingTab.plugin.graphsManager.nodeColorCalculator?.computeStats();
+        PluginInstances.settings.nodesColorFunction = functionKey;
+        PluginInstances.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, PluginInstances.settings, 'color');
+        PluginInstances.graphsManager.nodeColorCalculator?.computeStats();
         this.setWarning(this.warningNodeColorSetting);
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.plugin.saveSettings();
     }
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {
-        const myPlugin = this.settingTab.plugin;
-        
-        const ga = myPlugin.graphsManager.getGraphAnalysis();
+        const ga = PluginInstances.graphsManager.getGraphAnalysis();
         if (!ga && functionKey !== 'default') {
             return;
         }
@@ -180,19 +178,19 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             this.linksSizeFunctionDropdown?.setValue(functionKey);
         }
     
-        myPlugin.settings.linksSizeFunction = functionKey;
-        this.settingTab.plugin.saveSettings();
+        PluginInstances.settings.linksSizeFunction = functionKey;
+        PluginInstances.plugin.saveSettings();
 
         if (functionKey === 'default') {
-            myPlugin.graphsManager.linksSizeCalculator = undefined;
+            PluginInstances.graphsManager.linksSizeCalculator = undefined;
             return;
         }
 
-        const graphAnalysisPlugin = myPlugin.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
+        const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
         if (!graphAnalysisPlugin) return;
-        if (!myPlugin.graphsManager.linksSizeCalculator) {
-            myPlugin.graphsManager.linksSizeCalculator = new LinkStatCalculator(myPlugin.app, myPlugin.settings, 'size', graphAnalysisPlugin.g);
+        if (!PluginInstances.graphsManager.linksSizeCalculator) {
+            PluginInstances.graphsManager.linksSizeCalculator = new LinkStatCalculator(PluginInstances.app, PluginInstances.settings, 'size', graphAnalysisPlugin.g);
         }
-        myPlugin.graphsManager.linksSizeCalculator.computeStats(myPlugin.settings.linksSizeFunction);
+        PluginInstances.graphsManager.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
     }
 }

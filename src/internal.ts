@@ -1,3 +1,6 @@
+
+export * from "./pluginInstances";
+
 export * from "./graphsManager";
 export * from "./globalVariables";
 export * from "./helperFunctions";

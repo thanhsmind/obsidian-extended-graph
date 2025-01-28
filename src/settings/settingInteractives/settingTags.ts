@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isTagValid, SettingInteractives, TAG_KEY } from "src/internal";
+import { ExtendedGraphSettingTab, isTagValid, PluginInstances, SettingInteractives, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingTags extends SettingInteractives {
@@ -16,10 +16,10 @@ export class SettingTags extends SettingInteractives {
             .setName(STRINGS.features.interactives.arcsAdd)
             .setDesc(STRINGS.features.interactives.arcsAddTagDesc)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }

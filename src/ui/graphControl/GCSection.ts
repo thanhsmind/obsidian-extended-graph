@@ -1,8 +1,7 @@
 import { Component, setIcon } from "obsidian";
-import { GraphEventsDispatcher, GraphsManager, setPluginIcon, WorkspaceLeafExt } from "src/internal";
+import { GraphEventsDispatcher, setPluginIcon, WorkspaceLeafExt } from "src/internal";
 
 export abstract class GCSection extends Component {
-    graphsManager: GraphsManager;
     dispatcher: GraphEventsDispatcher | undefined;
     leaf: WorkspaceLeafExt;
 
@@ -14,10 +13,9 @@ export abstract class GCSection extends Component {
     treeItemChildren: HTMLDivElement;
     collapseIcon: HTMLDivElement;
     
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager, sectionID: string, title: string) {
+    constructor(leaf: WorkspaceLeafExt, sectionID: string, title: string) {
         super();
         this.leaf = leaf;
-        this.graphsManager = graphsManager;
         this.graphControls = leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
 
         this.root = this.graphControls.createDiv(`tree-item graph-control-section mod-extended-graph-${sectionID}`);

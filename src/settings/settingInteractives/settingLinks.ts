@@ -1,6 +1,6 @@
 import { Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, SettingInteractives } from "src/internal";
+import { ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -14,7 +14,7 @@ export class SettingLinks extends SettingInteractives {
         super.addBody();
 
         const labels = this.containerEl.querySelectorAll(`.settings-selection-container.${this.itemClasses} label`);
-        const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === this.settingTab.plugin.settings.imageProperty) as HTMLLabelElement;
+        const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === PluginInstances.settings.imageProperty) as HTMLLabelElement;
         if (imageLabel) {
             const cb = imageLabel.querySelector("input") as HTMLInputElement ;
             this.deselectInteractive(imageLabel, cb);
@@ -27,18 +27,18 @@ export class SettingLinks extends SettingInteractives {
             .setDesc(STRINGS.features.removeSourcesDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['source']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['source']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['graph']['source'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['graph']['source'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             })
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['source']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['source']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['localgraph']['source'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['localgraph']['source'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -48,18 +48,18 @@ export class SettingLinks extends SettingInteractives {
             .setDesc(STRINGS.features.removeTargetsDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['target']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['target']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['graph']['target'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['graph']['target'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             })
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['target']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['target']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['localgraph']['target'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['localgraph']['target'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
         
@@ -68,10 +68,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(STRINGS.features.interactives.colorLinks)
             .setDesc(STRINGS.features.interactives.colorLinksDesc)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -81,18 +81,18 @@ export class SettingLinks extends SettingInteractives {
             .setDesc(STRINGS.features.interactives.curvedLinksDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['curvedLinks']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['graph']['curvedLinks'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             })
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['curvedLinks']);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks'] = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.enableFeatures['localgraph']['curvedLinks'] = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -112,7 +112,7 @@ export class SettingLinks extends SettingInteractives {
         if (dv) {
             for (const page of dv.pages()) {
                 for (const [key, value] of Object.entries(page)) {
-                    if (key === "file" || key === this.settingTab.plugin.settings.imageProperty || INVALID_KEYS[LINK_KEY].includes(key)) continue;
+                    if (key === "file" || key === PluginInstances.settings.imageProperty || INVALID_KEYS[LINK_KEY].includes(key)) continue;
                     if (value === null || value === undefined || value === '') continue;
 
                     if ((typeof value === "object") && ("path" in value)) {
@@ -131,7 +131,7 @@ export class SettingLinks extends SettingInteractives {
             for (const file of this.settingTab.app.vault.getFiles()) {
                 const frontmatterLinks = this.settingTab.app.metadataCache.getCache(file.path)?.frontmatterLinks;
                 if (!frontmatterLinks) continue;
-                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => k !== this.settingTab.plugin.settings.imageProperty && !INVALID_KEYS[LINK_KEY].includes(k));
+                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => k !== PluginInstances.settings.imageProperty && !INVALID_KEYS[LINK_KEY].includes(k));
                 allTypes = new Set<string>([...allTypes, ...types]);
             }
         }

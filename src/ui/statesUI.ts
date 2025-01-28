@@ -1,12 +1,10 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager } from "src/internal";
+import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager, PluginInstances } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export class StatesUI extends Component {
-    statesManager: StatesManager;
     graph: Graph;
-    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     currentStateID: string;
@@ -23,8 +21,6 @@ export class StatesUI extends Component {
     constructor(graph: Graph) {
         super();
         this.graph = graph;
-        this.statesManager = this.graph.dispatcher.graphsManager.statesManager;
-        this.plugin = this.statesManager.graphsManager.plugin;
         this.viewContent = this.graph.dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
         this.root.addClass("graph-states-container");
@@ -54,7 +50,7 @@ export class StatesUI extends Component {
                 this.select.addEventListener('change', event => {
                     this.currentStateID = this.select.value;
                     this.displaySaveDeleteButton();
-                    this.statesManager.changeState(this.graph, this.select.value);
+                    PluginInstances.statesManager.changeState(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
@@ -69,21 +65,21 @@ export class StatesUI extends Component {
                 this.saveButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'save');
                 this.saveButton.addEventListener('click', event => {
-                    this.statesManager.saveState(this.graph, this.select.value);
+                    PluginInstances.statesManager.saveState(this.graph, this.select.value);
                 });
             })
             .addExtraButton(cb => {
                 this.deleteButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'delete');
                 this.deleteButton.addEventListener('click', event => {
-                    this.statesManager.deleteState(this.select.value);
+                    PluginInstances.statesManager.deleteState(this.select.value);
                 });
             });
 
         // CURRENT STATE ID
         this.currentStateID = this.select.value;
 
-        if (this.plugin.settings.collapseState) {
+        if (PluginInstances.settings.collapseState) {
             this.close();
         }
         else {
@@ -98,7 +94,7 @@ export class StatesUI extends Component {
 
     private openModalToAddState() {
         const modal = new NewNameModal(
-            this.plugin.app,
+            PluginInstances.app,
             STRINGS.states.newStateName,
             this.newState.bind(this)
         );
@@ -125,7 +121,7 @@ export class StatesUI extends Component {
 
     newState(name: string): boolean {
         if (name.length === 0) return false;
-        const id = this.statesManager.newState(this.graph, name);
+        const id = PluginInstances.statesManager.newState(this.graph, name);
         this.currentStateID = id;
         return true;
     }
@@ -159,15 +155,15 @@ export class StatesUI extends Component {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
-        this.plugin.settings.collapseState = false;
-        this.plugin.saveSettings();
+        PluginInstances.settings.collapseState = false;
+        PluginInstances.plugin.saveSettings();
     }
 
     close() {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
-        this.plugin.settings.collapseState = true;
-        this.plugin.saveSettings();
+        PluginInstances.settings.collapseState = true;
+        PluginInstances.plugin.saveSettings();
     }
 }

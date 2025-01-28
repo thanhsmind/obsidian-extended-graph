@@ -63,7 +63,7 @@ export class GraphologySingleton {
 
         graph = new Graphology();
         dfsFromNode(instance.graphologyGraph, node, (function (node: string, attr: string, depth: number) {
-            addNeighbors(instance.graphologyGraph, graph, node);
+            if (graph) addNeighbors(instance.graphologyGraph, graph, node);
         }).bind(this));
 
         return graph;

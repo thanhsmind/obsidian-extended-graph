@@ -1,12 +1,11 @@
 import { Component, Menu, TFile } from "obsidian";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, StatesUI, WorkspaceLeafExt } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, LegendUI, LINK_KEY, PluginInstances, StatesUI, WorkspaceLeafExt } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
 
-    graphsManager: GraphsManager;
     graph: Graph;
     leaf: WorkspaceLeafExt;
     observerOrphans: MutationObserver;
@@ -26,10 +25,9 @@ export class GraphEventsDispatcher extends Component {
      * @param leaf - The workspace leaf.
      * @param graphsManager - The graphs manager.
      */
-    constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
+    constructor(leaf: WorkspaceLeafExt) {
         super();
         this.leaf = leaf;
-        this.graphsManager = graphsManager;
         this.initializeGraph();
         this.initializeUI();
         this.initializeFoldersUI();
@@ -44,12 +42,12 @@ export class GraphEventsDispatcher extends Component {
         this.initializeLegendUI();
 
         this.statesUI = new StatesUI(this.graph);
-        this.statesUI.updateStatesList(this.graphsManager.plugin.settings.states);
+        this.statesUI.updateStatesList(PluginInstances.settings.states);
         this.addChild(this.statesUI);
     }
 
     private initializeLegendUI(): void {
-        const settings = this.graphsManager.plugin.settings;
+        const settings = PluginInstances.settings;
         if (settings.enableFeatures[this.graph.type]['links'] || settings.enableFeatures[this.graph.type]['tags'] || this.hasAdditionalProperties(settings)) {
             this.legendUI = new LegendUI(this);
             this.addChild(this.legendUI);
@@ -57,14 +55,14 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private initializeFoldersUI(): void {
-        if (!this.graphsManager.plugin.settings.enableFeatures[this.graph.type]['folders']) return;
+        if (!PluginInstances.settings.enableFeatures[this.graph.type]['folders']) return;
 
-        const graphControls = this.graphsManager.globalUIs.get(this.leaf.id)?.control;
+        const graphControls = PluginInstances.graphsManager.globalUIs.get(this.leaf.id)?.control;
         if (!graphControls) return;
 
         const foldersManager = this.graph.folderBlobs.managers.get(FOLDER_KEY);
         if (!foldersManager) return;
-        this.foldersUI = new GCFolders(this.leaf, this.graphsManager, foldersManager);
+        this.foldersUI = new GCFolders(this.leaf, foldersManager);
         this.foldersUI.display();
     }
 
@@ -82,7 +80,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private loadCurrentState(): void {
-        const state = this.graphsManager.plugin.settings.states.find(v => v.id === this.statesUI.currentStateID);
+        const state = PluginInstances.settings.states.find(v => v.id === this.statesUI.currentStateID);
         if (state) {
             this.graph.engine.setOptions(state.engineOptions);
         }
@@ -97,11 +95,7 @@ export class GraphEventsDispatcher extends Component {
         this.observeOrphanSettings();
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
-        this.graphsManager.statesManager.changeState(this.graph, this.statesUI.currentStateID);
-        setTimeout(async () => {
-            // @ts-ignore
-            console.log(await this.graphsManager.plugin.app.plugins.getPlugin("graph-analysis").g.algs["Adamic Adar"]("Amadeus.md"));
-        }, 10)
+        PluginInstances.statesManager.changeState(this.graph, this.statesUI.currentStateID);
     }
 
     private updateOpacityLayerColor(): void {
@@ -169,7 +163,7 @@ export class GraphEventsDispatcher extends Component {
         this.unbindStageEvents();
         this.graph.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
-        this.graphsManager.onPluginUnloaded(this.leaf);
+        PluginInstances.graphsManager.onPluginUnloaded(this.leaf);
     }
 
     private unbindStageEvents(): void {
@@ -185,10 +179,10 @@ export class GraphEventsDispatcher extends Component {
      */
     private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
-        if (this.graphsManager.isNodeLimitExceeded(this.leaf)) {
+        if (PluginInstances.graphsManager.isNodeLimitExceeded(this.leaf)) {
             this.listenStage = false;
             setTimeout(() => {
-                this.graphsManager.disablePluginFromLeafID(this.leaf.id);
+                PluginInstances.graphsManager.disablePluginFromLeafID(this.leaf.id);
             });
             return;
         }
@@ -340,7 +334,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (this.graph.dynamicSettings.interactiveSettings[key].enableByDefault) {
+        if (PluginInstances.settings.interactiveSettings[key].enableByDefault) {
             this.graph.nodesSet.resetArcs(key);
             this.graph.renderer.changed();
         }
@@ -388,7 +382,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (this.graph.dynamicSettings.interactiveSettings[LINK_KEY].enableByDefault) {
+        if (PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault) {
             colorMaps.forEach((color, type) => {
                 this.graph.linksSet.updateTypeColor(LINK_KEY, type, color);
             });
@@ -432,7 +426,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (this.graph.dynamicSettings.interactiveSettings[FOLDER_KEY].enableByDefault) {
+        if (PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault) {
             for (const [path, color] of colorMaps) {
                 this.graph.folderBlobs.addFolder(FOLDER_KEY, path);
             }

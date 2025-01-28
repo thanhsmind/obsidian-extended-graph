@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
+import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, PluginInstances, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
@@ -10,7 +10,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'properties', '', STRINGS.features.interactives.properties, 'archive', STRINGS.features.interactives.propertiesDesc);
         
-        for (const [key, enabled] of Object.entries(this.settingTab.plugin.settings.additionalProperties)) {
+        for (const [key, enabled] of Object.entries(PluginInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
         }
     }
@@ -49,7 +49,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     isKeyValid(key: string) {
-        if (this.settingTab.plugin.settings.additionalProperties.hasOwnProperty(key)) {
+        if (PluginInstances.settings.additionalProperties.hasOwnProperty(key)) {
             new Notice(STRINGS.features.interactives.propertyAlreadyExists);
             return false;
         }
@@ -71,8 +71,8 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     protected addProperty(key: string): boolean {
         if (!this.isKeyValid(key)) return false;
 
-        this.settingTab.plugin.settings.additionalProperties[key] = true;
-        this.settingTab.plugin.settings.interactiveSettings[key] = {
+        PluginInstances.settings.additionalProperties[key] = true;
+        PluginInstances.settings.interactiveSettings[key] = {
             colormap: "rainbow",
             colors: [],
             unselected: [],
@@ -80,12 +80,12 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             showOnGraph: true,
             enableByDefault: true,
         }
-        this.settingTab.plugin.saveSettings().then(() => {
+        PluginInstances.plugin.saveSettings().then(() => {
             const setting = new SettingProperty(key, this.settingTab, this);
             this.settingInteractives.push(setting);
             setting.containerEl = this.propertiesContainer;
             setting.display();
-            INVALID_KEYS[key] = [this.settingTab.plugin.settings.interactiveSettings[key].noneType];
+            INVALID_KEYS[key] = [PluginInstances.settings.interactiveSettings[key].noneType];
         });
         return true;
     }
@@ -119,19 +119,19 @@ export class SettingProperty extends SettingInteractives {
             .setName(STRINGS.features.interactives.arcsAdd)
             .setDesc(STRINGS.features.interactives.arcsAddPropertyDesc)
             .addToggle(cb => {
-                cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
-                    this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
-                    this.settingTab.plugin.saveSettings();
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
 
     remove(): void {
-        delete this.settingTab.plugin.settings.additionalProperties[this.interactiveKey];
-        delete this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey];
+        delete PluginInstances.settings.additionalProperties[this.interactiveKey];
+        delete PluginInstances.settings.interactiveSettings[this.interactiveKey];
         this.array.settingInteractives.remove(this);
-        this.settingTab.plugin.saveSettings().then(() => {
+        PluginInstances.plugin.saveSettings().then(() => {
             this.settingHeader.settingEl.remove();
             this.elementsBody.forEach(el => el.remove());
         });

@@ -1,5 +1,5 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, textColor } from "src/internal";
+import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, PluginInstances, textColor } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -146,7 +146,6 @@ class LegendRow extends Setting {
 
 export class LegendUI extends Component implements InteractiveUI {
     dispatcher: GraphEventsDispatcher;
-    plugin: ExtendedGraphPlugin;
 
     viewContent: HTMLElement;
     legendRows: Map<string, LegendRow>;
@@ -159,7 +158,6 @@ export class LegendUI extends Component implements InteractiveUI {
     constructor(dispatcher: GraphEventsDispatcher) {
         super();
         this.dispatcher = dispatcher;
-        this.plugin = dispatcher.graphsManager.plugin;
         this.viewContent = dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
     
         // TOGGLE BUTTON
@@ -187,7 +185,7 @@ export class LegendUI extends Component implements InteractiveUI {
             if (manager) this.legendRows.set(key, new LegendRow(key, manager, this.root));
         }
 
-        if (this.plugin.settings.collapseLegend) {
+        if (PluginInstances.settings.collapseLegend) {
             this.close();
         }
         else {
@@ -240,15 +238,15 @@ export class LegendUI extends Component implements InteractiveUI {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
-        this.plugin.settings.collapseLegend = false;
-        this.plugin.saveSettings();
+        PluginInstances.settings.collapseLegend = false;
+        PluginInstances.plugin.saveSettings();
     }
 
     close() {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
-        this.plugin.settings.collapseLegend = true;
-        this.plugin.saveSettings();
+        PluginInstances.settings.collapseLegend = true;
+        PluginInstances.plugin.saveSettings();
     }
 }

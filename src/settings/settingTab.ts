@@ -1,15 +1,13 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom } from "src/internal";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
-    plugin: ExtendedGraphPlugin;
     sections: SettingsSection[] = [];
 
     constructor(app: App, plugin: ExtendedGraphPlugin) {
         super(app, plugin);
-        this.plugin = plugin;
 
         this.sections.push(new SettingTags(this));
         this.sections.push(new SettingPropertiesArray(this));
@@ -33,21 +31,21 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             .setName(STRINGS.features.globalFilter)
             .setDesc(STRINGS.features.globalFilterDesc)
             .addTextArea(cb => cb
-                .setValue(this.plugin.settings.globalFilter)
+                .setValue(PluginInstances.settings.globalFilter)
                 .onChange(async (value) => {
-                    this.plugin.settings.globalFilter = value;
-                    await this.plugin.saveSettings();
-                    this.plugin.graphsManager.onGlobalFilterChanged(value);
+                    PluginInstances.settings.globalFilter = value;
+                    await PluginInstances.plugin.saveSettings();
+                    PluginInstances.graphsManager.onGlobalFilterChanged(value);
             }));
 
         new Setting(containerEl)
             .setName(STRINGS.features.disableNodes)
             .setDesc(STRINGS.features.disableNodesDesc)
             .addToggle(cb => {
-                cb.setValue(!this.plugin.settings.fadeOnDisable);
+                cb.setValue(!PluginInstances.settings.fadeOnDisable);
                 cb.onChange(value => {
-                    this.plugin.settings.fadeOnDisable = !value;
-                    this.plugin.saveSettings();
+                    PluginInstances.settings.fadeOnDisable = !value;
+                    PluginInstances.plugin.saveSettings();
                 })
             });
 
