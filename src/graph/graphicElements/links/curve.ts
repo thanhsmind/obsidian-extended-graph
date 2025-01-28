@@ -1,16 +1,13 @@
-import { GraphLink } from "obsidian-typings";
 import { Graphics, IDestroyOptions } from "pixi.js";
-import { InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
-    link: GraphLink;
     arrow: Graphics | null;
 
-    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: GraphLink) {
-        super(manager, types, name);
+    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
+        super(manager, types, name, link);
         this.name = "curve:" + this.name;
-        this.link = link;
 
         this.updateGraphics();
     }
@@ -28,7 +25,7 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         this.arrow.eventMode = "none";
         this.arrow.zIndex = 1;
         this.arrow.pivot.set(0, 0);
-        if(this.link.arrow) this.link.arrow.renderable = false;
+        if(this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
     override toggleType(type: string, enable: boolean): void {
@@ -42,27 +39,28 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
 
     redrawType(type: string, color?: Uint8Array): void {
         this.clear();
-        const renderer = this.link.renderer;
+        const renderer = this.extendedLink.coreElement.renderer;
+        const link = this.extendedLink.coreElement;
         
         const f = renderer.nodeScale;
-        const dx = this.link.target.x - this.link.source.x;
-        const dy = this.link.target.y - this.link.source.y;
+        const dx = link.target.x - link.source.x;
+        const dy = link.target.y - link.source.y;
 
-        const P0 = { x: this.link.source.x, y: this.link.source.y }; // Center of source
-        const P2 = { x: this.link.target.x, y: this.link.target.y }; // Center ot target
+        const P0 = { x: link.source.x, y: link.source.y }; // Center of source
+        const P2 = { x: link.target.x, y: link.target.y }; // Center ot target
         const P1 = { // Control point, shifted along the normal
             x: (P0.x + P2.x) * 0.5 + dy * 0.2,
             y: (P0.y + P2.y) * 0.5 - dx * 0.2
         };
 
         const L = lengthQuadratic(1, P0, P1, P2); // length of the arc between centers
-        const P0_ = quadratic(   0.9 * this.link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
-        const P2_ = quadratic(1- 0.9 * this.link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
+        const P0_ = quadratic(   0.9 * link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
+        const P2_ = quadratic(1- 0.9 * link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
 
-        this.lineStyle({width: renderer.fLineSizeMult / renderer.scale, color: "white"});
+        this.lineStyle({width: this.extendedLink.getSize() / renderer.scale, color: "white"});
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
-        if (this.link.line && this.link.line.tint !== renderer.colors.line.rgb) {
-            this.tint = this.link.line.tint;
+        if (link.line && link.line.tint !== renderer.colors.line.rgb) {
+            this.tint = link.line.tint;
         }
         else if (color) {
             this.tint = color;
@@ -70,13 +68,13 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         else {
             this.tint = this.color;
         }
-        if (this.link.line) {
-            this.alpha = this.link.line.alpha + this.targetAlpha;
-            this.link.line.alpha = -0.2;
+        if (link.line) {
+            this.alpha = link.line.alpha + this.targetAlpha;
+            link.line.alpha = -0.2;
         }
 
         // Arrow
-        if (this.link.arrow && this.link.arrow.visible) {
+        if (link.arrow && link.arrow.visible) {
             if (!this.arrow) {
                 this.initArrow();
                 if (this.arrow) this.addChild(this.arrow);
@@ -100,7 +98,7 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
     }
 
     override destroy(options?: IDestroyOptions | boolean): void {
-        if (this.link.arrow) this.link.arrow.renderable = true;
+        if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = true;
         super.destroy(options);
     }
 

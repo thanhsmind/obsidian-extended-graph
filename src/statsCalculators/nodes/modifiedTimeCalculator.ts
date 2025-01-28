@@ -1,5 +1,6 @@
 import { TFile } from "obsidian";
 import { NodeStatCalculator } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class ModifiedTimeCalculator extends NodeStatCalculator {
 
@@ -8,6 +9,6 @@ export class ModifiedTimeCalculator extends NodeStatCalculator {
     }
 
     override getWarning(): string {
-        return "This calculation is unreliable and might vary between OS.";
+        return STRINGS.statsFunctions.warningUnreliableOS;
     }
 }

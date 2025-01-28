@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, NodeStatFunction, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, LinkStatFunction, NodeStatFunction, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -37,11 +37,16 @@ export interface ExtendedGraphSettings {
     borderFactor: number;
 
     // Nodes sizes
-    nodeSizeProperty: string;
-    nodeSizeFunction: NodeStatFunction;
+    nodesSizeProperty: string;
+    nodesSizeFunction: NodeStatFunction;
     // Nodes colors
-    nodeColorColormap: string;
-    nodeColorFunction: NodeStatFunction;
+    nodesColorColormap: string;
+    nodesColorFunction: NodeStatFunction;
+    // Links sizes
+    linksSizeFunction: LinkStatFunction;
+    // Links colors
+    linksColorColormap: string;
+    linksColorFunction: LinkStatFunction;
 
     // Zoom on node
     zoomFactor: number;
@@ -91,11 +96,16 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     borderFactor: 0.06,
 
     // Nodes sizes
-    nodeSizeProperty: "",
-    nodeSizeFunction: 'default',
+    nodesSizeProperty: "",
+    nodesSizeFunction: 'default',
     // Nodes colors
-    nodeColorColormap: 'YlOrRd',
-    nodeColorFunction: 'default',
+    nodesColorColormap: 'YlOrRd',
+    nodesColorFunction: 'default',
+    // Links sizes
+    linksSizeFunction: 'default',
+    // Links colors
+    linksColorColormap: 'YlOrRd',
+    linksColorFunction: 'default',
 
     // Zoom on node
     zoomFactor: 2,
@@ -107,34 +117,32 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Feature toggles
     enableFeatures: {
         'graph': {
-            'tags'        : false,
-            'properties'  : false,
-            'property-key': true,
-            'links'       : false,
-            'curvedLinks' : false,
-            'folders'     : false,
-            'images'      : false,
-            'focus'       : true,
-            'shapes'      : false,
-            'source'      : false,
-            'target'      : false,
-            'node-size'    : true,
-            'node-color'    : false,
+            'tags'          : false,
+            'properties'    : false,
+            'property-key'  : true,
+            'links'         : false,
+            'curvedLinks'   : false,
+            'folders'       : false,
+            'images'        : false,
+            'focus'         : true,
+            'shapes'        : false,
+            'source'        : false,
+            'target'        : false,
+            'elements-stats': true,
         },
         'localgraph': {
-            'tags'        : true,
-            'properties'  : false,
-            'property-key': true,
-            'links'       : true,
-            'curvedLinks' : false,
-            'folders'     : false,
-            'images'      : true,
-            'focus'       : false,
-            'shapes'      : true,
-            'source'      : false,
-            'target'      : false,
-            'node-size'    : true,
-            'node-color'    : false,
+            'tags'          : true,
+            'properties'    : false,
+            'property-key'  : true,
+            'links'         : true,
+            'curvedLinks'   : false,
+            'folders'       : false,
+            'images'        : true,
+            'focus'         : false,
+            'shapes'        : true,
+            'source'        : false,
+            'target'        : false,
+            'elements-stats': true,
         }
     },
 

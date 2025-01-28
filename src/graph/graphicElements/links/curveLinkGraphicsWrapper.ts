@@ -6,7 +6,7 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
     // ============================= INITALIZATION =============================
     
     override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
-        const curveLink = new LinkCurveGraphics(manager, types, this.name, this.extendedElement.coreElement);
+        const curveLink = new LinkCurveGraphics(manager, types, this.name, this.extendedElement);
         this.setManagerGraphics(manager, curveLink);
     }
 
@@ -15,7 +15,7 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
     override connect(): void {
         const hanger = this.extendedElement.coreElement.renderer.hanger;
         if (!hanger.getChildByName(this.pixiElement.name)) {
-            this.pixiElement.link = this.extendedElement.coreElement;
+            this.pixiElement.extendedLink = this.extendedElement;
             hanger.addChild(this.pixiElement);
         }
     }

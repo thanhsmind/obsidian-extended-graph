@@ -1,5 +1,7 @@
+import { App } from "obsidian";
+import { GraphLink } from "obsidian-typings";
 import { Graphics } from "pixi.js";
-import { InteractiveManager, ManagerGraphics } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, ManagerGraphics } from "src/internal";
 
 export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     // Instance values
@@ -8,12 +10,14 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     name: string;
     targetAlpha: number = 0.6;
     color: Uint8Array;
+    extendedLink: ExtendedGraphLink;
 
-    constructor(manager: InteractiveManager, types: Set<string>, name: string) {
+    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
         super();
         this.manager = manager;
         this.types = types;
         this.name = name;
+        this.extendedLink = link;
     }
 
     clearGraphics(): void {

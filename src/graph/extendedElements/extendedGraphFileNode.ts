@@ -10,7 +10,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     
     constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
         super(node, types, managers, settings, graphType, app);
-        if (settings.enableFeatures[this.graphType]['node-color']) {
+        if (settings.enableFeatures[this.graphType]['elements-stats'] && settings.nodesColorFunction !== 'default') {
             this.changeGetFillColor();
         }
     }
@@ -68,7 +68,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
     
     private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.settings.enableFeatures[this.graphType]["node-color"] || this.settings.nodeColorFunction === "default") {
+        if (this.coreGetFillColor || !this.settings.enableFeatures[this.graphType]["elements-stats"] || this.settings.nodesColorFunction === "default") {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;
@@ -87,7 +87,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     private getFillColor(): GraphColorAttributes | undefined {
-        const rgb = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeColorCalculator?.fileStats.get(this.id);
+        const rgb = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeColorCalculator?.filesStats.get(this.id);
         if (!rgb) return undefined;
         return { rgb: rgb, a: 1 }
     }

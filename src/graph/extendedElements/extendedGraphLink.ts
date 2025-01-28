@@ -1,6 +1,8 @@
+import { App } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
 import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, GraphType, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper } from "src/internal";
+import ExtendedGraphPlugin from "src/main";
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
@@ -8,8 +10,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType) {
-        super(link, types, managers, settings, graphType);
+    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
+        super(link, types, managers, settings, graphType, app);
         this.initGraphicsWrapper();
     }
 
@@ -45,6 +47,16 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
     }
 
+    // ========================= LINK SIZE (THICKNESS) =========================
+
+    getSize(): number {
+        const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin)
+            .graphsManager.linksSizeCalculator
+            ?.linksStats[this.coreElement.source.id][this.coreElement.target.id];
+        const originalWidth = this.coreElement.renderer.fLineSizeMult;
+        return originalWidth * (customFunctionFactor ?? 1);
+    }
+
     // ============================== CORE ELEMENT =============================
 
     protected override isCoreElementUptodate(): boolean {
@@ -67,6 +79,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             return coreElement.line;
         }
     }
+
     protected override setCoreParentGraphics(coreElement: GraphLink): void {
         if (this.settings.enableFeatures[this.graphType]['curvedLinks']) {
             this.coreElement.px = coreElement.px;

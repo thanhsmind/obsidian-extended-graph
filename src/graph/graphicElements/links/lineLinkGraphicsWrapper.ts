@@ -6,7 +6,7 @@ export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkLineGraphic
     // ============================= INITALIZATION =============================
     
     override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
-        const lineLink = new LinkLineGraphics(manager, types, this.name);
+        const lineLink = new LinkLineGraphics(manager, types, this.name, this.extendedElement);
         this.setManagerGraphics(manager, lineLink);
     }
 

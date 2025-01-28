@@ -1,10 +1,10 @@
-import { InteractiveManager, LinkGraphics, ManagerGraphics } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, LinkGraphics, ManagerGraphics } from "src/internal";
 
 
 export class LinkLineGraphics extends LinkGraphics implements ManagerGraphics {
 
-    constructor(manager: InteractiveManager, types: Set<string>, name: string) {
-        super(manager, types, name);
+    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
+        super(manager, types, name, link);
 
         this.updateGraphics();
     }

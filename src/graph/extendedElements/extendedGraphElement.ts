@@ -1,8 +1,10 @@
+import { App } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container } from "pixi.js";
 import { ExtendedGraphSettings, GraphicsWrapper, GraphType, InteractiveManager } from "src/internal";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
+    app: App;
     settings: ExtendedGraphSettings;
     graphType: GraphType;
     types: Map<string, Set<string>>;
@@ -14,9 +16,10 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     // ============================== CONSTRUCTOR ==============================
     
-    constructor(coreElement: T, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType) {
+    constructor(coreElement: T, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
         this.coreElement = coreElement;
         this.id = this.getID();
+        this.app = app;
         this.managers = new Map<string, InteractiveManager>();
         this.types = types;
         this.settings = settings;

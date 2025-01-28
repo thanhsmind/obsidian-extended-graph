@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { GraphologySingleton } from "./graphology";
+import { GraphologySingleton } from "../graphology";
 import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, ExtendedGraphSettings, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, TagsCountCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
 

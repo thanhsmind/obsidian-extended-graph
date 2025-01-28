@@ -1,5 +1,6 @@
 export default class STRINGS {
 	static plugin = {
+		default: "Default",
 		folder: "Folder",
 		filename: "Filename",
 		info: "Info",
@@ -90,8 +91,10 @@ export default class STRINGS {
 		nodeColorsFunctionDesc: "Select how the graph engine should compute the color of the nodes",
 		nodeColorsPaletteDesc: "Choose the color palette for the nodes",
 		size: "Size",
-		nodeSizes: "Nodes sizes",
-		nodeSizesDesc: "Choose how nodes sizes must be computed",
+		elementsStats: "Nodes and links statistics",
+		elementsStatsDesc: "Choose how nodes and links sizes/colors must be computed",
+		linkSizesFunction: "Link size function",
+		linkSizesFunctionDesc: "Select how the graph engine should compute the thickness of the links",
 		nodeSizesFunction: "Node size function",
 		nodeSizesFunctionDesc: "Select how the graph engine should compute the size of the nodes",
 		nodeSizesProperty: "Node size property",
@@ -143,7 +146,9 @@ export default class STRINGS {
 
 	static notices = {
 		disabled: "disabled",
+		graphAnalysisPluginRequired: "Graph Analysis plugin must be enabled to use this function",
 		invalidCharacter: "Invalid character",
+		nlpPluginRequired: "NLP plugin must be enabled to use this function",
 		nodeLimiteExceeded: "Try to handle too many nodes",
 		nodeLimiteIs: "The limite is",
 		stateDeleted: "State has been removed",
@@ -193,6 +198,32 @@ export default class STRINGS {
 		showGraphState: "Show graph state",
 		states: "States"
     };
+
+	static statsFunctions = {
+		AdamicAdar: "Adamic Adar",
+		authority: "Authority centrality (from HITS)",
+		backlinksCount: "Number of backlinks",
+		betweenness: "Betweenness centrality",
+		BoW: "BoW",
+		closeness: "Closeness centrality",
+		clusteringCoefficient: "Clustering coefficient",
+		coCitations: "Co-Citations",
+		creationTime: "Time since file creation",
+		degree: "Degree centrality",
+		eccentricity: "Eccentricity in the connected graph",
+		eigenvector: "Eigenvector centrality",
+		filenameLength: "File name length",
+		forwardlinksCount: "Number of forward links",
+		forwardUniquelinksCount: "Number of unique forward links",
+		hub: "Hub centrality (from HITS)",
+		Jaccard: "Jaccard",
+		modifiedTime: "Time since last modification",
+		OtsukaChiai: "Otsuka-Chiai",
+		overlap: "Overlap",
+		tagsCount: "Number of tags",
+		warningUnreliableOS: "This calculation is unreliable and might vary between OS.",
+		sentiment: "Sentiment",
+	}
 
 	static {
 		STRINGS.localize();

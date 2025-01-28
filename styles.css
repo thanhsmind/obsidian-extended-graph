@@ -418,16 +418,15 @@ body {
         border-top: 0;
     }
 
-    .setting-tags         { display: var(--display-settings-tags); }
-    .setting-properties   { display: var(--display-settings-properties); }
-    .setting-property-key { display: var(--display-settings-property-key); }
-    .setting-links        { display: var(--display-settings-links); }
-    .setting-folders      { display: var(--display-settings-folders); }
-    .setting-images       { display: var(--display-settings-images); }
-    .setting-focus        { display: var(--display-settings-focus); }
-    .setting-shapes       { display: var(--display-settings-shapes); }
-    .setting-node-size    { display: var(--display-settings-node-size); }
-    .setting-node-color   { display: var(--display-settings-node-color); }
+    .setting-tags           { display: var(--display-settings-tags); }
+    .setting-properties     { display: var(--display-settings-properties); }
+    .setting-property-key   { display: var(--display-settings-property-key); }
+    .setting-links          { display: var(--display-settings-links); }
+    .setting-folders        { display: var(--display-settings-folders); }
+    .setting-images         { display: var(--display-settings-images); }
+    .setting-focus          { display: var(--display-settings-focus); }
+    .setting-shapes         { display: var(--display-settings-shapes); }
+    .setting-elements-stats { display: var(--display-settings-elements-stats); }
 
     .settings-colors-container,
     .settings-properties-container {

@@ -57,7 +57,7 @@ export class GraphStateModal extends Modal {
             cell = tr_thead.insertCell(); cell.setText(STRINGS.features.shape);
             colgroup.createEl("col").addClass("col-shape");
         }
-        if (this.graph.staticSettings.enableFeatures[this.graph.type]['node-size']) {
+        if (this.graph.staticSettings.enableFeatures[this.graph.type]['elements-size']) {
             cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
             colgroup.createEl("col").addClass("col-size");
         }
@@ -96,7 +96,7 @@ export class GraphStateModal extends Modal {
                 cell.createDiv().appendChild(NodeShape.getSVG(extendedNode.graphicsWrapper.shape)).addClass("shape-svg");
             }
 
-            if (this.graph.staticSettings.enableFeatures[this.graph.type]['node-size']) {
+            if (this.graph.staticSettings.enableFeatures[this.graph.type]['elements-size']) {
                 cell = tr.insertCell(); cell.setText(extendedNode.getSizeWithoutScaling().toFixed(2));
             }
         }

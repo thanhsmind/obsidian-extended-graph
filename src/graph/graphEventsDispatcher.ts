@@ -98,6 +98,10 @@ export class GraphEventsDispatcher extends Component {
         this.createRenderProxy();
         this.preventDraggingPinnedNodes();
         this.graphsManager.statesManager.changeState(this.graph, this.statesUI.currentStateID);
+        setTimeout(async () => {
+            // @ts-ignore
+            console.log(await this.graphsManager.plugin.app.plugins.getPlugin("graph-analysis").g.algs["Adamic Adar"]("Amadeus.md"));
+        }, 10)
     }
 
     private updateOpacityLayerColor(): void {

@@ -5,7 +5,6 @@ import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractiv
 import ExtendedGraphPlugin from "src/main";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
-    app: App;
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
 
@@ -17,8 +16,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // ============================== CONSTRUCTOR ==============================
 
     constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
-        super(node, types, managers, settings, graphType);
-        this.app = app;
+        super(node, types, managers, settings, graphType, app);
 
         this.initRadius();
         this.changeGetSize();
@@ -47,9 +45,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== NODE SIZE ===============================
 
     private initRadius() {
-        if (!this.settings.enableFeatures[this.graphType]['node-size']) return;
+        if (!this.settings.enableFeatures[this.graphType]['elements-size']) return;
 
-        const property = this.settings.nodeSizeProperty;
+        const property = this.settings.nodesSizeProperty;
         if (!property || property === "") return;
 
         const file = getFile(this.app, this.id);
@@ -95,9 +93,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     getSizeWithoutScaling(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.enableFeatures[this.graphType]['node-size'] && this.settings.nodeSizeFunction !== 'default') {
+        if (this.settings.enableFeatures[this.graphType]['elements-size'] && this.settings.nodesSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
-            let customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodeSizeCalculator?.fileStats.get(this.id);
+            const customFunctionFactor = (this.app.plugins.getPlugin('extended-graph') as ExtendedGraphPlugin).graphsManager.nodesSizeCalculator?.filesStats.get(this.id);
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);
         }
         else {

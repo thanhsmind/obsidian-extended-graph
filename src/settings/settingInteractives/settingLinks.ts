@@ -13,8 +13,6 @@ export class SettingLinks extends SettingInteractives {
     protected override addBody(): void {
         super.addBody();
 
-
-
         const labels = this.containerEl.querySelectorAll(`.settings-selection-container.${this.itemClasses} label`);
         const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === this.settingTab.plugin.settings.imageProperty) as HTMLLabelElement;
         if (imageLabel) {
@@ -82,6 +80,7 @@ export class SettingLinks extends SettingInteractives {
             .setName(STRINGS.features.interactives.curvedLinks)
             .setDesc(STRINGS.features.interactives.curvedLinksDesc)
             .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
                 cb.setValue(this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks']);
                 cb.onChange(value => {
                     this.settingTab.plugin.settings.enableFeatures['graph']['curvedLinks'] = value;
@@ -89,6 +88,7 @@ export class SettingLinks extends SettingInteractives {
                 })
             })
             .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
                 cb.setValue(this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks']);
                 cb.onChange(value => {
                     this.settingTab.plugin.settings.enableFeatures['localgraph']['curvedLinks'] = value;
