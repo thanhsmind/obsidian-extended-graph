@@ -1,6 +1,7 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
 import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export class StatesUI extends Component {
     statesManager: StatesManager;
@@ -31,7 +32,7 @@ export class StatesUI extends Component {
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
-            .setTooltip("Open states settings")
+            .setTooltip(STRINGS.states.openSettings)
             .setIcon("eye")
             .onClick(() => {
                 if (this.isOpen) {
@@ -47,7 +48,7 @@ export class StatesUI extends Component {
 
         // TITLE
         new Setting(this.root)
-            .setName("States")
+            .setName(STRINGS.states.states)
             .addDropdown(cb => {
                 this.select = cb.selectEl;
                 this.select.addEventListener('change', event => {
@@ -98,7 +99,7 @@ export class StatesUI extends Component {
     private openModalToAddState() {
         const modal = new NewNameModal(
             this.plugin.app,
-            "New state name",
+            STRINGS.states.newStateName,
             this.newState.bind(this)
         );
         modal.open();

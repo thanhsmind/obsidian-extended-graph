@@ -1,11 +1,12 @@
 import { setIcon, Setting } from "obsidian";
 import { ExtendedGraphSettingTab, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, SettingColorPalette, SettingsSectionCollapsible } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingNodeColor extends SettingsSectionCollapsible {
     warningSetting: Setting;
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'node-color', '', "Nodes colors", 'palette', "Choose the color of the nodes based on a statistic.");
+        super(settingTab, 'node-color', '', STRINGS.features.nodeColors, 'palette', STRINGS.features.nodeColorsDesc);
     }
 
     protected override addBody(): void {
@@ -16,8 +17,8 @@ export class SettingNodeColor extends SettingsSectionCollapsible {
 
     private addNodeColorFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Node color function')
-            .setDesc("Select how the graph engine should compute the color of the nodes.")
+            .setName(STRINGS.features.nodeColorsFunction)
+            .setDesc(STRINGS.features.nodeColorsFunctionDesc)
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(this.settingTab.plugin.settings.nodeColorFunction);
@@ -31,7 +32,7 @@ export class SettingNodeColor extends SettingsSectionCollapsible {
     
     private addColorPaletteSetting(): void {
         const setting = new SettingColorPalette(this.containerEl, this.settingTab.plugin.app, 'node-color')
-            .setDesc(`Choose the color palette for the nodes`);
+            .setDesc(STRINGS.features.nodeColorsPaletteDesc);
 
         setting.setValue(this.settingTab.plugin.settings.nodeColorColormap);
 

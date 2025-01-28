@@ -2,6 +2,7 @@ import { App, getAllTags, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 import { FOLDER_KEY, TAG_KEY, WorkspaceLeafExt } from "./internal";
+import STRINGS from "./Strings";
 
 export function getSVGNode(n: string, v?: any): SVGElement {
     const svgNode = document.createElementNS("http://www.w3.org/2000/svg", n);
@@ -226,7 +227,7 @@ function getFolderPath(file: TFile): Set<string> {
 
 export function isPropertyKeyValid(key: string): boolean {
     if (key.contains(":")) {
-        new Notice("Invalid character ':'");
+        new Notice(STRINGS.notices.invalidCharacter + " ':'");
         return false;
     }
     return (key.length> 0);

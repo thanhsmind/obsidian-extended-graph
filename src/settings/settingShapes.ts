@@ -1,12 +1,13 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
 import { ExtendedGraphSettingTab, NodeShape, QueryData, QueryMatcher, SettingsSectionCollapsible, ShapeEnum, ShapeQueryModal } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export class SettingShapes extends SettingsSectionCollapsible {
     settingsShape: SettingShape[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'shapes', '', "Shapes", 'shapes', "Use nodes of various shapes")
+        super(settingTab, 'shapes', '', STRINGS.features.shapes, 'shapes', STRINGS.features.shapesDesc)
     }
 
     protected override addBody() {
@@ -69,7 +70,7 @@ class SettingShape extends Setting {
         this.moveDown = moveDown;
         this.moveUp = moveUp;
 
-        this.setName(shape)
+        this.setName(STRINGS.features.shapesNames[shape])
             .addMoveButtons()
             .addQueryStringDiv()
             .addSVG()
@@ -91,7 +92,7 @@ class SettingShape extends Setting {
 
     private addEditButton(): SettingShape {
         this.addExtraButton(cb => {
-            cb.setTooltip("Edit shape query");
+            cb.setTooltip(STRINGS.query.editShapeQuery);
             cb.onClick(() => {
                 const modal = new ShapeQueryModal(
                     this.plugin.app,
@@ -110,14 +111,14 @@ class SettingShape extends Setting {
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-up')
-			.setTooltip('Move up')
+			.setTooltip(STRINGS.controls.moveUp)
             .onClick(() => {
                 this.moveUp(this)
             });
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-down')
-			.setTooltip('Move down')
+			.setTooltip(STRINGS.controls.moveDown)
             .onClick(() => {
                 this.moveDown(this)
             });

@@ -1,6 +1,7 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
 import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, textColor } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {
     name: string;
@@ -22,7 +23,7 @@ class LegendRow extends Setting {
             .addExtraButton(cb => {
                 this.disableAllButton = cb;
                 cb.setIcon("copy")
-                    .setTooltip("Disable all " + this.name + (this.name.endsWith("s") ? "" : "s"))
+                    .setTooltip(STRINGS.controls.disableAll + ": " + this.name)
                     .onClick(() => {
                         this.disableAll();
                     });
@@ -30,7 +31,7 @@ class LegendRow extends Setting {
             .addExtraButton(cb => {
                 this.enableAllButton = cb;
                 cb.setIcon("copy-check")
-                    .setTooltip("Enable all " + this.name + (this.name.endsWith("s") ? "" : "s"))
+                    .setTooltip(STRINGS.controls.enableAll + ": " + this.name)
                     .onClick(() => {
                         this.enableAll();
                     })
@@ -164,7 +165,7 @@ export class LegendUI extends Component implements InteractiveUI {
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
-            .setTooltip("Open legend (tags, links, properties)")
+            .setTooltip(STRINGS.controls.openLegend)
             .setIcon("tags")
             .onClick(() => {
                 if (this.isOpen) {

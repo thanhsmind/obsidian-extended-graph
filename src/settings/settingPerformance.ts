@@ -1,10 +1,11 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, SettingsSection } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingPerformance extends SettingsSection {
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, "Performances", 'cpu', "");
+        super(settingTab, STRINGS.features.performance, 'cpu', "");
     }
 
     protected override addBody() {
@@ -14,8 +15,8 @@ export class SettingPerformance extends SettingsSection {
 
     private addNumberOfNodes() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Maximum number of nodes')
-            .setDesc('If the graph contains more nodes than this setting, the plugin will be disabled.')
+            .setName(STRINGS.features.performanceMaxNodes)
+            .setDesc(STRINGS.features.performanceMaxNodesDesc)
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.maxNodes.toString())
                 .onChange(async (value) => {
@@ -31,8 +32,8 @@ export class SettingPerformance extends SettingsSection {
 
     private addDelay() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Initialization delay (milliseconds)')
-            .setDesc('Because of asynchronous mechanics, it can be needed to wait a time before starting initializing the extended features')
+            .setName(STRINGS.features.performanceDelay)
+            .setDesc(STRINGS.features.performanceDelayDesc)
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.delay.toString())
                 .onChange(async (value) => {

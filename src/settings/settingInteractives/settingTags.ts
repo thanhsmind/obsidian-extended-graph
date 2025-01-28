@@ -1,10 +1,11 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, isTagValid, SettingInteractives, TAG_KEY } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingTags extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'tags', TAG_KEY, "Tags", 'tags', "Display and filter by tags");
+        super(settingTab, 'tags', TAG_KEY, STRINGS.features.interactives.tags, 'tags', STRINGS.features.interactives.tagsDesc);
     }
 
     protected override addBody(): void {
@@ -12,8 +13,8 @@ export class SettingTags extends SettingInteractives {
         
         // Show on graph
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(`Add arcs`)
-            .setDesc(`Add arcs around the nodes to visualize the tags.`)
+            .setName(STRINGS.features.interactives.arcsAdd)
+            .setDesc(STRINGS.features.interactives.arcsAddTagDesc)
             .addToggle(cb => {
                 cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {

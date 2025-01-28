@@ -8,13 +8,13 @@ export enum ShapeEnum {
     POLY_4 = "diamond",
     POLY_5 = "pentagon",
     POLY_6 = "hexagon",
-    POLY_8 = "octogon",
+    POLY_8 = "octagon",
     POLY_10 = "decagon",
-    STARBURST_4 = "star (4)",
-    STARBURST_5 = "star (5)",
-    STARBURST_6 = "star (6)",
-    STARBURST_8 = "star (8)",
-    STARBURST_10 = "star (10)"
+    STARBURST_4 = "star4",
+    STARBURST_5 = "star5",
+    STARBURST_6 = "star6",
+    STARBURST_8 = "star8",
+    STARBURST_10 = "star10"
 }
 
 enum ShapeType {

@@ -8,7 +8,7 @@ export class GCOptions extends GCSection {
     suggester: NodeNameSuggester;
     
     constructor(leaf: WorkspaceLeafExt, graphsManager: GraphsManager) {
-        super(leaf, graphsManager, "options", "Options");
+        super(leaf, graphsManager, "options", STRINGS.plugin.options);
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);

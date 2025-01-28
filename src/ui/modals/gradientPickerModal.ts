@@ -1,5 +1,6 @@
 import { App, Modal, setIcon, Setting } from "obsidian";
 import { cmOptions, plot_colormap } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;
@@ -7,7 +8,7 @@ export class GradientPickerModal extends Modal {
 
     constructor(app: App) {
         super(app);
-        this.setTitle("Pick palette gradient");
+        this.setTitle(STRINGS.features.interactives.palettePickGradient);
         this.modalEl.addClass("graph-modal-palette-picker");
     }
 
@@ -47,9 +48,9 @@ export class GradientPickerModal extends Modal {
 
     private addInfo() {
         new Setting(this.contentEl)
-            .setName("Info")
+            .setName(STRINGS.plugin.info)
             .setHeading()
-            .setDesc("These colormaps come from matplotlib. You can see more about them here: ")
+            .setDesc(STRINGS.features.interactives.paletteMatplotlibDesc)
             .then(setting => {
                 const iconEl = createDiv();
                 setting.nameEl.prepend(iconEl);

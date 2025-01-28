@@ -1,5 +1,6 @@
 import { App, ButtonComponent, ExtraButtonComponent, Modal, Setting, TextComponent, TFile, ValueComponent } from "obsidian";
 import { getFile, Graph, GraphState, NodeShape } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class GraphStateModal extends Modal {
     state: GraphState;
@@ -20,7 +21,7 @@ export class GraphStateModal extends Modal {
         this.graph = graph;
         this.state = new GraphState("");
         this.state.saveGraph(graph);
-        this.setTitle("Graph state");
+        this.setTitle(STRINGS.states.graphState);
         this.modalEl.addClass("graph-modal-graph-state");
     }
 
@@ -33,7 +34,7 @@ export class GraphStateModal extends Modal {
     private addNodes() {
         const hasRows = this.graph.nodesSet.extendedElementsMap.size > 0;
 
-        this.createHeading("Nodes", "nodes", hasRows);
+        this.createHeading(STRINGS.plugin.nodes, "nodes", hasRows);
 
         const table = this.contentEl.createEl("table");
         const colgroup = table.createEl("colgroup");
@@ -42,22 +43,22 @@ export class GraphStateModal extends Modal {
         const tr_thead = thead.insertRow();
 
         let cell: HTMLTableCellElement;
-        cell = tr_thead.insertCell(); cell.setText("Folder");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText("Filename");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.filename);
         colgroup.createEl("col").addClass("col-filename");
-        cell = tr_thead.insertCell(); cell.setText("Enabled");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
         for (const [key, manager] of this.graph.nodesSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
         if (this.graph.staticSettings.enableFeatures[this.graph.type]['shapes']) {
-            cell = tr_thead.insertCell(); cell.setText("Shape");
+            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.shape);
             colgroup.createEl("col").addClass("col-shape");
         }
         if (this.graph.staticSettings.enableFeatures[this.graph.type]['node-size']) {
-            cell = tr_thead.insertCell(); cell.setText("Size");
+            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
             colgroup.createEl("col").addClass("col-size");
         }
 
@@ -115,15 +116,15 @@ export class GraphStateModal extends Modal {
         const tr_thead = thead.insertRow();
         let cell: HTMLTableCellElement;
 
-        cell = tr_thead.insertCell(); cell.setText("Folder (source)");
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.source})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-source"]);
-        cell = tr_thead.insertCell(); cell.setText("Filename (source)");
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.filename} (${STRINGS.plugin.source})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-source"]);
-        cell = tr_thead.insertCell(); cell.setText("Folder (target)");
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.target})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-target"]);
-        cell = tr_thead.insertCell(); cell.setText("Filename (target)");
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.filename} (${STRINGS.plugin.target})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-target"]);
-        cell = tr_thead.insertCell(); cell.setText("Enabled");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
         for (const [key, manager] of this.graph.linksSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
@@ -169,7 +170,7 @@ export class GraphStateModal extends Modal {
     private addPinnedNodes() {
         const hasRows = this.state.data.pinNodes && Object.entries(this.state.data.pinNodes).length > 0;
 
-        this.createHeading("Pinned nodes", "pinned", hasRows);
+        this.createHeading(STRINGS.features.pinnedNodes, "pinned", hasRows);
 
         const table = this.contentEl.createEl("table");
         const colgroup = table.createEl("colgroup");
@@ -177,9 +178,9 @@ export class GraphStateModal extends Modal {
         const thead = table.createTHead();
         const tr_thead = thead.insertRow();
         let cell;
-        cell = tr_thead.insertCell(); cell.setText("Folder");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText("Filename");
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.filename);
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText("X");
         colgroup.createEl("col").addClass("col-pos-x");
@@ -211,7 +212,7 @@ export class GraphStateModal extends Modal {
 
         if (hasTable) {
             h.addText(cb => {
-                cb.inputEl.insertAdjacentText('beforebegin', "Show");
+                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.controls.show);
                 cb.setValue(this.defaultMaxRows.toString())
                     .onChange((value) => {
                         const intValue = parseInt(value);
@@ -224,7 +225,7 @@ export class GraphStateModal extends Modal {
                             this.showPageRows(key);
                         }
                     });
-                cb.inputEl.insertAdjacentText('afterend', "rows");
+                cb.inputEl.insertAdjacentText('afterend', STRINGS.controls.rows);
             });
             h.controlEl.addClass("number-of-rows");
         }
@@ -290,7 +291,7 @@ export class GraphStateModal extends Modal {
         if (this.sortableTables[key].page !== 0) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-left")
-                .setTooltip("First page")
+                .setTooltip(STRINGS.controls.pageFirst)
                 .setClass("first-page")
                 .onClick(() => {
                     this.showFirstPage(key);
@@ -307,7 +308,7 @@ export class GraphStateModal extends Modal {
         for (let i = Math.max(0, this.sortableTables[key].page - nShow); i < this.sortableTables[key].page; ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
-                .setTooltip("Page " + i.toString())
+                .setTooltip(STRINGS.controls.page + " " + i.toString())
                 .onClick(() => {
                     this.showPreviousPage(key, this.sortableTables[key].page - i);
                 });
@@ -317,13 +318,13 @@ export class GraphStateModal extends Modal {
         new ButtonComponent(paginationInner)
             .setButtonText(this.sortableTables[key].page.toString())
             .setCta()
-            .setTooltip("Current page");
+            .setTooltip(STRINGS.controls.pageCurrent);
         
         // Following pages
         for (let i = this.sortableTables[key].page + 1; i < Math.min(this.sortableTables[key].page + nShow + 1, this.numberOfPages(key)); ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
-                .setTooltip("Page " + i.toString())
+                .setTooltip(STRINGS.controls.page + " " + i.toString())
                 .onClick(() => {
                     this.showNextPage(key, i - this.sortableTables[key].page);
                 });
@@ -337,7 +338,7 @@ export class GraphStateModal extends Modal {
         if (this.sortableTables[key].page !== this.numberOfPages(key) - 1) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-right")
-                .setTooltip("Last page")
+                .setTooltip(STRINGS.controls.pageLast)
                 .setClass("last-page")
                 .onClick(() => {
                     this.showLastPage(key);

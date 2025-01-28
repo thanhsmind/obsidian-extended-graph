@@ -1,27 +1,28 @@
 import { App, TFile, TFolder } from "obsidian";
 import { getFileInteractives, LINK_KEY, TAG_KEY } from "src/internal";
+import STRINGS from "src/Strings";
 
-export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folder_rec';
+export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot';
 
 export const sourceKeyLabels: Record<SourceKey, string> = {
-    'tag': 'Tags',
-    'link': 'Links',
-    'property': 'Property',
-    'file': 'File',
-    'folder': 'Folder',
-    'folder_rec': 'Folder and subfolders'
+    'tag': STRINGS.query.source.tag,
+    'link': STRINGS.query.source.link,
+    'property': STRINGS.query.source.property,
+    'file': STRINGS.query.source.file,
+    'folder': STRINGS.query.source.folder,
+    'folderRec': STRINGS.query.source.folderRec
 }
 
 export const logicKeyLabel: Record<LogicKey, string> = {
-    'contains': "contains",
-    'containsNot': "doesn't contain",
-    'is': "is",
-    'isNot': "is not",
-    'containsRegex': "contains regex",
-    'containsRegexNot': "doesn't contain regex",
-    'matchesRegex': "matches regex",
-    'matchesRegexNot': "doesn't match regex",
+    'contains': STRINGS.query.logicKey.contains,
+    'containsNot': STRINGS.query.logicKey.containsNot,
+    'is': STRINGS.query.logicKey.is,
+    'isNot': STRINGS.query.logicKey.isNot,
+    'containsRegex': STRINGS.query.logicKey.containsRegex,
+    'containsRegexNot': STRINGS.query.logicKey.containsRegexNot,
+    'matchesRegex': STRINGS.query.logicKey.matchesRegex,
+    'matchesRegexNot': STRINGS.query.logicKey.matchesRegexNot,
 }
 
 export class RuleQuery {
@@ -73,7 +74,7 @@ export class RuleQuery {
             case 'folder':
                 return this.checkLogic(folder);
 
-            case 'folder_rec':
+            case 'folderRec':
                 const folders: string[] = [];
                 let currentFolder: TFolder | null = file.parent;
                 while (currentFolder) {

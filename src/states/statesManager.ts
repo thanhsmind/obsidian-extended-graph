@@ -1,4 +1,5 @@
 import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphsManager, GraphState, GraphStateData, InteractiveManager, InteractiveUI } from "src/internal";
+import STRINGS from "src/Strings";
 
 
 
@@ -135,7 +136,7 @@ export class StatesManager {
     onStateNeedsSaving(stateData: GraphStateData) {
         this.updateStateArray(stateData);
         this.graphsManager.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: state "${stateData.name}" has been saved`);
+            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
             this.updateAllStates();
         });
     }
@@ -169,7 +170,7 @@ export class StatesManager {
         if (!state) return;
         this.graphsManager.plugin.settings.states.remove(state);
         this.graphsManager.plugin.saveSettings().then(() => {
-            new Notice(`Extended Graph: state "${state.name}" has been removed`);
+            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateDeleted} (${state.name})`);
             this.updateAllStates();
         });
     }

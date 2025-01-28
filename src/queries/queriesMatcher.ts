@@ -1,5 +1,6 @@
 import { App, TFile } from "obsidian";
 import { RuleQuery } from "src/internal";
+import STRINGS from "src/Strings";
 
 export type CombinationLogic = 'AND' | 'OR';
 export type QueryData = {
@@ -39,7 +40,9 @@ export class QueryMatcher {
             let ruleStr = new RuleQuery(this.queryData.rules[i]).toString();
             if (!ruleStr) continue;
             queryDataStr += ruleStr;
-            if (i !== this.queryData.rules.length - 1) queryDataStr += " " + this.queryData.combinationLogic;
+            if (i !== this.queryData.rules.length - 1) {
+                queryDataStr += " " + STRINGS.query[this.queryData.combinationLogic]
+            };
         }
         return queryDataStr;
     }

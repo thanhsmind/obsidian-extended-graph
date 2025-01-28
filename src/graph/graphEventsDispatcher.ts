@@ -1,6 +1,7 @@
 import { Component, Menu, TFile } from "obsidian";
 import { Container, DisplayObject } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphsManager, LegendUI, LINK_KEY, StatesUI, WorkspaceLeafExt } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
     type: string;
@@ -483,11 +484,11 @@ export class GraphEventsDispatcher extends Component {
         menu.addItem(cb => {
             cb.setIcon("pin");
             if (this.graph.nodesSet.isNodePinned(file.path)) {
-                cb.setTitle("Unpin node");
+                cb.setTitle(STRINGS.features.unpinNode);
                 cb.onClick(() => { this.unpinNode(file); });
             }
             else {
-                cb.setTitle("Pin node");
+                cb.setTitle(STRINGS.features.pinNode);
                 cb.onClick(() => { this.pinNode(file); });
             }
         })

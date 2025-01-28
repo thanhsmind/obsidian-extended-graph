@@ -1,5 +1,6 @@
 import { App, ButtonComponent, DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
 import { CombinationLogic, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, sourceKeyLabels, UIElements } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class ShapeQueryModal extends Modal {
     saveCallback: (shape: ShapeEnum, queryData: QueryData) => void;
@@ -16,7 +17,7 @@ export class ShapeQueryModal extends Modal {
 
     constructor(app: App, shape: ShapeEnum, queryData: QueryData, saveCallback: (shape: ShapeEnum, queryData: QueryData) => void) {
         super(app);
-        this.setTitle("Set shape query for: " + shape);
+        this.setTitle(STRINGS.query.setShapeQueryFor + ": " + STRINGS.features.shapesNames[shape]);
         this.modalEl.addClass("graph-modal-shape-query");
         this.saveCallback = saveCallback;
         this.shape = shape;
@@ -42,10 +43,10 @@ export class ShapeQueryModal extends Modal {
 
     private addCombinationLogic() {
         new Setting(this.contentEl)
-            .setName("Combination logic")
+            .setName(STRINGS.query.combinationLogic)
             .addButton(cb => {
                 this.combinationLogicButtons['AND'] = cb;
-                cb.setButtonText("And");
+                cb.setButtonText(STRINGS.query.AND);
                 cb.onClick(ev => {
                     this.queryData.combinationLogic = 'AND';
                     this.combinationLogicButtons['AND']?.setCta();
@@ -54,7 +55,7 @@ export class ShapeQueryModal extends Modal {
             })
             .addButton(cb => {
                 this.combinationLogicButtons['OR'] = cb;
-                cb.setButtonText("Or");
+                cb.setButtonText(STRINGS.query.OR);
                 cb.onClick(ev => {
                     this.queryData.combinationLogic = 'OR';
                     this.combinationLogicButtons['AND']?.removeCta();
@@ -68,7 +69,7 @@ export class ShapeQueryModal extends Modal {
 
     private addRulesHeader() {
         new Setting(this.contentEl)
-            .setName("Rules")
+            .setName(STRINGS.query.rules)
             .setHeading()
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
@@ -99,15 +100,15 @@ export class ShapeQueryModal extends Modal {
         const container = this.modalEl.createDiv({ cls: 'buttons-container' });
 
         new ButtonComponent(container)
-			.setButtonText("Cancel")
+			.setButtonText(STRINGS.controls.cancel)
 			.onClick(() => this.close());
 
         this.viewMatchesButton = new ButtonComponent(container)
-            .setButtonText("View matches")
+            .setButtonText(STRINGS.query.viewMatches)
             .onClick(() => this.viewMatches());
 
 		new ButtonComponent(container)
-            .setButtonText("Save")
+            .setButtonText(STRINGS.controls.save)
 			.setIcon('save')
 			.onClick(() => this.save())
 			.setCta();
@@ -116,7 +117,7 @@ export class ShapeQueryModal extends Modal {
     onChange(ruleQuery: RuleQuery) {
         const matcher = this.getMatcher();
         const files = matcher.getMatches(this.app);
-        this.viewMatchesButton.setButtonText(`View matches (${files.length})`);
+        this.viewMatchesButton.setButtonText(`${STRINGS.query.viewMatches} (${files.length})`);
         this.viewMatchesButton.setDisabled(files.length === 0);
     }
 
@@ -233,7 +234,7 @@ class RuleSetting extends Setting {
     private addValueText(): RuleSetting {
         return this.addText(cb => {
             this.valueText = cb;
-            cb.setPlaceholder("value...");
+            cb.setPlaceholder(STRINGS.plugin.valuePlaceholder);
             cb.onChange(value => {
                 this.onChange();
             });

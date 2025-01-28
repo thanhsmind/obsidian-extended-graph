@@ -2,6 +2,7 @@ import { CachedMetadata, Component, FileView, Menu, TAbstractFile, TFile, Worksp
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
 import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt } from "./internal";
 import ExtendedGraphPlugin from "./main";
+import STRINGS from "./Strings";
 
 
 
@@ -224,7 +225,7 @@ export class GraphsManager extends Component {
 
     isNodeLimitExceeded(leaf: WorkspaceLeafExt): boolean {
         if (leaf.view.renderer.nodes.length > this.plugin.settings.maxNodes) {
-            new Notice(`Try to handle ${leaf.view.renderer.nodes.length}, but the limit is ${this.plugin.settings.maxNodes}. Extended Graph disabled.`);
+            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${leaf.view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${this.plugin.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
             return true;
         }
         return false;

@@ -1,7 +1,8 @@
 import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, polar2Cartesian, rgb2hex } from "src/internal";
+import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, polar2Cartesian, rgb2hex } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export abstract class ExportGraphToSVG {
     plugin: ExtendedGraphPlugin;
@@ -182,7 +183,7 @@ export abstract class ExportGraphToSVG {
                         await navigator.clipboard.writeText(svgString);
                     }
 
-                    new Notice("SVG copied to clipboard");
+                    new Notice(STRINGS.notices.svgCopied);
                 }).bind(this);
                 
                 modal.open();
@@ -234,7 +235,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
 
         if (this.options.showArcs) {
             const arcs = this.getSVGForArcs(extendedNode);
-            group.appendChild(arcs);
+            if (arcs) group.appendChild(arcs);
         }
 
         return group;
@@ -265,8 +266,9 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         }
     }
 
-    private getSVGForArcs(extendedNode: ExtendedGraphNode): SVGElement {
+    private getSVGForArcs(extendedNode: ExtendedGraphNode): SVGElement | null {
         const node = extendedNode.coreElement;
+        if (node.type === "tag") return null;
         const size = node.getSize();
         const cx = node.x;
         const cy = node.y;
@@ -276,7 +278,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         });
 
         for (const [key, manager] of extendedNode.managers) {
-            const arcs = extendedNode.graphicsWrapper?.managerGraphicsMap?.get(key);
+            const arcs = (extendedNode as ExtendedGraphFileNode).graphicsWrapper?.managerGraphicsMap?.get(key);
             if (!arcs) continue;
 
             const circleGroup = getSVGNode('g', {

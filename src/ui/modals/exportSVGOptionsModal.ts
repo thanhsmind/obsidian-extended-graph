@@ -1,6 +1,7 @@
 import { Modal, Setting } from "obsidian";
 import { ExtendedGraphSettings, Graph } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export class ExportSVGOptionModal extends Modal {
     graph?: Graph;
@@ -16,7 +17,7 @@ export class ExportSVGOptionModal extends Modal {
         this.settings = plugin.settings;
         this.graphSettings = graph?.staticSettings;
 
-        this.setTitle("SVG Export options");
+        this.setTitle(STRINGS.features.svgScreenshotOptions);
     }
 
     onOpen() {
@@ -34,7 +35,7 @@ export class ExportSVGOptionModal extends Modal {
 
     private addOnlyVisibleArea() {
         new Setting(this.contentEl)
-            .setName("Export only visible area")
+            .setName(STRINGS.features.svgScreenshotVisibleArea)
             .addToggle(cb => {
                 cb.setValue(this.settings.exportSVGOptions.onlyVisibleArea);
                 cb.onChange(value => {
@@ -46,7 +47,7 @@ export class ExportSVGOptionModal extends Modal {
 
     private addShowNodeNames() {
         new Setting(this.contentEl)
-            .setName("Show node names")
+            .setName(STRINGS.features.svgScreenshotNodeNames)
             .addToggle(cb => {
                 cb.setValue(this.settings.exportSVGOptions.showNodeNames);
                 cb.onChange(value => {
@@ -73,7 +74,7 @@ export class ExportSVGOptionModal extends Modal {
         if (!canUseCurvedLinks) return;
 
         new Setting(this.contentEl)
-            .setName("Use curved links")
+            .setName(STRINGS.features.svgScreenshotCurvedLinks)
             .addToggle(cb => {
                 cb.setValue(this.settings.exportSVGOptions.useCurvedLinks);
                 cb.onChange(value => {
@@ -94,7 +95,7 @@ export class ExportSVGOptionModal extends Modal {
         if (!canUseNodeShapes) return;
 
         new Setting(this.contentEl)
-            .setName("Use nodes shapes")
+            .setName(STRINGS.features.svgScreenshotNodeShapes)
             .addToggle(cb => {
                 cb.setValue(this.settings.exportSVGOptions.useNodesShapes);
                 cb.onChange(value => {
@@ -115,7 +116,7 @@ export class ExportSVGOptionModal extends Modal {
         if (!canShowArcs) return;
 
         new Setting(this.contentEl)
-            .setName("Show arcs (tags and/or types)")
+            .setName(STRINGS.features.svgScreenshotArcs)
             .addToggle(cb => {
                 cb.setValue(this.settings.exportSVGOptions.showArcs);
                 cb.onChange(value => {
@@ -158,7 +159,7 @@ export class ExportSVGOptionModal extends Modal {
     private addApply() {
         const setting = new Setting(this.contentEl)
             .addButton(cb => {
-                cb.setButtonText("Copy svg code to clipboard");
+                cb.setButtonText(STRINGS.features.svgScreenshotCopyCode);
                 cb.onClick(() => {
                     this.isCanceled = false;
                     this.settings.exportSVGOptions.asImage = false;
@@ -168,7 +169,7 @@ export class ExportSVGOptionModal extends Modal {
             
         if (ClipboardItem.supports("image/svg+xml")) {
             setting.addButton(cb => {
-                cb.setButtonText("Copy screenshot to clipboard");
+                cb.setButtonText(STRINGS.features.svgScreenshotCopyImage);
                 cb.setCta();
                 cb.onClick(() => {
                     this.isCanceled = false;

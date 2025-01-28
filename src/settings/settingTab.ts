@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingNodeColor, SettingNodeSize, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
+import STRINGS from "src/Strings";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     plugin: ExtendedGraphPlugin;
@@ -30,8 +31,8 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         containerEl.addClass("extended-graph-settings");
 
         new Setting(containerEl)
-            .setName('Global filter')
-            .setDesc('This filter query will be prepend at the beginning of every graph filter')
+            .setName(STRINGS.features.globalFilter)
+            .setDesc(STRINGS.features.globalFilterDesc)
             .addTextArea(cb => cb
                 .setValue(this.plugin.settings.globalFilter)
                 .onChange(async (value) => {
@@ -41,8 +42,8 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             }));
 
         new Setting(containerEl)
-            .setName(`Disable nodes`)
-            .setDesc(`When all arcs are disabled on the node, remove it from the graph.`)
+            .setName(STRINGS.features.disableNodes)
+            .setDesc(STRINGS.features.disableNodesDesc)
             .addToggle(cb => {
                 cb.setValue(!this.plugin.settings.fadeOnDisable);
                 cb.onChange(value => {

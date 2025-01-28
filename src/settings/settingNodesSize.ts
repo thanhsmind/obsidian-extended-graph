@@ -1,11 +1,12 @@
 import { setIcon, Setting } from "obsidian";
 import { ExtendedGraphSettingTab, isPropertyKeyValid, NodeShape, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, SettingsSectionCollapsible } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingNodeSize extends SettingsSectionCollapsible {
     warningSetting: Setting;
     
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'node-size', '', "Nodes sizes", 'circle-arrow-out-up-right', "Choose how nodes sizes must be computed");
+        super(settingTab, 'node-size', '', STRINGS.features.nodeSizes, 'circle-arrow-out-up-right', STRINGS.features.nodeSizesDesc);
     }
 
     protected override addBody(): void {
@@ -16,8 +17,8 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
 
     private addNodeSizeProperty(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Node size property')
-            .setDesc(`Name of the property used to specify the size of the node. It must be of type number. A value of ${NodeShape.RADIUS} is the default. Leave empty if you don't need a per-node granularity.`)
+            .setName(STRINGS.features.nodeSizesProperty)
+            .setDesc(STRINGS.features.nodeSizesPropertyDesc)
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.nodeSizeProperty)
                 .onChange(async (key) => {
@@ -32,8 +33,8 @@ export class SettingNodeSize extends SettingsSectionCollapsible {
 
     private addNodeSizeFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Node size function')
-            .setDesc("Select how the graph engine should compute the size of the nodes.")
+            .setName(STRINGS.features.nodeSizesFunction)
+            .setDesc(STRINGS.features.nodeSizesFunctionDesc)
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(this.settingTab.plugin.settings.nodeSizeFunction);

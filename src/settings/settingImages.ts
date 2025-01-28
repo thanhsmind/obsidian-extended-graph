@@ -1,9 +1,10 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, isPropertyKeyValid, SettingsSectionCollapsible } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingImages extends SettingsSectionCollapsible {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'images', '', "Images", 'image', "Display image on top of nodes")
+        super(settingTab, 'images', '', STRINGS.features.image, 'image', STRINGS.features.imageDesc)
     }
 
     protected override addBody() {
@@ -13,8 +14,8 @@ export class SettingImages extends SettingsSectionCollapsible {
 
     private addImageProperty() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Image property')
-            .setDesc('Name of the propery used to query the image of the node\'s note.')
+            .setName(STRINGS.features.imageProperty)
+            .setDesc(STRINGS.features.imagePropertyDesc)
             .addText(cb => cb
                 .setValue(this.settingTab.plugin.settings.imageProperty)
                 .onChange(async (key) => {
@@ -29,8 +30,8 @@ export class SettingImages extends SettingsSectionCollapsible {
 
     private addBorderFactor() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName('Border width (%)')
-            .setDesc('Percentage of the node\'s background that will stay visible as a border.')
+            .setName(STRINGS.features.imageBorderWidth)
+            .setDesc(STRINGS.features.imageBorderWidthDesc)
             .addSlider(cb => {
                 const preview = document.createTextNode(this.settingTab.plugin.settings.borderFactor.toString() + "%");
                 if (preview) {

@@ -1,5 +1,6 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
     settingInteractives: SettingInteractives[] = [];
@@ -7,7 +8,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     propertiesContainer: HTMLElement;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'properties', '', "Properties", 'archive', "Display and filter by property values");
+        super(settingTab, 'properties', '', STRINGS.features.interactives.properties, 'archive', STRINGS.features.interactives.propertiesDesc);
         
         for (const [key, enabled] of Object.entries(this.settingTab.plugin.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
@@ -49,19 +50,19 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
 
     isKeyValid(key: string) {
         if (this.settingTab.plugin.settings.additionalProperties.hasOwnProperty(key)) {
-            new Notice("This property already exists");
+            new Notice(STRINGS.features.interactives.propertyAlreadyExists);
             return false;
         }
         else if (key === LINK_KEY) {
-            new Notice("This property key is reserved for links");
+            new Notice(STRINGS.features.interactives.propertyReservedLinks);
             return false;
         }
         else if (key === FOLDER_KEY) {
-            new Notice("This property key is reserved for folders");
+            new Notice(STRINGS.features.interactives.propertyReservedFolders);
             return false;
         }
         else if (key === TAG_KEY) {
-            new Notice("This property key is reserved for tags");
+            new Notice(STRINGS.features.interactives.propertyReservedTags);
             return false;
         }
         return isPropertyKeyValid(key);
@@ -94,7 +95,7 @@ export class SettingProperty extends SettingInteractives {
     array: SettingPropertiesArray;
 
     constructor(key: string, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
-        super(settingTab, 'property-key', key, "Property: " + key, '', "Display and filter property " + key);
+        super(settingTab, 'property-key', key, STRINGS.features.interactives.property + ": " + key, '', STRINGS.features.interactives.propertyDesc + key);
         this.array = array;
     }
 
@@ -115,8 +116,8 @@ export class SettingProperty extends SettingInteractives {
         
         // Show on graph
         this.elementsBody.push(new Setting(this.array.propertiesContainer)
-            .setName(`Add arcs`)
-            .setDesc(`Add arcs around the nodes to visualize the property values.`)
+            .setName(STRINGS.features.interactives.arcsAdd)
+            .setDesc(STRINGS.features.interactives.arcsAddPropertyDesc)
             .addToggle(cb => {
                 cb.setValue(this.settingTab.plugin.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {

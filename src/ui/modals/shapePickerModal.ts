@@ -1,12 +1,13 @@
 import { App, Modal, Setting } from "obsidian";
 import { NodeShape, ShapeEnum } from "src/internal";
+import STRINGS from "src/Strings";
 
 export class ShapePickerModal extends Modal {
     callback: (shape: ShapeEnum) => void;
 
     constructor(app: App, callback: (shape: ShapeEnum) => void) {
         super(app);
-        this.setTitle("Pick shape");
+        this.setTitle(STRINGS.features.shapePick);
         this.modalEl.addClass("graph-modal-shape-picker");
         this.callback = callback;
     }
@@ -21,7 +22,7 @@ export class ShapePickerModal extends Modal {
     private addShape(shape: ShapeEnum) {
         const svg = NodeShape.getSVG(shape);
         new Setting(this.contentEl)
-            .setName(shape)
+            .setName(STRINGS.features.shapesNames[shape])
             .then(setting => {
                 setting.controlEl.appendChild(svg);
                 setting.controlEl.onclick = (ev => {
