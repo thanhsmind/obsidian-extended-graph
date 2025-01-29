@@ -1,10 +1,10 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager, PluginInstances } from "src/internal";
+import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager, PluginInstances, GraphInstances } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export class StatesUI extends Component {
-    graph: Graph;
+    instances: GraphInstances;
 
     viewContent: HTMLElement;
     currentStateID: string;
@@ -18,10 +18,10 @@ export class StatesUI extends Component {
     addButton: HTMLElement;
     deleteButton: HTMLElement;
     
-    constructor(graph: Graph) {
+    constructor(instances: GraphInstances) {
         super();
-        this.graph = graph;
-        this.viewContent = this.graph.dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.instances = instances;
+        this.viewContent = this.instances.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
         this.root.addClass("graph-states-container");
         
@@ -50,7 +50,7 @@ export class StatesUI extends Component {
                 this.select.addEventListener('change', event => {
                     this.currentStateID = this.select.value;
                     this.displaySaveDeleteButton();
-                    PluginInstances.statesManager.changeState(this.graph, this.select.value);
+                    PluginInstances.statesManager.changeState(this.instances, this.select.value);
                 });
             })
             .addExtraButton(cb => {
@@ -65,7 +65,7 @@ export class StatesUI extends Component {
                 this.saveButton = cb.extraSettingsEl;
                 UIElements.setupExtraButton(cb, 'save');
                 this.saveButton.addEventListener('click', event => {
-                    PluginInstances.statesManager.saveState(this.graph, this.select.value);
+                    PluginInstances.statesManager.saveState(this.instances, this.select.value);
                 });
             })
             .addExtraButton(cb => {
@@ -121,7 +121,7 @@ export class StatesUI extends Component {
 
     newState(name: string): boolean {
         if (name.length === 0) return false;
-        const id = PluginInstances.statesManager.newState(this.graph, name);
+        const id = PluginInstances.statesManager.newState(this.instances, name);
         this.currentStateID = id;
         return true;
     }

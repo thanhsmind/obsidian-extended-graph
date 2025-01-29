@@ -33,7 +33,7 @@ export class GraphologySingleton {
     }
 
     private shouldAddLink(source: string, target: string) {
-        return this.shouldAddFile(getFile(this.app, source)) && this.shouldAddFile(getFile(this.app, target));
+        return this.shouldAddFile(getFile(source)) && this.shouldAddFile(getFile(target));
     }
 
     static getInstance(app: App): GraphologySingleton {

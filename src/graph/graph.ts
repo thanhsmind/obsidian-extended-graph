@@ -1,27 +1,14 @@
 
 import { Component } from 'obsidian';
 import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { DisconnectionCause, ExtendedGraphSettings, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphEventsDispatcher, GraphType, InteractiveManager, LINK_KEY, LinksSet, NodesSet, PluginInstances, TAG_KEY } from 'src/internal';
+import { DisconnectionCause, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphInstances, InteractiveManager, LINK_KEY, LinksSet, NodesSet, PluginInstances, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
-    // Parent dispatcher
-    readonly dispatcher: GraphEventsDispatcher;
+    instances: GraphInstances;
 
     // Elements
     readonly engine: GraphEngine;
     readonly renderer: GraphRenderer;
-    readonly staticSettings: ExtendedGraphSettings;
-
-    // Type
-    type: GraphType;
-
-    // Interactive managers
-    interactiveManagers = new Map<string, InteractiveManager>();
-
-    // Sets
-    nodesSet: NodesSet;
-    linksSet: LinksSet;
-    folderBlobs: FoldersSet;
 
     // Disconnection chains
     nodesDisconnectionCascade = new Map<string, {isDiconnected: boolean, links: Set<string>, nodes: Set<string>}>();
@@ -33,27 +20,23 @@ export class Graph extends Component {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(dispatcher: GraphEventsDispatcher) {
+    constructor(instances: GraphInstances) {
         super();
 
-        // Parent dispatcher
-        this.dispatcher = dispatcher;
+        this.instances = instances;
+        this.instances.graph = this;
 
         // Elements
-        this.engine          = getEngine(this.dispatcher.leaf);
-        this.renderer        = dispatcher.leaf.view.renderer;
-        this.staticSettings  = structuredClone(PluginInstances.settings);
-
-        // Type
-        this.type = this.dispatcher.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
+        this.engine   = getEngine(this.instances.leaf);
+        this.renderer = this.instances.leaf.view.renderer;
 
         // Interactive managers
         this.initializeInteractiveManagers();
 
         // Sets
-        this.nodesSet = new NodesSet(this, this.getNodeManagers());
-        this.linksSet = new LinksSet(this, this.getLinkManagers());
-        this.folderBlobs = new FoldersSet(this, this.getFolderManagers());
+        this.instances.nodesSet  = new NodesSet(this.instances, this.getNodeManagers());
+        this.instances.linksSet  = new LinksSet(this.instances, this.getLinkManagers());
+        this.instances.foldersSet = new FoldersSet(this.instances, this.getFolderManagers());
 
         // Functions to override
         this.overrideSearchGetValue();
@@ -63,36 +46,36 @@ export class Graph extends Component {
     private initializeInteractiveManagers(): void {
         const keys = this.getInteractiveManagerKeys();
         for (const key of keys) {
-            const manager = new InteractiveManager(this.dispatcher, PluginInstances.settings, key);
-            this.interactiveManagers.set(key, manager);
+            const manager = new InteractiveManager(this.instances, key);
+            this.instances.interactiveManagers.set(key, manager);
             this.addChild(manager);
         }
     }
 
     private getInteractiveManagerKeys(): string[] {
         const keys: string[] = [];
-        if (this.staticSettings.enableFeatures[this.type]['properties']) {
-            for (const property in this.staticSettings.additionalProperties) {
-                if (this.staticSettings.additionalProperties[property]) keys.push(property);
+        if (this.instances.settings.enableFeatures[this.instances.type]['properties']) {
+            for (const property in this.instances.settings.additionalProperties) {
+                if (this.instances.settings.additionalProperties[property]) keys.push(property);
             }
         }
-        if (this.staticSettings.enableFeatures[this.type]['tags'])    keys.push(TAG_KEY);
-        if (this.staticSettings.enableFeatures[this.type]['links'])   keys.push(LINK_KEY);
-        if (this.staticSettings.enableFeatures[this.type]['folders']) keys.push(FOLDER_KEY);
+        if (this.instances.settings.enableFeatures[this.instances.type]['tags'])    keys.push(TAG_KEY);
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'])   keys.push(LINK_KEY);
+        if (this.instances.settings.enableFeatures[this.instances.type]['folders']) keys.push(FOLDER_KEY);
         return keys;
     }
 
     private getNodeManagers(): InteractiveManager[] {
-        return Array.from(this.interactiveManagers.values()).filter(m => m.name !== LINK_KEY && m.name !== FOLDER_KEY);
+        return Array.from(this.instances.interactiveManagers.values()).filter(m => m.name !== LINK_KEY && m.name !== FOLDER_KEY);
     }
 
     private getLinkManagers(): InteractiveManager[] {
-        const manager = this.interactiveManagers.get(LINK_KEY);
+        const manager = this.instances.interactiveManagers.get(LINK_KEY);
         return manager ? [manager] : [];
     }
 
     private getFolderManagers(): InteractiveManager[] {
-        const manager = this.interactiveManagers.get(FOLDER_KEY);
+        const manager = this.instances.interactiveManagers.get(FOLDER_KEY);
         return manager ? [manager] : [];
     }
 
@@ -105,15 +88,15 @@ export class Graph extends Component {
     }
 
     private overrideOnOptionsChange(): void {
-        this.onOptionsChangeOriginal = this.dispatcher.leaf.view.onOptionsChange;
-        this.dispatcher.leaf.view.onOptionsChange = () => {};
+        this.onOptionsChangeOriginal = this.instances.leaf.view.onOptionsChange;
+        this.instances.leaf.view.onOptionsChange = () => {};
     }
 
     // ================================ LOADING ================================
 
     onload(): void {
         this.initSets().then(() => {
-            this.dispatcher.onGraphReady();
+            this.instances.dispatcher.onGraphReady();
         }).catch(e => {
             console.error(e);
         });
@@ -121,11 +104,11 @@ export class Graph extends Component {
 
     private async initSets(): Promise<void> {
         // Let time to the engine to apply user filters
-        await this.delay(this.staticSettings.delay);
+        await this.delay(this.instances.settings.delay);
 
-        this.nodesSet.load();
-        this.linksSet.load();
-        this.folderBlobs.load();
+        this.instances.nodesSet.load();
+        this.instances.linksSet.load();
+        this.instances.foldersSet.load();
     }
 
     private delay(ms: number): Promise<void> {
@@ -139,25 +122,25 @@ export class Graph extends Component {
         this.enableDisconnectedNodes();
         this.enableDisconnectedLinks();
         this.updateWorker();
-        this.nodesSet.unload();
-        this.linksSet.unload();
-        this.folderBlobs.unload();
+        this.instances.nodesSet.unload();
+        this.instances.linksSet.unload();
+        this.instances.foldersSet.unload();
     }
 
     private restoreOriginalFunctions(): void {
         this.engine.filterOptions.search.getValue = this.searchGetValueOriginal;
-        this.dispatcher.leaf.view.onOptionsChange = this.onOptionsChangeOriginal;
+        this.instances.leaf.view.onOptionsChange = this.onOptionsChangeOriginal;
     }
 
     private enableDisconnectedNodes(): void {
         for (const cause of Object.values(DisconnectionCause)) {
-            this.nodesSet.enableElements([...this.nodesSet.disconnectedIDs[cause]], cause);
+            this.instances.nodesSet.enableElements([...this.instances.nodesSet.disconnectedIDs[cause]], cause);
         }
     }
 
     private enableDisconnectedLinks(): void {
         for (const cause of Object.values(DisconnectionCause)) {
-            this.linksSet.enableElements([...this.linksSet.disconnectedIDs[cause]], cause);
+            this.instances.linksSet.enableElements([...this.instances.linksSet.disconnectedIDs[cause]], cause);
         }
     }
 
@@ -169,10 +152,10 @@ export class Graph extends Component {
      * @returns boolean - True if links were found and disabled, otherwise false.
      */
     disableLinkTypes(types: string[]): boolean {
-        //const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
+        //const links = this.instances.linksSet.getElementsByTypes(LINK_KEY, types);
         let linksToDisable: string[] = [];
         for (const type of types) {
-            linksToDisable = linksToDisable.concat(this.linksSet.disableType(LINK_KEY, type));
+            linksToDisable = linksToDisable.concat(this.instances.linksSet.disableType(LINK_KEY, type));
         }
         if (linksToDisable) {
             this.disableLinks(new Set<string>(linksToDisable));
@@ -187,7 +170,7 @@ export class Graph extends Component {
      * @returns boolean - True if links were found and enabled, otherwise false.
     */
     enableLinkTypes(types: string[]): boolean {
-        const links = this.linksSet.getElementsByTypes(LINK_KEY, types);
+        const links = this.instances.linksSet.getElementsByTypes(LINK_KEY, types);
         if (links) {
             this.enableLinks(links);
             return true;
@@ -200,22 +183,22 @@ export class Graph extends Component {
      * @param ids - Set of link IDs to disable.
      */
     private disableLinks(ids: Set<string>): boolean {
-        const disabledLinks = this.linksSet.disableElements([...ids], DisconnectionCause.USER);
+        const disabledLinks = this.instances.linksSet.disableElements([...ids], DisconnectionCause.USER);
 
-        if (this.staticSettings.enableFeatures[this.type]['source'] || this.staticSettings.enableFeatures[this.type]['target']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['source'] || this.instances.settings.enableFeatures[this.instances.type]['target']) {
             for (const linkID of ids) {
                 const cascade = this.linksDisconnectionCascade.get(linkID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
 
                 // Disable nodes by cascading
                 const cascadeDisabledNodes = this.getNodesByCascadingLink(linkID);
                 cascade.nodes = new Set([...cascade.nodes, ...cascadeDisabledNodes]);
-                if (disabledLinks.has(linkID)) this.nodesSet.disableElements([...cascadeDisabledNodes], DisconnectionCause.USER);
+                if (disabledLinks.has(linkID)) this.instances.nodesSet.disableElements([...cascadeDisabledNodes], DisconnectionCause.USER);
                 
                 // Disable links by cascading
                 for (const nodeID of cascadeDisabledNodes) {
                     const cascadeDisabledLinks = this.getLinksByCascadingNode(nodeID, [...ids]);
                     cascade.links = new Set([...cascade.links, ...cascadeDisabledLinks]);
-                    if (disabledLinks.has(linkID)) this.linksSet.disableElements([...cascadeDisabledLinks], DisconnectionCause.USER);
+                    if (disabledLinks.has(linkID)) this.instances.linksSet.disableElements([...cascadeDisabledLinks], DisconnectionCause.USER);
                 }
 
                 if (!this.linksDisconnectionCascade.has(linkID)) this.linksDisconnectionCascade.set(linkID, cascade);
@@ -229,13 +212,13 @@ export class Graph extends Component {
 
     private getNodesByCascadingLink(linkID: string, invalidNodeIDs: readonly string[] = []) : Set<string> {
         const nodesToDisable = new Set<string>();
-        const link = this.linksSet.extendedElementsMap.get(linkID)?.coreElement;
+        const link = this.instances.linksSet.extendedElementsMap.get(linkID)?.coreElement;
         if (!link) return nodesToDisable;
 
-        if (this.staticSettings.enableFeatures[this.type]['source'] && !invalidNodeIDs.includes(link.source.id)) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['source'] && !invalidNodeIDs.includes(link.source.id)) {
             nodesToDisable.add(link.source.id);
         }
-        if (this.staticSettings.enableFeatures[this.type]['target'] && !invalidNodeIDs.includes(link.target.id)) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['target'] && !invalidNodeIDs.includes(link.target.id)) {
             nodesToDisable.add(link.target.id);
         }
         return nodesToDisable;
@@ -243,7 +226,7 @@ export class Graph extends Component {
 
     private getLinksByCascadingNode(nodeID: string, invalidLinkIDs: readonly string[] = []) : Set<string> {
         const linksToDisable = new Set<string>();
-        const node = this.nodesSet.extendedElementsMap.get(nodeID)?.coreElement;
+        const node = this.instances.nodesSet.extendedElementsMap.get(nodeID)?.coreElement;
         if (!node) return new Set<string>();
 
         for (const forward in node.forward) {
@@ -291,7 +274,7 @@ export class Graph extends Component {
         }
         
         // Enable links directly
-        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
+        this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
 
         if (linksToEnable.length > 0) this.enableOrphans();
 
@@ -314,11 +297,11 @@ export class Graph extends Component {
 
         // Enable nodes by cascading
         const nodesToEnable = [...cascade.nodes].filter(id => !nodesToKeepDisabled.includes(id));
-        this.nodesSet.enableElements(nodesToEnable, DisconnectionCause.USER);
+        this.instances.nodesSet.enableElements(nodesToEnable, DisconnectionCause.USER);
 
         // Enable links by cascading
         const linksToEnable = [...cascade.links].filter(id => !linksToKeepDisabled.includes(id));
-        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
+        this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
     }
 
     // ============================ UPDATING NODES =============================
@@ -326,12 +309,12 @@ export class Graph extends Component {
     disableNodeInteractiveTypes(key: string, types: string[]): boolean {
         let nodesToDisable: string[] = [];
         for (const type of types) {
-            nodesToDisable = nodesToDisable.concat(this.nodesSet.disableType(key, type));
+            nodesToDisable = nodesToDisable.concat(this.instances.nodesSet.disableType(key, type));
         }
-        if (!this.staticSettings.fadeOnDisable && nodesToDisable.length > 0) {
+        if (!this.instances.settings.fadeOnDisable && nodesToDisable.length > 0) {
             return this.disableNodes(nodesToDisable);
         }
-        else if (this.staticSettings.fadeOnDisable && nodesToDisable.length > 0) {
+        else if (this.instances.settings.fadeOnDisable && nodesToDisable.length > 0) {
             return this.fadeOutNodes(nodesToDisable);
         }
         return false;
@@ -340,12 +323,12 @@ export class Graph extends Component {
     enableNodeInteractiveTypes(key: string, types: string[]): boolean {
         let nodesToEnable: string[] = [];
         for (const type of types) {
-            nodesToEnable = nodesToEnable.concat(this.nodesSet.enableType(key, type));
+            nodesToEnable = nodesToEnable.concat(this.instances.nodesSet.enableType(key, type));
         }
-        if (!this.staticSettings.fadeOnDisable && nodesToEnable.length > 0) {
+        if (!this.instances.settings.fadeOnDisable && nodesToEnable.length > 0) {
             return this.enableNodes(nodesToEnable);
         }
-        else if (this.staticSettings.fadeOnDisable && nodesToEnable.length > 0) {
+        else if (this.instances.settings.fadeOnDisable && nodesToEnable.length > 0) {
             return this.fadeInNodes(nodesToEnable);
         }
         return false;
@@ -357,7 +340,7 @@ export class Graph extends Component {
      */
     private disableNodes(ids: string[]): boolean {
         // Disable nodes directly
-        const disabledNodes = this.nodesSet.disableElements(ids, DisconnectionCause.USER);
+        const disabledNodes = this.instances.nodesSet.disableElements(ids, DisconnectionCause.USER);
 
         for (const nodeID of ids) {
             const cascade = this.nodesDisconnectionCascade.get(nodeID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
@@ -365,13 +348,13 @@ export class Graph extends Component {
             // Disable links by cascading
             const cascadeDisabledLinks = this.getLinksByCascadingNode(nodeID);
             cascade.links = new Set([...cascade.links, ...cascadeDisabledLinks]);
-            if (disabledNodes.has(nodeID)) this.linksSet.disableElements([...cascadeDisabledLinks], DisconnectionCause.USER);
+            if (disabledNodes.has(nodeID)) this.instances.linksSet.disableElements([...cascadeDisabledLinks], DisconnectionCause.USER);
 
             /*// Disable nodes by cascading
             for (const linkID of cascadeDisabledLinks) {
                 const cascadeDisabledNodes = this.getNodesByCascadingLink(linkID, [...ids]);
                 cascade.nodes = new Set([...cascade.nodes, ...cascadeDisabledNodes]);
-                if (disabledNodes.has(nodeID)) this.nodesSet.disableNodes([...cascadeDisabledNodes], DisconnectionCause.NODE_CASCADE);
+                if (disabledNodes.has(nodeID)) this.instances.nodesSet.disableNodes([...cascadeDisabledNodes], DisconnectionCause.NODE_CASCADE);
             }*/
 
             if (!this.nodesDisconnectionCascade.has(nodeID)) this.nodesDisconnectionCascade.set(nodeID, cascade);
@@ -404,7 +387,7 @@ export class Graph extends Component {
         ));
 
         // Enable nodes directly
-        this.nodesSet.enableElements([...nodesToEnable], DisconnectionCause.USER);
+        this.instances.nodesSet.enableElements([...nodesToEnable], DisconnectionCause.USER);
 
         let linksToKeepDisabled: string[] = [];
         for (const [id, cascade] of this.linksDisconnectionCascade) {
@@ -442,44 +425,44 @@ export class Graph extends Component {
 
         // Enable nodes by cascading
         const nodesToEnable = [...cascade.nodes].filter(id => !nodesToKeepDisabled.includes(id));
-        this.nodesSet.enableElements(nodesToEnable, DisconnectionCause.USER);
+        this.instances.nodesSet.enableElements(nodesToEnable, DisconnectionCause.USER);
 
         // Enable links by cascading
         const linksToEnable = [...cascade.links].filter(id => !linksToKeepDisabled.includes(id));
-        this.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
+        this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
     }
 
     disableOrphans() : boolean {
         if (this.engine.options.showOrphans) return false;
-        const newOrphans = [...this.nodesSet.connectedIDs].filter(id =>
-            this.nodesSet.extendedElementsMap.get(id)?.coreElement.renderer && this.nodeIsOrphan(id)
+        const newOrphans = [...this.instances.nodesSet.connectedIDs].filter(id =>
+            this.instances.nodesSet.extendedElementsMap.get(id)?.coreElement.renderer && this.nodeIsOrphan(id)
         );
         if (newOrphans.length === 0) return false;
-        const nodesDisabled = this.nodesSet.disableElements(newOrphans, DisconnectionCause.ORPHAN);
+        const nodesDisabled = this.instances.nodesSet.disableElements(newOrphans, DisconnectionCause.ORPHAN);
         return nodesDisabled.size > 0;
     }
 
     enableOrphans() : boolean {
-        const oldOrphans = this.nodesSet.disconnectedIDs[DisconnectionCause.ORPHAN];
+        const oldOrphans = this.instances.nodesSet.disconnectedIDs[DisconnectionCause.ORPHAN];
         if (oldOrphans.size === 0) return false;
 
         // Show all orphans
         if (this.engine.options.showOrphans) {
-            this.nodesSet.enableElements([...oldOrphans], DisconnectionCause.ORPHAN);
+            this.instances.nodesSet.enableElements([...oldOrphans], DisconnectionCause.ORPHAN);
         }
         // Show nodes that are not orphans anymore
         else {
             const nonOrphans = [...oldOrphans].filter(id => !this.nodeIsOrphan(id));
             if (nonOrphans.length === 0) return false;
             
-            this.nodesSet.enableElements(nonOrphans, DisconnectionCause.ORPHAN);
+            this.instances.nodesSet.enableElements(nonOrphans, DisconnectionCause.ORPHAN);
         }
         return true;
     }
     
     private nodeIsOrphan(id: string) : boolean {
-        for (const linkID of this.linksSet.connectedIDs) {
-            const link = this.linksSet.extendedElementsMap.get(linkID)?.coreElement;
+        for (const linkID of this.instances.linksSet.connectedIDs) {
+            const link = this.instances.linksSet.extendedElementsMap.get(linkID)?.coreElement;
             if (!link) continue;
             if (link.source.id === id || link.target.id === id) return false;
         }
@@ -489,7 +472,7 @@ export class Graph extends Component {
     
     private fadeOutNodes(ids: string[]): boolean {
         for (const id of ids) {
-            const extendedElement = this.nodesSet.extendedElementsMap.get(id);
+            const extendedElement = this.instances.nodesSet.extendedElementsMap.get(id);
             if (!extendedElement) continue;
             extendedElement.graphicsWrapper?.fadeOut();
         }
@@ -498,7 +481,7 @@ export class Graph extends Component {
 
     private fadeInNodes(ids: string[]): boolean {
         for (const id of ids) {
-            const extendedElement = this.nodesSet.extendedElementsMap.get(id);
+            const extendedElement = this.instances.nodesSet.extendedElementsMap.get(id);
             if (!extendedElement) continue;
             extendedElement.graphicsWrapper?.fadeIn();
         }
@@ -525,8 +508,8 @@ export class Graph extends Component {
     private getNodesForWorker(): { [node: string]: number[] } {
         const nodes: { [node: string]: number[] } = {};
         // Add connected nodes
-        for (const id of this.nodesSet.connectedIDs) {
-            const extendedNode = this.nodesSet.extendedElementsMap.get(id);
+        for (const id of this.instances.nodesSet.connectedIDs) {
+            const extendedNode = this.instances.nodesSet.extendedElementsMap.get(id);
             if (extendedNode) nodes[id] = [extendedNode.coreElement.x, extendedNode.coreElement.y];
         }
         // Add tags
@@ -539,8 +522,8 @@ export class Graph extends Component {
     private getLinksForWorker(): string[][] {
         const links: string[][] = [];
         // Add connected links
-        for (const id of this.linksSet.connectedIDs) {
-            const extendedLink = this.linksSet.extendedElementsMap.get(id);
+        for (const id of this.instances.linksSet.connectedIDs) {
+            const extendedLink = this.instances.linksSet.extendedElementsMap.get(id);
             if (extendedLink) links.push([extendedLink.coreElement.source.id, extendedLink.coreElement.target.id]);
         }
         // Add links to tags

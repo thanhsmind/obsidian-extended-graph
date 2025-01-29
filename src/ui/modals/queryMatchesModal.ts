@@ -1,15 +1,15 @@
-import { App, Modal, Setting, TFile } from "obsidian";
-import { QueryData, QueryMatcher } from "src/internal";
+import { Modal, Setting, TFile } from "obsidian";
+import { PluginInstances, QueryData, QueryMatcher } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class QueryMatchesModal extends Modal {
     matcher: QueryMatcher;
 
-    constructor(app: App, queryData: QueryData) {
-        super(app);
+    constructor(queryData: QueryData) {
+        super(PluginInstances.app);
 
         this.matcher = new QueryMatcher(queryData);
-        const files = this.matcher.getMatches(this.app);
+        const files = this.matcher.getMatches();
 
         this.setTitle(STRINGS.query.matchingFiles);
 

@@ -126,7 +126,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected getAllTypes(): string[] {
         let allTypes = new Set<string>();
         for (const file of this.settingTab.app.vault.getFiles()) {
-            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, this.settingTab.app, file)]);
+            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, file)]);
         }
         return [...allTypes].sort();
     }

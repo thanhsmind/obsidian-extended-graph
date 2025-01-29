@@ -1,6 +1,5 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { FOLDER_KEY, GraphEventsDispatcher, InteractiveManager, InteractiveUI, PluginInstances, textColor } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, PluginInstances, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {
@@ -57,7 +56,7 @@ class LegendRow extends Setting {
                 .then(cb => {
                     cb.buttonEl.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
                     cb.buttonEl.style.setProperty(this.cssTextColorVariable, textColor(color));
-                    if (type === this.manager.settings.interactiveSettings[this.name].noneType) {
+                    if (type === this.manager.instances.settings.interactiveSettings[this.name].noneType) {
                         cb.buttonEl.addClass("graph-legend-none");
                     }
                 });
@@ -145,7 +144,7 @@ class LegendRow extends Setting {
 }
 
 export class LegendUI extends Component implements InteractiveUI {
-    dispatcher: GraphEventsDispatcher;
+    instances: GraphInstances;
 
     viewContent: HTMLElement;
     legendRows: Map<string, LegendRow>;
@@ -155,10 +154,10 @@ export class LegendUI extends Component implements InteractiveUI {
     root: HTMLDivElement;
     toggleButton: ExtraButtonComponent;
 
-    constructor(dispatcher: GraphEventsDispatcher) {
+    constructor(instances: GraphInstances) {
         super();
-        this.dispatcher = dispatcher;
-        this.viewContent = dispatcher.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.instances = instances;
+        this.viewContent = instances.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
     
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
@@ -180,7 +179,7 @@ export class LegendUI extends Component implements InteractiveUI {
         this.legendRows = new Map<string, LegendRow>();
         this.root = this.viewContent.createDiv();
         this.root?.addClass("graph-legend-container");
-        for (const [key, manager] of this.dispatcher.graph.interactiveManagers) {
+        for (const [key, manager] of this.instances.interactiveManagers) {
             if (key === FOLDER_KEY) continue;
             if (manager) this.legendRows.set(key, new LegendRow(key, manager, this.root));
         }

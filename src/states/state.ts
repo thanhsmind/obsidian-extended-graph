@@ -1,4 +1,4 @@
-import { EngineOptions, FOLDER_KEY, Graph, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import { EngineOptions, FOLDER_KEY, Graph, GraphInstances, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
 
 export class GraphState {
     data = new GraphStateData();
@@ -11,34 +11,34 @@ export class GraphState {
         this.data.id = id ? id : crypto.randomUUID();
     }
 
-    saveGraph(graph: Graph) {
+    saveGraph(instances: GraphInstances) {
         // Disable types
         this.data.toggleTypes = {};
         
-        const linksManager = graph.linksSet.managers.get(LINK_KEY);
+        const linksManager = instances.linksSet.managers.get(LINK_KEY);
         this.data.toggleTypes[LINK_KEY] = linksManager?.getTypes()
             .filter(type => PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
 
-        const folderManager = graph.folderBlobs.managers.get(FOLDER_KEY);
+        const folderManager = instances.foldersSet.managers.get(FOLDER_KEY);
         this.data.toggleTypes[FOLDER_KEY] = folderManager?.getTypes()
             .filter(type => PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault !== folderManager.isActive(type)) ?? [];
 
-        for (const [key, manager] of graph.nodesSet.managers) {
+        for (const [key, manager] of instances.nodesSet.managers) {
             this.data.toggleTypes[key] = manager.getTypes()
                 .filter(type => PluginInstances.settings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
         }
 
         // Pinned nodes
         this.data.pinNodes = {};
-        for (const [id, extendedNode] of graph.nodesSet.extendedElementsMap) {
+        for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
             if (extendedNode.isPinned) {
                 this.data.pinNodes[id] = {x: extendedNode.coreElement.x, y: extendedNode.coreElement.y};
             }
         }
 
         // Engine options
-        this.data.engineOptions = new EngineOptions(graph.engine.getOptions());
-        this.data.engineOptions.search = graph.engine.filterOptions.search.inputEl.value;
+        this.data.engineOptions = new EngineOptions(instances.graph.engine.getOptions());
+        this.data.engineOptions.search = instances.graph.engine.filterOptions.search.inputEl.value;
     }
 
     saveState(stateData: GraphStateData): boolean {

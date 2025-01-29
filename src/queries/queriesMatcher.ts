@@ -1,5 +1,5 @@
 import { App, TFile } from "obsidian";
-import { RuleQuery } from "src/internal";
+import { PluginInstances, RuleQuery } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type CombinationLogic = 'AND' | 'OR';
@@ -16,18 +16,18 @@ export class QueryMatcher {
         this.queryData = queryData;
     }
 
-    getMatches(app: App): TFile[] {
-        return app.vault.getMarkdownFiles().filter(file => this.doesMatch(app, file));
+    getMatches(): TFile[] {
+        return PluginInstances.app.vault.getMarkdownFiles().filter(file => this.doesMatch(file));
     }
 
-    doesMatch(app: App, file: TFile): boolean {
+    doesMatch(file: TFile): boolean {
         const validRules = this.queryData.rules.filter(rule => new RuleQuery(rule).isValid());
         if (validRules.length === 0) return false;
         switch (this.queryData.combinationLogic) {
             case 'AND':
-                return validRules.every(rule => new RuleQuery(rule).doesMatch(app, file) ?? false);
+                return validRules.every(rule => new RuleQuery(rule).doesMatch(file) ?? false);
             case 'OR':
-                return validRules.some(rule => new RuleQuery(rule).doesMatch(app, file) ?? false);
+                return validRules.some(rule => new RuleQuery(rule).doesMatch(file) ?? false);
             default:
                 break;
         }

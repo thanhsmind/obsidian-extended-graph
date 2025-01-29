@@ -1,8 +1,7 @@
-import { App } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphElement, ExtendedGraphSettings, GraphType, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import { CurveLinkGraphicsWrapper, ExtendedGraphElement, GraphInstances, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
+
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
@@ -10,19 +9,19 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
-        super(link, types, managers, settings, graphType, app);
+    constructor(instances: GraphInstances, link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
+        super(instances, link, types, managers);
         this.initGraphicsWrapper();
     }
 
     protected needGraphicsWrapper(): boolean {
-        if (this.settings.enableFeatures[this.graphType]['links'] && this.settings.enableFeatures[this.graphType]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             return true;
         }
         for (const [key, manager] of this.managers) {
             const types = this.types.get(key);
             if (!types || types.size === 0) continue;
-            if (this.settings.interactiveSettings[key].showOnGraph && !types.has(manager.settings.interactiveSettings[key].noneType)) {
+            if (this.instances.settings.interactiveSettings[key].showOnGraph && !types.has(this.instances.settings.interactiveSettings[key].noneType)) {
                 return true;
             }
         }
@@ -30,7 +29,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected createGraphicsWrapper(): void {
-        if (this.settings.enableFeatures[this.graphType]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
         }
         else {
@@ -40,7 +39,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
-            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
+            if (!this.instances.settings.interactiveSettings[key].showOnGraph) continue;
             const validTypes = this.getTypes(key);
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;
@@ -71,7 +70,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
     
     protected override getCoreParentGraphics(coreElement: GraphLink): Container | null {
-        if (this.settings.enableFeatures[this.graphType]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             return coreElement.px;
         }
         else {
@@ -80,7 +79,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected override setCoreParentGraphics(coreElement: GraphLink): void {
-        if (this.settings.enableFeatures[this.graphType]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             this.coreElement.px = coreElement.px;
         }
         else {

@@ -1,8 +1,6 @@
-import { App } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
-import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphInstances, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
@@ -15,8 +13,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
-        super(node, types, managers, settings, graphType, app);
+    constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
+        super(instances, node, types, managers);
 
         this.initRadius();
         this.changeGetSize();
@@ -36,7 +34,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         return this.needPin() || this.needOpacityLayer();
     }
     
-    public needOpacityLayer(): boolean { return this.settings.fadeOnDisable; }
+    public needOpacityLayer(): boolean { return this.instances.settings.fadeOnDisable; }
 
     public needPin(): boolean { return true; }
 
@@ -45,15 +43,15 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== NODE SIZE ===============================
 
     private initRadius() {
-        if (!this.settings.enableFeatures[this.graphType]['elements-stats']) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) return;
 
-        const property = this.settings.nodesSizeProperty;
+        const property = this.instances.settings.nodesSizeProperty;
         if (!property || property === "") return;
 
-        const file = getFile(this.app, this.id);
+        const file = getFile(this.id);
         if (!file) return;
         
-        const values = getFileInteractives(property, this.app, file);
+        const values = getFileInteractives(property, file);
         for (const value of values) {
             if (isNumber(value)) {
                 this.radius = parseInt(value);
@@ -93,7 +91,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     getSizeWithoutScaling(): number {
         const customRadiusFactor = this.radius / NodeShape.RADIUS;
         const node = this.coreElement;
-        if (this.settings.enableFeatures[this.graphType]['elements-stats'] && this.settings.nodesSizeFunction !== 'default') {
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats'] && this.instances.settings.nodesSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
             const customFunctionFactor = PluginInstances.graphsManager.nodesSizeCalculator?.filesStats.get(this.id);
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);

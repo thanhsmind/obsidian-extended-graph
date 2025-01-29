@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, InteractiveManager, INVALID_KEYS, PluginInstances, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 
 export class NodesSet extends AbstractSet<GraphNode> {
@@ -10,10 +10,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(graph: Graph, managers: InteractiveManager[]) {
-        super(graph, managers);
+    constructor(instances: GraphInstances, managers: InteractiveManager[]) {
+        super(instances, managers);
 
-        this.coreCollection = this.graph.renderer.nodes;
+        this.coreCollection = this.instances.graph.renderer.nodes;
     }
 
     // ================================ LOADING ================================
@@ -46,8 +46,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const imageURIs = new Map<string, string>();
         const emptyTextures: string[] = [];
         for (const id of ids) {
-            const imageUri = getImageUri(PluginInstances.app, this.graph.staticSettings.imageProperty, id);
-            if (imageUri && this.graph.staticSettings.enableFeatures[this.graph.type]['images']) {
+            const imageUri = getImageUri(this.instances.settings.imageProperty, id);
+            if (imageUri && this.instances.settings.enableFeatures[this.instances.type]['images']) {
                 imageURIs.set(id, imageUri);
             } else {
                 emptyTextures.push(id);
@@ -57,7 +57,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private initNodesGraphics(imageURIs: Map<string, string>, emptyTextures: string[]) {
-        const backgroundColor = getBackgroundColor(this.graph.renderer);
+        const backgroundColor = getBackgroundColor(this.instances.graph.renderer);
         Assets.load([...imageURIs.values()]).then((textures: Record<string, Texture>) => {
             for (const [id, uri] of imageURIs) {
                 this.initNodeGraphics(id, textures[uri], backgroundColor);
@@ -93,22 +93,18 @@ export class NodesSet extends AbstractSet<GraphNode> {
         let extendedGraphNode: ExtendedGraphNode;
         if (node.type === "tag") {
             extendedGraphNode = new ExtendedGraphTagNode(
+                this.instances,
                 node,
                 types,
-                [...this.managers.values()],
-                this.graph.staticSettings,
-                this.graph.type,
-                PluginInstances.app,
+                [...this.managers.values()]
             );
         }
         else {
             extendedGraphNode = new ExtendedGraphFileNode(
+                this.instances,
                 node,
                 types,
-                [...this.managers.values()],
-                this.graph.staticSettings,
-                this.graph.type,
-                PluginInstances.app,
+                [...this.managers.values()]
             );
         }
 
@@ -123,17 +119,17 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     protected override getTypesFromFile(key: string, element: GraphNode, file: TFile): Set<string> {
-        return getFileInteractives(key, PluginInstances.app, file);
+        return getFileInteractives(key, file);
     }
 
     protected override isTypeValid(key: string, type: string): boolean {
-        if (this.graph.staticSettings.interactiveSettings[key].unselected.includes(type)) return false;
+        if (this.instances.settings.interactiveSettings[key].unselected.includes(type)) return false;
         if (INVALID_KEYS[key].includes(type)) return false;
         return true;
     }
     
     protected getAbstractFile(node: GraphNode): TFile | null {
-        return getFile(PluginInstances.app, node.id);
+        return getFile(node.id);
     }
 
     // ============================= INTERACTIVES ==============================
@@ -142,7 +138,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * Reset arcs for each node
      */
     resetArcs(key: string): void {
-        if (!this.graph.staticSettings.enableFeatures[this.graph.type]['tags']) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['tags']) return;
         for (const [id, extendedElement] of this.extendedElementsMap) {
             try {
                 const manager = this.managers.get(key);
@@ -172,7 +168,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * Update the background color. Called when the theme changes.
      */
     updateOpacityLayerColor(): void {
-        const color = getBackgroundColor(this.graph.renderer);
+        const color = getBackgroundColor(this.instances.graph.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
@@ -192,14 +188,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * @param emphasize - Whether to highlight or unhighlight the node.
      */
     emphasizeNode(file: TFile, emphasize: boolean): void {
-        if (!this.graph.staticSettings.enableFeatures[this.graph.type]['focus']) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['focus']) return;
 
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
 
         try {
             if (emphasize) {
-                let color = this.graph.renderer.colors.fillFocused.rgb;
+                let color = this.instances.graph.renderer.colors.fillFocused.rgb;
                 (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(PluginInstances.settings.focusScaleFactor, color);
             } else {
                 (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(1);
@@ -216,10 +212,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
         for (const [id, extendedNode] of this.extendedElementsMap) {
             const isPinned = ids.hasOwnProperty(id);
             if (isPinned && !extendedNode.isPinned) {
-                this.graph.nodesSet.pinNode(id, ids[id].x, ids[id].y);
+                this.instances.nodesSet.pinNode(id, ids[id].x, ids[id].y);
             }
             else if (!isPinned && extendedNode.isPinned) {
-                this.graph.nodesSet.unpinNode(id);
+                this.instances.nodesSet.unpinNode(id);
             }
         }
     }
@@ -232,7 +228,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (y) node.y = y;
         node.fx = node.x;
         node.fy = node.y;
-        this.graph.renderer.worker.postMessage({
+        this.instances.graph.renderer.worker.postMessage({
             run: true,
             forceNode: {
                 id: node.id,
@@ -249,7 +245,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const node = extendedNode.coreElement;
         node.fx = null;
         node.fy = null;
-        this.graph.renderer.worker.postMessage({
+        this.instances.graph.renderer.worker.postMessage({
             forceNode: {
                 id: node.id,
                 x: null,

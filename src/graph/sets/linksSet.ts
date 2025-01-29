@@ -1,17 +1,17 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
     extendedElementsMap: Map<string, ExtendedGraphLink>;
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(graph: Graph, managers: InteractiveManager[]) {
-        super(graph, managers);
+    constructor(instances: GraphInstances, managers: InteractiveManager[]) {
+        super(instances, managers);
 
-        this.coreCollection = this.graph.renderer.links;
+        this.coreCollection = this.instances.graph.renderer.links;
     }
 
     // =========================== EXTENDED ELEMENTS ===========================
@@ -25,12 +25,10 @@ export class LinksSet extends AbstractSet<GraphLink> {
         }
 
         const extendedGraphLink = new ExtendedGraphLink(
+            this.instances,
             link,
             types,
-            [...this.managers.values()],
-            this.graph.staticSettings,
-            this.graph.type,
-            PluginInstances.app
+            [...this.managers.values()]
         );
 
         this.extendedElementsMap.set(id, extendedGraphLink);
@@ -52,7 +50,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
         const linkTypes = new Set<string>();
         const sourcePage = dv.page(link.source.id);
         for (const [key, value] of Object.entries(sourcePage)) {
-            if (key === "file" || key === this.graph.staticSettings.imageProperty) continue;
+            if (key === "file" || key === this.instances.settings.imageProperty) continue;
             if (value === null || value === undefined || value === '') continue;
 
             if ((typeof value === "object") && ("path" in value) && ((value as any).path === link.target.id)) {
@@ -86,13 +84,13 @@ export class LinksSet extends AbstractSet<GraphLink> {
     }
 
     protected override isTypeValid(type: string): boolean {
-        if (this.graph.staticSettings.interactiveSettings[LINK_KEY].unselected.includes(type)) return false;
+        if (this.instances.settings.interactiveSettings[LINK_KEY].unselected.includes(type)) return false;
         if (INVALID_KEYS[LINK_KEY].includes(type)) return false;
         return true;
     }
 
     protected getAbstractFile(link: GraphLink): TFile | null {
-        return getFile(PluginInstances.app, link.source.id);
+        return getFile(link.source.id);
     }
 
     // ============================ TOGGLE ELEMENTS ============================

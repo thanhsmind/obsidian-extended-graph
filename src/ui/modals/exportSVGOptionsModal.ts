@@ -1,16 +1,14 @@
 import { Modal, Setting } from "obsidian";
-import { ExtendedGraphSettings, Graph, PluginInstances } from "src/internal";
+import { GraphInstances, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class ExportSVGOptionModal extends Modal {
-    graph?: Graph;
-    graphSettings?: ExtendedGraphSettings;
+    instances?: GraphInstances;
     isCanceled: boolean = true;
 
-    constructor(graph?: Graph) {
+    constructor(instances?: GraphInstances) {
         super(PluginInstances.app);
-        this.graph = graph;
-        this.graphSettings = graph?.staticSettings;
+        this.instances = instances;
 
         this.setTitle(STRINGS.features.svgScreenshotOptions);
     }
@@ -55,7 +53,7 @@ export class ExportSVGOptionModal extends Modal {
     // =========================== EXTENDED OPTIONS ============================
 
     private addExtendedOptions() {
-        if (!this.graph) return;
+        if (!this.instances) return;
 
         this.addUseCurvedLinks();
         this.addUseNodeShapes();
@@ -80,8 +78,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canUseCurvedLinks() {
-        if (!this.graphSettings || !this.graph) return false;
-        return this.graphSettings.enableFeatures[this.graph.type]['links'] && this.graphSettings.enableFeatures[this.graph.type]['curvedLinks'];
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'];
     }
 
     private addUseNodeShapes() {
@@ -101,8 +99,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canUseNodeShapes(): boolean {
-        if (!this.graphSettings || !this.graph) return false;
-        return this.graphSettings.enableFeatures[this.graph.type]['shapes'] ?? false
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['shapes'] ?? false
     }
 
     private addShowArcs() {
@@ -122,10 +120,10 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canShowArcs(): boolean {
-        if (!this.graphSettings || !this.graph) return false;
-        if (this.graphSettings.enableFeatures[this.graph.type]['tags']) return true;
-        if (!this.graphSettings.enableFeatures[this.graph.type]['properties']) return false;
-        return Object.values(this.graphSettings.additionalProperties).some(b => b);
+        if (!this.instances || !this.instances) return false;
+        if (this.instances.settings.enableFeatures[this.instances.type]['tags']) return true;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['properties']) return false;
+        return Object.values(this.instances.settings.additionalProperties).some(b => b);
     }
 
     private addShowFolders() {
@@ -145,8 +143,8 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private canShowFolders(): boolean {
-        if (!this.graphSettings || !this.graph) return false;
-        return this.graphSettings.enableFeatures[this.graph.type]['folders'];
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['folders'];
     }
 
     // ============================ APPLY AND CLOSE ============================
@@ -177,7 +175,7 @@ export class ExportSVGOptionModal extends Modal {
     }
 
     private async saveSettings(): Promise<void> {
-        if (this.graphSettings) this.graphSettings.exportSVGOptions = PluginInstances.settings.exportSVGOptions;
+        if (this.instances) this.instances.settings.exportSVGOptions = PluginInstances.settings.exportSVGOptions;
         await PluginInstances.plugin.saveSettings();
     }
 

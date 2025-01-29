@@ -1,7 +1,7 @@
 import { getIcon } from 'obsidian';
 import { Assets, ColorSource, Container, Sprite } from 'pixi.js';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { ExtendedGraphNode, getFile, GraphicsWrapper, InteractiveManager, NodeShape, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
+import { ExtendedGraphNode, getFile, GraphicsWrapper, InteractiveManager, NodeShape, PluginInstances, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
@@ -29,16 +29,15 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     }
 
     private initShape() {
-        if (!this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) return;
-        const app = this.extendedElement.app;
-        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.extendedElement.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+        if (!this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) return;
+        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(this.extendedElement.instances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return a[1].index - b[1].index;
         }));
         for (const shape of Object.keys(shapeQueries)) {
             const queriesMatcher = new QueryMatcher(shapeQueries[shape]);
-            const file = getFile(app, this.extendedElement.id);
+            const file = getFile(this.extendedElement.id);
             if (!file) return;
-            if (queriesMatcher.doesMatch(app, file)) {
+            if (queriesMatcher.doesMatch(file)) {
                 this.shape = shape as ShapeEnum;
                 return;
             }
@@ -135,9 +134,9 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
             const tail = svg.getElementsByTagName("path")[0];
             const head = svg.getElementsByTagName("path")[1];
-            head.setAttribute("fill", this.extendedElement.app.getAccentColor());
+            head.setAttribute("fill", PluginInstances.app.getAccentColor());
             head.setAttribute("stroke", stroke);
-            tail.setAttribute("stroke", this.extendedElement.app.getAccentColor());
+            tail.setAttribute("stroke", PluginInstances.app.getAccentColor());
 
             const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg.outerHTML)}`
             Assets.load(svgDataUrl).then(texture => {

@@ -1,8 +1,8 @@
 import { Component } from "obsidian";
-import { GCOptions, GraphEventsDispatcher, WorkspaceLeafExt } from "src/internal";
+import { GCOptions, GraphEventsDispatcher, GraphInstances, WorkspaceLeafExt } from "src/internal";
 
 export class GraphControlsUI extends Component {
-    dispatcher: GraphEventsDispatcher | null;
+    instances: GraphInstances | null;
     leaf: WorkspaceLeafExt;
 
     graphControls: HTMLElement;
@@ -17,9 +17,9 @@ export class GraphControlsUI extends Component {
         this.sectionSettings = new GCOptions(leaf);
     }
 
-    onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
-        this.dispatcher = dispatcher;
-        this.sectionSettings.onPluginEnabled(dispatcher);
+    onPluginEnabled(instances: GraphInstances): void {
+        this.instances = instances;
+        this.sectionSettings.onPluginEnabled(instances);
         //this.removeFilters();
     }
 

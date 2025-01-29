@@ -1,11 +1,11 @@
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { DisconnectionCause, ExtendedGraphElement, Graph, InteractiveManager, TAG_KEY } from "src/internal";
+import { DisconnectionCause, ExtendedGraphElement, Graph, GraphInstances, InteractiveManager, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     // Parent graph
-    graph: Graph;
+    instances: GraphInstances;
 
     // Element containers
     coreCollection: T[];
@@ -22,8 +22,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
      * @param graph - The graph instance.
      * @param manager - The interactive managers.
      */
-    constructor(graph: Graph, managers: InteractiveManager[]) {
-        this.graph = graph;
+    constructor(instances: GraphInstances, managers: InteractiveManager[]) {
+        this.instances = instances;
         this.initializeManagers(managers);
         this.initializeTypesMap();
         this.initializeDisconnectedIDs();
@@ -83,7 +83,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             else if (file && file instanceof TFile) {
                 types = this.getTypesFromFile(key, element, (file as TFile));
                 if (types.size === 0) {
-                    types.add(this.graph.staticSettings.interactiveSettings[key].noneType);
+                    types.add(this.instances.settings.interactiveSettings[key].noneType);
                 }
             }
             else {
@@ -111,8 +111,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
                 hasType = true;
             }
         }
-        if (!hasType && !this.managers.get(key)?.interactives.has(this.graph.staticSettings.interactiveSettings[key].noneType)) {
-            missingTypes.add(this.graph.staticSettings.interactiveSettings[key].noneType);
+        if (!hasType && !this.managers.get(key)?.interactives.has(this.instances.settings.interactiveSettings[key].noneType)) {
+            missingTypes.add(this.instances.settings.interactiveSettings[key].noneType);
         }
     }
 

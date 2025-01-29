@@ -1,13 +1,12 @@
-import { App } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, ExtendedGraphSettings, GraphType, InteractiveManager, NodeShape, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
 
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
-        super(node, types, managers, settings, graphType, app);
+    constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
+        super(instances, node, types, managers);
         this.changeGetFillColor();
     }
 
@@ -29,7 +28,7 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
 
     private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.settings.enableFeatures[this.graphType]["tags"] || this.settings.interactiveSettings[TAG_KEY].unselected.contains(this.id.replace('#', ''))) {
+        if (this.coreGetFillColor || !this.instances.settings.enableFeatures[this.instances.type]["tags"] || this.instances.settings.interactiveSettings[TAG_KEY].unselected.contains(this.id.replace('#', ''))) {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;

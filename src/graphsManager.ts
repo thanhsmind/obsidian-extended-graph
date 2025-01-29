@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import STRINGS from "./Strings";
 
@@ -14,7 +14,7 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
     
-    dispatchers = new Map<string, GraphEventsDispatcher>();
+    allInstances = new Map<string, GraphInstances>();
     
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodeColorCalculator: NodeStatCalculator | undefined;
@@ -72,11 +72,11 @@ export class GraphsManager extends Component {
     // ============================= THEME CHANGE ==============================
 
     private onCSSChange() {
-        this.dispatchers.forEach(dispatcher => {
-            if (dispatcher.graph.nodesSet) {
-                dispatcher.graph.nodesSet.updateOpacityLayerColor();
-                dispatcher.graph.nodesSet.updateFontFamily();
-                dispatcher.graph.renderer.changed();
+        this.allInstances.forEach(instance => {
+            if (instance.nodesSet) {
+                instance.nodesSet.updateOpacityLayerColor();
+                instance.nodesSet.updateFontFamily();
+                instance.graph.renderer.changed();
             }
         });
     }
@@ -84,18 +84,18 @@ export class GraphsManager extends Component {
     // ============================ METADATA CHANGES ===========================
 
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        this.dispatchers.forEach(dispatcher => {
-            if (!dispatcher.graph || !dispatcher.graph.renderer) return;
+        this.allInstances.forEach(instance => {
+            if (!instance.graph || !instance.graph.renderer) return;
     
-            if (PluginInstances.settings.enableFeatures[dispatcher.graph.type]['tags']) {
-                const extendedNode = dispatcher.graph.nodesSet.extendedElementsMap.get(file.path);
+            if (PluginInstances.settings.enableFeatures[instance.type]['tags']) {
+                const extendedNode = instance.nodesSet.extendedElementsMap.get(file.path);
                 if (!extendedNode) return;
         
                 const newTypes = this.extractTagsFromCache(cache);
                 const needsUpdate = !extendedNode.matchesTypes(TAG_KEY, newTypes);
 
                 if (needsUpdate) {
-                    this.updateNodeTypes(dispatcher);
+                    this.updateNodeTypes(instance);
                 }
             }
         });
@@ -106,10 +106,10 @@ export class GraphsManager extends Component {
         return cache.tags.map(tagCache => tagCache.tag.replace('#', ''));
     }
 
-    private updateNodeTypes(dispatcher: GraphEventsDispatcher): void {
-        const types = dispatcher.graph.nodesSet.getAllTypes(TAG_KEY);
+    private updateNodeTypes(instances: GraphInstances): void {
+        const types = instances.nodesSet.getAllTypes(TAG_KEY);
         if (types) {
-            dispatcher.graph.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
+            instances.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
         }
     }
 
@@ -128,7 +128,7 @@ export class GraphsManager extends Component {
     }
 
     private isPluginAlreadyEnabled(leaf: WorkspaceLeafExt): boolean {
-        return this.dispatchers.has(leaf.id);
+        return this.allInstances.has(leaf.id);
     }
     
     private isGlobalGraphAlreadyOpened(leaf: WorkspaceLeafExt): boolean {
@@ -181,7 +181,7 @@ export class GraphsManager extends Component {
     // ============================= GLOBAL FILTER =============================
 
     onGlobalFilterChanged(filter: string): void {
-        for (const [id, dispatcher] of this.dispatchers) {
+        for (const [id, dispatcher] of this.allInstances) {
             dispatcher.graph.engine.updateSearch();
             this.updateGlobalFilterUI(id, filter);
         }
@@ -195,14 +195,14 @@ export class GraphsManager extends Component {
     // ================================= COLORS ================================
 
     updatePalette(interactive: string): void {
-        this.dispatchers.forEach(dispatcher => {
-            dispatcher.graph.interactiveManagers.get(interactive)?.recomputeColors();
+        this.allInstances.forEach(instance => {
+            instance.interactiveManagers.get(interactive)?.recomputeColors();
         });
     }
 
     updateColor(key: string, type: string): void {
-        this.dispatchers.forEach(dispatcher => {
-            dispatcher.graph.interactiveManagers.get(key)?.recomputeColor(type);
+        this.allInstances.forEach(instance => {
+            instance.interactiveManagers.get(key)?.recomputeColor(type);
         });
     }
 
@@ -220,31 +220,32 @@ export class GraphsManager extends Component {
         else {
             this.linksSizeCalculator = undefined;
         }
-        const dispatcher = this.addGraph(leaf, stateID);
+        const instances = this.addGraph(leaf, stateID);
         const globalUI = this.setGlobalUI(leaf);
         globalUI.menu.setEnableUIState();
-        globalUI.control.onPluginEnabled(dispatcher);
+        globalUI.control.onPluginEnabled(instances);
     }
 
-    private addGraph(leaf: WorkspaceLeafExt, stateID?: string): GraphEventsDispatcher {
-        let dispatcher = this.dispatchers.get(leaf.id);
-        if (dispatcher) return dispatcher;
+    private addGraph(leaf: WorkspaceLeafExt, stateID?: string): GraphInstances {
+        let instances = this.allInstances.get(leaf.id);
+        if (instances) return instances;
 
-        dispatcher = new GraphEventsDispatcher(leaf);
+        instances = new GraphInstances(leaf);
+        new GraphEventsDispatcher(instances);
         if (stateID) {
-            dispatcher.statesUI.currentStateID = stateID;
-            dispatcher.statesUI.select.value = stateID;
+            instances.statesUI.currentStateID = stateID;
+            instances.statesUI.select.value = stateID;
         }
 
-        this.dispatchers.set(leaf.id, dispatcher);
-        dispatcher.load();
-        leaf.view.addChild(dispatcher);
+        this.allInstances.set(leaf.id, instances);
+        instances.dispatcher.load();
+        leaf.view.addChild(instances.dispatcher);
 
         if (leaf.view.getViewType() === "localgraph") {
             this.localGraphID = leaf.id;
         }
 
-        return dispatcher;
+        return instances;
     }
 
     isNodeLimitExceeded(leaf: WorkspaceLeafExt): boolean {
@@ -295,14 +296,14 @@ export class GraphsManager extends Component {
     }
 
     private unloadDispatcher(leafID: string) {
-        const dispatcher = this.dispatchers.get(leafID);
-        if (dispatcher) {
-            dispatcher.unload();
+        const instances = this.allInstances.get(leafID);
+        if (instances) {
+            instances.dispatcher.unload();
         }
     }
 
     onPluginUnloaded(leaf: WorkspaceLeafExt): void {
-        this.dispatchers.delete(leaf.id);
+        this.allInstances.delete(leaf.id);
         
         if (this.localGraphID === leaf.id) this.localGraphID = null;
 
@@ -315,12 +316,12 @@ export class GraphsManager extends Component {
     // ============================= RESET PLUGIN ==============================
 
     resetPlugin(leaf: WorkspaceLeafExt): void {
-        const dispatcher = this.dispatchers.get(leaf.id);
+        const dispatcher = this.allInstances.get(leaf.id);
         const stateID = dispatcher?.statesUI.currentStateID;
         const scale = dispatcher ? dispatcher.graph.renderer.targetScale : false;
         this.disablePlugin(leaf);
         this.enablePlugin(leaf, stateID);
-        const newDispatcher = this.dispatchers.get(leaf.id);
+        const newDispatcher = this.allInstances.get(leaf.id);
         if (newDispatcher && scale) {
             newDispatcher.graph.renderer.targetScale = scale;
         }
@@ -346,7 +347,7 @@ export class GraphsManager extends Component {
         if (this.activeFile !== view.file) {
             this.changeActiveFile(view.file);
             if (this.localGraphID) {
-                const localDispatcher = this.dispatchers.get(this.localGraphID);
+                const localDispatcher = this.allInstances.get(this.localGraphID);
                 if (localDispatcher) this.resetPlugin(localDispatcher.leaf);
             }
             this.activeFile = view.file;
@@ -356,22 +357,22 @@ export class GraphsManager extends Component {
     changeActiveFile(file: TFile | null): void {
         if (!PluginInstances.settings.enableFeatures['graph']['focus']) return;
 
-        this.dispatchers.forEach(dispatcher => {
-            if (dispatcher.graph.type !== "graph") return;
-            this.deEmphasizePreviousActiveFile(dispatcher);
-            this.emphasizeActiveFile(dispatcher, file);
+        this.allInstances.forEach(instances => {
+            if (instances.type !== "graph") return;
+            this.deEmphasizePreviousActiveFile(instances);
+            this.emphasizeActiveFile(instances, file);
         })
     }
 
-    private deEmphasizePreviousActiveFile(dispatcher: GraphEventsDispatcher) {
+    private deEmphasizePreviousActiveFile(instances: GraphInstances) {
         if (this.activeFile) {
-            dispatcher.graph.nodesSet?.emphasizeNode(this.activeFile, false);
+            instances.nodesSet.emphasizeNode(this.activeFile, false);
         }
     }
 
-    private emphasizeActiveFile(dispatcher: GraphEventsDispatcher, file: TFile | null) {
+    private emphasizeActiveFile(instances: GraphInstances, file: TFile | null) {
         if (file) {
-            dispatcher.graph.nodesSet.emphasizeNode(file, true);
+            instances.nodesSet.emphasizeNode(file, true);
         }
     }
 
@@ -430,17 +431,17 @@ export class GraphsManager extends Component {
 
     onNodeMenuOpened(menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) {
         if (source === "graph-context-menu" && leaf && file instanceof TFile) {
-            this.dispatchers.get(leaf.id)?.onNodeMenuOpened(menu, file);
+            this.allInstances.get(leaf.id)?.dispatcher.onNodeMenuOpened(menu, file);
         }
     }
 
     // ============================== SCREENSHOT ===============================
 
     getSVGScreenshot(leaf: WorkspaceLeafExt) {
-        const dispatcher = this.dispatchers.get(leaf.id);
+        const instances = this.allInstances.get(leaf.id);
         let exportToSVG: ExportGraphToSVG;
-        if (dispatcher) {
-            exportToSVG = new ExportExtendedGraphToSVG(dispatcher.graph);
+        if (instances) {
+            exportToSVG = new ExportExtendedGraphToSVG(instances);
         }
         else {
             exportToSVG = new ExportCoreGraphToSVG(PluginInstances.plugin, getEngine(leaf));

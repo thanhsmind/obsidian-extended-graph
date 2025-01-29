@@ -1,10 +1,10 @@
 import { App, ButtonComponent, ExtraButtonComponent, Modal, Setting, TextComponent, TFile, ValueComponent } from "obsidian";
-import { getFile, Graph, GraphState, NodeShape } from "src/internal";
+import { getFile, Graph, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphStateModal extends Modal {
     state: GraphState;
-    graph: Graph;
+    instances: GraphInstances;
     sortableTables: Record<string, {
         asc: (boolean | undefined)[],
         sortIndex: number,
@@ -16,11 +16,11 @@ export class GraphStateModal extends Modal {
     }> = {};
     defaultMaxRows: number = 2;
 
-    constructor(app: App, graph: Graph) {
-        super(app);
-        this.graph = graph;
+    constructor(instances: GraphInstances) {
+        super(PluginInstances.app);
+        this.instances = instances;
         this.state = new GraphState("");
-        this.state.saveGraph(graph);
+        this.state.saveGraph(instances);
         this.setTitle(STRINGS.states.graphState);
         this.modalEl.addClass("graph-modal-graph-state");
     }
@@ -32,7 +32,7 @@ export class GraphStateModal extends Modal {
     }
 
     private addNodes() {
-        const hasRows = this.graph.nodesSet.extendedElementsMap.size > 0;
+        const hasRows = this.instances.nodesSet.extendedElementsMap.size > 0;
 
         this.createHeading(STRINGS.plugin.nodes, "nodes", hasRows);
 
@@ -49,15 +49,15 @@ export class GraphStateModal extends Modal {
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
-        for (const [key, manager] of this.graph.nodesSet.managers) {
+        for (const [key, manager] of this.instances.nodesSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
-        if (this.graph.staticSettings.enableFeatures[this.graph.type]['shapes']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['shapes']) {
             cell = tr_thead.insertCell(); cell.setText(STRINGS.features.shape);
             colgroup.createEl("col").addClass("col-shape");
         }
-        if (this.graph.staticSettings.enableFeatures[this.graph.type]['elements-stats']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
             cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
             colgroup.createEl("col").addClass("col-size");
         }
@@ -66,7 +66,7 @@ export class GraphStateModal extends Modal {
 
         const tbody = table.createTBody();
 
-        for (const [id, extendedNode] of this.graph.nodesSet.extendedElementsMap) {
+        for (const [id, extendedNode] of this.instances.nodesSet.extendedElementsMap) {
             const nodeData = this.getNodeData(id);
 
             const tr = tbody.insertRow();
@@ -75,7 +75,7 @@ export class GraphStateModal extends Modal {
             cell = tr.insertCell(); nodeData.link ? cell.appendChild(nodeData.link) : cell.setText(id);
             cell = tr.insertCell(); if (!extendedNode.isAnyManagerDisabled()) cell.setText("✓");
 
-            for (const [key, manager] of this.graph.nodesSet.managers) {
+            for (const [key, manager] of this.instances.nodesSet.managers) {
                 cell = tr.insertCell();
                 cell.addClass("column-interactives");
                 const types = extendedNode.types.get(key);
@@ -91,12 +91,12 @@ export class GraphStateModal extends Modal {
                 }
             }
 
-            if (this.graph.staticSettings.enableFeatures[this.graph.type]['shapes'] && extendedNode.graphicsWrapper) {
+            if (this.instances.settings.enableFeatures[this.instances.type]['shapes'] && extendedNode.graphicsWrapper) {
                 cell = tr.insertCell();
                 cell.createDiv().appendChild(NodeShape.getSVG(extendedNode.graphicsWrapper.shape)).addClass("shape-svg");
             }
 
-            if (this.graph.staticSettings.enableFeatures[this.graph.type]['elements-stats']) {
+            if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
                 cell = tr.insertCell(); cell.setText(extendedNode.getSizeWithoutScaling().toFixed(2));
             }
         }
@@ -105,7 +105,7 @@ export class GraphStateModal extends Modal {
     }
 
     private addLinks() {
-        const hasRows = this.graph.linksSet.extendedElementsMap.size > 0;
+        const hasRows = this.instances.linksSet.extendedElementsMap.size > 0;
 
         this.createHeading("Links", "links", hasRows);
 
@@ -126,7 +126,7 @@ export class GraphStateModal extends Modal {
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-target"]);
         cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
-        for (const [key, manager] of this.graph.linksSet.managers) {
+        for (const [key, manager] of this.instances.linksSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
@@ -135,7 +135,7 @@ export class GraphStateModal extends Modal {
 
         const tbody = table.createTBody();
 
-        for (const [id, extendedLink] of this.graph.linksSet.extendedElementsMap) {
+        for (const [id, extendedLink] of this.instances.linksSet.extendedElementsMap) {
             const nodeSourceData = this.getNodeData(extendedLink.coreElement.source.id);
             const nodeTargetData = this.getNodeData(extendedLink.coreElement.target.id);
 
@@ -147,7 +147,7 @@ export class GraphStateModal extends Modal {
             cell = tr.insertCell(); nodeTargetData.link ? cell.appendChild(nodeTargetData.link) : cell.setText(extendedLink.coreElement.target.id);
             cell = tr.insertCell(); if (!extendedLink.isAnyManagerDisabled()) cell.setText("✓");
 
-            for (const [key, manager] of this.graph.linksSet.managers) {
+            for (const [key, manager] of this.instances.linksSet.managers) {
                 cell = tr.insertCell();
                 cell.addClass("column-interactives");
                 const types = extendedLink.types.get(key);
@@ -232,7 +232,7 @@ export class GraphStateModal extends Modal {
     }
 
     private getNodeData(id: string): { file?: TFile, path: string, link?: HTMLAnchorElement } {
-        const file = getFile(this.app, id);
+        const file = getFile(id);
         const path = this.getPath(file);
         const link = this.getLink(file);
         return {

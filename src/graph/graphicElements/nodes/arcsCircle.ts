@@ -53,7 +53,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         this.arcSize   = Math.min(2 * Math.PI / nTags, ArcsCircle.maxArcSize);
 
         for (const type of this.types) {
-            if (type === this.manager.settings.interactiveSettings[this.manager.name].noneType) continue;
+            if (type === this.manager.instances.settings.interactiveSettings[this.manager.name].noneType) continue;
             const index = allTypes.findIndex(t => t === type);
             const arc = new Graphics();
             arc.name = this.getArcName(type);

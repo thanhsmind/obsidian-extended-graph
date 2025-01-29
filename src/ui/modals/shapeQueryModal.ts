@@ -116,13 +116,13 @@ export class ShapeQueryModal extends Modal {
 
     onChange(ruleQuery: RuleQuery) {
         const matcher = this.getMatcher();
-        const files = matcher.getMatches(this.app);
+        const files = matcher.getMatches();
         this.viewMatchesButton.setButtonText(`${STRINGS.query.viewMatches} (${files.length})`);
         this.viewMatchesButton.setDisabled(files.length === 0);
     }
 
     private viewMatches() {
-        const modal = new QueryMatchesModal(this.app, this.queryData);
+        const modal = new QueryMatchesModal(this.queryData);
         modal.open();
     }
     

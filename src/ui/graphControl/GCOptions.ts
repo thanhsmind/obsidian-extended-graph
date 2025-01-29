@@ -103,7 +103,7 @@ export class GCOptions extends GCSection {
                 const callback = (value: string) => {
                     PluginInstances.graphsManager.zoomOnNode(this.leaf, value);
                 }
-                this.suggester = new NodeNameSuggester(PluginInstances.app, cb.inputEl, this.leaf.view.renderer, callback);
+                this.suggester = new NodeNameSuggester(cb.inputEl, this.leaf.view.renderer, callback);
             });
     }
 
@@ -113,9 +113,9 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
-                    const graph = PluginInstances.graphsManager.dispatchers.get(this.leaf.id)?.graph;
-                    if (!graph) return;
-                    const modal = new GraphStateModal(PluginInstances.app, graph);
+                    const instances = PluginInstances.graphsManager.allInstances.get(this.leaf.id);
+                    if (!instances) return;
+                    const modal = new GraphStateModal(instances);
                     modal.open();
                 })
             })

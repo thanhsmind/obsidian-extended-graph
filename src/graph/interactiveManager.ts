@@ -1,6 +1,6 @@
 
 import { Component } from "obsidian";
-import { ExtendedGraphSettings, getColor, GraphEventsDispatcher, hex2rgb, INVALID_KEYS, NONE_COLOR } from "src/internal";
+import { ExtendedGraphSettings, getColor, GraphEventsDispatcher, GraphInstances, hex2rgb, INVALID_KEYS, NONE_COLOR, PluginInstances } from "src/internal";
 
 class Interactive {
     type: string;
@@ -20,15 +20,13 @@ class Interactive {
 
 export class InteractiveManager extends Component {
     interactives: Map<string, Interactive>;
-    settings: ExtendedGraphSettings;
     name: string;
-    dispatcher: GraphEventsDispatcher;
+    instances: GraphInstances;
     
-    constructor(dispatcher: GraphEventsDispatcher, settings: ExtendedGraphSettings, name: string) {
+    constructor(instances: GraphInstances, name: string) {
         super();
         this.interactives = new Map<string, Interactive>();
-        this.dispatcher = dispatcher;
-        this.settings = settings;
+        this.instances = instances;
         this.name = name;
     }
 
@@ -41,7 +39,7 @@ export class InteractiveManager extends Component {
                 disabledTypes.push(type);
             }
         });
-        if (disabledTypes.length > 0) this.dispatcher.onInteractivesDisabled(this.name, disabledTypes);
+        if (disabledTypes.length > 0) this.instances.dispatcher.onInteractivesDisabled(this.name, disabledTypes);
     }
 
     enable(types: string[]): void {
@@ -53,7 +51,7 @@ export class InteractiveManager extends Component {
                 enabledTypes.push(type);
             }
         });
-        if (enabledTypes.length > 0) this.dispatcher.onInteractivesEnabled(this.name, enabledTypes);
+        if (enabledTypes.length > 0) this.instances.dispatcher.onInteractivesEnabled(this.name, enabledTypes);
     }
 
     isActive(type: string): boolean {
@@ -76,23 +74,23 @@ export class InteractiveManager extends Component {
         if (!interactive) return;
 
         interactive.setColor(color);
-        this.dispatcher.onInteractiveColorChanged(this.name, type, color);
+        this.instances.dispatcher.onInteractiveColorChanged(this.name, type, color);
     }
 
     removeTypes(types: Set<string>) {
         types.forEach(type => {
             this.interactives.delete(type);
         });
-        this.dispatcher.onInteractivesRemoved(this.name, types);
+        this.instances.dispatcher.onInteractivesRemoved(this.name, types);
     }
 
     addTypes(types: Set<string>): void {
         const colorsMaps = new Map<string, Uint8Array>();
         const allTypes = new Set<string>([...this.interactives.keys(), ...types].sort());
         const allTypesWithoutNone = new Set<string>(allTypes);
-        allTypesWithoutNone.delete(this.settings.interactiveSettings[this.name].noneType);
+        allTypesWithoutNone.delete(PluginInstances.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
-            if (INVALID_KEYS[this.name]?.includes(type) && this.settings.interactiveSettings[this.name].unselected.includes(type)) {
+            if (INVALID_KEYS[this.name]?.includes(type) && PluginInstances.settings.interactiveSettings[this.name].unselected.includes(type)) {
                 return;
             }
             if (this.interactives.has(type)) return;
@@ -109,7 +107,7 @@ export class InteractiveManager extends Component {
         });
         this.interactives = new Map([...this.interactives.entries()].sort());
         if (colorsMaps.size > 0) {
-            this.dispatcher.onInteractivesAdded(this.name, colorsMaps);
+            this.instances.dispatcher.onInteractivesAdded(this.name, colorsMaps);
         }
     }
 
@@ -124,7 +122,7 @@ export class InteractiveManager extends Component {
 
     getTypesWithoutNone(): string[] {
         const types = this.getTypes();
-        types.remove(this.settings.interactiveSettings[this.name].noneType);
+        types.remove(PluginInstances.settings.interactiveSettings[this.name].noneType);
         return types;
     }
     
@@ -149,16 +147,16 @@ export class InteractiveManager extends Component {
 
     private tryComputeColorFromType(type: string): Uint8Array | null{
         let color: Uint8Array;
-        const colorSettings = this.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
+        const colorSettings = PluginInstances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
         if (colorSettings) {
             color = hex2rgb(colorSettings);
         }
-        else if (type === this.settings.interactiveSettings[this.name].noneType) {
+        else if (type === PluginInstances.settings.interactiveSettings[this.name].noneType) {
             color = NONE_COLOR;
         }
         else {
             const allTypesWithoutNone = [...this.interactives.keys()];
-            allTypesWithoutNone.remove(this.settings.interactiveSettings[this.name].noneType);
+            allTypesWithoutNone.remove(PluginInstances.settings.interactiveSettings[this.name].noneType);
             const nColors = allTypesWithoutNone.length;
             const i = allTypesWithoutNone.indexOf(type);
             if (i < 0) {
@@ -172,6 +170,6 @@ export class InteractiveManager extends Component {
 
     private computeColorFromIndex(index: number, nColors: number) {
         const x = index / nColors;
-        return getColor(this.settings.interactiveSettings[this.name].colormap, x);
+        return getColor(PluginInstances.settings.interactiveSettings[this.name].colormap, x);
     }
 }

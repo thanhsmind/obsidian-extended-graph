@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
+import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -19,31 +19,27 @@ export class StatesManager {
      * @param name - The name of the new state.
      * @returns string - The ID of the new state.
      */
-    newState(graph: Graph, name: string): string {
+    newState(instance: GraphInstances, name: string): string {
         const state = new GraphState(name);
         state.setID();
-        state.saveGraph(graph);
+        state.saveGraph(instance);
         this.onStateNeedsSaving(state.data);
         return state.data.id;
     }
 
     // ============================= CHANGE STATE ==============================
     
-    /**
-     * Change the current state with the specified ID.
-     * @param id - The ID of the state to change to.
-     */
-    changeState(graph: Graph, id: string) {
+    changeState(instance: GraphInstances, id: string) {
         let stateData = this.getStateDataById(id);
         if (!stateData) return;
 
         stateData = this.validateStateData(stateData);
-        this.updateInteractiveManagers(stateData, graph).then(() => {
+        this.updateInteractiveManagers(stateData, instance).then(() => {
             if (!stateData) return;
-            if (stateData.engineOptions) graph.engine.setOptions(stateData.engineOptions);
-            graph.updateWorker();
-            graph.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
-            graph.engine.updateSearch();
+            if (stateData.engineOptions) instance.graph.engine.setOptions(stateData.engineOptions);
+            instance.graph.updateWorker();
+            instance.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
+            instance.graph.engine.updateSearch();
         });
     }
 
@@ -56,11 +52,11 @@ export class StatesManager {
         return state.data;
     }
     
-    private async updateInteractiveManagers(stateData: GraphStateData, graph: Graph): Promise<void> {
+    private async updateInteractiveManagers(stateData: GraphStateData, instance: GraphInstances): Promise<void> {
         new Promise(resolve => setTimeout(() => {
-            this.updateManagers(stateData, graph.nodesSet.managers, graph.dispatcher.legendUI);
-            this.updateManagers(stateData, graph.linksSet.managers, graph.dispatcher.legendUI);
-            this.updateManagers(stateData, graph.folderBlobs.managers, graph.dispatcher.foldersUI);
+            this.updateManagers(stateData, instance.nodesSet.managers, instance.legendUI);
+            this.updateManagers(stateData, instance.linksSet.managers, instance.legendUI);
+            this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
         }, 200));
     }
     
@@ -108,8 +104,8 @@ export class StatesManager {
             }
         });
 
-        if (toDisable.length > 0) manager.dispatcher.onInteractivesDisabled(manager.name, toDisable);
-        if (toEnable.length > 0) manager.dispatcher.onInteractivesEnabled(manager.name, toEnable);
+        if (toDisable.length > 0) manager.instances.dispatcher.onInteractivesDisabled(manager.name, toDisable);
+        if (toEnable.length > 0) manager.instances.dispatcher.onInteractivesEnabled(manager.name, toEnable);
     }
 
     // ============================== SAVE STATE ===============================
@@ -119,13 +115,13 @@ export class StatesManager {
      * @param graph - The current graph.
      * @param id - The ID of the state to save.
      */
-    saveState(graph: Graph, id: string): void {
+    saveState(instance: GraphInstances, id: string): void {
         if (id === DEFAULT_STATE_ID) return;
         const stateData = PluginInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
         const state = new GraphState(stateData?.name);
         state.setID(id);
-        state.saveGraph(graph);
+        state.saveGraph(instance);
         this.onStateNeedsSaving(state.data);
     }
 
@@ -150,7 +146,7 @@ export class StatesManager {
     }
     
     private updateAllStates(): void {
-        PluginInstances.graphsManager.dispatchers.forEach(dispatcher => {
+        PluginInstances.graphsManager.allInstances.forEach(dispatcher => {
             dispatcher.statesUI.updateStatesList(PluginInstances.settings.states);
         });
     }

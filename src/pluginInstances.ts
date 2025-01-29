@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, Graph, GraphEventsDispatcher, GraphsManager, LinksSet, NodesSet, StatesManager } from "./internal";
+import { ExtendedGraphSettings, FoldersSet, GCFolders, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, StatesManager, StatesUI, WorkspaceLeafExt } from "./internal";
 import ExtendedGraphPlugin from "./main";
 
 export class PluginInstances {
@@ -8,14 +8,31 @@ export class PluginInstances {
     static settings: ExtendedGraphSettings; // init in main.ts
     static graphsManager: GraphsManager; // init in main.ts
     static statesManager: StatesManager; // init in main.ts
-    static dispatchers: {[leafID: string]: GraphInstances}
 }
 
 export class GraphInstances {
-    dispatcher: GraphEventsDispatcher;
-    graph: Graph;
-    nodesSet: NodesSet;
-    linksSet: LinksSet;
-    folderSet: FoldersSet;
-    settings: ExtendedGraphSettings;
+    readonly leaf: WorkspaceLeafExt;
+    readonly settings: ExtendedGraphSettings;
+    readonly type: GraphType;
+
+    readonly interactiveManagers = new Map<string, InteractiveManager>();
+    
+    dispatcher: GraphEventsDispatcher; // init in graphEventsDispatcher.ts (constructor)
+    graph: Graph; // init in graph.ts (constructor)
+    
+    
+    nodesSet: NodesSet; // init in graph.ts (constructor)
+    linksSet: LinksSet; // init in graph.ts (constructor)
+    foldersSet: FoldersSet; // init in graph.ts (constructor)
+    
+    legendUI: LegendUI | null = null;
+    foldersUI: GCFolders | null = null;
+    statesUI: StatesUI;
+
+
+    constructor(leaf: WorkspaceLeafExt) {
+        this.leaf = leaf;
+        this.settings = structuredClone(PluginInstances.settings);
+        this.type = this.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
+    }
 }

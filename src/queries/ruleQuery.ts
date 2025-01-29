@@ -1,5 +1,5 @@
 import { App, TFile, TFolder } from "obsidian";
-import { getFileInteractives, LINK_KEY, TAG_KEY } from "src/internal";
+import { getFileInteractives, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec';
@@ -47,25 +47,25 @@ export class RuleQuery {
         };
     }
 
-    getMatches(app: App): TFile[] {
-        return app.vault.getMarkdownFiles().filter(file => this.doesMatch(app, file));
+    getMatches(): TFile[] {
+        return PluginInstances.app.vault.getMarkdownFiles().filter(file => this.doesMatch(file));
     }
 
-    doesMatch(app: App, file: TFile): boolean | null {
+    doesMatch(file: TFile): boolean | null {
         if (!this.isValid()) return null;
         const folder = file.path;
         switch ((this.source as SourceKey)) {
             case 'tag':
-                const tags = getFileInteractives(TAG_KEY, app, file);
+                const tags = getFileInteractives(TAG_KEY, file);
                 return this.checkLogic([...tags]);
                 
             case 'link':
-                const links = getFileInteractives(LINK_KEY, app, file);
+                const links = getFileInteractives(LINK_KEY, file);
                 return this.checkLogic([...links]);
 
             case 'property':
                 if (!this.property) break;
-                const properties = getFileInteractives(this.property, app, file);
+                const properties = getFileInteractives(this.property, file);
                 return this.checkLogic([...properties]);
             
             case 'file':

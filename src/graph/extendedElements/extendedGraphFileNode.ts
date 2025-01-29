@@ -1,16 +1,14 @@
-import { App } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, ExtendedGraphSettings, FileNodeGraphicsWrapper, GraphType, InteractiveManager, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import { ExtendedGraphNode, FileNodeGraphicsWrapper, GraphInstances, InteractiveManager, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
 
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
     
-    constructor(node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[], settings: ExtendedGraphSettings, graphType: GraphType, app: App) {
-        super(node, types, managers, settings, graphType, app);
-        if (settings.enableFeatures[this.graphType]['elements-stats'] && settings.nodesColorFunction !== 'default') {
+    constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
+        super(instances, node, types, managers);
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats'] && this.instances.settings.nodesColorFunction !== 'default') {
             this.changeGetFillColor();
         }
     }
@@ -31,10 +29,10 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             || this.needArcs();
     }
 
-    public needImage(): boolean { return this.settings.enableFeatures[this.graphType]['images']; }
+    public needImage(): boolean { return this.instances.settings.enableFeatures[this.instances.type]['images']; }
     
     public needBackground(): boolean {
-        return this.settings.enableFeatures[this.graphType]['focus']
+        return this.instances.settings.enableFeatures[this.instances.type]['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
         
@@ -43,7 +41,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             return false;
         
         for (const [key, manager] of this.managers) {
-            if (this.settings.interactiveSettings[key].showOnGraph) {
+            if (this.instances.settings.interactiveSettings[key].showOnGraph) {
                 return true;
             }
         }
@@ -58,7 +56,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
         let layer = 1;
         for (const [key, manager] of this.managers) {
-            if (!this.graphicsWrapper.extendedElement.settings.interactiveSettings[key].showOnGraph) continue;
+            if (!this.instances.settings.interactiveSettings[key].showOnGraph) continue;
             const validTypes = this.getTypes(key);
             this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
             layer++;
@@ -68,7 +66,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
     
     private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.settings.enableFeatures[this.graphType]["elements-stats"] || this.settings.nodesColorFunction === "default") {
+        if (this.coreGetFillColor || !this.instances.settings.enableFeatures[this.instances.type]["elements-stats"] || this.instances.settings.nodesColorFunction === "default") {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;

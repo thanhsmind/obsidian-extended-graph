@@ -1,6 +1,6 @@
 import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, int2hex, NodeShape, PluginInstances, polar2Cartesian, rgb2hex } from "src/internal";
+import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, GraphInstances, int2hex, NodeShape, PluginInstances, polar2Cartesian, rgb2hex } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -205,16 +205,16 @@ export abstract class ExportGraphToSVG {
 }
 
 export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
-    graph: Graph;
+    instances: GraphInstances;
 
-    constructor(graph: Graph) {
-        super(PluginInstances.plugin, graph.renderer);
-        this.graph = graph;
+    constructor(instances: GraphInstances) {
+        super(PluginInstances.plugin, instances.graph.renderer);
+        this.instances = instances;
     }
 
     protected override addFolders(): void {
         if (!this.groupFolders) return;
-        const folderBlobs = this.graph.folderBlobs;
+        const folderBlobs = this.instances.foldersSet;
         const manager = folderBlobs.managers.get(FOLDER_KEY);
         if (!manager) return;
         const visibleFolders = this.getVisibleFolders();
@@ -368,7 +368,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
         const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : link.line ? int2hex(Number(link.line.tint)) : "#000000";
-        const width: number = (this.graph.engine.options.lineSizeMultiplier ?? 1) * 4;
+        const width: number = (this.instances.graph.engine.options.lineSizeMultiplier ?? 1) * 4;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
@@ -384,17 +384,17 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     }
 
     protected override getVisibleNodes(): ExtendedGraphNode[] {
-        return [...this.graph.nodesSet.extendedElementsMap.values()].filter(n =>
-            this.graph.nodesSet.connectedIDs.has(n.id)
+        return [...this.instances.nodesSet.extendedElementsMap.values()].filter(n =>
+            this.instances.nodesSet.connectedIDs.has(n.id)
             && n.coreElement.rendered
             && this.isNodeInVisibleArea(n.coreElement)
         );
     }
 
     protected override getVisibleLinks(): ExtendedGraphLink[] {
-        return [...this.graph.linksSet.extendedElementsMap.values()]
+        return [...this.instances.linksSet.extendedElementsMap.values()]
             .filter(l =>
-                this.graph.linksSet.connectedIDs.has(l.id)
+                this.instances.linksSet.connectedIDs.has(l.id)
                 && l.coreElement.rendered
                 && l.coreElement.line?.visible
                 && this.isLinkInVisibleArea(l.coreElement)
@@ -404,20 +404,20 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
 
     protected getVisibleFolders(): FolderBlob[] {
         const visibleNodes = this.getVisibleNodes();
-        return [...this.graph.folderBlobs.foldersMap.values()]
+        return [...this.instances.foldersSet.foldersMap.values()]
             .filter(blob => visibleNodes
                 .some(visibleNode => blob.nodes.includes(visibleNode.coreElement))
             );
     }
 
     private createImageName(): string {
-        const stateName = PluginInstances.statesManager.getStateDataById(this.graph.dispatcher.statesUI.currentStateID);
+        const stateName = PluginInstances.statesManager.getStateDataById(this.instances.statesUI.currentStateID);
         const timestamp = window.moment().format("YYYYMMDDHHmmss");
         return `graph${stateName ? '-' + stateName : ''}-${timestamp}.svg`;
     }
 
     protected getModal(): ExportSVGOptionModal {
-        return new ExportSVGOptionModal(this.graph);
+        return new ExportSVGOptionModal(this.instances);
     }
 }
 

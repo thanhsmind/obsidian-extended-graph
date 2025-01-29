@@ -24,7 +24,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     private initBackground() {
         this.background = new NodeShape(this.shape);
-        if (this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) {
+        if (this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
             this.background.drawFill(this.getFillColor().rgb);
         }
         this.background.scale.set(this.background.getDrawingResolution());
@@ -33,7 +33,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
-        this.nodeImage = new NodeImage(texture, this.extendedElement.settings.borderFactor, this.shape);
+        this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
         this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
     }
 
@@ -44,7 +44,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     }
 
     resetManagerGraphics(manager: InteractiveManager) {
-        const file = getFile(this.extendedElement.app, this.extendedElement.id);
+        const file = getFile(this.extendedElement.id);
         if (!file) return;
         const arcCicle = this.managerGraphicsMap?.get(manager.name);
 
@@ -53,7 +53,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         }
         else {
             arcCicle.clearGraphics();
-            arcCicle.setTypes(getFileInteractives(manager.name, this.extendedElement.app, file));
+            arcCicle.setTypes(getFileInteractives(manager.name, file));
             arcCicle.initGraphics();
             arcCicle.updateGraphics();
         }
@@ -78,7 +78,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         if (!this.background) return;
 
         this.scaleFactor = scale;
-        if (this.scaleFactor > 1 || this.extendedElement.settings.enableFeatures[this.extendedElement.graphType]['shapes']) {
+        if (this.scaleFactor > 1 || this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
             color = color ? color : this.getFillColor().rgb;
             this.background.clear();
             this.background.drawFill(color);

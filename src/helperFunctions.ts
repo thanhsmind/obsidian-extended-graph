@@ -1,7 +1,7 @@
 import { App, getAllTags, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
-import { FOLDER_KEY, TAG_KEY, WorkspaceLeafExt } from "./internal";
+import { FOLDER_KEY, PluginInstances, TAG_KEY, WorkspaceLeafExt } from "./internal";
 import STRINGS from "./Strings";
 
 export function getSVGNode(n: string, v?: any): SVGElement {
@@ -108,12 +108,12 @@ export function lengthQuadratic(t: number, p0: Point, p1: Point, p2: Point): num
     return L;
 }
 
-export function getFile(app: App, path: string): TFile | null {
-    return app.vault.getFileByPath(path);
+export function getFile(path: string): TFile | null {
+    return PluginInstances.app.vault.getFileByPath(path);
 }
 
-export function getImageUri(app: App, keyProperty: string, path: string): string | null {
-    const file = getFile(app, path);
+export function getImageUri(keyProperty: string, path: string): string | null {
+    const file = getFile(path);
     if (file) {
         const metadata = app.metadataCache.getFileCache(file);
         const frontmatter = metadata?.frontmatter;
@@ -155,20 +155,20 @@ export function hasEngine(leaf: WorkspaceLeafExt): boolean {
     }
 }
 
-export function getFileInteractives(interactive: string, app: App, file: TFile): Set<string> {
+export function getFileInteractives(interactive: string, file: TFile): Set<string> {
     if (file.extension !== "md") return new Set<string>();
     switch (interactive) {
         case TAG_KEY:
-            return getTags(app, file);
+            return getTags(file);
         case FOLDER_KEY:
             return getFolderPath(file);
         default:
-            return getProperty(interactive, app, file);
+            return getProperty(interactive, file);
     }
 }
 
-function getTags(app: App, file: TFile): Set<string> {
-    const metadataCache = app.metadataCache.getCache(file.path);
+function getTags(file: TFile): Set<string> {
+    const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return new Set<string>();
 
     const tags = getAllTags(metadataCache)?.map(t => t.replace('#', ''));
@@ -177,7 +177,7 @@ function getTags(app: App, file: TFile): Set<string> {
     return new Set<string>(tags.sort());
 }
 
-function getProperty(key: string, app: App, file: TFile): Set<string> {
+function getProperty(key: string, file: TFile): Set<string> {
     const dv = getDataviewAPI();
     const types = new Set<string>();
 
@@ -201,7 +201,7 @@ function getProperty(key: string, app: App, file: TFile): Set<string> {
 
     // Links in the frontmatter
     else {
-        const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
+        const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
         if (frontmatter?.hasOwnProperty(key)) {
             if (typeof frontmatter[key] === "string" || typeof frontmatter[key] === "number") {
                 types.add(String(frontmatter[key]));

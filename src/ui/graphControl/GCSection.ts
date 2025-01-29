@@ -1,8 +1,8 @@
 import { Component, setIcon } from "obsidian";
-import { GraphEventsDispatcher, setPluginIcon, WorkspaceLeafExt } from "src/internal";
+import { GraphEventsDispatcher, GraphInstances, setPluginIcon, WorkspaceLeafExt } from "src/internal";
 
 export abstract class GCSection extends Component {
-    dispatcher: GraphEventsDispatcher | undefined;
+    instances: GraphInstances | undefined;
     leaf: WorkspaceLeafExt;
 
     graphControls: HTMLElement;
@@ -43,13 +43,13 @@ export abstract class GCSection extends Component {
 
     abstract display(enabled: boolean): void;
 
-    onPluginEnabled(dispatcher: GraphEventsDispatcher): void {
-        this.dispatcher = dispatcher;
+    onPluginEnabled(instances: GraphInstances): void {
+        this.instances = instances;
         this.display(true);
     }
 
     onPluginDisabled(): void {
-        this.dispatcher = undefined;
+        this.instances = undefined;
         this.display(false);
     }
 
