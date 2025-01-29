@@ -92,6 +92,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     getID(): string {
         return getLinkID(this.coreElement);
     }
+
+    // ================================ TOGGLE =================================
+
+    override disable() {
+        super.disable();
+        this.graphicsWrapper?.disconnect();
+    }
 }
 
 export function getLinkID(link: {source: {id: string}, target: {id: string}}): string {

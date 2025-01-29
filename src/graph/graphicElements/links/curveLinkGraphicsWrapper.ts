@@ -16,6 +16,7 @@ export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraph
         const hanger = this.extendedElement.coreElement.renderer.hanger;
         if (!hanger.getChildByName(this.pixiElement.name)) {
             this.pixiElement.extendedLink = this.extendedElement;
+            if (this.extendedElement.coreElement.arrow) this.extendedElement.coreElement.arrow.renderable = false;
             hanger.addChild(this.pixiElement);
         }
     }
