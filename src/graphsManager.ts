@@ -19,6 +19,7 @@ export class GraphsManager extends Component {
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodeColorCalculator: NodeStatCalculator | undefined;
     linksSizeCalculator: LinkStatCalculator | undefined;
+    linksColorCalculator: LinkStatCalculator | undefined;
 
     // ============================== CONSTRUCTOR ==============================
     
@@ -444,7 +445,7 @@ export class GraphsManager extends Component {
             exportToSVG = new ExportExtendedGraphToSVG(instances);
         }
         else {
-            exportToSVG = new ExportCoreGraphToSVG(PluginInstances.plugin, getEngine(leaf));
+            exportToSVG = new ExportCoreGraphToSVG(getEngine(leaf));
         }
         exportToSVG.toClipboard();
     }

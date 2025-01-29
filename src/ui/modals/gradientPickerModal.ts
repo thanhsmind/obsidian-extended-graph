@@ -1,13 +1,13 @@
 import { App, Modal, setIcon, Setting } from "obsidian";
-import { cmOptions, plot_colormap } from "src/internal";
+import { cmOptions, plot_colormap, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;
     selectedPalette: string = "";
 
-    constructor(app: App) {
-        super(app);
+    constructor() {
+        super(PluginInstances.app);
         this.setTitle(STRINGS.features.interactives.palettePickGradient);
         this.modalEl.addClass("graph-modal-palette-picker");
     }

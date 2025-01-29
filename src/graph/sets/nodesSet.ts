@@ -196,9 +196,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
         try {
             if (emphasize) {
                 let color = this.instances.renderer.colors.fillFocused.rgb;
-                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(PluginInstances.settings.focusScaleFactor, color);
+                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(true);
             } else {
-                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(1);
+                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(false);
             }
         }
         catch {

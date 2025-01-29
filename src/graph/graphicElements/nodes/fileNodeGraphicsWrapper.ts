@@ -1,5 +1,5 @@
 import { Texture } from "pixi.js";
-import { ArcsCircle, ExtendedGraphFileNode, getFile, getFileInteractives, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape } from "src/internal";
+import { ArcsCircle, ExtendedGraphFileNode, getFile, getFileInteractives, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape, PluginInstances } from "src/internal";
 
 export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
@@ -74,12 +74,12 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     
     // =============================== EMPHASIZE ===============================
 
-    emphasize(scale: number, color?: number) {
+    emphasize(bigger: boolean) {
         if (!this.background) return;
 
-        this.scaleFactor = scale;
-        if (this.scaleFactor > 1 || this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
-            color = color ? color : this.getFillColor().rgb;
+        this.scaleFactor = bigger ? PluginInstances.settings.focusScaleFactor : 1;
+        if (bigger || this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
+            const color = bigger ? this.extendedElement.instances.renderer.colors.fillFocused.rgb : this.getFillColor().rgb;
             this.background.clear();
             this.background.drawFill(color);
         }

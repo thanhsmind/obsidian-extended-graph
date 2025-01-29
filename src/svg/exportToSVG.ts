@@ -5,7 +5,6 @@ import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export abstract class ExportGraphToSVG {
-    plugin: ExtendedGraphPlugin;
     svg: SVGSVGElement;
     renderer: GraphRenderer;
 
@@ -21,8 +20,7 @@ export abstract class ExportGraphToSVG {
 
     options: ExportSVGOptions;
 
-    constructor(plugin: ExtendedGraphPlugin, renderer: GraphRenderer) {
-        this.plugin = plugin;
+    constructor(renderer: GraphRenderer) {
         this.renderer = renderer;
     }
 
@@ -208,7 +206,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     instances: GraphInstances;
 
     constructor(instances: GraphInstances) {
-        super(PluginInstances.plugin, instances.renderer);
+        super(instances.renderer);
         this.instances = instances;
     }
 
@@ -424,8 +422,8 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
 export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     engine: GraphEngine;
 
-    constructor(plugin: ExtendedGraphPlugin, engine: GraphEngine) {
-        super(plugin, engine.renderer);
+    constructor(engine: GraphEngine) {
+        super(engine.renderer);
         this.engine = engine;
     }
 

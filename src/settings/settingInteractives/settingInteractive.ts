@@ -46,7 +46,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     }
 
     protected addColorPaletteSetting(): void {
-        const setting = new SettingColorPalette(this.containerEl, PluginInstances.plugin.app, this.interactiveKey)
+        const setting = new SettingColorPalette(this.containerEl, this.interactiveKey)
             .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
 
         setting.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);

@@ -6,6 +6,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
     warningNodeSizeSetting: Setting;
     warningNodeColorSetting: Setting;
     linksSizeFunctionDropdown: DropdownComponent | undefined;
+    linksColorFunctionDropdown: DropdownComponent | undefined;
     
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'elements-stats', '', STRINGS.features.elementsStats, 'chart-pie', STRINGS.features.elementsStatsDesc);
@@ -18,10 +19,12 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
 
         this.addNodeColorFunction();
         this.addNodeColorWarning();
-        this.addColorPaletteSetting();
+        this.addColorPaletteSettingForNodes();
 
         if (PluginInstances.graphsManager?.getGraphAnalysis()["graph-analysis"]) {
             this.addLinkSizeFunction();
+            this.addLinkColorFunction();
+            this.addColorPaletteSettingForLinks();
         }
     }
 
@@ -56,27 +59,6 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         this.elementsBody.push(setting.settingEl);
     }
 
-    private addLinkSizeFunction(): void {
-        const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.linkSizesFunction)
-            .setDesc(STRINGS.features.linkSizesFunctionDesc)
-            .addDropdown(cb => {
-                this.linksSizeFunctionDropdown = cb;
-                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
-                cb.addOptions(
-                    Object.fromEntries(Object.entries(linkStatFunctionLabels)
-                        .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
-                    )
-                );
-                cb.setValue(PluginInstances.settings.linksSizeFunction);
-                cb.onChange((value) => {
-                    this.recomputeLinksSizes(value as LinkStatFunction);
-                });
-            });
-            
-        this.elementsBody.push(setting.settingEl);
-    }
-
     private addNodeSizeWarning(): void {
         const setting = new Setting(this.settingTab.containerEl)
             .setClass("setting-warning")
@@ -103,22 +85,6 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             
         this.elementsBody.push(setting.settingEl);
     }
-    
-    private addColorPaletteSetting(): void {
-        const setting = new SettingColorPalette(this.containerEl, PluginInstances.plugin.app, 'elements-stats')
-            .setDesc(STRINGS.features.nodeColorsPaletteDesc);
-
-        setting.setValue(PluginInstances.settings.nodesColorColormap);
-
-        setting.onPaletteChange((palette: string) => {
-            PluginInstances.settings.nodesColorColormap = palette;
-            PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-nodecolorpalette-changed');
-            PluginInstances.plugin.saveSettings();
-        });
-
-        // Push to body list
-        this.elementsBody.push(setting.settingEl);
-    }
 
     private addNodeColorWarning(): void {
         const setting = new Setting(this.settingTab.containerEl)
@@ -131,6 +97,81 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         this.warningNodeColorSetting = setting;
         this.setWarning(setting);
     }
+
+    private addColorPaletteSettingForNodes(): void {
+        const setting = new SettingColorPalette(this.containerEl, 'elements-stats')
+            .setDesc(STRINGS.features.nodeColorsPaletteDesc);
+
+        setting.setValue(PluginInstances.settings.nodesColorColormap);
+
+        setting.onPaletteChange((palette: string) => {
+            PluginInstances.settings.nodesColorColormap = palette;
+            PluginInstances.plugin.saveSettings();
+        });
+
+        // Push to body list
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    private addLinkSizeFunction(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.linkSizesFunction)
+            .setDesc(STRINGS.features.linkSizesFunctionDesc)
+            .addDropdown(cb => {
+                this.linksSizeFunctionDropdown = cb;
+                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
+                cb.addOptions(
+                    Object.fromEntries(Object.entries(linkStatFunctionLabels)
+                        .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
+                    )
+                );
+                cb.setValue(PluginInstances.settings.linksSizeFunction);
+                cb.onChange((value) => {
+                    this.recomputeLinksSizes(value as LinkStatFunction);
+                });
+            });
+            
+        this.elementsBody.push(setting.settingEl);
+    }
+    
+    private addLinkColorFunction(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.linkColorsFunction)
+            .setDesc(STRINGS.features.linkColorsFunctionDesc)
+            .addDropdown(cb => {
+                this.linksColorFunctionDropdown = cb;
+                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
+                cb.addOptions(
+                    Object.fromEntries(Object.entries(linkStatFunctionLabels)
+                        .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
+                    )
+                );
+                cb.setValue(PluginInstances.settings.linksColorFunction);
+                cb.onChange((value) => {
+                    this.recomputeLinksColors(value as LinkStatFunction);
+                });
+            });
+            
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    private addColorPaletteSettingForLinks(): void {
+        const setting = new SettingColorPalette(this.containerEl, 'elements-stats')
+            .setDesc(STRINGS.features.linkColorsPaletteDesc);
+
+        setting.setValue(PluginInstances.settings.linksColorColormap);
+
+        setting.onPaletteChange((palette: string) => {
+            PluginInstances.settings.linksColorColormap = palette;
+            PluginInstances.plugin.saveSettings();
+        });
+
+        // Push to body list
+        this.elementsBody.push(setting.settingEl);
+    }
+    
+
+
 
 
 
@@ -192,5 +233,32 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             PluginInstances.graphsManager.linksSizeCalculator = new LinkStatCalculator('size', graphAnalysisPlugin.g);
         }
         PluginInstances.graphsManager.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
+    }
+
+    private recomputeLinksColors(functionKey: LinkStatFunction): void {
+        const ga = PluginInstances.graphsManager.getGraphAnalysis();
+        if (!ga && functionKey !== 'default') {
+            return;
+        }
+        else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
+            new Notice(`${STRINGS.notices.nlpPluginRequired} (${functionKey})`);
+            functionKey = 'default';
+            this.linksColorFunctionDropdown?.setValue(functionKey);
+        }
+    
+        PluginInstances.settings.linksColorFunction = functionKey;
+        PluginInstances.plugin.saveSettings();
+
+        if (functionKey === 'default') {
+            PluginInstances.graphsManager.linksColorCalculator = undefined;
+            return;
+        }
+
+        const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
+        if (!graphAnalysisPlugin) return;
+        if (!PluginInstances.graphsManager.linksColorCalculator) {
+            PluginInstances.graphsManager.linksColorCalculator = new LinkStatCalculator('color', graphAnalysisPlugin.g);
+        }
+        PluginInstances.graphsManager.linksColorCalculator.computeStats(PluginInstances.settings.linksColorFunction);
     }
 }

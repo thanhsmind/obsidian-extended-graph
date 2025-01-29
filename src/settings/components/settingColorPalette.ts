@@ -1,5 +1,5 @@
-import { App, DropdownComponent, Setting } from "obsidian";
-import { cmOptions, GradientPickerModal, plot_colormap } from "src/internal";
+import { DropdownComponent, Setting } from "obsidian";
+import { cmOptions, GradientPickerModal, plot_colormap, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingColorPalette extends Setting {
@@ -8,7 +8,7 @@ export class SettingColorPalette extends Setting {
 
     private onPaletteChanged: (palette: string) => void
 
-    constructor(containerEl: HTMLElement, app: App, key: string) {
+    constructor(containerEl: HTMLElement, key: string) {
         super(containerEl);
         this.setName(STRINGS.features.interactives.palette);
         this.controlEl.addClass("color-palette");
@@ -23,7 +23,7 @@ export class SettingColorPalette extends Setting {
         this.addExtraButton(cb => {
             cb.setIcon("pipette");
             cb.onClick(() => {
-                const modal = new GradientPickerModal(app);
+                const modal = new GradientPickerModal();
                 modal.onSelected((palette: string) => {
                     if (palette === "") return;
                     plot_colormap(this.canvasPalette.id, palette, false);
