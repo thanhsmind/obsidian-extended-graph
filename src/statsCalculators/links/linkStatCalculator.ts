@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, getColor, GraphologyGraphAnalysis, rgb2int } from "src/internal";
+import { ExtendedGraphSettings, getColor, GraphologyGraphAnalysis, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 import { Attributes, EdgeEntry } from "graphology-types";
 
@@ -32,16 +32,12 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
 export type LinkStat = 'size' | 'color';
 
 export class LinkStatCalculator {
-    app: App;
-    settings: ExtendedGraphSettings;
     linksStats: {[source: string]: {[target: string]: number}};
     stat: LinkStat;
     statFunction: LinkStatFunction;
     g: GraphologyGraphAnalysis;
 
-    constructor(app: App, settings: ExtendedGraphSettings, stat: LinkStat, g: GraphologyGraphAnalysis) {
-        this.app = app;
-        this.settings = settings;
+    constructor(stat: LinkStat, g: GraphologyGraphAnalysis) {
         this.stat = stat;
         this.g = g;
     }
@@ -50,7 +46,6 @@ export class LinkStatCalculator {
         this.statFunction = statFunction;
         await this.getStats();
         this.mapStat();
-        console.log(this.linksStats);
     }
 
     private async getStats(): Promise<void> {
@@ -87,7 +82,7 @@ export class LinkStatCalculator {
                 this.cleanNanAndInfinite(50);
                 Object.entries(this.linksStats).forEach(([source, targets]) => {
                     Object.entries(targets).forEach(([target, size]) => {
-                        this.linksStats[source][target] = rgb2int(getColor(this.settings.nodesColorColormap, size / 100));
+                        this.linksStats[source][target] = rgb2int(getColor(PluginInstances.settings.nodesColorColormap, size / 100));
                     })
                 });
                 break;

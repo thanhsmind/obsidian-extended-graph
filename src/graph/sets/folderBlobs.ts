@@ -132,14 +132,14 @@ export class FoldersSet {
     private initContainer(): void {
         this.container = new Container();
         this.container.name = "Blobs";
-        (this.instances.graph.renderer.px.stage.children[1] as Container).addChildAt(this.container, 0);
+        (this.instances.renderer.px.stage.children[1] as Container).addChildAt(this.container, 0);
     }
 
     private addMissingFolders(): void {
         for (const [key, manager] of this.managers) {
             let missingFolders = new Set<string>();
     
-            for (const node of this.instances.graph.renderer.nodes) {
+            for (const node of this.instances.renderer.nodes) {
                 if (this.foldersMap.has(node.id)) continue;
     
                 const file = getFile(node.id);
@@ -208,7 +208,7 @@ export class FoldersSet {
             if (blob.nodes.length > 0) {
                 this.foldersMap.set(path, blob);
                 this.container.addChild(blob.area);
-                blob.updateGraphics(this.instances.graph.renderer.scale);
+                blob.updateGraphics(this.instances.renderer.scale);
             }
         }
     }
@@ -222,7 +222,7 @@ export class FoldersSet {
 
     updateGraphics() {
         for (const [path, blob] of this.foldersMap) {
-            blob.updateGraphics(this.instances.graph.renderer.scale);
+            blob.updateGraphics(this.instances.renderer.scale);
         }
     }
 
@@ -231,6 +231,6 @@ export class FoldersSet {
         const folderBlob = this.foldersMap.get(path);
         if (!folderBlob || !manager) return;
         folderBlob.color = rgb2hex(manager.getColor(path));
-        folderBlob.updateGraphics(this.instances.graph.renderer.scale);
+        folderBlob.updateGraphics(this.instances.renderer.scale);
     }
 }

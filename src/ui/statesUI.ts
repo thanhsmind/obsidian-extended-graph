@@ -126,12 +126,12 @@ export class StatesUI extends Component {
         return true;
     }
     
-    updateStatesList(states: GraphStateData[]): void {
+    updateStatesList(): void {
         this.clear();
-        states.forEach(state => {
+        PluginInstances.settings.states.forEach(state => {
             this.addOption(state.id, state.name);
         });
-        if (states.find(v => v.id === this.currentStateID)) {
+        if (PluginInstances.settings.states.find(v => v.id === this.currentStateID)) {
             this.select.value = this.currentStateID;
         }
         else {

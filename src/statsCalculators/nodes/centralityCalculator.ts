@@ -13,8 +13,8 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
-    constructor(app: App, settings: ExtendedGraphSettings, stat: NodeStat, g: Graphology, link: string = "") {
-        super(app, settings, stat);
+    constructor(stat: NodeStat, g: Graphology, link: string = "") {
+        super(stat);
         this.link = link;
         this.computeCentralityMap(g);
     }

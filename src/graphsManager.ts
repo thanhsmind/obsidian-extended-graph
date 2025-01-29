@@ -37,12 +37,12 @@ export class GraphsManager extends Component {
     }
 
     private initiliazeNodeSizeCalculator(): void {
-        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(PluginInstances.settings.nodesSizeFunction, PluginInstances.app, PluginInstances.settings, 'size');
+        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
         this.nodesSizeCalculator?.computeStats();
     }
 
     private initializeNodeColorCalculator(): void {
-        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(PluginInstances.settings.nodesColorFunction, PluginInstances.app, PluginInstances.settings, 'color');
+        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
         this.nodeColorCalculator?.computeStats();
     }
 
@@ -63,7 +63,7 @@ export class GraphsManager extends Component {
             return;
         }
 
-        this.linksSizeCalculator = new LinkStatCalculator(PluginInstances.app, PluginInstances.settings, 'size', g);
+        this.linksSizeCalculator = new LinkStatCalculator('size', g);
         this.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
     }
 
@@ -76,7 +76,7 @@ export class GraphsManager extends Component {
             if (instance.nodesSet) {
                 instance.nodesSet.updateOpacityLayerColor();
                 instance.nodesSet.updateFontFamily();
-                instance.graph.renderer.changed();
+                instance.renderer.changed();
             }
         });
     }
@@ -85,7 +85,7 @@ export class GraphsManager extends Component {
 
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
         this.allInstances.forEach(instance => {
-            if (!instance.graph || !instance.graph.renderer) return;
+            if (!instance.graph || !instance.renderer) return;
     
             if (PluginInstances.settings.enableFeatures[instance.type]['tags']) {
                 const extendedNode = instance.nodesSet.extendedElementsMap.get(file.path);
@@ -181,8 +181,8 @@ export class GraphsManager extends Component {
     // ============================= GLOBAL FILTER =============================
 
     onGlobalFilterChanged(filter: string): void {
-        for (const [id, dispatcher] of this.allInstances) {
-            dispatcher.graph.engine.updateSearch();
+        for (const [id, instances] of this.allInstances) {
+            instances.engine.updateSearch();
             this.updateGlobalFilterUI(id, filter);
         }
     }
@@ -316,14 +316,14 @@ export class GraphsManager extends Component {
     // ============================= RESET PLUGIN ==============================
 
     resetPlugin(leaf: WorkspaceLeafExt): void {
-        const dispatcher = this.allInstances.get(leaf.id);
-        const stateID = dispatcher?.statesUI.currentStateID;
-        const scale = dispatcher ? dispatcher.graph.renderer.targetScale : false;
+        const instances = this.allInstances.get(leaf.id);
+        const stateID = instances?.statesUI.currentStateID;
+        const scale = instances?.renderer.targetScale ?? false;
         this.disablePlugin(leaf);
         this.enablePlugin(leaf, stateID);
         const newDispatcher = this.allInstances.get(leaf.id);
         if (newDispatcher && scale) {
-            newDispatcher.graph.renderer.targetScale = scale;
+            newDispatcher.renderer.targetScale = scale;
         }
     }
 

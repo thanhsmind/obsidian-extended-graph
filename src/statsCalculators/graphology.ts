@@ -1,25 +1,23 @@
 import Graphology from 'graphology';
 import { App, TFile } from "obsidian";
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { getFile } from 'src/internal';
+import { getFile, PluginInstances } from 'src/internal';
 
 export class GraphologySingleton {
     static _instance: GraphologySingleton;
 
-    app: App;
     graphologyGraph: Graphology;
     graphologyConnectedGraphs = new Map<string, Graphology>();
 
-    private constructor(app: App) {
-        this.app = app;
+    private constructor() {
         this.graphologyGraph = new Graphology();
 
-        const files = this.app.vault.getFiles().filter(file => this.shouldAddFile(file));
+        const files = PluginInstances.app.vault.getFiles().filter(file => this.shouldAddFile(file));
         for (const file of files) {
             this.graphologyGraph.addNode(file.path);
         }
 
-        const links = this.app.metadataCache.resolvedLinks;
+        const links = PluginInstances.app.metadataCache.resolvedLinks;
         for (const [source, references] of Object.entries(links)) {
             const validLinks = Object.keys(references).filter(target => this.shouldAddLink(source, target))
             for (const target of validLinks) {
@@ -36,17 +34,17 @@ export class GraphologySingleton {
         return this.shouldAddFile(getFile(source)) && this.shouldAddFile(getFile(target));
     }
 
-    static getInstance(app: App): GraphologySingleton {
-        if (!GraphologySingleton._instance) GraphologySingleton._instance = new GraphologySingleton(app);
+    static getInstance(): GraphologySingleton {
+        if (!GraphologySingleton._instance) GraphologySingleton._instance = new GraphologySingleton();
         return GraphologySingleton._instance;
     }
 
-    static getGraphology(app: App): Graphology {
-        return GraphologySingleton.getInstance(app).graphologyGraph;
+    static getGraphology(): Graphology {
+        return GraphologySingleton.getInstance().graphologyGraph;
     }
 
-    static getConnectedGraphology(app: App, node: string) {
-        const instance = GraphologySingleton.getInstance(app);
+    static getConnectedGraphology(node: string) {
+        const instance = GraphologySingleton.getInstance();
         let graph = instance.graphologyConnectedGraphs.get(node);
         if (graph) {
             return graph;

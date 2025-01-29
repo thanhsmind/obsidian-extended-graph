@@ -7,8 +7,6 @@ export class Graph extends Component {
     instances: GraphInstances;
 
     // Elements
-    readonly engine: GraphEngine;
-    readonly renderer: GraphRenderer;
 
     // Disconnection chains
     nodesDisconnectionCascade = new Map<string, {isDiconnected: boolean, links: Set<string>, nodes: Set<string>}>();
@@ -25,10 +23,6 @@ export class Graph extends Component {
 
         this.instances = instances;
         this.instances.graph = this;
-
-        // Elements
-        this.engine   = getEngine(this.instances.leaf);
-        this.renderer = this.instances.leaf.view.renderer;
 
         // Interactive managers
         this.initializeInteractiveManagers();
@@ -80,10 +74,10 @@ export class Graph extends Component {
     }
 
     private overrideSearchGetValue(): void {
-        this.searchGetValueOriginal = this.engine.filterOptions.search.getValue;
-        this.engine.filterOptions.search.getValue = (() => {
+        this.searchGetValueOriginal = this.instances.engine.filterOptions.search.getValue;
+        this.instances.engine.filterOptions.search.getValue = (() => {
             const prepend = PluginInstances.settings.globalFilter + " ";
-            return prepend + this.engine.filterOptions.search.inputEl.value;
+            return prepend + this.instances.engine.filterOptions.search.inputEl.value;
         }).bind(this);
     }
 
@@ -128,7 +122,7 @@ export class Graph extends Component {
     }
 
     private restoreOriginalFunctions(): void {
-        this.engine.filterOptions.search.getValue = this.searchGetValueOriginal;
+        this.instances.engine.filterOptions.search.getValue = this.searchGetValueOriginal;
         this.instances.leaf.view.onOptionsChange = this.onOptionsChangeOriginal;
     }
 
@@ -433,7 +427,7 @@ export class Graph extends Component {
     }
 
     disableOrphans() : boolean {
-        if (this.engine.options.showOrphans) return false;
+        if (this.instances.engine.options.showOrphans) return false;
         const newOrphans = [...this.instances.nodesSet.connectedIDs].filter(id =>
             this.instances.nodesSet.extendedElementsMap.get(id)?.coreElement.renderer && this.nodeIsOrphan(id)
         );
@@ -447,7 +441,7 @@ export class Graph extends Component {
         if (oldOrphans.size === 0) return false;
 
         // Show all orphans
-        if (this.engine.options.showOrphans) {
+        if (this.instances.engine.options.showOrphans) {
             this.instances.nodesSet.enableElements([...oldOrphans], DisconnectionCause.ORPHAN);
         }
         // Show nodes that are not orphans anymore
@@ -497,7 +491,7 @@ export class Graph extends Component {
         const nodes = this.getNodesForWorker();
         const links = this.getLinksForWorker();
 
-        this.renderer.worker.postMessage({
+        this.instances.renderer.worker.postMessage({
             nodes: nodes,
             links: links,
             alpha: 0.3,
@@ -513,7 +507,7 @@ export class Graph extends Component {
             if (extendedNode) nodes[id] = [extendedNode.coreElement.x, extendedNode.coreElement.y];
         }
         // Add tags
-        for (const node of this.renderer.nodes.filter(n => n.type === "tag")) {
+        for (const node of this.instances.renderer.nodes.filter(n => n.type === "tag")) {
             nodes[node.id] = [node.x, node.y];
         }
         return nodes;
@@ -527,7 +521,7 @@ export class Graph extends Component {
             if (extendedLink) links.push([extendedLink.coreElement.source.id, extendedLink.coreElement.target.id]);
         }
         // Add links to tags
-        for (const link of this.renderer.links.filter(l => l.target.type === "tag")) {
+        for (const link of this.instances.renderer.links.filter(l => l.target.type === "tag")) {
             links.push([link.source.id, link.target.id]);
         }
         return links;

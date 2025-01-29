@@ -154,14 +154,14 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         PluginInstances.settings.nodesSizeFunction = functionKey;
         PluginInstances.plugin.saveSettings();
 
-        PluginInstances.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, PluginInstances.settings, 'size');
+        PluginInstances.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
         PluginInstances.graphsManager.nodesSizeCalculator?.computeStats();
         this.setWarning(this.warningNodeSizeSetting);
     }
 
     private recomputeNodeColors(functionKey: NodeStatFunction): void {
         PluginInstances.settings.nodesColorFunction = functionKey;
-        PluginInstances.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator(functionKey, this.settingTab.app, PluginInstances.settings, 'color');
+        PluginInstances.graphsManager.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
         PluginInstances.graphsManager.nodeColorCalculator?.computeStats();
         this.setWarning(this.warningNodeColorSetting);
         PluginInstances.plugin.saveSettings();
@@ -189,7 +189,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
         if (!graphAnalysisPlugin) return;
         if (!PluginInstances.graphsManager.linksSizeCalculator) {
-            PluginInstances.graphsManager.linksSizeCalculator = new LinkStatCalculator(PluginInstances.app, PluginInstances.settings, 'size', graphAnalysisPlugin.g);
+            PluginInstances.graphsManager.linksSizeCalculator = new LinkStatCalculator('size', graphAnalysisPlugin.g);
         }
         PluginInstances.graphsManager.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
     }

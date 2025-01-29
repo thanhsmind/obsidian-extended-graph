@@ -1,5 +1,5 @@
-import { App, TFile } from "obsidian";
-import { ExtendedGraphSettings, getColor, rgb2int } from "src/internal";
+import { TFile } from "obsidian";
+import { getColor, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type NodeStatFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
@@ -25,14 +25,10 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
 export type NodeStat = 'size' | 'color';
 
 export abstract class NodeStatCalculator {
-    app: App;
-    settings: ExtendedGraphSettings
     filesStats: Map<string, number>;
     stat: NodeStat;
 
-    constructor(app: App, settings: ExtendedGraphSettings, stat: NodeStat) {
-        this.app = app;
-        this.settings = settings;
+    constructor(stat: NodeStat) {
         this.stat = stat;
     }
 
@@ -43,7 +39,7 @@ export abstract class NodeStatCalculator {
 
     private async getStats(): Promise<void> {
         this.filesStats = new Map<string, number>();
-        const files = this.app.vault.getMarkdownFiles();
+        const files = PluginInstances.app.vault.getMarkdownFiles();
         for (const file of files) {
             this.getStat(file).then(size => this.filesStats.set(file.path, size));
         }
@@ -60,7 +56,7 @@ export abstract class NodeStatCalculator {
                 this.normalize(0, 100);
                 this.cleanNanAndInfinite(50);
                 this.filesStats.forEach((size: number, path: string) => {
-                    this.filesStats.set(path, rgb2int(getColor(this.settings.nodesColorColormap, size / 100)));
+                    this.filesStats.set(path, rgb2int(getColor(PluginInstances.settings.nodesColorColormap, size / 100)));
                 });
                 break;
         

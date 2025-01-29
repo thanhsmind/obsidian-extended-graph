@@ -1,5 +1,3 @@
-import { App } from "obsidian";
-import { GraphLink } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { ExtendedGraphLink, InteractiveManager, ManagerGraphics } from "src/internal";
 

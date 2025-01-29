@@ -11,7 +11,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
     constructor(instances: GraphInstances, managers: InteractiveManager[]) {
         super(instances, managers);
 
-        this.coreCollection = this.instances.graph.renderer.links;
+        this.coreCollection = this.instances.renderer.links;
     }
 
     // =========================== EXTENDED ELEMENTS ===========================

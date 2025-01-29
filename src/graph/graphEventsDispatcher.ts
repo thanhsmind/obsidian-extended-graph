@@ -37,7 +37,7 @@ export class GraphEventsDispatcher extends Component {
         this.initializeLegendUI();
 
         this.instances.statesUI = new StatesUI(this.instances);
-        this.instances.statesUI.updateStatesList(PluginInstances.settings.states);
+        this.instances.statesUI.updateStatesList();
 
         this.addChild(this.instances.statesUI);
     }
@@ -78,7 +78,7 @@ export class GraphEventsDispatcher extends Component {
     private loadCurrentState(): void {
         const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
-            this.instances.graph.engine.setOptions(state.engineOptions);
+            this.instances.engine.setOptions(state.engineOptions);
         }
     }
 
@@ -102,13 +102,13 @@ export class GraphEventsDispatcher extends Component {
 
     private bindStageEvents(): void {
         this.onChildAddedToStage = this.onChildAddedToStage.bind(this);
-        this.instances.graph.renderer.px.stage.children[1].on('childAdded', this.onChildAddedToStage);
+        this.instances.renderer.px.stage.children[1].on('childAdded', this.onChildAddedToStage);
 
         this.onPointerDown = this.onPointerDown.bind(this);
-        this.instances.graph.renderer.px.stage.on('pointerdown', this.onPointerDown);
+        this.instances.renderer.px.stage.on('pointerdown', this.onPointerDown);
 
         this.onPointerUp = this.onPointerUp.bind(this);
-        this.instances.graph.renderer.px.stage.on('pointerup', this.onPointerUp);
+        this.instances.renderer.px.stage.on('pointerup', this.onPointerUp);
     }
 
     private observeOrphanSettings(): void {
@@ -139,9 +139,9 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createRenderProxy(): void {
-        this.renderCallback = this.instances.graph.renderer.renderCallback;
+        this.renderCallback = this.instances.renderer.renderCallback;
         const onRendered = this.onRendered.bind(this);
-        this.instances.graph.renderer.renderCallback = new Proxy(this.instances.graph.renderer.renderCallback, {
+        this.instances.renderer.renderCallback = new Proxy(this.instances.renderer.renderCallback, {
             apply(target, thisArg, args) {
                 onRendered();
                 const res = target.call(thisArg, ...args);
@@ -157,15 +157,15 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        this.instances.graph.renderer.renderCallback = this.renderCallback;
+        this.instances.renderer.renderCallback = this.renderCallback;
         this.observerOrphans.disconnect();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.leaf);
     }
 
     private unbindStageEvents(): void {
-        this.instances.graph.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
-        this.instances.graph.renderer.px.stage.off('pointerdown', this.onPointerDown);
-        this.instances.graph.renderer.px.stage.off('pointerup', this.onPointerUp);
+        this.instances.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
+        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDown);
+        this.instances.renderer.px.stage.off('pointerup', this.onPointerUp);
     }
 
     // ============================= STAGE EVENTS ==============================
@@ -183,7 +183,7 @@ export class GraphEventsDispatcher extends Component {
             return;
         }
         
-        const node = this.instances.graph.renderer.nodes.find(n => n.circle === child);
+        const node = this.instances.renderer.nodes.find(n => n.circle === child);
         if (node) {
             const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
@@ -194,7 +194,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
 
-        const linkPx = this.instances.graph.renderer.links.find(l => l.px === child);
+        const linkPx = this.instances.renderer.links.find(l => l.px === child);
         if (linkPx) {
             const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(linkPx));
             if (!extendedLink) {
@@ -217,7 +217,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================ SETTINGS EVENTS ============================
 
     toggleOrphans(ev: Event) {
-        if (this.instances.graph.engine.options.showOrphans) {
+        if (this.instances.engine.options.showOrphans) {
             if (this.instances.graph.enableOrphans()) {
                 this.instances.graph.updateWorker();
             }
@@ -332,7 +332,7 @@ export class GraphEventsDispatcher extends Component {
         // Update Graph is needed
         if (PluginInstances.settings.interactiveSettings[key].enableByDefault) {
             this.instances.nodesSet.resetArcs(key);
-            this.instances.graph.renderer.changed();
+            this.instances.renderer.changed();
         }
     }
 
@@ -343,7 +343,7 @@ export class GraphEventsDispatcher extends Component {
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
         this.instances.nodesSet.updateTypeColor(key, type, color);
         this.instances.legendUI?.update(key, type, color);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
     private disableNodeInteractiveTypes(key: string, types: string[]) {
@@ -352,7 +352,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.graph.updateWorker();
         }
         else {
-            this.instances.graph.renderer.changed();
+            this.instances.renderer.changed();
         }
         this.listenStage = true;
     }
@@ -363,7 +363,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.graph.updateWorker();
         }
         else {
-            this.instances.graph.renderer.changed();
+            this.instances.renderer.changed();
         }
         this.listenStage = true;
     }
@@ -382,7 +382,7 @@ export class GraphEventsDispatcher extends Component {
             colorMaps.forEach((color, type) => {
                 this.instances.linksSet.updateTypeColor(LINK_KEY, type, color);
             });
-            this.instances.graph.renderer.changed();
+            this.instances.renderer.changed();
         }
     }
 
@@ -393,7 +393,7 @@ export class GraphEventsDispatcher extends Component {
     private onLinkColorChanged(type: string, color: Uint8Array) {
         this.instances.linksSet.updateTypeColor(LINK_KEY, type, color);
         this.instances.legendUI?.update(LINK_KEY, type, color);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
     private disableLinkTypes(types: string[]) {
@@ -426,7 +426,7 @@ export class GraphEventsDispatcher extends Component {
             for (const [path, color] of colorMaps) {
                 this.instances.foldersSet.addFolder(FOLDER_KEY, path);
             }
-            this.instances.graph.renderer.changed();
+            this.instances.renderer.changed();
         }
     }
 
@@ -441,7 +441,7 @@ export class GraphEventsDispatcher extends Component {
     private onFolderColorChanged(path: string, color: Uint8Array) {
         this.instances.foldersSet.updateColor(FOLDER_KEY, path);
         this.instances.foldersUI?.update(FOLDER_KEY, path, color);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
     private disableFolders(paths: string[]) {
@@ -462,12 +462,12 @@ export class GraphEventsDispatcher extends Component {
 
     private addBBox(path: string) {
         this.instances.foldersSet.addFolder(FOLDER_KEY, path);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
     private removeBBox(path: string) {
         this.instances.foldersSet.removeFolder(path);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
 
@@ -494,11 +494,11 @@ export class GraphEventsDispatcher extends Component {
 
     private unpinNode(file: TFile) {
         this.instances.nodesSet.unpinNode(file.path);
-        this.instances.graph.renderer.changed();
+        this.instances.renderer.changed();
     }
 
     preventDraggingPinnedNodes() {
-        var node = this.instances.graph.renderer.dragNode;
+        var node = this.instances.renderer.dragNode;
         if (node && this.instances.nodesSet.isNodePinned(node.id)) {
             this.instances.nodesSet.setLastDraggedPinnedNode(node.id);
         }

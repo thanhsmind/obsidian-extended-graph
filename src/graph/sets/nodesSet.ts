@@ -13,7 +13,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     constructor(instances: GraphInstances, managers: InteractiveManager[]) {
         super(instances, managers);
 
-        this.coreCollection = this.instances.graph.renderer.nodes;
+        this.coreCollection = this.instances.renderer.nodes;
     }
 
     // ================================ LOADING ================================
@@ -57,7 +57,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private initNodesGraphics(imageURIs: Map<string, string>, emptyTextures: string[]) {
-        const backgroundColor = getBackgroundColor(this.instances.graph.renderer);
+        const backgroundColor = getBackgroundColor(this.instances.renderer);
         Assets.load([...imageURIs.values()]).then((textures: Record<string, Texture>) => {
             for (const [id, uri] of imageURIs) {
                 this.initNodeGraphics(id, textures[uri], backgroundColor);
@@ -168,7 +168,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * Update the background color. Called when the theme changes.
      */
     updateOpacityLayerColor(): void {
-        const color = getBackgroundColor(this.instances.graph.renderer);
+        const color = getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
@@ -195,7 +195,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         try {
             if (emphasize) {
-                let color = this.instances.graph.renderer.colors.fillFocused.rgb;
+                let color = this.instances.renderer.colors.fillFocused.rgb;
                 (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(PluginInstances.settings.focusScaleFactor, color);
             } else {
                 (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(1);
@@ -228,7 +228,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (y) node.y = y;
         node.fx = node.x;
         node.fy = node.y;
-        this.instances.graph.renderer.worker.postMessage({
+        this.instances.renderer.worker.postMessage({
             run: true,
             forceNode: {
                 id: node.id,
@@ -245,7 +245,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const node = extendedNode.coreElement;
         node.fx = null;
         node.fy = null;
-        this.instances.graph.renderer.worker.postMessage({
+        this.instances.renderer.worker.postMessage({
             forceNode: {
                 id: node.id,
                 x: null,

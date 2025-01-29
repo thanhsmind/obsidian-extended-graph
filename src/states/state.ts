@@ -37,8 +37,8 @@ export class GraphState {
         }
 
         // Engine options
-        this.data.engineOptions = new EngineOptions(instances.graph.engine.getOptions());
-        this.data.engineOptions.search = instances.graph.engine.filterOptions.search.inputEl.value;
+        this.data.engineOptions = new EngineOptions(instances.engine.getOptions());
+        this.data.engineOptions.search = instances.engine.filterOptions.search.inputEl.value;
     }
 
     saveState(stateData: GraphStateData): boolean {

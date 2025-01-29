@@ -1,16 +1,16 @@
-import { App, TFile } from "obsidian";
-import { ExtendedGraphSettings, NodeStat, NodeStatCalculator } from "src/internal";
+import { TFile } from "obsidian";
+import { NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
 
 export class ForwardlinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
 
-    constructor(app: App, settings: ExtendedGraphSettings, stat: NodeStat, countDuplicates: boolean) {
-        super(app, settings, stat);
+    constructor(stat: NodeStat, countDuplicates: boolean) {
+        super(stat);
         this.countDuplicates = countDuplicates;
     }
 
     override async getStat(file: TFile): Promise<number> {
-        const links = this.app.metadataCache.resolvedLinks[file.path];
+        const links = PluginInstances.app.metadataCache.resolvedLinks[file.path];
         if (this.countDuplicates) {
             return Object.values(links).reduce((a: number, b: number, i: number, arr: number[]) => a + b, 0);
         }

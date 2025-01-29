@@ -1,6 +1,7 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, GCFolders, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, StatesManager, StatesUI, WorkspaceLeafExt } from "./internal";
+import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, StatesManager, StatesUI, WorkspaceLeafExt } from "./internal";
 import ExtendedGraphPlugin from "./main";
+import { GraphEngine, GraphRenderer } from "obsidian-typings";
 
 export class PluginInstances {
     static plugin: ExtendedGraphPlugin; // init in main.ts
@@ -14,6 +15,8 @@ export class GraphInstances {
     readonly leaf: WorkspaceLeafExt;
     readonly settings: ExtendedGraphSettings;
     readonly type: GraphType;
+    readonly engine: GraphEngine;
+    readonly renderer: GraphRenderer;
 
     readonly interactiveManagers = new Map<string, InteractiveManager>();
     
@@ -34,5 +37,7 @@ export class GraphInstances {
         this.leaf = leaf;
         this.settings = structuredClone(PluginInstances.settings);
         this.type = this.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
+        this.engine   = getEngine(this.leaf);
+        this.renderer = this.leaf.view.renderer;
     }
 }

@@ -208,7 +208,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     instances: GraphInstances;
 
     constructor(instances: GraphInstances) {
-        super(PluginInstances.plugin, instances.graph.renderer);
+        super(PluginInstances.plugin, instances.renderer);
         this.instances = instances;
     }
 
@@ -368,7 +368,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
         const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : link.line ? int2hex(Number(link.line.tint)) : "#000000";
-        const width: number = (this.instances.graph.engine.options.lineSizeMultiplier ?? 1) * 4;
+        const width: number = (this.instances.engine.options.lineSizeMultiplier ?? 1) * 4;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',

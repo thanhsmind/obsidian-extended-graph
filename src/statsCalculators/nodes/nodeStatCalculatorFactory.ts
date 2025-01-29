@@ -1,40 +1,40 @@
 import { App } from "obsidian";
 import { GraphologySingleton } from "../graphology";
-import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, ExtendedGraphSettings, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, TagsCountCalculator } from "src/internal";
+import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, ExtendedGraphSettings, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances, TagsCountCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
 
 
 export class NodeStatCalculatorFactory {
-    static getCalculator(key: NodeStatFunction, app: App, settings: ExtendedGraphSettings, stat: NodeStat): NodeStatCalculator | undefined {
-        switch (key) {
+    static getCalculator(stat: NodeStat): NodeStatCalculator | undefined {
+        switch (PluginInstances.settings.nodesSizeFunction) {
             case 'backlinksCount':
-                return new BacklinkCountCalculator(app, settings, stat);
+                return new BacklinkCountCalculator(stat);
             case 'forwardlinksCount':
-                return new ForwardlinkCountCalculator(app, settings, stat, true);
+                return new ForwardlinkCountCalculator(stat, true);
             case 'forwardUniquelinksCount':
-                return new ForwardlinkCountCalculator(app, settings, stat, false);
+                return new ForwardlinkCountCalculator(stat, false);
             case 'filenameLength':
-                return new FilenameLengthCalculator(app, settings, stat);
+                return new FilenameLengthCalculator(stat);
             case 'tagsCount':
-                return new TagsCountCalculator(app, settings, stat);
+                return new TagsCountCalculator(stat);
             case 'creationTime':
-                return new CreationTimeCalculator(app, settings, stat);
+                return new CreationTimeCalculator(stat);
             case 'modifiedTime':
-                return new ModifiedTimeCalculator(app, settings, stat);
+                return new ModifiedTimeCalculator(stat);
             case 'eccentricity':
-                return new EccentricityCalculator(app, settings, stat);
+                return new EccentricityCalculator(stat);
             case 'closeness':
-                return new centrality.ClosenessCentralityCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.ClosenessCentralityCalculator(stat, GraphologySingleton.getGraphology());
             case 'betweenness':
-                return new centrality.BetweennessCentralityCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.BetweennessCentralityCalculator(stat, GraphologySingleton.getGraphology());
             case 'degree':
-                return new centrality.DegreeCentralityCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.DegreeCentralityCalculator(stat, GraphologySingleton.getGraphology());
             case 'eigenvector':
-                return new centrality.EigenvectorCentralityCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.EigenvectorCentralityCalculator(stat, GraphologySingleton.getGraphology());
             case 'hub':
-                return new centrality.HubsCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.HubsCalculator(stat, GraphologySingleton.getGraphology());
             case 'authority':
-                return new centrality.AuthoritiesCalculator(app, settings, stat, GraphologySingleton.getGraphology(app));
+                return new centrality.AuthoritiesCalculator(stat, GraphologySingleton.getGraphology());
             default:
                 return;
         }

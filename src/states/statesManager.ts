@@ -36,10 +36,10 @@ export class StatesManager {
         stateData = this.validateStateData(stateData);
         this.updateInteractiveManagers(stateData, instance).then(() => {
             if (!stateData) return;
-            if (stateData.engineOptions) instance.graph.engine.setOptions(stateData.engineOptions);
+            if (stateData.engineOptions) instance.engine.setOptions(stateData.engineOptions);
             instance.graph.updateWorker();
             instance.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
-            instance.graph.engine.updateSearch();
+            instance.engine.updateSearch();
         });
     }
 
@@ -146,8 +146,8 @@ export class StatesManager {
     }
     
     private updateAllStates(): void {
-        PluginInstances.graphsManager.allInstances.forEach(dispatcher => {
-            dispatcher.statesUI.updateStatesList(PluginInstances.settings.states);
+        PluginInstances.graphsManager.allInstances.forEach(instances => {
+            instances.statesUI.updateStatesList();
         });
     }
 
