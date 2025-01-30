@@ -3,7 +3,6 @@ import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, rgb2i
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
-    coreGetFillColor: (() => GraphColorAttributes) | undefined;
 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
@@ -27,8 +26,13 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
 
     // ============================== NODE COLOR ===============================
 
-    private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.instances.settings.enableFeatures[this.instances.type]["tags"] || this.instances.settings.interactiveSettings[TAG_KEY].unselected.contains(this.id.replace('#', ''))) {
+    override changeGetFillColor() {
+        if (!this.instances.settings.enableFeatures[this.instances.type]["tags"]
+            || this.instances.settings.interactiveSettings[TAG_KEY].unselected.contains(this.id.replace('#', ''))) {
+            this.restoreGetFillColor();
+            return;
+        }
+        if (this.coreGetFillColor) {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;
@@ -40,13 +44,13 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
         });
     }
 
-    private restoreGetFillColor() {
+    override restoreGetFillColor() {
         if (!this.coreGetFillColor) return;
         this.coreElement.getFillColor = this.coreGetFillColor;
         this.coreGetFillColor = undefined;
     }
 
-    private getFillColor(): GraphColorAttributes | undefined {
+    protected override getFillColor(): GraphColorAttributes | undefined {
         const rgb = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
         if (!rgb) return undefined;
         return { rgb: rgb2int(rgb), a: 1 }

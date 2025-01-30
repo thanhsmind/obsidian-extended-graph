@@ -14,6 +14,10 @@ export function int2hex(n: number): HexString {
     return "#" + n.toString(16);
 }
 
+export function int2rgb(n: number): Uint8Array {
+    return hex2rgb(int2hex(n));
+}
+
 /**
  * Convert HSV to RGB
  * @param hsv h: 0-360, s: 0-100, v: 0-100

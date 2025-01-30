@@ -82,6 +82,7 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
+		linksFeatureRequired: "The Links feature needs to be enabled.",
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",
 		unpinNode: "Unpin node",

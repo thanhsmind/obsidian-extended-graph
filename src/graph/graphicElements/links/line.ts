@@ -1,19 +1,31 @@
 import { ExtendedGraphLink, InteractiveManager, LinkGraphics, ManagerGraphics } from "src/internal";
 
 
-export class LinkLineGraphics extends LinkGraphics implements ManagerGraphics {
+export class LinkLineGraphics extends LinkGraphics {
 
-    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
-        super(manager, types, name, link);
+    constructor(manager: InteractiveManager, types: Set<string>, name: string, extendedLink: ExtendedGraphLink) {
+        super(manager, types, name, extendedLink);
 
+        this.initGraphics();
         this.updateGraphics();
+    }
+
+    initGraphics(): void {
+        super.initGraphics();
+        this.alpha = this.targetAlpha;
+        if (!this.extendedLink.coreElement.px) return;
     }
     
     redrawType(type: string, color?: Uint8Array): void {
+        super.redrawType(type, color);
+
         this.clear();
-        this.lineStyle({width: 16, color: color ? color : this.manager.getColor(type)})
+        this.lineStyle({width: 16, color: this.color})
             .moveTo(0, 8)
             .lineTo(16, 8);
-        this.alpha = this.targetAlpha;
+    }
+
+    override updateFrame(): void {
+
     }
 }

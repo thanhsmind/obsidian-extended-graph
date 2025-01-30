@@ -35,6 +35,11 @@ export class LinksSet extends AbstractSet<GraphLink> {
         this.connectedIDs.add(id);
     }
 
+    protected override clearExtendedElement(el: ExtendedGraphLink): void {
+        super.clearExtendedElement(el);
+        el.restoreCoreLinkThickness();
+    }
+
     // ================================ GETTERS ================================
 
     protected override getID(element: GraphLink): string {

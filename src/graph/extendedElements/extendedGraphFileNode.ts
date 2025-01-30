@@ -1,16 +1,12 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { ExtendedGraphNode, FileNodeGraphicsWrapper, GraphInstances, InteractiveManager, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
-
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
-    coreGetFillColor: (() => GraphColorAttributes) | undefined;
     
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
-        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats'] && this.instances.settings.nodesColorFunction !== 'default') {
-            this.changeGetFillColor();
-        }
+        this.changeGetFillColor();
     }
 
     // ================================ UNLOAD =================================
@@ -65,8 +61,13 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
     // ============================== NODE COLOR ===============================
     
-    private changeGetFillColor() {
-        if (this.coreGetFillColor || !this.instances.settings.enableFeatures[this.instances.type]["elements-stats"] || this.instances.settings.nodesColorFunction === "default") {
+    override changeGetFillColor() {
+        if (!this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
+            || PluginInstances.settings.nodesColorFunction === "default") {
+            this.restoreGetFillColor();
+            return;
+        }
+        if (this.coreGetFillColor) {
             return;
         }
         this.coreGetFillColor = this.coreElement.getFillColor;
@@ -78,15 +79,15 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
         });
     }
 
-    private restoreGetFillColor() {
+    override restoreGetFillColor() {
         if (!this.coreGetFillColor) return;
         this.coreElement.getFillColor = this.coreGetFillColor;
         this.coreGetFillColor = undefined;
     }
 
-    private getFillColor(): GraphColorAttributes | undefined {
-        const rgb = PluginInstances.graphsManager.nodeColorCalculator?.filesStats.get(this.id);
+    protected override getFillColor(): GraphColorAttributes | undefined {
+        const rgb = PluginInstances.graphsManager.nodesColorCalculator?.filesStats.get(this.id);
         if (!rgb) return undefined;
-        return { rgb: rgb, a: 1 }
+        return { rgb: rgb.value, a: 1 }
     }
 }

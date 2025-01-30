@@ -20,7 +20,7 @@ export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
 export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
     'default': false,
     'Adamic Adar': false,
-    'BoW': false,
+    'BoW': true,
     'Co-Citations': false,
     'Clustering Coefficient': false,
     'Jaccard': false,
@@ -32,7 +32,7 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
 export type LinkStat = 'size' | 'color';
 
 export class LinkStatCalculator {
-    linksStats: {[source: string]: {[target: string]: number}};
+    linksStats: {[source: string]: {[target: string]: {measure: number, value: number}}};
     stat: LinkStat;
     statFunction: LinkStatFunction;
     g: GraphologyGraphAnalysis;
@@ -55,7 +55,10 @@ export class LinkStatCalculator {
             if (!this.linksStats[link.source]) {
                 this.linksStats[link.source] = {};
             }
-            this.linksStats[link.source][link.target] = await this.getStat(link);
+            this.linksStats[link.source][link.target] = {
+                measure: await this.getStat(link),
+                value: 0
+            }
         }
     }
 
@@ -70,19 +73,19 @@ export class LinkStatCalculator {
         }
     }
 
-    private mapStat(): void {
+    mapStat(): void {
         switch (this.stat) {
             case 'size':
-                this.normalize(0.5, 1.5);
-                this.cleanNanAndInfinite(1);
+                this.normalizeValues(0.5, 1.5);
+                this.cleanNanAndInfiniteValues(1);
                 break;
 
             case 'color':
-                this.normalize(0, 100);
-                this.cleanNanAndInfinite(50);
+                this.normalizeValues(0, 100);
+                this.cleanNanAndInfiniteValues(50);
                 Object.entries(this.linksStats).forEach(([source, targets]) => {
-                    Object.entries(targets).forEach(([target, size]) => {
-                        this.linksStats[source][target] = rgb2int(getColor(PluginInstances.settings.nodesColorColormap, size / 100));
+                    Object.entries(targets).forEach(([target, {measure, value}]) => {
+                        this.linksStats[source][target].value = rgb2int(getColor(PluginInstances.settings.linksColorColormap, value / 100));
                     })
                 });
                 break;
@@ -92,30 +95,30 @@ export class LinkStatCalculator {
         }
     }
 
-    private normalize(from: number, to: number): void {
-        const N = this.getNumberValues();
+    private normalizeValues(from: number, to: number): void {
+        const N = this.getMeasures();
         const min = Math.min(...N);
         const max = Math.max(...N);
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            Object.entries(targets).forEach(([target, size]) => {
-                this.linksStats[source][target] = (to - from) * (size - min) / (max - min) + from;
+            Object.entries(targets).forEach(([target, {measure, value}]) => {
+                this.linksStats[source][target].value = (to - from) * (measure - min) / (max - min) + from;
             })
         });
     }
 
-    private getNumberValues(): number[] {
+    private getMeasures(): number[] {
         let N: number[] = [];
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            N = N.concat(Object.values(targets));
+            N = N.concat(Object.values(targets).map(({measure, value}) => measure));
         });
         return N.filter(n => isFinite(n) && !isNaN(n));
     }
 
-    private cleanNanAndInfinite(defaultValue: number) {
+    private cleanNanAndInfiniteValues(defaultValue: number) {
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            Object.entries(targets).forEach(([target, size]) => {
-                if (!isFinite(size) || isNaN(size)) {
-                    this.linksStats[source][target] = defaultValue;
+            Object.entries(targets).forEach(([target, {measure, value}]) => {
+                if (!isFinite(value) || isNaN(value)) {
+                    this.linksStats[source][target].value = defaultValue;
                 }
             })
         });

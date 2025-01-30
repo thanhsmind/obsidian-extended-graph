@@ -72,7 +72,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     abstract isSameCoreElement(coreElement: T): boolean;
     abstract getCoreCollection(): T[];
     protected abstract getCoreParentGraphics(coreElement: T): Container | null;
-    protected abstract setCoreParentGraphics(coreElement: T): void;
 
 
     // ================================ GETTERS ================================

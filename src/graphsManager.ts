@@ -17,7 +17,7 @@ export class GraphsManager extends Component {
     allInstances = new Map<string, GraphInstances>();
     
     nodesSizeCalculator: NodeStatCalculator | undefined;
-    nodeColorCalculator: NodeStatCalculator | undefined;
+    nodesColorCalculator: NodeStatCalculator | undefined;
     linksSizeCalculator: LinkStatCalculator | undefined;
     linksColorCalculator: LinkStatCalculator | undefined;
 
@@ -30,24 +30,25 @@ export class GraphsManager extends Component {
     // ================================ LOADING ================================
 
     onload(): void {
-        this.initiliazeNodeSizeCalculator();
-        this.initializeNodeColorCalculator();
-        this.initializeLinkSizeCalculator();
+        this.initiliazesNodeSizeCalculator();
+        this.initializeNodesColorCalculator();
+        this.initializeLinksSizeCalculator();
+        this.initializeLinksColorCalculator();
         this.registerEvent(PluginInstances.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
         this.registerEvent(PluginInstances.app.workspace.on('css-change', this.onCSSChange.bind(this)));
     }
 
-    private initiliazeNodeSizeCalculator(): void {
+    private initiliazesNodeSizeCalculator(): void {
         this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
         this.nodesSizeCalculator?.computeStats();
     }
 
-    private initializeNodeColorCalculator(): void {
-        this.nodeColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-        this.nodeColorCalculator?.computeStats();
+    private initializeNodesColorCalculator(): void {
+        this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
+        this.nodesColorCalculator?.computeStats();
     }
 
-    private initializeLinkSizeCalculator(): void {
+    private initializeLinksSizeCalculator(): void {
         const ga = this.getGraphAnalysis();
         const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
 
@@ -66,6 +67,27 @@ export class GraphsManager extends Component {
 
         this.linksSizeCalculator = new LinkStatCalculator('size', g);
         this.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
+    }
+
+    private initializeLinksColorCalculator(): void {
+        const ga = this.getGraphAnalysis();
+        const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
+
+        if (!g) {
+            this.linksColorCalculator = undefined;
+            return;
+        }
+
+        if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksColorFunction]) {
+            new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksColorFunction})`);
+            this.linksColorCalculator = undefined;
+            PluginInstances.settings.linksColorFunction = 'default';
+            PluginInstances.plugin.saveSettings();
+            return;
+        }
+
+        this.linksColorCalculator = new LinkStatCalculator('color', g);
+        this.linksColorCalculator.computeStats(PluginInstances.settings.linksColorFunction);
     }
 
     // =============================== UNLOADING ===============================
@@ -193,18 +215,58 @@ export class GraphsManager extends Component {
         if (textarea) textarea.value = filter;
     }
 
-    // ================================= COLORS ================================
+    // ================================ COLORS =================================
 
-    updatePalette(interactive: string): void {
+    updatePaletteForInteractive(interactive: string): void {
         this.allInstances.forEach(instance => {
             instance.interactiveManagers.get(interactive)?.recomputeColors();
         });
     }
 
-    updateColor(key: string, type: string): void {
+    updateColorForInteractiveType(key: string, type: string): void {
         this.allInstances.forEach(instance => {
             instance.interactiveManagers.get(key)?.recomputeColor(type);
         });
+    }
+
+    // ================================= STATS =================================
+
+    updateSizeFunctionForNodesStat(): void {
+        for (const [leafID, instances] of this.allInstances) {
+            for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
+                extendedNode.changeGetSize();
+            }
+            instances.renderer.changed();
+        }
+    }
+
+    updatePaletteForNodesStat(): void {
+        for (const [leafID, instances] of this.allInstances) {
+            for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
+                extendedNode.changeGetFillColor();
+            }
+            instances.renderer.changed();
+        }
+    }
+
+    updateSizeFunctionForLinksStat(): void {
+        for (const [leafID, instances] of this.allInstances) {
+            if (!instances.settings.enableFeatures[instances.type]['curvedLinks']) {
+                for (const [id, extendedLink] of instances.linksSet.extendedElementsMap) {
+                    extendedLink.changeCoreLinkThickness();
+                }
+            }
+            instances.renderer.changed();
+        }
+    }
+
+    updatePaletteForLinksStat(): void {
+        for (const [leafID, instances] of this.allInstances) {
+            for (const [id, extendedLink] of instances.linksSet.extendedElementsMap) {
+                extendedLink.graphicsWrapper?.updateGraphics();
+            }
+            instances.renderer.changed();
+        }
     }
 
     // ============================= ENABLE PLUGIN =============================
@@ -216,7 +278,8 @@ export class GraphsManager extends Component {
         if (this.isNodeLimitExceeded(leaf)) return;
         
         if (this.getGraphAnalysis()["graph-analysis"]) {
-            if (!this.linksSizeCalculator) this.initializeLinkSizeCalculator();
+            if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
+            if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
         }
         else {
             this.linksSizeCalculator = undefined;

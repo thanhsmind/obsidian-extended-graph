@@ -233,9 +233,9 @@ export class GraphEventsDispatcher extends Component {
 
     private onRendered() {
         if (this.instances.settings.enableFeatures[this.instances.type]['folders']) this.instances.foldersSet.updateGraphics();
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
             for (const id of this.instances.linksSet.connectedIDs) {
-                this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.updateGraphics();
+                this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.pixiElement.updateFrame();
             }
         }
     }

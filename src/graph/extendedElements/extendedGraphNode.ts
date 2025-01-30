@@ -1,10 +1,11 @@
-import { GraphNode } from "obsidian-typings";
+import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphInstances, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
+    coreGetFillColor: (() => GraphColorAttributes) | undefined;
 
     // Size
     graphicsWrapperScale: number = 1;
@@ -61,12 +62,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
     }
     
-    private changeGetSize() {
-        if (this.coreGetSize && (!this.graphicsWrapper || this.graphicsWrapper?.shape === ShapeEnum.CIRCLE)) {
+    changeGetSize() {
+        if (!(this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
+            && !(this.instances.settings.enableFeatures[this.instances.type]["elements-stats"] && PluginInstances.settings.nodesSizeFunction !== "default")) {
             this.restoreGetSize();
             return;
         }
-        else if (this.coreGetSize) {
+        if (this.coreGetSize) {
             return;
         }
         this.coreGetSize = this.coreElement.getSize;
@@ -93,7 +95,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         const node = this.coreElement;
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats'] && this.instances.settings.nodesSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
-            const customFunctionFactor = PluginInstances.graphsManager.nodesSizeCalculator?.filesStats.get(this.id);
+            const customFunctionFactor = PluginInstances.graphsManager.nodesSizeCalculator?.filesStats.get(this.id)?.value;
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);
         }
         else {
@@ -101,6 +103,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             return originalSize * customRadiusFactor;
         }
     }
+
+    // ============================== NODE COLOR ===============================
+
+    abstract changeGetFillColor(): void;
+    abstract restoreGetFillColor(): void;
+    protected abstract getFillColor(): GraphColorAttributes | undefined;
 
     // ============================== CORE ELEMENT =============================
 
@@ -125,10 +133,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected override getCoreParentGraphics(coreElement: GraphNode): Graphics | null {
         return coreElement.circle;
-    }
-
-    protected override setCoreParentGraphics(coreElement: GraphNode): void {
-        this.coreElement.circle = coreElement.circle;
     }
 
     updateFontFamily(): void {

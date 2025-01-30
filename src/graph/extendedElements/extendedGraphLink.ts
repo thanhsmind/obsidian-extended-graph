@@ -1,4 +1,4 @@
-import { GraphLink } from "obsidian-typings";
+import { GraphColorAttributes, GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
 import { CurveLinkGraphicsWrapper, ExtendedGraphElement, GraphInstances, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
 
@@ -14,7 +14,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.initGraphicsWrapper();
     }
 
-    protected needGraphicsWrapper(): boolean {
+    protected override initGraphicsWrapper(): void {
+        super.initGraphicsWrapper();
+        this.changeCoreLinkThickness();
+    }
+
+    protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             return true;
         }
@@ -28,7 +33,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         return false;
     }
 
-    protected createGraphicsWrapper(): void {
+    protected override createGraphicsWrapper(): void {
         if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
         }
@@ -48,11 +53,40 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ========================= LINK SIZE (THICKNESS) =========================
 
-    getSize(): number {
-        const customFunctionFactor = PluginInstances.graphsManager.linksSizeCalculator
-            ?.linksStats[this.coreElement.source.id][this.coreElement.target.id];
-        const originalWidth = this.coreElement.renderer.fLineSizeMult;
-        return originalWidth * (customFunctionFactor ?? 1);
+    changeCoreLinkThickness(): void {
+        if (this.coreElement.px
+            && PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && PluginInstances.settings.linksSizeFunction !== "default"
+            && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+            this.coreElement.px.scale.y = this.getThicknessScale();
+        }
+        else {
+            this.restoreCoreLinkThickness();
+        }
+    }
+
+    restoreCoreLinkThickness(): void {
+        if (this.coreElement.px) {
+            this.coreElement.px.scale.y = 1;
+        }
+    }
+
+    getThicknessScale(): number {
+        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats'] ?
+            PluginInstances.graphsManager.linksSizeCalculator
+                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
+                ?? 1
+            : 1;
+    }
+
+    // ============================== LINK COLOR ===============================
+
+    getStrokeColor(): number | undefined {
+        //console.log(PluginInstances.graphsManager.linksColorCalculator?.linksStats[this.coreElement.source.id][this.coreElement.target.id]);
+        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats'] ?
+            PluginInstances.graphsManager.linksColorCalculator
+                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
+            : undefined;
     }
 
     // ============================== CORE ELEMENT =============================
@@ -78,15 +112,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
     }
 
-    protected override setCoreParentGraphics(coreElement: GraphLink): void {
-        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
-            this.coreElement.px = coreElement.px;
-        }
-        else {
-            this.coreElement.line = coreElement.line;
-        }
-    }
-
     // ================================ GETTERS ================================
 
     getID(): string {
@@ -94,6 +119,11 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     // ================================ TOGGLE =================================
+
+    override enable(): void {
+        super.enable();
+        this.changeCoreLinkThickness();
+    }
 
     override disable() {
         super.disable();

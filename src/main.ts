@@ -48,11 +48,11 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
             if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.updatePalette(key);
+            PluginInstances.graphsManager.updatePaletteForInteractive(key);
         }));
         this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
             if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.updateColor(key, type);
+            PluginInstances.graphsManager.updateColorForInteractiveType(key, type);
         }));
 
         this.registerEvent(this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {

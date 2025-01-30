@@ -25,7 +25,7 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
 export type NodeStat = 'size' | 'color';
 
 export abstract class NodeStatCalculator {
-    filesStats: Map<string, number>;
+    filesStats: Map<string, {measure: number, value: number}>;
     stat: NodeStat;
 
     constructor(stat: NodeStat) {
@@ -38,25 +38,25 @@ export abstract class NodeStatCalculator {
     }
 
     private async getStats(): Promise<void> {
-        this.filesStats = new Map<string, number>();
+        this.filesStats = new Map<string, {measure: number, value: number}>();
         const files = PluginInstances.app.vault.getMarkdownFiles();
         for (const file of files) {
-            this.getStat(file).then(size => this.filesStats.set(file.path, size));
+            this.getStat(file).then(size => this.filesStats.set(file.path, {measure: size, value: 0}));
         }
     }
 
-    private mapStat(): void {
+    mapStat(): void {
         switch (this.stat) {
             case 'size':
-                this.normalize(0.5, 1.5);
-                this.cleanNanAndInfinite(1);
+                this.normalizeValues(0.5, 1.5);
+                this.cleanNanAndInfiniteValues(1);
                 break;
 
             case 'color':
-                this.normalize(0, 100);
-                this.cleanNanAndInfinite(50);
-                this.filesStats.forEach((size: number, path: string) => {
-                    this.filesStats.set(path, rgb2int(getColor(PluginInstances.settings.nodesColorColormap, size / 100)));
+                this.normalizeValues(0, 100);
+                this.cleanNanAndInfiniteValues(50);
+                this.filesStats.forEach(({measure, value}, path) => {
+                    this.filesStats.set(path, {measure: measure, value: rgb2int(getColor(PluginInstances.settings.nodesColorColormap, value / 100))});
                 });
                 break;
         
@@ -65,23 +65,23 @@ export abstract class NodeStatCalculator {
         }
     }
 
-    private normalize(from: number, to: number): void {
-        const N = this.getNumberValues();
+    private normalizeValues(from: number, to: number): void {
+        const N = this.getMeasures();
         const min = Math.min(...N);
         const max = Math.max(...N);
-        this.filesStats.forEach((size: number, path: string) => {
-            this.filesStats.set(path, (to - from) * (size - min) / (max - min) + from);
+        this.filesStats.forEach(({measure, value}, path) => {
+            this.filesStats.set(path, {measure: measure, value: (to - from) * (measure - min) / (max - min) + from});
         });
     }
 
-    private getNumberValues(): number[] {
-        return [...this.filesStats.values()].filter(n => isFinite(n) && !isNaN(n));
+    private getMeasures(): number[] {
+        return [...this.filesStats.values()].map(({measure, value}) => measure).filter(n => isFinite(n) && !isNaN(n));
     }
 
-    private cleanNanAndInfinite(defaultValue: number) {
-        this.filesStats.forEach((size: number, path: string) => {
-            if (!isFinite(size) || isNaN(size)) {
-                this.filesStats.set(path, defaultValue);
+    private cleanNanAndInfiniteValues(defaultValue: number) {
+        this.filesStats.forEach(({measure, value}, path) => {
+            if (!isFinite(value) || isNaN(value)) {
+                this.filesStats.set(path, {measure: measure, value: defaultValue});
             }
         });
     }

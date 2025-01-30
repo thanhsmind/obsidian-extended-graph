@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, ManagerGraphics } from "src/internal";
+import { ExtendedGraphLink, int2rgb, InteractiveManager, ManagerGraphics } from "src/internal";
 
 export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     // Instance values
@@ -25,20 +25,35 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     }
 
     initGraphics(): void {
-
+        const type = this.activeType();
+        if (!type) return;
+        const overrideColor = this.extendedLink.getStrokeColor();
+        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(type);
     }
 
     updateGraphics(): void {
-        const type = Array.from(this.types.values()).find(t => this.manager.isActive(t));
+        const type = this.activeType();
         if (!type) return;
-        this.color = this.manager.getColor(type);
-        this.redrawType(type);
+        const overrideColor = this.extendedLink.getStrokeColor();
+        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(type);
+        if (this.extendedLink.isActive) this.redrawType(type);
     }
 
-    abstract redrawType(type: string, color?: Uint8Array): void;
+    protected activeType(): string | undefined {
+        return Array.from(this.types.values()).find(t => this.manager.isActive(t));
+    }
+
+    redrawType(type: string, color?: Uint8Array): void {
+        const overrideColor = this.extendedLink.getStrokeColor();
+        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : color ?? this.manager.getColor(type);
+    }
+    
+    abstract updateFrame(): void;
 
     toggleType(type: string, enable: boolean): void {
         this.clear();
-        this.updateGraphics();
+        if (enable) {
+            this.redrawType(type);
+        }
     }
 }

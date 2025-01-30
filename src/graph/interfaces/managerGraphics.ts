@@ -15,5 +15,6 @@ export interface ManagerGraphics {
      * @param color The color of the arc
      */
     redrawType(type: string, color?: Uint8Array): void;
+    updateFrame(): void;
     toggleType(type: string, enable: boolean): void;
 }

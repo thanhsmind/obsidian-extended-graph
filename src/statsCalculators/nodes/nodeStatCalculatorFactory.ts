@@ -6,7 +6,7 @@ import * as centrality from "./centralityCalculator";
 
 export class NodeStatCalculatorFactory {
     static getCalculator(stat: NodeStat): NodeStatCalculator | undefined {
-        switch (PluginInstances.settings.nodesSizeFunction) {
+        switch (stat === 'size' ? PluginInstances.settings.nodesSizeFunction : PluginInstances.settings.nodesColorFunction) {
             case 'backlinksCount':
                 return new BacklinkCountCalculator(stat);
             case 'forwardlinksCount':

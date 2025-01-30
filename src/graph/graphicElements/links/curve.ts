@@ -2,7 +2,7 @@ import { Graphics, IDestroyOptions } from "pixi.js";
 import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
 
 
-export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
+export class LinkCurveGraphics extends LinkGraphics {
     arrow: Graphics | null;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
@@ -38,6 +38,11 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
     }
 
     redrawType(type: string, color?: Uint8Array): void {
+        super.redrawType(type, color);
+        this.updateFrame();
+    }
+
+    override updateFrame(): void {
         this.clear();
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
@@ -57,17 +62,12 @@ export class LinkCurveGraphics extends LinkGraphics implements ManagerGraphics {
         const P0_ = quadratic(   0.9 * link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
         const P2_ = quadratic(1- 0.9 * link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
 
-        this.lineStyle({width: this.extendedLink.getSize() / renderer.scale, color: "white"});
+        this.lineStyle({width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white"});
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
         if (link.line && link.line.tint !== renderer.colors.line.rgb) {
             this.tint = link.line.tint;
         }
-        else if (color) {
-            this.tint = color;
-        }
-        else {
-            this.tint = this.color;
-        }
+        this.tint = this.color;
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;

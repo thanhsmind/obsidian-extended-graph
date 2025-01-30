@@ -90,6 +90,8 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         arc.graphic.alpha = alpha;
     }
 
+    updateFrame(): void { }
+
     /**
      * Toggles the arc of a given type.
      * @param type The type of the arc

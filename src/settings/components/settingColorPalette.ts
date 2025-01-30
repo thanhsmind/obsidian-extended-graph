@@ -8,14 +8,14 @@ export class SettingColorPalette extends Setting {
 
     private onPaletteChanged: (palette: string) => void
 
-    constructor(containerEl: HTMLElement, key: string) {
+    constructor(containerEl: HTMLElement, uniqueKey: string) {
         super(containerEl);
         this.setName(STRINGS.features.interactives.palette);
         this.controlEl.addClass("color-palette");
     
         // Canvas
         this.canvasPalette = this.controlEl.createEl("canvas");
-        this.canvasPalette.id = `canvas-palette-${key}`;
+        this.canvasPalette.id = `canvas-palette-${uniqueKey}`;
         this.canvasPalette.width = 100;
         this.canvasPalette.height = 20;
     
