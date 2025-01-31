@@ -262,7 +262,7 @@ export class GraphEventsDispatcher extends Component {
      * @param name - The name of the interactive element type.
      * @param types - A set of types to be removed.
      */
-    onInteractivesRemoved(name: string, types: Set<string>) {
+    onInteractivesRemoved(name: string, types: Set<string> | string[]) {
         if (name === LINK_KEY) {
             this.onLinkTypesRemoved(types);
         } else if (name === FOLDER_KEY) {
@@ -330,14 +330,16 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (PluginInstances.settings.interactiveSettings[key].enableByDefault) {
-            this.instances.nodesSet.resetArcs(key);
-            this.instances.renderer.changed();
-        }
+        this.instances.nodesSet.resetArcs(key);
+        this.instances.renderer.changed();
     }
 
-    private onNodeInteractiveTypesRemoved(key: string, types: Set<string>) {
-        this.instances.legendUI?.remove(key, [...types]);
+    private onNodeInteractiveTypesRemoved(key: string, types: Set<string> | string[]) {
+        this.instances.legendUI?.remove(key, types);
+
+        // Update Graph is needed
+        this.instances.nodesSet.resetArcs(key);
+        this.instances.renderer.changed();
     }
 
     private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
@@ -386,8 +388,8 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    private onLinkTypesRemoved(types: Set<string>) {
-        this.instances.legendUI?.remove(LINK_KEY, [...types]);
+    private onLinkTypesRemoved(types: Set<string> | string[]) {
+        this.instances.legendUI?.remove(LINK_KEY, types);
     }
 
     private onLinkColorChanged(type: string, color: Uint8Array) {
@@ -430,8 +432,8 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    private onFoldersRemoved(paths: Set<string>) {
-        this.instances.foldersUI?.remove(FOLDER_KEY, [...paths]);
+    private onFoldersRemoved(paths: Set<string> | string[]) {
+        this.instances.foldersUI?.remove(FOLDER_KEY, paths);
 
         for (const path of paths) {
             this.removeBBox(path);

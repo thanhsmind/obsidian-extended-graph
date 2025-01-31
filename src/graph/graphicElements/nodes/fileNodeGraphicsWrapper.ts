@@ -47,13 +47,14 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         const file = getFile(this.extendedElement.id);
         if (!file) return;
         const arcCicle = this.managerGraphicsMap?.get(manager.name);
+        const types = this.extendedElement.getTypes(manager.name);
 
         if (!arcCicle) {
-            this.createManagerGraphics(manager, this.extendedElement.getTypes(manager.name), this.managerGraphicsMap?.size ?? 0);
+            this.createManagerGraphics(manager, types, this.managerGraphicsMap?.size ?? 0);
         }
         else {
             arcCicle.clearGraphics();
-            arcCicle.setTypes(getFileInteractives(manager.name, file));
+            arcCicle.setTypes(types);
             arcCicle.initGraphics();
             arcCicle.updateGraphics();
         }

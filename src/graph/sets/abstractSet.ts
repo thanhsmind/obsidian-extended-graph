@@ -282,9 +282,11 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     // ================================ COLORS =================================
 
     updateTypeColor(key: string, type: string, color: Uint8Array): void {
-        for (const id of this.getElementsByTypes(key, [type])) {
+        const ids = this.getElementsByTypes(key, [type]);
+        for (const id of ids) {
             const extendedElement = this.extendedElementsMap.get(id);
             if (!extendedElement) return;
+            extendedElement.types.get(key)?.add(type);
             extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.redrawType(type, color);
         }
     }

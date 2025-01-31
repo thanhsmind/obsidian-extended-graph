@@ -50,7 +50,7 @@ export class GCFolders extends GCSection implements InteractiveUI {
         this.update(key, path, color);
     }
 
-    remove(key: string, paths: string[]): void {
+    remove(key: string, paths: Set<string> | string[]): void {
         for (const path of paths) {
             const setting = this.settingsMap.get(path);
             if (!path) continue;

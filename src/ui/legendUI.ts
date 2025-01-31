@@ -1,5 +1,5 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, PluginInstances, textColor } from "src/internal";
+import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, PluginInstances, TAG_KEY, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {
@@ -46,6 +46,8 @@ class LegendRow extends Setting {
     }
 
     addLegend(type: string, color: Uint8Array): void {
+        const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
+        if (button) return;
         this.addButton(cb => {
             cb.setClass(this.getClassName(type))
                 .setClass("graph-legend")
@@ -83,7 +85,7 @@ class LegendRow extends Setting {
         }
     }
 
-    removeLegend(types: string[]) {
+    removeLegend(types: Set<string> | string[]) {
         types.forEach(type => {
             const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
             button?.parentNode?.removeChild(button);
@@ -205,7 +207,7 @@ export class LegendUI extends Component implements InteractiveUI {
         this.legendRows.get(row)?.addLegend(type, color);
     }
 
-    remove(row: string, types: string[]) {
+    remove(row: string, types: Set<string> | string[]) {
         this.legendRows.get(row)?.removeLegend(types);
     }
 

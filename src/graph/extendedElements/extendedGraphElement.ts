@@ -95,8 +95,18 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         return;
     }
 
-    matchesTypes(key: string, types: string[]): boolean {
-        return types.sort().join(',') === [...this.getTypes(key)].join(',');
+    matchesTypes(key: string, newTypes: string[]): {typesToRemove: string[], typesToAdd: string[]} {
+        const currentTypes = this.getTypes(key);
+        console.log("currentTypes", currentTypes);
+        const typesToRemove = structuredClone(currentTypes);
+        const typesToAdd = structuredClone(newTypes);
+        for (const type of newTypes) {
+            if (currentTypes.has(type)) {
+                typesToRemove.delete(type);
+                typesToAdd.remove(type);
+            }
+        }
+        return {typesToRemove: [...typesToRemove], typesToAdd: typesToAdd};
     }
 
     hasType(key: string, type: string): boolean {

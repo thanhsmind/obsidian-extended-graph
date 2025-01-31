@@ -77,20 +77,21 @@ export class InteractiveManager extends Component {
         this.instances.dispatcher.onInteractiveColorChanged(this.name, type, color);
     }
 
-    removeTypes(types: Set<string>) {
+    removeTypes(types: Set<string> | string[]) {
         types.forEach(type => {
             this.interactives.delete(type);
         });
+        this.recomputeColors();
         this.instances.dispatcher.onInteractivesRemoved(this.name, types);
     }
 
-    addTypes(types: Set<string>): void {
+    addTypes(types: Set<string> | string[]): void {
         const colorsMaps = new Map<string, Uint8Array>();
         const allTypes = new Set<string>([...this.interactives.keys(), ...types].sort());
         const allTypesWithoutNone = new Set<string>(allTypes);
         allTypesWithoutNone.delete(PluginInstances.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
-            if (INVALID_KEYS[this.name]?.includes(type) && PluginInstances.settings.interactiveSettings[this.name].unselected.includes(type)) {
+            if (INVALID_KEYS[this.name]?.includes(type) || PluginInstances.settings.interactiveSettings[this.name].unselected.includes(type)) {
                 return;
             }
             if (this.interactives.has(type)) return;
@@ -106,6 +107,7 @@ export class InteractiveManager extends Component {
             this.interactives.set(type, new Interactive(type, color));
         });
         this.interactives = new Map([...this.interactives.entries()].sort());
+        this.recomputeColors();
         if (colorsMaps.size > 0) {
             this.instances.dispatcher.onInteractivesAdded(this.name, colorsMaps);
         }

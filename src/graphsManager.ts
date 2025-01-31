@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import STRINGS from "./Strings";
 
@@ -34,8 +34,54 @@ export class GraphsManager extends Component {
         this.initializeNodesColorCalculator();
         this.initializeLinksSizeCalculator();
         this.initializeLinksColorCalculator();
-        this.registerEvent(PluginInstances.app.metadataCache.on('changed', this.onMetadataCacheChange.bind(this)));
-        this.registerEvent(PluginInstances.app.workspace.on('css-change', this.onCSSChange.bind(this)));
+        this.registerEvents();
+    }
+
+    private registerEvents() {
+        this.onMetadataCacheChange = this.onMetadataCacheChange.bind(this);
+        this.registerEvent(PluginInstances.app.metadataCache.on('changed', (file, data, cache) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onMetadataCacheChange(file, data, cache)
+        }));
+
+        this.onCSSChange = this.onCSSChange.bind(this);
+        this.registerEvent(PluginInstances.app.workspace.on('css-change', ()  => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onCSSChange();
+        }));
+
+        this.registerEvent(PluginInstances.app.workspace.on('layout-change', () => {
+            if (!this.isCoreGraphLoaded()) return;
+            PluginInstances.plugin.onLayoutChange();
+        }));
+
+        this.onActiveLeafChange = this.onActiveLeafChange.bind(this);
+        this.registerEvent(PluginInstances.app.workspace.on('active-leaf-change', (leaf) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onActiveLeafChange(leaf);
+        }));
+
+        this.updatePaletteForInteractive = this.updatePaletteForInteractive.bind(this);
+        this.registerEvent((PluginInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.updatePaletteForInteractive(key);
+        }));
+
+        this.updateColorForInteractiveType = this.updateColorForInteractiveType.bind(this);
+        this.registerEvent((PluginInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.updateColorForInteractiveType(key, type);
+        }));
+
+        this.onNodeMenuOpened = this.onNodeMenuOpened.bind(this);
+        this.registerEvent(PluginInstances.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onNodeMenuOpened(menu, file, source, leaf);
+        }));
+    }
+
+    private isCoreGraphLoaded(): boolean {
+        return !!PluginInstances.app.internalPlugins.getPluginById("graph")?._loaded;
     }
 
     private initiliazesNodeSizeCalculator(): void {
@@ -106,36 +152,47 @@ export class GraphsManager extends Component {
 
     // ============================ METADATA CHANGES ===========================
 
+    /**
+     * Called when a file has been indexed, and its (updated) cache is now available.
+     * @param file - The updated TFile
+     * @param data - The new content of the markdown file
+     * @param cache - The new cached metadata
+     */
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        this.allInstances.forEach(instance => {
-            if (!instance.graph || !instance.renderer) return;
+        this.allInstances.forEach(instances => {
+            if (!instances.graph || !instances.renderer) return;
     
-            if (PluginInstances.settings.enableFeatures[instance.type]['tags']) {
-                const extendedNode = instance.nodesSet.extendedElementsMap.get(file.path);
+            // Update nodes interactives
+            if (PluginInstances.settings.enableFeatures[instances.type]['tags']) {
+                const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path);
                 if (!extendedNode) return;
-        
-                const newTypes = this.extractTagsFromCache(cache);
-                const needsUpdate = !extendedNode.matchesTypes(TAG_KEY, newTypes);
 
-                if (needsUpdate) {
-                    this.updateNodeTypes(instance);
+                for (const [key, manager] of instances.nodesSet.managers) {
+                    const newTypes = getFileInteractives(key, file);
+                    let {typesToRemove, typesToAdd} = extendedNode.matchesTypes(key, [...newTypes]);
+                    typesToAdd = typesToAdd.filter(type =>
+                        !INVALID_KEYS[key]?.includes(type)
+                        && !PluginInstances.settings.interactiveSettings[key].unselected.includes(type)
+                    );
+                    for (const type of typesToRemove) {
+                        instances.nodesSet.typesMap[key][type].delete(extendedNode.id);
+                        extendedNode.types.get(key)?.delete(type);
+                    }
+                    for (const type of typesToAdd)    {
+                        if (!instances.nodesSet.typesMap[key][type]) instances.nodesSet.typesMap[key][type] = new Set<string>();
+                        instances.nodesSet.typesMap[key][type].add(extendedNode.id);
+                        extendedNode.types.get(key)?.add(type);
+                    }
+                    if (typesToRemove.length > 0) {
+                        instances.nodesSet.managers.get(key)?.removeTypes(typesToRemove);
+                    }
+                    if (typesToAdd.length > 0) {
+                        instances.nodesSet.managers.get(key)?.addTypes(typesToAdd);
+                    }
                 }
             }
         });
     }
-
-    private extractTagsFromCache(cache: CachedMetadata): string[] {
-        if (!cache.tags) return [];
-        return cache.tags.map(tagCache => tagCache.tag.replace('#', ''));
-    }
-
-    private updateNodeTypes(instances: GraphInstances): void {
-        const types = instances.nodesSet.getAllTypes(TAG_KEY);
-        if (types) {
-            instances.nodesSet.managers.get(TAG_KEY)?.addTypes(types);
-        }
-    }
-
     // ================================ LAYOUT =================================
 
     onNewLeafOpen(leaf: WorkspaceLeafExt): void {

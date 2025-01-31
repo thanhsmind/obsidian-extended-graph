@@ -17,7 +17,6 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         this.registerEvent(this.app.workspace.on('layout-ready', () => {
             this.loadGraphsManager();
-            this.registerEvents();
             this.onLayoutChange();
         }));
     }
@@ -33,37 +32,6 @@ export default class ExtendedGraphPlugin extends Plugin {
         PluginInstances.statesManager = new StatesManager();
         this.addChild(PluginInstances.graphsManager);
         PluginInstances.graphsManager.load();
-    }
-
-    private registerEvents() {
-        this.registerEvent(this.app.workspace.on('layout-change', () => {
-            if (!this.isCoreGraphLoaded()) return;
-            this.onLayoutChange();
-        }));
-        this.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
-            if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.onActiveLeafChange(leaf);
-        }));
-
-
-        this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
-            if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.updatePaletteForInteractive(key);
-        }));
-        this.registerEvent((this.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
-            if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.updateColorForInteractiveType(key, type);
-        }));
-
-        this.registerEvent(this.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
-            if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.graphsManager.onNodeMenuOpened(menu, file, source, leaf);
-        }));
-
-    }
-
-    private isCoreGraphLoaded(): boolean {
-        return !!this.app.internalPlugins.getPluginById("graph")?._loaded;
     }
 
     // =============================== UNLOADING ===============================
