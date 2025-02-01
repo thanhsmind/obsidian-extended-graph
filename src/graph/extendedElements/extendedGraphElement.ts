@@ -120,6 +120,15 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     abstract getID(): string;
 
+
+    // ================================ SETTERS ================================
+
+    setTypes(key: string, types: Set<string>) {
+        this.types.set(key, types);
+        const managerGraphics = this.graphicsWrapper?.managerGraphicsMap?.get(key);
+        if (managerGraphics) managerGraphics.types = types;
+    }
+
     // ================================ TOGGLE =================================
 
     disableType(key: string, type: string) {

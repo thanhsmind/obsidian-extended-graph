@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import STRINGS from "./Strings";
 
@@ -163,32 +163,41 @@ export class GraphsManager extends Component {
             if (!instances.graph || !instances.renderer) return;
     
             // Update nodes interactives
-            if (PluginInstances.settings.enableFeatures[instances.type]['tags']) {
-                const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path);
-                if (!extendedNode) return;
+            const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path) as ExtendedGraphFileNode;
+            if (!extendedNode) return;
+            for (const [key, manager] of instances.nodesSet.managers) {
+                let newTypes = [...getFileInteractives(key, file)];
+                newTypes = newTypes.filter(type =>
+                    !INVALID_KEYS[key]?.includes(type)
+                    && !PluginInstances.settings.interactiveSettings[key].unselected.includes(type)
+                );
+                if (newTypes.length === 0) {
+                    newTypes.push(instances.settings.interactiveSettings[key].noneType);
+                }
+                const {typesToRemove: typesToRemoveForTheNode, typesToAdd: typesToAddForTheNode} = extendedNode.matchesTypes(key, [...newTypes]);
+                for (const type of typesToRemoveForTheNode) {
+                    instances.nodesSet.typesMap[key][type].delete(extendedNode.id);
+                }
+                for (const type of typesToAddForTheNode)    {
+                    if (!instances.nodesSet.typesMap[key][type]) instances.nodesSet.typesMap[key][type] = new Set<string>();
+                    instances.nodesSet.typesMap[key][type].add(extendedNode.id);
+                }
+                extendedNode.setTypes(key, new Set<string>(newTypes));
 
-                for (const [key, manager] of instances.nodesSet.managers) {
-                    const newTypes = getFileInteractives(key, file);
-                    let {typesToRemove, typesToAdd} = extendedNode.matchesTypes(key, [...newTypes]);
-                    typesToAdd = typesToAdd.filter(type =>
-                        !INVALID_KEYS[key]?.includes(type)
-                        && !PluginInstances.settings.interactiveSettings[key].unselected.includes(type)
-                    );
-                    for (const type of typesToRemove) {
-                        instances.nodesSet.typesMap[key][type].delete(extendedNode.id);
-                        extendedNode.types.get(key)?.delete(type);
-                    }
-                    for (const type of typesToAdd)    {
-                        if (!instances.nodesSet.typesMap[key][type]) instances.nodesSet.typesMap[key][type] = new Set<string>();
-                        instances.nodesSet.typesMap[key][type].add(extendedNode.id);
-                        extendedNode.types.get(key)?.add(type);
-                    }
-                    if (typesToRemove.length > 0) {
-                        instances.nodesSet.managers.get(key)?.removeTypes(typesToRemove);
-                    }
-                    if (typesToAdd.length > 0) {
-                        instances.nodesSet.managers.get(key)?.addTypes(typesToAdd);
-                    }
+                const typesToRemove = typesToRemoveForTheNode.filter(type => instances.nodesSet.typesMap[key][type].size === 0);
+                if (typesToRemove.length > 0) {
+                    manager.removeTypes(typesToRemove);
+                }
+                const managersTypes = manager.getTypes();
+                const typesToAdd = typesToAddForTheNode.filter(type => {
+                    return !managersTypes.includes(type);
+                })
+                if (typesToAdd.length > 0) {
+                    manager.addTypes(typesToAdd);
+                }
+
+                if (typesToRemove.length === 0 && typesToAdd.length === 0 && (typesToRemoveForTheNode.length > 0 || typesToAddForTheNode.length > 0)) {
+                    extendedNode.graphicsWrapper.resetManagerGraphics(manager);
                 }
             }
         });
