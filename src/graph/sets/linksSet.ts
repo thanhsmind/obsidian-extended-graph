@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, getOutlinkTypes, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
     extendedElementsMap: Map<string, ExtendedGraphLink>;
@@ -46,46 +46,9 @@ export class LinksSet extends AbstractSet<GraphLink> {
         return getLinkID(element);
     }
 
-    protected override getTypesFromFile(key: string, element: GraphLink, file: TFile): Set<string> {
-        const dv = getDataviewAPI(PluginInstances.app);
-        return dv ? this.getLinkTypesWithDataview(dv, element) : this.getLinkTypesWithFrontmatter(element, file);
-    }
-
-    private getLinkTypesWithDataview(dv: DataviewApi, link: GraphLink): Set<string> {
-        const linkTypes = new Set<string>();
-        const sourcePage = dv.page(link.source.id);
-        for (const [key, value] of Object.entries(sourcePage)) {
-            if (key === "file" || key === this.instances.settings.imageProperty) continue;
-            if (value === null || value === undefined || value === '') continue;
-
-            if ((typeof value === "object") && ("path" in value) && ((value as any).path === link.target.id)) {
-                linkTypes.add(key);
-            }
-            else if (Array.isArray(value)) {
-                for (const l of value) {
-                    if ((typeof l === "object") && ("path" in l) && ((l as any).path === link.target.id)) {
-                        linkTypes.add(key);
-                    }
-                }
-            }
-        }
-        return linkTypes;
-    }
-
-    private getLinkTypesWithFrontmatter(link: GraphLink, file: TFile): Set<string> {
-        const linkTypes = new Set<string>();
-        const frontmatterLinks = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
-        if (frontmatterLinks) {
-            // For each link in the frontmatters, check if target matches
-            for (const linkCache of frontmatterLinks) {
-                const linkType = linkCache.key.split('.')[0];
-                const targetID = PluginInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, ".")?.path;
-                if (targetID === link.target.id) {
-                    linkTypes.add(linkType);
-                }
-            }
-        }
-        return linkTypes;
+    protected override getTypesFromFile(key: string, link: GraphLink, file: TFile): Set<string> {
+        const outlinkTypes = getOutlinkTypes(file);
+        return outlinkTypes.get(link.target.id) ?? new Set<string>();
     }
 
     protected override isTypeValid(type: string): boolean {

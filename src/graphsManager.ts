@@ -1,6 +1,6 @@
-import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import STRINGS from "./Strings";
 
@@ -43,6 +43,12 @@ export class GraphsManager extends Component {
             if (!this.isCoreGraphLoaded()) return;
             this.onMetadataCacheChange(file, data, cache)
         }));
+
+        this.onDelete = this.onDelete.bind(this);
+        this.registerEvent(PluginInstances.app.vault.on('delete', (file) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onDelete(file);
+        }))
 
         this.onCSSChange = this.onCSSChange.bind(this);
         this.registerEvent(PluginInstances.app.workspace.on('css-change', ()  => {
@@ -200,8 +206,141 @@ export class GraphsManager extends Component {
                     extendedNode.graphicsWrapper.resetManagerGraphics(manager);
                 }
             }
+
+            // Update links interactives
+            let newOutlinkTypes = getOutlinkTypes(file);
+            const linkManager = instances.linksSet.managers.get(LINK_KEY);
+            if (!linkManager) return;
+            for (let [targetID, newTypes] of newOutlinkTypes) {
+                const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({source: {id: file.path}, target: {id: targetID}}));
+                if (!extendedLink) continue;
+                newTypes = new Set<string>([...newTypes].filter(type =>
+                    !INVALID_KEYS[LINK_KEY]?.includes(type)
+                    && !PluginInstances.settings.interactiveSettings[LINK_KEY].unselected.includes(type)
+                ));
+                if (newTypes.size === 0) {
+                    newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
+                }
+                const {typesToRemove: typesToRemoveForTheLink, typesToAdd: typesToAddForTheLink} = extendedLink.matchesTypes(LINK_KEY, [...newTypes]);
+                for (const type of typesToRemoveForTheLink) {
+                    instances.linksSet.typesMap[LINK_KEY][type].delete(extendedLink.id);
+                }
+                for (const type of typesToAddForTheLink)    {
+                    if (!instances.linksSet.typesMap[LINK_KEY][type]) instances.linksSet.typesMap[LINK_KEY][type] = new Set<string>();
+                    instances.linksSet.typesMap[LINK_KEY][type].add(extendedLink.id);
+                }
+                extendedLink.setTypes(LINK_KEY, new Set<string>(newTypes));
+
+                const typesToRemove = typesToRemoveForTheLink.filter(type => {
+                    return instances.nodesSet.typesMap[LINK_KEY][type].size === 0
+                });
+                if (typesToRemove.length > 0) {
+                    linkManager.removeTypes(typesToRemove);
+                }
+                const managersTypes = linkManager.getTypes();
+                const typesToAdd = typesToAddForTheLink.filter(type => {
+                    return !managersTypes.includes(type);
+                });
+                if (typesToAdd.length > 0) {
+                    linkManager.addTypes(typesToAdd);
+                }
+                if (typesToRemove.length === 0 && typesToAdd.length === 0 && (typesToRemoveForTheLink.length > 0 || typesToAddForTheLink.length > 0)) {
+                    extendedLink.graphicsWrapper?.resetManagerGraphics(linkManager);
+                }
+            }
+            
+            const extendedOutlinks = Array.from(instances.linksSet.extendedElementsMap.values()).filter(
+                link => link.coreElement.source.id === file.path
+            );
+            const idsToRemove: string[] = [];
+            for (const extendedOutlink of extendedOutlinks) {
+                if (!newOutlinkTypes.has(extendedOutlink.coreElement.target.id)) {
+                    extendedOutlink.graphicsWrapper?.disconnect();
+                    idsToRemove.push(extendedOutlink.id);
+                }
+            }
+            for (const id of idsToRemove) {
+                instances.linksSet.extendedElementsMap.delete(id);
+            }
         });
     }
+
+    private onDelete(file: TAbstractFile) {
+        const id = file.path;
+        if (file instanceof TFile) {
+            for (const [leafID, instances] of this.allInstances) {
+                const nodesSet = instances.nodesSet;
+                const extendedNode = nodesSet.extendedElementsMap.get(id);
+                if (!extendedNode) continue;
+
+                for (const [key, manager] of nodesSet.managers) {
+                    const types = extendedNode.getTypes(key);
+                    const typesToRemove: string[] = [];
+                    for (const type of types) {
+                        nodesSet.typesMap[key][type].delete(id);
+                        if (nodesSet.typesMap[key][type]?.size === 0) {
+                            typesToRemove.push(type);
+                        }
+                    }
+                    manager.removeTypes(typesToRemove);
+                }
+
+                nodesSet.extendedElementsMap.delete(id);
+                nodesSet.connectedIDs.delete(id);
+                for (const cause of Object.values(DisconnectionCause)) {
+                    nodesSet.disconnectedIDs[cause].delete(id);
+                    for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
+                        linkCascade.nodes.delete(id);
+                    }
+                    for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+                        nodeCascade.nodes.delete(id);
+                    }
+                    instances.graph.nodesDisconnectionCascade.delete(id);
+                }
+                extendedNode?.graphicsWrapper?.disconnect();
+                extendedNode?.graphicsWrapper?.destroyGraphics();
+
+                const linksSet = instances.linksSet;
+                const extendedLinks = [...linksSet.extendedElementsMap.values()].filter(el => el.coreElement.source.id === id);
+                for (const extendedLink of extendedLinks) {
+                    const linkID = extendedLink.id;
+                    
+                    const types = extendedLink.getTypes(LINK_KEY);
+                    const typesToRemove: string[] = [];
+                    for (const type of types) {
+                        linksSet.typesMap[LINK_KEY][type].delete(linkID);
+                        if (linksSet.typesMap[LINK_KEY][type]?.size === 0) {
+                            typesToRemove.push(type);
+                        }
+                    }
+                    linksSet.managers.get(LINK_KEY)?.removeTypes(typesToRemove);
+
+                    linksSet.extendedElementsMap.delete(linkID);
+                    linksSet.connectedIDs.delete(linkID);
+                    for (const cause of Object.values(DisconnectionCause)) {
+                        linksSet.disconnectedIDs[cause].delete(linkID);
+                        for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+                            nodeCascade.links.delete(linkID);
+                        }
+                        for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
+                            linkCascade.links.delete(linkID);
+                        }
+                        instances.graph.linksDisconnectionCascade.delete(linkID);
+                    }
+                    extendedLink?.graphicsWrapper?.disconnect();
+                    extendedLink?.graphicsWrapper?.destroyGraphics();
+
+                }
+            }
+        }
+        else if (file instanceof TFolder) {
+            for (const [leafID, instances] of this.allInstances) {
+                const foldersSet = instances.foldersSet;
+                foldersSet.managers.get(FOLDER_KEY)?.removeTypes([id]);
+            }
+        }
+    }
+
     // ================================ LAYOUT =================================
 
     onNewLeafOpen(leaf: WorkspaceLeafExt): void {
