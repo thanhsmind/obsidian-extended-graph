@@ -1,4 +1,4 @@
-import { App, getAllTags, TFile } from "obsidian";
+import { App, getAllTags, getLinkpath, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { GraphEngine, GraphLink, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 import { ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY, WorkspaceLeafExt } from "./internal";
@@ -197,21 +197,33 @@ function getProperty(key: string, file: TFile): Set<string> {
                 }
             }
         }
+        else if ((typeof values === "object") && ("path" in values)) {
+            const targetFile = getFile(values.path);
+            types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
+        }
     }
 
     // Links in the frontmatter
     else {
         const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
         if (frontmatter?.hasOwnProperty(key)) {
-            if (typeof frontmatter[key] === "string" || typeof frontmatter[key] === "number") {
-                types.add(String(frontmatter[key]));
+            const values = frontmatter[key];
+            if (typeof values === "string" || typeof values === "number") {
+                types.add(String(values));
             }
-            else if (Array.isArray(frontmatter[key])) {
-                for (const value of frontmatter[key]) {
+            else if (Array.isArray(values)) {
+                for (const value of values) {
                     if (typeof value === "string" || typeof value === "number") {
                         types.add(String(value));
                     }
                 }
+            }
+            else if ((typeof values === "object") && ("path" in values)) {
+                console.log(values);
+            }
+            else if ((typeof values === "object") && ("path" in values)) {
+                const targetFile = getFile(values.path);
+                types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
             }
         }
     }
@@ -223,27 +235,6 @@ function getFolderPath(file: TFile): Set<string> {
     const set = new Set<string>();
     file.parent ? set.add(file.parent.path) : '';
     return set;
-}
-
-export function isPropertyKeyValid(key: string): boolean {
-    if (key.contains(":")) {
-        new Notice(STRINGS.notices.invalidCharacter + " ':'");
-        return false;
-    }
-    return (key.length> 0);
-}
-
-export function setPluginIcon(parent: HTMLElement): void {
-    parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon git-fork-sparkles"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/><path d="m 20.509365,13.686388 v 4"/><path d="m 22.509365,15.686388 h -4"/><path d="m 18.125575,20.191752 v 2"/><path d="m 19.125575,21.191752 h -2"/><path d="m 3.6865316,13.537545 v 2"/><path d="m 4.6865316,14.537545 h -2"/></svg>`;
-}
-
-export function textColor(backgroundColor: Uint8Array, dark: string = "black", light: string = "white"): string {
-    const textColor = (backgroundColor[0] * 0.299 + backgroundColor[1] * 0.587 + backgroundColor[2] * 0.114 > 150) ? dark : light;
-    return textColor;
-}
-
-export function isTagValid(name: string): boolean {
-    return /^[a-zA-Z/]+$/.test(name);
 }
 
 export function getOutlinkTypes(settings: ExtendedGraphSettings, file: TFile): Map<string, Set<string>> {
@@ -291,4 +282,25 @@ function getOutlinkTypesWithFrontmatter(file: TFile): Map<string, Set<string>> {
         }
     }
     return linkTypes;
+}
+
+export function isPropertyKeyValid(key: string): boolean {
+    if (key.contains(":")) {
+        new Notice(STRINGS.notices.invalidCharacter + " ':'");
+        return false;
+    }
+    return (key.length> 0);
+}
+
+export function setPluginIcon(parent: HTMLElement): void {
+    parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon git-fork-sparkles"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/><path d="m 20.509365,13.686388 v 4"/><path d="m 22.509365,15.686388 h -4"/><path d="m 18.125575,20.191752 v 2"/><path d="m 19.125575,21.191752 h -2"/><path d="m 3.6865316,13.537545 v 2"/><path d="m 4.6865316,14.537545 h -2"/></svg>`;
+}
+
+export function textColor(backgroundColor: Uint8Array, dark: string = "black", light: string = "white"): string {
+    const textColor = (backgroundColor[0] * 0.299 + backgroundColor[1] * 0.587 + backgroundColor[2] * 0.114 > 150) ? dark : light;
+    return textColor;
+}
+
+export function isTagValid(name: string): boolean {
+    return /^[a-zA-Z/]+$/.test(name);
 }
