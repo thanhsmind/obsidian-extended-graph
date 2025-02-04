@@ -15,6 +15,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
             return a[1].index - b[1].index;
         }));
         const values = Object.keys(shapeQueries);
+        console.log(PluginInstances.settings.shapeQueries);
         for (const shape of values) {
             const shapeSetting = this.addShape(shape as ShapeEnum);
             this.elementsBody.push(shapeSetting.settingEl);
@@ -23,7 +24,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
     }
 
     private addShape(shape: ShapeEnum): SettingShape {
-        return new SettingShape(this.settingTab.containerEl, PluginInstances.plugin, shape, this.moveDown.bind(this), this.moveUp.bind(this));
+        return new SettingShape(this.settingTab.containerEl, shape, this.moveDown.bind(this), this.moveUp.bind(this));
     }
 
     private moveDown(settingShape: SettingShape) {
@@ -60,7 +61,7 @@ class SettingShape extends Setting {
     moveDown: (settingShape: SettingShape) => void;
     moveUp: (settingShape: SettingShape) => void;
 
-    constructor(containerEl: HTMLElement, plugin: ExtendedGraphPlugin, shape: ShapeEnum, moveDown: (settingShape: SettingShape) => void, moveUp: (settingShape: SettingShape) => void) {
+    constructor(containerEl: HTMLElement, shape: ShapeEnum, moveDown: (settingShape: SettingShape) => void, moveUp: (settingShape: SettingShape) => void) {
         super(containerEl);
 
         this.shape = shape;

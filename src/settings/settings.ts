@@ -156,11 +156,11 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'hexagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'octogon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'decagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star (4)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star (5)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star (6)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star (8)' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star (10)': {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star4'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star5'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star6'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star8'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'star10'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
     },
 
     // Export SVG
