@@ -1,5 +1,5 @@
 import { App, ButtonComponent, DropdownComponent, Modal, SearchComponent, Setting, TextComponent } from "obsidian";
-import { CombinationLogic, FOLDER_KEY, InteractivesSuggester, LINK_KEY, LogicKey, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, SourceKey, sourceKeyLabels, TAG_KEY, UIElements } from "src/internal";
+import { CombinationLogic, FOLDER_KEY, InteractivesSuggester, LINK_KEY, LogicKey, logicKeyLabel, NodeShape, PluginInstances, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, SourceKey, sourceKeyLabels, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class ShapeQueryModal extends Modal {
@@ -82,7 +82,6 @@ export class ShapeQueryModal extends Modal {
     private addRule(queryRecord?: Record<string, string>) {
         const ruleSetting = new RuleSetting(
             this.contentEl,
-            this.app,
             this.removeRule.bind(this),
             this.onChange.bind(this),
             queryRecord
@@ -151,8 +150,6 @@ export class ShapeQueryModal extends Modal {
 
 
 class RuleSetting extends Setting {
-    app: App;
-
     onRemoveCallback: (s: RuleSetting) => void;
     onChangeCallback: (r: RuleQuery) => void
 
@@ -162,9 +159,8 @@ class RuleSetting extends Setting {
     valueText: SearchComponent;
     suggester: InteractivesSuggester;
 
-    constructor(containerEl: HTMLElement, app: App, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
+    constructor(containerEl: HTMLElement, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
         super(containerEl);
-        this.app = app;
 
         this.onRemoveCallback = onRemove;
 
@@ -214,7 +210,7 @@ class RuleSetting extends Setting {
         return this.addDropdown(cb => {
             this.propertyDropdown = cb;
             this.controlEl.insertAfter(cb.selectEl, this.sourceDropdown.selectEl);
-            const properties = this.app.metadataTypeManager.properties;
+            const properties = PluginInstances.app.metadataTypeManager.properties;
             cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {} ));
             cb.onChange(value => {
                 this.onChange(value);
