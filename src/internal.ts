@@ -79,6 +79,7 @@ export * from "./settings/settingInteractives/settingFolders";
 export * from "./settings/components/settingColorPalette";
 
 export * from "./suggester/NodeNamesSuggester";
+export * from "./suggester/InteractivesSuggester";
 
 export * from "./svg/exportToSVG";
 

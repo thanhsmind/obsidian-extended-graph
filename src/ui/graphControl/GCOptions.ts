@@ -1,11 +1,11 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, NodeNameSuggester, PluginInstances, WorkspaceLeafExt } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, NodeNamesSuggester, PluginInstances, WorkspaceLeafExt } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     settingGlobalFilter: Setting;
-    suggester: NodeNameSuggester;
+    suggester: NodeNamesSuggester;
     
     constructor(leaf: WorkspaceLeafExt) {
         super(leaf, "options", STRINGS.plugin.options);
@@ -103,7 +103,7 @@ export class GCOptions extends GCSection {
                 const callback = (value: string) => {
                     PluginInstances.graphsManager.zoomOnNode(this.leaf, value);
                 }
-                this.suggester = new NodeNameSuggester(cb.inputEl, this.leaf.view.renderer, callback);
+                this.suggester = new NodeNamesSuggester(cb.inputEl, this.leaf.view.renderer, callback);
             });
     }
 

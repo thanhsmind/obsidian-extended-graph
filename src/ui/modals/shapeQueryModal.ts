@@ -1,5 +1,5 @@
-import { App, ButtonComponent, DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
-import { CombinationLogic, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, sourceKeyLabels, UIElements } from "src/internal";
+import { App, ButtonComponent, DropdownComponent, Modal, SearchComponent, Setting, TextComponent } from "obsidian";
+import { CombinationLogic, FOLDER_KEY, InteractivesSuggester, LINK_KEY, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, SourceKey, sourceKeyLabels, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class ShapeQueryModal extends Modal {
@@ -88,7 +88,6 @@ export class ShapeQueryModal extends Modal {
             queryRecord
         );
         this.rulesSettings.push(ruleSetting);
-        ruleSetting.onChange();
     }
 
     private removeRule(ruleSetting: RuleSetting) {
@@ -160,7 +159,8 @@ class RuleSetting extends Setting {
     sourceDropdown: DropdownComponent;
     propertyDropdown: DropdownComponent | null;
     logicDropdown: DropdownComponent;
-    valueText: TextComponent;
+    valueText: SearchComponent;
+    suggester: InteractivesSuggester;
 
     constructor(containerEl: HTMLElement, app: App, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
         super(containerEl);
@@ -182,6 +182,7 @@ class RuleSetting extends Setting {
         }
 
         this.onChangeCallback = onChange;
+        this.onChange();
     }
 
     private addRemoveButton(): RuleSetting {
@@ -202,7 +203,7 @@ class RuleSetting extends Setting {
                     this.addPropertyDropdown();
                 }
                 else if (this.propertyDropdown) {
-                    this.controlEl.removeChild(this.propertyDropdown.selectEl);
+                    this.propertyDropdown.selectEl.parentNode?.removeChild(this.propertyDropdown.selectEl);
                 }
                 this.onChange();
 			});
@@ -217,7 +218,7 @@ class RuleSetting extends Setting {
             cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {} ));
             cb.onChange(value => {
                 this.onChange();
-            })
+            });
         });
     }
 
@@ -232,17 +233,19 @@ class RuleSetting extends Setting {
     }
 
     private addValueText(): RuleSetting {
-        return this.addText(cb => {
+        return this.addSearch(cb => {
             this.valueText = cb;
             cb.setPlaceholder(STRINGS.plugin.valuePlaceholder);
-            cb.onChange(value => {
+            cb.inputEl.setAttr('required', true);
+            this.suggester = new InteractivesSuggester(this.valueText.inputEl, (value: string) => {
                 this.onChange();
             });
-            cb.inputEl.setAttr('required', true);
         });
     }
 
     onChange(): void {
+        this.suggester.setKey(this.sourceDropdown.getValue() as SourceKey, this.propertyDropdown?.getValue());
+
         const ruleQuery = this.getRuleQuery();
         this.setValidity(ruleQuery);
         this.onChangeCallback(ruleQuery);

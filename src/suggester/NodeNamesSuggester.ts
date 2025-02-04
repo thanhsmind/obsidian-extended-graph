@@ -1,8 +1,8 @@
-import { AbstractInputSuggest, App } from "obsidian";
+import { AbstractInputSuggest } from "obsidian";
 import { GraphRenderer } from "obsidian-typings";
 import { PluginInstances } from "src/pluginInstances";
 
-export class NodeNameSuggester extends AbstractInputSuggest<string> {
+export class NodeNamesSuggester extends AbstractInputSuggest<string> {
     graph: GraphRenderer;
     callback: (value: string) => void;
 

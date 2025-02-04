@@ -15,7 +15,6 @@ export class SettingShapes extends SettingsSectionCollapsible {
             return a[1].index - b[1].index;
         }));
         const values = Object.keys(shapeQueries);
-        console.log(PluginInstances.settings.shapeQueries);
         for (const shape of values) {
             const shapeSetting = this.addShape(shape as ShapeEnum);
             this.elementsBody.push(shapeSetting.settingEl);

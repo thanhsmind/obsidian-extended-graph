@@ -387,7 +387,7 @@ body {
         background-color: var(--background-secondary-alt);
         margin-top: 0.75em;
         padding-inline: 0.75em;
-        border-radius: var(--radius-m);
+        border-radius: var(--radius-s);
     }
     > .setting-item-heading:not(.is-collapsed) {
         border-bottom-left-radius: 0;
