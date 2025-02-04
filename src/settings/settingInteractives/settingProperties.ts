@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, NewNameModal, PluginInstances, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
+import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, PropertyModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
@@ -40,7 +40,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     protected openModalToAddInteractive() {
-        const modal = new NewNameModal(
+        const modal = new PropertyModal(
             this.settingTab.app,
             "Property key",
             this.addProperty.bind(this)

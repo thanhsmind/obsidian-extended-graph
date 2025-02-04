@@ -78,8 +78,9 @@ export * from "./settings/settingInteractives/settingLinks";
 export * from "./settings/settingInteractives/settingFolders";
 export * from "./settings/components/settingColorPalette";
 
-export * from "./suggester/NodeNamesSuggester";
 export * from "./suggester/InteractivesSuggester";
+export * from "./suggester/NodeNamesSuggester";
+export * from "./suggester/PropertiesSuggester";
 
 export * from "./svg/exportToSVG";
 
@@ -100,6 +101,7 @@ export * from "./ui/graphControl/GCFolders";
 export * from "./ui/modals/exportSVGOptionsModal";
 export * from "./ui/modals/gradientPickerModal";
 export * from "./ui/modals/newNameModal";
+export * from "./ui/modals/propertyModal";
 export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapePickerModal";
 export * from "./ui/modals/shapeQueryModal";

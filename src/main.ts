@@ -42,9 +42,10 @@ export default class ExtendedGraphPlugin extends Plugin {
     // ================================ SETTINGS ===============================
 
     async loadSettings() {
-        const data = await this.loadData();
+        let data = await this.loadData();
         // Comlete default settings
         this.completeDefaultSettings();
+        if (!data) data = DEFAULT_SETTINGS;
         // Remove invalid shallow keys
         for (const key in data) {
             if (!DEFAULT_SETTINGS.hasOwnProperty(key)) {
