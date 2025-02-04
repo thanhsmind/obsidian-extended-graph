@@ -121,7 +121,7 @@ export default class STRINGS {
 			diamond: "diamond",
 			pentagon: "pentagon",
 			hexagon: "hexagon",
-			octagon: "octogon",
+			octagon: "octagon",
 			decagon: "decagon",
 			star4: "star (4)",
 			star5: "star (5)",

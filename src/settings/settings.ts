@@ -154,7 +154,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'diamond'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'pentagon' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'hexagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'octogon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'octagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'decagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'star4'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'star5'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
