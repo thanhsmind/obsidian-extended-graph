@@ -118,8 +118,16 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
                 hasType = true;
             }
         }
-        if (!hasType && !this.managers.get(key)?.interactives.has(this.instances.settings.interactiveSettings[key].noneType)) {
-            missingTypes.add(this.instances.settings.interactiveSettings[key].noneType);
+        if (!hasType) {
+            const type = this.instances.settings.interactiveSettings[key].noneType;
+            if (!this.typesMap[key].hasOwnProperty(type)) {
+                this.typesMap[key][type] = new Set<string>();
+            }
+            this.typesMap[key][type].add(id);
+
+            if (!this.managers.get(key)?.interactives.has(type)) {
+                missingTypes.add(type);
+            }
         }
     }
 
