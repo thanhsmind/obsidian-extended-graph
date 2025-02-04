@@ -177,17 +177,16 @@ export class GraphEventsDispatcher extends Component {
         if (!this.listenStage) return;
         if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.leaf)) {
             this.listenStage = false;
-            setTimeout(() => {
-                PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.leaf.id);
-            });
+            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.leaf.id);
             return;
         }
         
         const node = this.instances.renderer.nodes.find(n => n.circle === child);
+        let addedNodes: Set<string> = new Set();
         if (node) {
             const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
-                this.instances.nodesSet.load();
+                addedNodes = this.instances.nodesSet.load();
             }
             else {
                 extendedNode.setCoreElement(node);
@@ -195,6 +194,7 @@ export class GraphEventsDispatcher extends Component {
         }
 
         const linkPx = this.instances.renderer.links.find(l => l.px === child);
+        let addedLinks: Set<string> = new Set();
         if (linkPx) {
             const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(linkPx));
             if (!extendedLink) {
@@ -204,6 +204,13 @@ export class GraphEventsDispatcher extends Component {
                 extendedLink.setCoreElement(linkPx);
             }
         }
+/*
+        if (addedNodes.size > 0) {
+            this.instances.nodesSet.loadCascadesForMissingElements(addedNodes);
+        }
+        if (addedLinks.size > 0) {
+            this.instances.linksSet.loadCascadesForMissingElements(addedLinks);
+        }*/
     }
 
     private onPointerDown(): void {
@@ -232,6 +239,14 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
+        if (this.instances.nodesSet.elementsToAddToCascade) {
+            this.instances.nodesSet.loadCascadesForMissingElements(this.instances.nodesSet.elementsToAddToCascade);
+            this.instances.nodesSet.elementsToAddToCascade = null;
+        }
+        if (this.instances.linksSet.elementsToAddToCascade) {
+            this.instances.linksSet.loadCascadesForMissingElements(this.instances.linksSet.elementsToAddToCascade);
+            this.instances.linksSet.elementsToAddToCascade = null;
+        }
         if (this.instances.settings.enableFeatures[this.instances.type]['folders']) this.instances.foldersSet.updateGraphics();
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
             for (const id of this.instances.linksSet.connectedIDs) {

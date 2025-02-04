@@ -176,7 +176,7 @@ export class Graph extends Component {
      * Disables links specified by their IDs.
      * @param ids - Set of link IDs to disable.
      */
-    private disableLinks(ids: Set<string>): boolean {
+    disableLinks(ids: Set<string>): boolean {
         const disabledLinks = this.instances.linksSet.disableElements([...ids], DisconnectionCause.USER);
 
         if (this.instances.settings.enableFeatures[this.instances.type]['source'] || this.instances.settings.enableFeatures[this.instances.type]['target']) {
@@ -298,6 +298,35 @@ export class Graph extends Component {
         this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
     }
 
+    addLinkInCascadesAfterCreation(linkID: string): boolean {
+        const extendedLink = this.instances.linksSet.extendedElementsMap.get(linkID);
+        if (extendedLink) return false;
+
+        let shouldBeDisabled = false;
+
+        // Add in nodes cascading
+        for (const [disabledNodeID, cascade] of this.nodesDisconnectionCascade) {
+            const cascadeDisabledLinks = this.getLinksByCascadingNode(disabledNodeID, [linkID]);
+            if (cascadeDisabledLinks.has(linkID)) {
+                cascade.links.add(linkID);
+                shouldBeDisabled = true;
+            }
+        }
+
+        // Add in links cascading
+        for (const [disabledLinkID, cascade] of this.linksDisconnectionCascade) {
+            const cascadeDisabledNodes = this.getNodesByCascadingLink(linkID);
+            for (const disabledNodeID of cascadeDisabledNodes) {
+                const cascadeDisabledLinks = this.getLinksByCascadingNode(disabledNodeID, [linkID]);
+                if (cascadeDisabledLinks.has(linkID)) {
+                    cascade.links.add(linkID);
+                    shouldBeDisabled = true;
+                }
+            }
+        }
+        return shouldBeDisabled;
+    }
+
     // ============================ UPDATING NODES =============================
 
     disableNodeInteractiveTypes(key: string, types: string[]): boolean {
@@ -332,7 +361,7 @@ export class Graph extends Component {
      * Disables nodes specified by their IDs and cascades the disconnection to related links.
      * @param ids - Array of node IDs to disable.
      */
-    private disableNodes(ids: string[]): boolean {
+    disableNodes(ids: string[]): boolean {
         // Disable nodes directly
         const disabledNodes = this.instances.nodesSet.disableElements(ids, DisconnectionCause.USER);
 
@@ -424,6 +453,23 @@ export class Graph extends Component {
         // Enable links by cascading
         const linksToEnable = [...cascade.links].filter(id => !linksToKeepDisabled.includes(id));
         this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
+    }
+
+    addNodeInCascadesAfterCreation(nodeID: string): boolean {
+        const extendedNode = this.instances.nodesSet.extendedElementsMap.get(nodeID);
+        if (extendedNode) return false;
+
+        let shouldBeDisabled = false;
+
+        // Add in links cascading
+        for (const [disabledLinkID, cascade] of this.linksDisconnectionCascade) {
+            const cascadeDisabledNodes = this.getNodesByCascadingLink(nodeID);
+            if (cascadeDisabledNodes.has(nodeID)) {
+                cascade.nodes.add(nodeID);
+                shouldBeDisabled = true;
+            }
+        }
+        return shouldBeDisabled;
     }
 
     disableOrphans() : boolean {

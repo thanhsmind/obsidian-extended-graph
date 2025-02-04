@@ -18,10 +18,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // ================================ LOADING ================================
 
-    override load(): void {
-        super.load();
-    }
-
     protected override handleMissingElements(ids: Set<string>): void {
         this.loadAssets(ids);
     }
@@ -110,6 +106,20 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         this.extendedElementsMap.set(id, extendedGraphNode);
         this.connectedIDs.add(id);
+
+    }
+
+    override loadCascadesForMissingElements(ids: Set<string>): void {
+        for (const id of ids) {
+            const extendedGraphNode = this.extendedElementsMap.get(id);
+            if (!extendedGraphNode) continue;
+            if (extendedGraphNode.isAnyManagerDisabled()) {
+                this.instances.graph.disableNodes([extendedGraphNode.id]);
+            }
+            if (this.instances.graph.addNodeInCascadesAfterCreation(extendedGraphNode.id) && !extendedGraphNode.isActive) {
+                this.disableElements([extendedGraphNode.id], DisconnectionCause.USER);
+            }
+        }
     }
 
     // ================================ GETTERS ================================

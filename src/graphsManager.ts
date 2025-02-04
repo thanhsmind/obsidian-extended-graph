@@ -1,7 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause } from "./internal";
-import ExtendedGraphPlugin from "./main";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -48,7 +47,13 @@ export class GraphsManager extends Component {
         this.registerEvent(PluginInstances.app.vault.on('delete', (file) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onDelete(file);
-        }))
+        }));
+
+        this.onRename = this.onRename.bind(this);
+        this.registerEvent(PluginInstances.app.vault.on('rename', (file, oldPath) => {
+            if (!this.isCoreGraphLoaded()) return;
+            this.onRename(file, oldPath);
+        }));
 
         this.onCSSChange = this.onCSSChange.bind(this);
         this.registerEvent(PluginInstances.app.workspace.on('css-change', ()  => {
@@ -208,7 +213,7 @@ export class GraphsManager extends Component {
             }
 
             // Update links interactives
-            let newOutlinkTypes = getOutlinkTypes(file);
+            let newOutlinkTypes = getOutlinkTypes(instances.settings, file);
             const linkManager = instances.linksSet.managers.get(LINK_KEY);
             if (!linkManager) return;
             for (let [targetID, newTypes] of newOutlinkTypes) {
@@ -337,6 +342,247 @@ export class GraphsManager extends Component {
             for (const [leafID, instances] of this.allInstances) {
                 const foldersSet = instances.foldersSet;
                 foldersSet.managers.get(FOLDER_KEY)?.removeTypes([id]);
+            }
+        }
+    }
+
+    private onRename(file: TAbstractFile, oldPath: string) {
+        const newPath = file.path;
+        let predicate: (oldPath: string, currentPath: string) => boolean;
+
+        if (file instanceof TFile) {
+            predicate = function(oldPath: string, currentPath: string): boolean {
+                return oldPath === currentPath;
+            }
+        }
+        else {
+            predicate = function(oldPath: string, currentPath: string): boolean {
+                return currentPath.startsWith(oldPath + "/");
+            }
+        }
+
+        for (const [leafID, instances] of this.allInstances) {
+            // Nodes cascades
+            instances.graph.linksDisconnectionCascade = new Map(
+                [...instances.graph.linksDisconnectionCascade].filter(([linkID, cascade]) => {
+                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                    return extendedLink
+                        && !predicate(oldPath, extendedLink.coreElement.source.id)
+                        && !predicate(oldPath, extendedLink.coreElement.target.id);
+                })
+            );
+            for (const [id, linkCascade] of instances.graph.linksDisconnectionCascade) {
+                [...linkCascade.nodes].filter(currentPath => !predicate(oldPath, currentPath));
+            }
+            for (const [id, linkCascade] of instances.graph.linksDisconnectionCascade) {
+                [...linkCascade.links].filter(linkID => {
+                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                    return extendedLink
+                        && !predicate(oldPath, extendedLink.coreElement.source.id)
+                        && !predicate(oldPath, extendedLink.coreElement.target.id);
+                });
+            }
+            // Links cascades
+            instances.graph.nodesDisconnectionCascade = new Map(
+                [...instances.graph.nodesDisconnectionCascade].filter(([nodeID, cascade]) => {
+                    return !predicate(oldPath, nodeID);
+                })
+            );
+            for (const [id, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+                [...nodeCascade.nodes].filter(currentPath => !predicate(oldPath, currentPath));
+            }
+            for (const [id, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+                [...nodeCascade.links].filter(linkID => {
+                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                    return extendedLink
+                        && !predicate(oldPath, extendedLink.coreElement.source.id)
+                        && !predicate(oldPath, extendedLink.coreElement.target.id);
+                });
+            }
+            // Type maps
+            for (const [key, manager] of instances.nodesSet.managers) {
+                instances.nodesSet.typesMap[key] = Object.fromEntries(
+                    Object.entries(instances.nodesSet.typesMap[key]).map(([type, nodeIDs]) => {
+                        return [type, new Set([...nodeIDs].filter(nodeID => !predicate(oldPath, nodeID)))];
+                    })
+                );
+            }
+            for (const [key, manager] of instances.linksSet.managers) {
+                instances.linksSet.typesMap[key] = Object.fromEntries(
+                    Object.entries(instances.linksSet.typesMap[key]).map(([type, linkIDs]) => {
+                        return [type, new Set([...linkIDs].filter(linkID => {
+                            const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                            return extendedLink
+                                && !predicate(oldPath, extendedLink.coreElement.source.id)
+                                && !predicate(oldPath, extendedLink.coreElement.target.id);
+                        }))];
+                    })
+                );
+            }
+            // Connected nodes ids
+            instances.nodesSet.connectedIDs = new Set<string>(
+                [...instances.nodesSet.connectedIDs].filter(id => {
+                    return !predicate(oldPath, id);
+                })
+            );
+            // Disconnected nodes ids
+            for (const cause of Object.values(DisconnectionCause)) {
+                instances.nodesSet.disconnectedIDs[cause] = new Set<string>(
+                    [...instances.nodesSet.disconnectedIDs[cause]].filter(id => {
+                        return !predicate(oldPath, id);
+                    })
+                );
+            }
+            // Connected links ids
+            instances.linksSet.connectedIDs = new Set<string>(
+                [...instances.linksSet.connectedIDs].filter(linkID => {
+                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                    return extendedLink
+                        && !predicate(oldPath, extendedLink.coreElement.source.id)
+                        && !predicate(oldPath, extendedLink.coreElement.target.id);
+                })
+            );
+            // Disconnected links ids
+            for (const cause of Object.values(DisconnectionCause)) {
+                instances.linksSet.disconnectedIDs[cause] = new Set<string>(
+                    [...instances.linksSet.disconnectedIDs[cause]].filter(linkID => {
+                        const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
+                        return extendedLink
+                            && !predicate(oldPath, extendedLink.coreElement.source.id)
+                            && !predicate(oldPath, extendedLink.coreElement.target.id);
+                    })
+                );
+            }
+            // Pinned nodes
+            for (const [nodeID, extendedNode] of instances.nodesSet.extendedElementsMap) {
+                if (extendedNode.isPinned && predicate(oldPath, nodeID)) {
+                    instances.nodesSet.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
+                }
+            }
+            for (const state of PluginInstances.settings.states) {
+                if (!state.pinNodes) break;
+                const pinNodes = structuredClone(Object.entries(state.pinNodes));
+                for (const [currentPath, pos] of pinNodes) {
+                    if (predicate(oldPath, currentPath)) {
+                        delete state.pinNodes[currentPath];
+                        state.pinNodes[newPath] = pos;
+                    }
+                }
+                PluginInstances.plugin.saveSettings();
+            }
+            // Extended nodes
+            instances.nodesSet.extendedElementsMap = new Map<string, ExtendedGraphNode>(
+                [...instances.nodesSet.extendedElementsMap].filter(([id, extendedNode]) => {
+                    if (predicate(oldPath, id)) {
+                        extendedNode.graphicsWrapper?.destroyGraphics();
+                        extendedNode.graphicsWrapper?.disconnect();
+                        extendedNode.coreElement.clearGraphics();
+                        return false;
+                    }
+                    return true;
+                })
+            );
+            // Extended links
+            instances.linksSet.extendedElementsMap = new Map<string, ExtendedGraphLink>(
+                [...instances.linksSet.extendedElementsMap].filter(([id, extendedLink]) => {
+                    if (predicate(oldPath, extendedLink.coreElement.source.id) || predicate(oldPath, extendedLink.coreElement.target.id)) {
+                        extendedLink.graphicsWrapper?.destroyGraphics();
+                        extendedLink.graphicsWrapper?.disconnect();
+                        extendedLink.coreElement.clearGraphics();
+                        return false;
+                    }
+                    return true;
+                })
+            );
+        }
+    }
+
+    private renameNode(instances: GraphInstances, extendedNode: ExtendedGraphNode, oldID: string, newID: string) {
+        // Replace in connectedIDs
+        if (instances.nodesSet.connectedIDs.has(oldID)) {
+            instances.nodesSet.connectedIDs.delete(oldID);
+            //instances.nodesSet.connectedIDs.add(newID);
+        }
+        // Replace in disconnectedIDs
+        for (const cause of Object.values(DisconnectionCause)) {
+            if (instances.nodesSet.disconnectedIDs[cause].has(oldID)) {
+                instances.nodesSet.disconnectedIDs[cause].delete(oldID);
+                //instances.nodesSet.disconnectedIDs[cause].add(newID);
+            }
+        }
+        // Replace in the cascades
+        for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
+            if (linkCascade.nodes.has(oldID)) {
+                linkCascade.nodes.delete(oldID);
+                //linkCascade.nodes.add(newID);
+            }
+        }
+        for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+            if (nodeCascade.nodes.has(oldID)) {
+                nodeCascade.nodes.delete(oldID);
+                //nodeCascade.nodes.add(newID);
+            }
+        }
+        const cascade = instances.graph.nodesDisconnectionCascade.get(oldID);
+        if (cascade) {
+            instances.graph.nodesDisconnectionCascade.delete(oldID);
+            //instances.graph.nodesDisconnectionCascade.set(newID, cascade);
+        }
+        // Change the extended node ID
+        extendedNode.id = newID;
+        // Change the graphicsWrapper name
+        const graphicsWrapper = extendedNode.graphicsWrapper;
+        if (graphicsWrapper) {
+            //graphicsWrapper.name = newID;
+        }
+        // Replace in extendedElementsMap
+        instances.nodesSet.extendedElementsMap.delete(oldID)
+        instances.nodesSet.extendedElementsMap.set(newID, extendedNode);
+        
+        // Do the same for the link
+        for (const [oldLinkID, extendedLink] of instances.linksSet.extendedElementsMap) {
+            if (extendedLink.coreElement.source.id === newID || extendedLink.coreElement.target.id === newID) {
+                const newLinkID = getLinkID(extendedLink.coreElement);
+                // Replace in connectedIDs
+                if (instances.linksSet.connectedIDs.has(oldLinkID)) {
+                    instances.linksSet.connectedIDs.delete(oldLinkID);
+                    instances.linksSet.connectedIDs.add(newLinkID);
+                }
+                // Replace in disconnectedIDs
+                for (const cause of Object.values(DisconnectionCause)) {
+                    if (instances.linksSet.disconnectedIDs[cause].has(oldLinkID)) {
+                        instances.linksSet.disconnectedIDs[cause].delete(oldLinkID);
+                        instances.linksSet.disconnectedIDs[cause].add(newLinkID);
+                    }
+                }
+                // Replace in the cascades
+                for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
+                    if (linkCascade.links.has(oldLinkID)) {
+                        linkCascade.links.delete(oldLinkID);
+                        linkCascade.links.add(newLinkID);
+                    }
+                }
+                for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
+                    if (nodeCascade.links.has(oldLinkID)) {
+                        nodeCascade.links.delete(oldLinkID);
+                        nodeCascade.links.add(newLinkID);
+                    }
+                }
+                const cascade = instances.graph.linksDisconnectionCascade.get(oldLinkID);
+                if (cascade) {
+                    instances.graph.linksDisconnectionCascade.delete(oldLinkID);
+                    instances.graph.linksDisconnectionCascade.set(newLinkID, cascade);
+                }
+                // Change the extended node ID
+                extendedLink.id = newLinkID;
+                // Change the graphicsWrapper name
+                const graphicsWrapper = extendedLink.graphicsWrapper;
+                if (graphicsWrapper) {
+                    graphicsWrapper.name = newLinkID;
+                }
+                // Replace in extendedElementsMap
+                instances.linksSet.extendedElementsMap.delete(oldLinkID)
+                instances.linksSet.extendedElementsMap.set(newLinkID, extendedLink);
             }
         }
     }

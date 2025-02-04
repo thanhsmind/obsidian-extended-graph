@@ -97,7 +97,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     matchesTypes(key: string, newTypes: string[]): {typesToRemove: string[], typesToAdd: string[]} {
         const currentTypes = this.getTypes(key);
-        console.log("currentTypes", currentTypes);
         const typesToRemove = structuredClone(currentTypes);
         const typesToAdd = structuredClone(newTypes);
         for (const type of newTypes) {

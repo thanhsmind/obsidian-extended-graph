@@ -35,6 +35,19 @@ export class LinksSet extends AbstractSet<GraphLink> {
         this.connectedIDs.add(id);
     }
 
+    override loadCascadesForMissingElements(ids: Set<string>): void {
+        for (const id of ids) {
+            const extendedGraphLink = this.extendedElementsMap.get(id);
+            if (!extendedGraphLink) continue;
+            if (extendedGraphLink.isAnyManagerDisabled()) {
+                this.instances.graph.disableLinks(new Set([extendedGraphLink.id]));
+            }
+            if (this.instances.graph.addLinkInCascadesAfterCreation(extendedGraphLink.id) && !extendedGraphLink.isActive) {
+                this.disableElements([extendedGraphLink.id], DisconnectionCause.USER);
+            }
+        }
+    }
+
     protected override clearExtendedElement(el: ExtendedGraphLink): void {
         super.clearExtendedElement(el);
         el.restoreCoreLinkThickness();
@@ -47,7 +60,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
     }
 
     protected override getTypesFromFile(key: string, link: GraphLink, file: TFile): Set<string> {
-        const outlinkTypes = getOutlinkTypes(file);
+        const outlinkTypes = getOutlinkTypes(this.instances.settings, file);
         return outlinkTypes.get(link.target.id) ?? new Set<string>();
     }
 

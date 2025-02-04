@@ -1,7 +1,7 @@
 import { App, getAllTags, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { GraphEngine, GraphLink, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
-import { FOLDER_KEY, PluginInstances, TAG_KEY, WorkspaceLeafExt } from "./internal";
+import { ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY, WorkspaceLeafExt } from "./internal";
 import STRINGS from "./Strings";
 
 export function getSVGNode(n: string, v?: any): SVGElement {
@@ -246,16 +246,16 @@ export function isTagValid(name: string): boolean {
     return /^[a-zA-Z/]+$/.test(name);
 }
 
-export function getOutlinkTypes(file: TFile): Map<string, Set<string>> {
+export function getOutlinkTypes(settings: ExtendedGraphSettings, file: TFile): Map<string, Set<string>> {
     const dv = getDataviewAPI(PluginInstances.app);
-    return dv ? getOutlinkTypesWithDataview(dv, file) : getOutlinkTypesWithFrontmatter(file);
+    return dv ? getOutlinkTypesWithDataview(settings, dv, file) : getOutlinkTypesWithFrontmatter(file);
 }
 
-function getOutlinkTypesWithDataview(dv: DataviewApi, file: TFile): Map<string, Set<string>> {
+function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: DataviewApi, file: TFile): Map<string, Set<string>> {
     const linkTypes = new Map<string, Set<string>>();
     const sourcePage = dv.page(file.path);
     for (const [key, value] of Object.entries(sourcePage)) {
-        if (key === "file" || key === this.instances.settings.imageProperty) continue;
+        if (key === "file" || key === settings.imageProperty) continue;
         if (value === null || value === undefined || value === '') continue;
 
         if ((typeof value === "object") && ("path" in value)) {
