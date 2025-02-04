@@ -115,7 +115,7 @@ export function getFile(path: string): TFile | null {
 export function getImageUri(keyProperty: string, path: string): string | null {
     const file = getFile(path);
     if (file) {
-        const metadata = app.metadataCache.getFileCache(file);
+        const metadata = PluginInstances.app.metadataCache.getFileCache(file);
         const frontmatter = metadata?.frontmatter;
         let imageLink = null;
         if (frontmatter) {
@@ -125,8 +125,8 @@ export function getImageUri(keyProperty: string, path: string): string | null {
             else if (Array.isArray(frontmatter[keyProperty])) {
                 imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
             }
-            const imageFile = imageLink ? app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
-            const imageUri = imageFile ? app.vault.getResourcePath(imageFile): null;
+            const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
+            const imageUri = imageFile ? PluginInstances.app.vault.getResourcePath(imageFile): null;
             if (imageUri) return imageUri;
         }
     }
