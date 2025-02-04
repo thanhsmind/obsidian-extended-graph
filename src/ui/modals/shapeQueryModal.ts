@@ -156,7 +156,7 @@ class RuleSetting extends Setting {
     sourceDropdown: DropdownComponent;
     propertyDropdown: DropdownComponent | null;
     logicDropdown: DropdownComponent;
-    valueText: SearchComponent;
+    valueText: SearchComponent | null;
     suggester: InteractivesSuggester;
 
     constructor(containerEl: HTMLElement, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
@@ -174,11 +174,11 @@ class RuleSetting extends Setting {
             this.sourceDropdown.setValue(queryRecord['source']);
             this.propertyDropdown?.setValue(queryRecord['property']);
             this.logicDropdown.setValue(queryRecord['logic']);
-            this.valueText.setValue(queryRecord['value']);
+            this.valueText?.setValue(queryRecord['value']);
         }
 
         this.onChangeCallback = onChange;
-        this.onChange(this.valueText.getValue());
+        this.onChange();
     }
 
     private addRemoveButton(): RuleSetting {
@@ -201,7 +201,7 @@ class RuleSetting extends Setting {
                 else if (this.propertyDropdown) {
                     this.propertyDropdown.selectEl.parentNode?.removeChild(this.propertyDropdown.selectEl);
                 }
-                this.onChange(value);
+                this.onChange();
 			});
         });
     }
@@ -213,7 +213,7 @@ class RuleSetting extends Setting {
             const properties = PluginInstances.app.metadataTypeManager.properties;
             cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {} ));
             cb.onChange(value => {
-                this.onChange(value);
+                this.onChange();
             });
         });
     }
@@ -224,12 +224,13 @@ class RuleSetting extends Setting {
             cb.addOptions(logicKeyLabel);
             cb.onChange((value: LogicKey) => {
                 if (value !== 'isEmpty' && value !== 'isEmptyNot') {
-                    this.addValueText();
+                    if (!this.valueText) this.addValueText();
                 }
-                else {
+                else if (this.valueText) {
                     this.valueText.containerEl.parentNode?.removeChild(this.valueText.containerEl);
+                    this.valueText = null;
                 }
-                this.onChange(value);
+                this.onChange();
             });
         })
     }
@@ -240,15 +241,15 @@ class RuleSetting extends Setting {
             cb.setPlaceholder(STRINGS.plugin.valuePlaceholder);
             cb.inputEl.setAttr('required', true);
             this.suggester = new InteractivesSuggester(this.valueText.inputEl, (value: string) => {
-                this.onChange(value);
+                this.onChange();
             });
             cb.onChange(value => {
-                this.onChange(value);
+                this.onChange();
             })
         });
     }
 
-    onChange(value: string): void {
+    onChange(): void {
         const logic = this.logicDropdown.getValue() as LogicKey;
         switch (logic) {
             case 'containsRegex':
@@ -280,7 +281,7 @@ class RuleSetting extends Setting {
         return new RuleQuery({
             source  : this.sourceDropdown.getValue(),
             property: this.propertyDropdown?.getValue() ?? '',
-            value   : this.valueText.getValue(),
+            value   : this.valueText?.getValue() ?? '',
             logic   : this.logicDropdown.getValue(),
         });
     }
