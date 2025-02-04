@@ -577,7 +577,7 @@ body {
         }
 
         .setting-item-control {
-            align-items: flex-start;
+            justify-content: flex-start;
             max-width: 100%;
 
             > *:not(.clickable-icon) {

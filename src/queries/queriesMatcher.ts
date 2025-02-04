@@ -41,7 +41,7 @@ export class QueryMatcher {
             if (!ruleStr) continue;
             queryDataStr += ruleStr;
             if (i !== this.queryData.rules.length - 1) {
-                queryDataStr += " " + STRINGS.query[this.queryData.combinationLogic]
+                queryDataStr += " " + STRINGS.query[this.queryData.combinationLogic] + " ";
             };
         }
         return queryDataStr;

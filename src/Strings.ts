@@ -174,6 +174,8 @@ export default class STRINGS {
 			containsRegexNot: "doesn't contain regex",
 			matchesRegex: "matches regex",
 			matchesRegexNot: "doesn't match regex",
+			isEmpty: "is empty",
+			isEmptyNot: "is not empty",
 		},
 		matchingFiles: "Matching files",
 		query: "Query",

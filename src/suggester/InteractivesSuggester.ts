@@ -53,7 +53,7 @@ export class InteractivesSuggester extends AbstractInputSuggest<string> {
         return [...sortedValues];
     }
 
-    setKey(key: SourceKey, propertyKey?: string): void {
+    setKey(key?: SourceKey, propertyKey?: string): void {
         this.key = key;
         this.propertyKey = propertyKey;
     }

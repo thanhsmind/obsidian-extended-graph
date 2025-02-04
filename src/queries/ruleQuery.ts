@@ -3,7 +3,7 @@ import { getFileInteractives, LINK_KEY, PluginInstances, TAG_KEY } from "src/int
 import STRINGS from "src/Strings";
 
 export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec';
-export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot';
+export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot' | 'isEmpty' | 'isEmptyNot';
 
 export const sourceKeyLabels: Record<SourceKey, string> = {
     'tag': STRINGS.query.source.tag,
@@ -23,6 +23,8 @@ export const logicKeyLabel: Record<LogicKey, string> = {
     'containsRegexNot': STRINGS.query.logicKey.containsRegexNot,
     'matchesRegex': STRINGS.query.logicKey.matchesRegex,
     'matchesRegexNot': STRINGS.query.logicKey.matchesRegexNot,
+    'isEmpty': STRINGS.query.logicKey.isEmpty,
+    'isEmptyNot': STRINGS.query.logicKey.isEmptyNot,
 }
 
 export class RuleQuery {
@@ -103,19 +105,23 @@ export class RuleQuery {
                 case 'is':
                     return valuesToCheck.length === 1 && values[0] === this.value;
                 case 'isNot':
-                    return valuesToCheck.length === 1 && values[0] !== this.value;
+                    return (valuesToCheck.length === 1 && values[0] !== this.value) || valuesToCheck.length !== 1;
                 case 'contains':
-                    return isArray && valuesToCheck.contains(this.value);
+                    return valuesToCheck.contains(this.value);
                 case 'containsNot':
-                    return isArray && !valuesToCheck.contains(this.value);
+                    return !valuesToCheck.contains(this.value);
                 case 'matchesRegex':
-                    return valuesToCheck.length === 1 && new RegExp(valuesToCheck[0]).test(fullWordRegex);
+                    return valuesToCheck.length === 1 && new RegExp(fullWordRegex).test(valuesToCheck[0]);
                 case 'matchesRegexNot':
-                    return valuesToCheck.length === 1 && !(new RegExp(valuesToCheck[0]).test(fullWordRegex));
+                    return (valuesToCheck.length === 1 && !(new RegExp(fullWordRegex).test(valuesToCheck[0]))) || valuesToCheck.length !== 1;
                 case 'containsRegex':
-                    return isArray && valuesToCheck.some(v => new RegExp(v).test(this.value));
+                    return valuesToCheck.some(v => new RegExp(this.value).test(v));
                 case 'containsRegexNot':
-                    return isArray && valuesToCheck.every(v => !(new RegExp(v).test(this.value)));
+                    return valuesToCheck.every(v => !(new RegExp(this.value).test(v)));
+                case 'isEmpty':
+                    return valuesToCheck.length === 0;
+                case 'isEmptyNot':
+                    return valuesToCheck.length > 0;
                 default:
                     break;
             }
@@ -132,13 +138,17 @@ export class RuleQuery {
                 case 'containsNot':
                     return !valueToCheck.contains(this.value);
                 case 'matchesRegex':
-                    return new RegExp(valueToCheck).test(fullWordRegex);
+                    return new RegExp(fullWordRegex).test(valueToCheck);
                 case 'matchesRegexNot':
-                    return !(new RegExp(valueToCheck).test(fullWordRegex));
+                    return !(new RegExp(fullWordRegex).test(valueToCheck));
                 case 'containsRegex':
-                    return new RegExp(valueToCheck).test(this.value);
+                    return new RegExp(this.value).test(valueToCheck);
                 case 'containsRegexNot':
-                    return !(new RegExp(valueToCheck).test(this.value));
+                    return !(new RegExp(this.value).test(valueToCheck));
+                case 'isEmpty':
+                    return valueToCheck === "";
+                case 'isEmptyNot':
+                    return valueToCheck !== "";
                 default:
                     break;
             }
@@ -150,8 +160,8 @@ export class RuleQuery {
     isValid(): boolean {
         if (this.source === "") return false;
         if (this.source === "property" && this.property === "") return false;
-        if (this.value === "") return false;
         if (this.logic === "") return false;
+        if (this.value === "" && this.logic !== 'isEmpty' && this.logic !== 'isEmptyNot') return false;
         return true;
     }
 

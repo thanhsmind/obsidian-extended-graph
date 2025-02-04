@@ -1,5 +1,5 @@
 import { App, ButtonComponent, DropdownComponent, Modal, SearchComponent, Setting, TextComponent } from "obsidian";
-import { CombinationLogic, FOLDER_KEY, InteractivesSuggester, LINK_KEY, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, SourceKey, sourceKeyLabels, TAG_KEY, UIElements } from "src/internal";
+import { CombinationLogic, FOLDER_KEY, InteractivesSuggester, LINK_KEY, LogicKey, logicKeyLabel, NodeShape, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, ShapeEnum, SourceKey, sourceKeyLabels, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class ShapeQueryModal extends Modal {
@@ -182,7 +182,7 @@ class RuleSetting extends Setting {
         }
 
         this.onChangeCallback = onChange;
-        this.onChange();
+        this.onChange(this.valueText.getValue());
     }
 
     private addRemoveButton(): RuleSetting {
@@ -205,7 +205,7 @@ class RuleSetting extends Setting {
                 else if (this.propertyDropdown) {
                     this.propertyDropdown.selectEl.parentNode?.removeChild(this.propertyDropdown.selectEl);
                 }
-                this.onChange();
+                this.onChange(value);
 			});
         });
     }
@@ -217,7 +217,7 @@ class RuleSetting extends Setting {
             const properties = this.app.metadataTypeManager.properties;
             cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {} ));
             cb.onChange(value => {
-                this.onChange();
+                this.onChange(value);
             });
         });
     }
@@ -226,9 +226,15 @@ class RuleSetting extends Setting {
         return this.addDropdown(cb => {
             this.logicDropdown = cb;
             cb.addOptions(logicKeyLabel);
-            cb.onChange(value => {
-                this.onChange();
-            })
+            cb.onChange((value: LogicKey) => {
+                if (value !== 'isEmpty' && value !== 'isEmptyNot') {
+                    this.addValueText();
+                }
+                else {
+                    this.valueText.containerEl.parentNode?.removeChild(this.valueText.containerEl);
+                }
+                this.onChange(value);
+            });
         })
     }
 
@@ -238,13 +244,27 @@ class RuleSetting extends Setting {
             cb.setPlaceholder(STRINGS.plugin.valuePlaceholder);
             cb.inputEl.setAttr('required', true);
             this.suggester = new InteractivesSuggester(this.valueText.inputEl, (value: string) => {
-                this.onChange();
+                this.onChange(value);
             });
+            cb.onChange(value => {
+                this.onChange(value);
+            })
         });
     }
 
-    onChange(): void {
-        this.suggester.setKey(this.sourceDropdown.getValue() as SourceKey, this.propertyDropdown?.getValue());
+    onChange(value: string): void {
+        const logic = this.logicDropdown.getValue() as LogicKey;
+        switch (logic) {
+            case 'containsRegex':
+            case 'containsRegexNot':
+            case 'matchesRegex':
+            case 'matchesRegexNot':
+                this.suggester.setKey();
+                break;
+            default:
+                this.suggester.setKey(this.sourceDropdown.getValue() as SourceKey, this.propertyDropdown?.getValue());
+                break;
+        }
 
         const ruleQuery = this.getRuleQuery();
         this.setValidity(ruleQuery);
