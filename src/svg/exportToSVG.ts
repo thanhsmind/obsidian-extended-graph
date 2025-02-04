@@ -1,4 +1,4 @@
-import { HexString } from "obsidian";
+import { HexString, moment } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, GraphInstances, int2hex, NodeShape, PluginInstances, polar2Cartesian, rgb2hex } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
@@ -410,7 +410,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
 
     private createImageName(): string {
         const stateName = PluginInstances.statesManager.getStateDataById(this.instances.statesUI.currentStateID);
-        const timestamp = window.moment().format("YYYYMMDDHHmmss");
+        const timestamp = moment().format("YYYYMMDDHHmmss");
         return `graph${stateName ? '-' + stateName : ''}-${timestamp}.svg`;
     }
 
