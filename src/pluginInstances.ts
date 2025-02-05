@@ -32,6 +32,7 @@ export class GraphInstances {
     foldersUI: GCFolders | null = null;
     statesUI: StatesUI;
 
+    colorGroupHaveChanged: boolean = false;
 
     constructor(leaf: WorkspaceLeafExt) {
         this.leaf = leaf;

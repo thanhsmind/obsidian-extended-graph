@@ -90,6 +90,10 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.opacityLayer.drawFill(backgroundColor);
     }
 
+    updateFillColor(): void {
+
+    }
+
     // ========================== CONNECT/DISCONNECT ===========================
     
     updateCoreElement(): void {

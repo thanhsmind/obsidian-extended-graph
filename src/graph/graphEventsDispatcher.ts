@@ -158,7 +158,7 @@ export class GraphEventsDispatcher extends Component {
     onunload(): void {
         this.unbindStageEvents();
         this.instances.renderer.renderCallback = this.renderCallback;
-        this.observerOrphans.disconnect();
+        this.observerOrphans?.disconnect();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.leaf);
     }
 
@@ -246,6 +246,12 @@ export class GraphEventsDispatcher extends Component {
         if (this.instances.linksSet.elementsToAddToCascade) {
             this.instances.linksSet.loadCascadesForMissingElements(this.instances.linksSet.elementsToAddToCascade);
             this.instances.linksSet.elementsToAddToCascade = null;
+        }
+        if (this.instances.colorGroupHaveChanged) {
+            for (const [id, extendedElement] of this.instances.nodesSet.extendedElementsMap) {
+                extendedElement.graphicsWrapper?.updateFillColor();
+            }
+            this.instances.colorGroupHaveChanged = false;
         }
         if (this.instances.foldersSet) this.instances.foldersSet.updateGraphics();
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {

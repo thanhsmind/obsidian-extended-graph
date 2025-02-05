@@ -29,17 +29,20 @@ export class StatesManager {
 
     // ============================= CHANGE STATE ==============================
     
-    changeState(instance: GraphInstances, id: string) {
+    changeState(instances: GraphInstances, id: string) {
         let stateData = this.getStateDataById(id);
         if (!stateData) return;
 
         stateData = this.validateStateData(stateData);
-        this.updateInteractiveManagers(stateData, instance).then(() => {
-            if (!stateData) return;
-            if (stateData.engineOptions) instance.engine.setOptions(stateData.engineOptions);
-            instance.graph.updateWorker();
-            instance.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
-            instance.engine.updateSearch();
+        if (!stateData) return;
+        this.updateInteractiveManagers(stateData, instances).then(() => {
+            if (stateData.engineOptions) {
+                instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
+                instances.engine.setOptions(stateData.engineOptions);
+            }
+            instances.graph.updateWorker();
+            instances.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
+            instances.engine.updateSearch();
         });
     }
 

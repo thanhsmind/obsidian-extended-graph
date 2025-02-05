@@ -45,6 +45,7 @@ export class NodeShape extends Graphics {
     }
 
     drawFill(color: ColorSource): NodeShape {
+        this.clear();
         return this.beginFill(color)
                    .drawUniqueShape()
                    .endFill();

@@ -60,6 +60,13 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         }
     }
 
+    // ============================ UPDATE GRAPHICS ============================
+
+    override updateFillColor() {
+        super.updateFillColor();
+        this.background?.drawFill(this.getFillColor().rgb);
+    }
+
     // ============================ CLEAR GRAPHICS =============================
 
     override clearGraphics(): void {
