@@ -213,7 +213,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     protected override addFolders(): void {
         if (!this.groupFolders) return;
         const folderBlobs = this.instances.foldersSet;
-        const manager = folderBlobs.managers.get(FOLDER_KEY);
+        const manager = folderBlobs?.managers.get(FOLDER_KEY);
         if (!manager) return;
         const visibleFolders = this.getVisibleFolders();
         for (const blob of visibleFolders) {
@@ -402,6 +402,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
 
     protected getVisibleFolders(): FolderBlob[] {
         const visibleNodes = this.getVisibleNodes();
+        if (!this.instances.foldersSet) return [];
         return [...this.instances.foldersSet.foldersMap.values()]
             .filter(blob => visibleNodes
                 .some(visibleNode => blob.nodes.includes(visibleNode.coreElement))

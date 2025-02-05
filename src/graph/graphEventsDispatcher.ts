@@ -56,7 +56,7 @@ export class GraphEventsDispatcher extends Component {
         const graphControls = PluginInstances.graphsManager.globalUIs.get(this.instances.leaf.id)?.control;
         if (!graphControls) return;
 
-        const foldersManager = this.instances.foldersSet.managers.get(FOLDER_KEY);
+        const foldersManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);
         if (!foldersManager) return;
         this.instances.foldersUI = new GCFolders(this.instances.leaf, foldersManager);
         this.instances.foldersUI.display();
@@ -247,7 +247,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.linksSet.loadCascadesForMissingElements(this.instances.linksSet.elementsToAddToCascade);
             this.instances.linksSet.elementsToAddToCascade = null;
         }
-        if (this.instances.settings.enableFeatures[this.instances.type]['folders']) this.instances.foldersSet.updateGraphics();
+        if (this.instances.foldersSet) this.instances.foldersSet.updateGraphics();
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
             for (const id of this.instances.linksSet.connectedIDs) {
                 this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.pixiElement.updateFrame();
@@ -439,7 +439,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault) {
+        if (PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault && this.instances.foldersSet) {
             for (const [path, color] of colorMaps) {
                 this.instances.foldersSet.addFolder(FOLDER_KEY, path);
             }
@@ -456,6 +456,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onFolderColorChanged(path: string, color: Uint8Array) {
+        if (!this.instances.foldersSet) return;
         this.instances.foldersSet.updateColor(FOLDER_KEY, path);
         this.instances.foldersUI?.update(FOLDER_KEY, path, color);
         this.instances.renderer.changed();
@@ -478,11 +479,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private addBBox(path: string) {
+        if (!this.instances.foldersSet) return;
         this.instances.foldersSet.addFolder(FOLDER_KEY, path);
         this.instances.renderer.changed();
     }
 
     private removeBBox(path: string) {
+        if (!this.instances.foldersSet) return;
         this.instances.foldersSet.removeFolder(path);
         this.instances.renderer.changed();
     }

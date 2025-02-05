@@ -1,6 +1,6 @@
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { DisconnectionCause, ExtendedGraphElement, Graph, GraphInstances, InteractiveManager, TAG_KEY } from "src/internal";
+import { DisconnectionCause, ExtendedGraphElement, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
@@ -214,9 +214,14 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         return ids;
     }
 
+    protected isTypeValid(key: string, type: string): boolean {
+        if (this.instances.settings.interactiveSettings[key].unselected.includes(type)) return false;
+        if (INVALID_KEYS[key].includes(type)) return false;
+        return true;
+    }
+
     protected abstract getID(coreElement: T): string;
     protected abstract getTypesFromFile(key: string, coreElement: T, file: TFile): Set<string>;
-    protected abstract isTypeValid(key: string, type: string): boolean;
     protected abstract getAbstractFile(coreElement: T): TAbstractFile | null;
     
     // ============================= TOGGLE TYPES ==============================

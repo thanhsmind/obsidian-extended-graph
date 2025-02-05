@@ -131,12 +131,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
     protected override getTypesFromFile(key: string, element: GraphNode, file: TFile): Set<string> {
         return getFileInteractives(key, file);
     }
-
-    protected override isTypeValid(key: string, type: string): boolean {
-        if (this.instances.settings.interactiveSettings[key].unselected.includes(type)) return false;
-        if (INVALID_KEYS[key].includes(type)) return false;
-        return true;
-    }
     
     protected getAbstractFile(node: GraphNode): TFile | null {
         return getFile(node.id);

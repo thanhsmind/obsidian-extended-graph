@@ -64,12 +64,6 @@ export class LinksSet extends AbstractSet<GraphLink> {
         return outlinkTypes.get(link.target.id) ?? new Set<string>();
     }
 
-    protected override isTypeValid(key: string, type: string): boolean {
-        if (this.instances.settings.interactiveSettings[LINK_KEY].unselected.includes(type)) return false;
-        if (INVALID_KEYS[LINK_KEY].includes(type)) return false;
-        return true;
-    }
-
     protected getAbstractFile(link: GraphLink): TFile | null {
         return getFile(link.source.id);
     }

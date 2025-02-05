@@ -19,7 +19,7 @@ export class GraphState {
         this.data.toggleTypes[LINK_KEY] = linksManager?.getTypes()
             .filter(type => PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
 
-        const folderManager = instances.foldersSet.managers.get(FOLDER_KEY);
+        const folderManager = instances.foldersSet?.managers.get(FOLDER_KEY);
         this.data.toggleTypes[FOLDER_KEY] = folderManager?.getTypes()
             .filter(type => PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault !== folderManager.isActive(type)) ?? [];
 

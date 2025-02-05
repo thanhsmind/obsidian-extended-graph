@@ -26,7 +26,7 @@ export class GraphInstances {
     
     nodesSet: NodesSet; // init in graph.ts (constructor)
     linksSet: LinksSet; // init in graph.ts (constructor)
-    foldersSet: FoldersSet; // init in graph.ts (constructor)
+    foldersSet: FoldersSet | undefined; // init in graph.ts (constructor)
     
     legendUI: LegendUI | null = null;
     foldersUI: GCFolders | null = null;

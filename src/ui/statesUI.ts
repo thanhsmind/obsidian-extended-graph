@@ -1,4 +1,4 @@
-import { Component, ExtraButtonComponent, Setting } from "obsidian";
+import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
 import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager, PluginInstances, GraphInstances } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
@@ -13,10 +13,10 @@ export class StatesUI extends Component {
 
     root: HTMLDivElement;
     toggleButton: ExtraButtonComponent;
-    select: HTMLSelectElement;
-    saveButton: HTMLElement;
-    addButton: HTMLElement;
-    deleteButton: HTMLElement;
+    select: DropdownComponent;
+    saveButton: ExtraButtonComponent;
+    addButton: ExtraButtonComponent;
+    deleteButton: ExtraButtonComponent;
     
     constructor(instances: GraphInstances) {
         super();
@@ -46,38 +46,38 @@ export class StatesUI extends Component {
         new Setting(this.root)
             .setName(STRINGS.states.states)
             .addDropdown(cb => {
-                this.select = cb.selectEl;
-                this.select.addEventListener('change', event => {
-                    this.currentStateID = this.select.value;
+                this.select = cb;
+                cb.onChange(value => {
+                    this.currentStateID = value;
                     this.displaySaveDeleteButton();
-                    PluginInstances.statesManager.changeState(this.instances, this.select.value);
-                });
+                    PluginInstances.statesManager.changeState(this.instances, value);
+                })
             })
             .addExtraButton(cb => {
-                this.addButton = cb.extraSettingsEl;
+                this.addButton = cb;
                 UIElements.setupExtraButton(cb, 'add');
-                this.addButton.addEventListener('click', event => {
-                    this.addButton.blur();
+                cb.onClick(() => {
+                    this.addButton.extraSettingsEl.blur();
                     this.openModalToAddState();
                 })
             })
             .addExtraButton(cb => {
-                this.saveButton = cb.extraSettingsEl;
+                this.saveButton = cb;
                 UIElements.setupExtraButton(cb, 'save');
-                this.saveButton.addEventListener('click', event => {
-                    PluginInstances.statesManager.saveState(this.instances, this.select.value);
+                cb.onClick(() => {
+                    PluginInstances.statesManager.saveState(this.instances, this.select.getValue());
                 });
             })
             .addExtraButton(cb => {
-                this.deleteButton = cb.extraSettingsEl;
+                this.deleteButton = cb;
                 UIElements.setupExtraButton(cb, 'delete');
-                this.deleteButton.addEventListener('click', event => {
-                    PluginInstances.statesManager.deleteState(this.select.value);
+                cb.onClick(() => {
+                    PluginInstances.statesManager.deleteState(this.select.getValue());
                 });
             });
 
         // CURRENT STATE ID
-        this.currentStateID = this.select.value;
+        this.currentStateID = this.select.getValue();
 
         if (PluginInstances.settings.collapseState) {
             this.close();
@@ -102,21 +102,18 @@ export class StatesUI extends Component {
     }
 
     addOption(key: string, name: string): void {
-        for (let i = 0; i < this.select.length; ++i) {
-            if (this.select.options[i].value == key) {
-                this.select.options[i].innerText = name;
+        for (let i = 0; i < this.select.selectEl.length; ++i) {
+            if (this.select.selectEl.options[i].value == key) {
+                this.select.selectEl.options[i].innerText = name;
                 return;
             }
         }
-        var option = document.createElement("option");
-        option.value = key;
-        option.text = name;
-        this.select.appendChild(option);
+        this.select.addOption(key, name);
     }
 
     addState(key: string, name: string) {
         this.addOption(key, name);
-        this.select.value = key;
+        this.select.setValue(key);
     }
 
     newState(name: string): boolean {
@@ -132,23 +129,24 @@ export class StatesUI extends Component {
             this.addOption(state.id, state.name);
         });
         if (PluginInstances.settings.states.find(v => v.id === this.currentStateID)) {
-            this.select.value = this.currentStateID;
+            this.select.setValue(this.currentStateID);
         }
         else {
-            this.currentStateID = this.select.value;
+            this.currentStateID = this.select.getValue();
         }
+        console.log(this.select.getValue());
         this.displaySaveDeleteButton();
     }
 
     clear() {
-        for(let i = this.select.length; i >= 0; i--) {
-            this.select.remove(i);
+        for(let i = this.select.selectEl.length; i >= 0; i--) {
+            this.select.selectEl.remove(i);
         }
     }
 
     private displaySaveDeleteButton() {
-        this.saveButton.style.display   = this.select.value !== DEFAULT_STATE_ID ? "" : "none";
-        this.deleteButton.style.display = this.select.value !== DEFAULT_STATE_ID ? "" : "none";
+        this.saveButton.extraSettingsEl.style.display   = this.select.getValue() !== DEFAULT_STATE_ID ? "" : "none";
+        this.deleteButton.extraSettingsEl.style.display = this.select.getValue() !== DEFAULT_STATE_ID ? "" : "none";
     }
 
     open() {

@@ -56,7 +56,7 @@ export class StatesManager {
         new Promise(resolve => setTimeout(() => {
             this.updateManagers(stateData, instance.nodesSet.managers, instance.legendUI);
             this.updateManagers(stateData, instance.linksSet.managers, instance.legendUI);
-            this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
+            if (instance.foldersSet) this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
         }, 200));
     }
     

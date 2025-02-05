@@ -30,7 +30,9 @@ export class Graph extends Component {
         // Sets
         this.instances.nodesSet  = new NodesSet(this.instances, this.getNodeManagers());
         this.instances.linksSet  = new LinksSet(this.instances, this.getLinkManagers());
-        this.instances.foldersSet = new FoldersSet(this.instances, this.getFolderManagers());
+        if (instances.settings.enableFeatures[instances.type]['folders']) {
+            this.instances.foldersSet = new FoldersSet(this.instances, this.getFolderManagers());
+        }
 
         // Functions to override
         this.overrideSearchGetValue();
@@ -102,7 +104,7 @@ export class Graph extends Component {
 
         this.instances.nodesSet.load();
         this.instances.linksSet.load();
-        this.instances.foldersSet.load();
+        this.instances.foldersSet?.load();
     }
 
     private delay(ms: number): Promise<void> {
@@ -118,7 +120,7 @@ export class Graph extends Component {
         this.updateWorker();
         this.instances.nodesSet.unload();
         this.instances.linksSet.unload();
-        this.instances.foldersSet.unload();
+        this.instances.foldersSet?.unload();
     }
 
     private restoreOriginalFunctions(): void {

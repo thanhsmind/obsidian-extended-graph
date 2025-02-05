@@ -341,7 +341,7 @@ export class GraphsManager extends Component {
         else if (file instanceof TFolder) {
             for (const [leafID, instances] of this.allInstances) {
                 const foldersSet = instances.foldersSet;
-                foldersSet.managers.get(FOLDER_KEY)?.removeTypes([id]);
+                foldersSet?.managers.get(FOLDER_KEY)?.removeTypes([id]);
             }
         }
     }
@@ -749,7 +749,7 @@ export class GraphsManager extends Component {
         new GraphEventsDispatcher(instances);
         if (stateID) {
             instances.statesUI.currentStateID = stateID;
-            instances.statesUI.select.value = stateID;
+            instances.statesUI.select.setValue(stateID);
         }
 
         this.allInstances.set(leaf.id, instances);
