@@ -57,14 +57,14 @@ export class MenuUI extends Component {
     setEnableUIState() {
         this.enabled = true;
         this.buttonEnable.extraSettingsEl.addClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, {placement: 'top'});
+        this.buttonEnable.setTooltip(`${STRINGS.controls.disable} ${STRINGS.plugin.name}`, {placement: 'top'});
         this.buttonReset.extraSettingsEl.style.display = "";
     }
 
     setDisableUIState() {
         this.enabled = false;
         this.buttonEnable.extraSettingsEl.removeClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.disable} ${STRINGS.plugin.name}`, {placement: 'top'});
+        this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, {placement: 'top'});
         this.buttonReset.extraSettingsEl.style.display = "none";
     }
 }
