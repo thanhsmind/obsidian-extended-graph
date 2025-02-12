@@ -131,6 +131,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     // ================================== PIN ==================================
 
     pin(): void {
+        const icon = this.pixiElement.getChildByName("pin");
+        if (icon) return;
         const svg = getIcon("pin");
         if (svg) {
             const bodyStyle = getComputedStyle(document.body);
@@ -158,7 +160,10 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
     unpin(): void {
         const icon = this.pixiElement.getChildByName("pin");
-        if (icon) this.pixiElement.removeChild(icon);
+        if (icon) {
+            icon.destroy();
+            this.pixiElement.removeChild(icon);
+        }
     }
 
     // ================================= COLOR =================================
