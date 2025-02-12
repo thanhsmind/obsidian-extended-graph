@@ -186,7 +186,8 @@ export default class STRINGS {
 			property: "Property",
 			file: "File",
 			folder: "Folder",
-			folderRec: "Folder and subfolders"
+			folderRec: "Folder and subfolders",
+			path: "Path"
 		},
 		viewMatches: "View matches",
 	};

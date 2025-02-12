@@ -3,7 +3,7 @@ import { getFileInteractives } from "src/helperFunctions";
 import { FOLDER_KEY, LINK_KEY, SourceKey, TAG_KEY } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
 
-export class InteractivesSuggester extends AbstractInputSuggest<string> {
+export class InteractivesSuggester extends AbstractInputSuggest<HTMLElement> {
     key: SourceKey | undefined;
     propertyKey: string | undefined;
     callback: (value: string) => void;
@@ -13,7 +13,7 @@ export class InteractivesSuggester extends AbstractInputSuggest<string> {
         this.callback = callback;
     }
 
-    protected getSuggestions(query: string): string[] {
+    protected getSuggestions(query: string): HTMLElement[] {
         if (!this.key) return [];
         const files = PluginInstances.app.vault.getMarkdownFiles();
         let values: string[] = [];
@@ -42,15 +42,28 @@ export class InteractivesSuggester extends AbstractInputSuggest<string> {
                 }
                 break;
             case 'file':
+                values = files.map(file => file.basename);
+                break;
+            case 'path':
                 values = files.map(file => file.path);
                 break;
             default:
                 break;
         }
 
-
-        let sortedValues = new Set(values.sort());
-        return [...sortedValues];
+        let filteredValues = values.filter(value => value.contains(query));
+        let sortedValues = new Set(filteredValues.sort());
+        return [...sortedValues].map(value => {
+            const split = value.split(query);
+            let innerHTML = "";
+            for (let i = 0; i < split.length - 1; ++i) {
+                innerHTML += split[i] + "<strong>" + query + "</strong>";
+            }
+            innerHTML += split.last();
+            const el = createDiv();
+            el.innerHTML = innerHTML;
+            return el;
+        });
     }
 
     setKey(key?: SourceKey, propertyKey?: string): void {
@@ -58,13 +71,13 @@ export class InteractivesSuggester extends AbstractInputSuggest<string> {
         this.propertyKey = propertyKey;
     }
 
-    renderSuggestion(value: string, el: HTMLElement): void {
-        el.textContent = value;
+    renderSuggestion(value: HTMLElement, el: HTMLElement): void {
+        el.innerHTML = value.innerHTML;
     }
 
-    selectSuggestion(value: string, evt: MouseEvent | KeyboardEvent): void {
-        this.setValue(value);
-        this.callback(value);
+    selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {
+        this.setValue(value.innerText);
+        this.callback(value.innerText);
         this.close();
     }
 }

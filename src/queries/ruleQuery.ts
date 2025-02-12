@@ -2,7 +2,7 @@ import { App, TFile, TFolder } from "obsidian";
 import { getFileInteractives, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
-export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec';
+export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec' | 'path';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot' | 'isEmpty' | 'isEmptyNot';
 
 export const sourceKeyLabels: Record<SourceKey, string> = {
@@ -11,7 +11,8 @@ export const sourceKeyLabels: Record<SourceKey, string> = {
     'property': STRINGS.query.source.property,
     'file': STRINGS.query.source.file,
     'folder': STRINGS.query.source.folder,
-    'folderRec': STRINGS.query.source.folderRec
+    'folderRec': STRINGS.query.source.folderRec,
+    'path': STRINGS.query.source.path
 }
 
 export const logicKeyLabel: Record<LogicKey, string> = {
@@ -84,6 +85,9 @@ export class RuleQuery {
                     currentFolder = currentFolder.parent;
                 }
                 return this.checkLogic(folders);
+            
+            case 'path':
+                return this.checkLogic(file.path);
         
             default:
                 break;
