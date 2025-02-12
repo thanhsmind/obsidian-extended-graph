@@ -1,7 +1,6 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
-import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, getOutlinkTypes, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, LINK_KEY, PluginInstances } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphLink, getFile, getLinkID, getOutlinkTypes, GraphInstances, InteractiveManager } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
     extendedElementsMap: Map<string, ExtendedGraphLink>;
