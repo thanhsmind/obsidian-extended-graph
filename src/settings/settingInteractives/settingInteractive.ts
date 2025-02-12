@@ -16,7 +16,8 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
         super(settingTab, feature, interactiveKey, title, icon, description);
     }
 
-    protected addBody(): void {
+    protected override addBody(): void {
+        this.colors = [];
         this.addNoneTypeSetting();
         this.addColorPaletteSetting();
         this.addSpecificColorHeaderSetting();
