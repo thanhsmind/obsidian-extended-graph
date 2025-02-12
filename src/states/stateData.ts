@@ -19,7 +19,7 @@ export class EngineOptions implements GraphPluginInstanceOptions {
     showArrow?: boolean = !1;
     textFadeMultiplier?: number = 0;
     // forceOptions
-    centerStrength?: number = 1 + 0.5 * Math.log(0.109);
+    centerStrength?: number = 1 - Math.log(0.109) / Math.log(0.01);
     linkDistance?: number = 250;
     linkStrength?: number = 1;
     repelStrength?: number = 10;
