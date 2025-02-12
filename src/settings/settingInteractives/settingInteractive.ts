@@ -37,8 +37,8 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
                     value = value.trim();
                     if (value == this.noneType) return;
                     PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType = value;
-                    INVALID_KEYS[this.interactiveKey].remove(this.noneType);
-                    INVALID_KEYS[this.interactiveKey].push(value);
+                    //INVALID_KEYS[this.interactiveKey].remove(this.noneType);
+                    //INVALID_KEYS[this.interactiveKey].push(value);
                     this.noneType = value;
                     await PluginInstances.plugin.saveSettings();
             }));

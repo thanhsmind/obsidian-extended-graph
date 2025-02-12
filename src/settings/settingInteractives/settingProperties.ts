@@ -85,7 +85,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             this.settingInteractives.push(setting);
             setting.containerEl = this.propertiesContainer;
             setting.display();
-            INVALID_KEYS[key] = [PluginInstances.settings.interactiveSettings[key].noneType];
+            //INVALID_KEYS[key] = [PluginInstances.settings.interactiveSettings[key].noneType];
         });
         return true;
     }
