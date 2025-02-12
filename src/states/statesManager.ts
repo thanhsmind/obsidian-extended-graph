@@ -36,6 +36,7 @@ export class StatesManager {
         stateData = this.validateStateData(stateData);
         if (!stateData) return;
         this.updateInteractiveManagers(stateData, instances).then(() => {
+            if (!stateData) return;
             if (stateData.engineOptions) {
                 instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
                 instances.engine.setOptions(stateData.engineOptions);
