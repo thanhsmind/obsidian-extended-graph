@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "extended-graph-plugin",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "This plugin exends and adds features to the Graph core plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -10,7 +10,7 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "MIT",
+	"license": "GPLv3",
 	"devDependencies": {
 		"@types/node": "^16.18.121",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
@@ -29,7 +29,6 @@
 		"graphology-traversal": "^0.3.1",
 		"graphology-types": "^0.24.8",
 		"markdown-link-extractor": "^3.1.0",
-		"mathjs": "^14.0.1",
-		"pixi.js": "^7.3.3"
+		"mathjs": "^14.0.1"
 	}
 }

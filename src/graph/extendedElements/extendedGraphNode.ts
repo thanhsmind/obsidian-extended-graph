@@ -146,7 +146,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             const textStyle = this.coreElement.text.style;
             textStyle.fontFamily = fontInterface;
             this.coreElement.text.style = textStyle;
-            this.coreElement.text.dirty = true;
         }
     }
 
