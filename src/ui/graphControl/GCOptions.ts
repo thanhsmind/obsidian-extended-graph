@@ -4,7 +4,6 @@ import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal,
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
-    settingGlobalFilter: Setting;
     suggester: NodeNamesSuggester;
     
     constructor(leaf: WorkspaceLeafExt) {
@@ -23,7 +22,6 @@ export class GCOptions extends GCSection {
 
         this.createSaveForDefaultState();
         if (enable) this.createSaveForNormalState();
-        if (enable) this.settingGlobalFilter = this.createGlobalFilter();
         this.createZoomOnNode();
         this.createScreenshot();
         if (enable) this.createButtonViewState();
@@ -51,35 +49,6 @@ export class GCOptions extends GCSection {
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
                 cb.onClick(() => {
                     this.saveForNormalState();
-                });
-            });
-    }
-
-    private createGlobalFilter(): Setting {
-        new Setting(this.treeItemChildren).setName(STRINGS.features.globalFilter).setHeading();
-
-        return new Setting(this.treeItemChildren)
-            .setClass("mod-search-setting")
-            .addTextArea(cb => {
-                cb.setPlaceholder(STRINGS.features.globalFilter)
-                  .setValue(PluginInstances.settings.globalFilter);
-                cb.inputEl.addClass("search-input-container");
-                cb.inputEl.onblur = (async e => {
-                    if (PluginInstances.settings.globalFilter !== cb.getValue()) {
-                        PluginInstances.settings.globalFilter = cb.getValue();
-                        await PluginInstances.plugin.saveSettings();
-                        PluginInstances.graphsManager.onGlobalFilterChanged(cb.getValue());
-                    }
-                });
-                cb.inputEl.onkeydown = (async e => {
-                    if ("Enter" === e.key) {
-                        e.preventDefault();
-                        if (PluginInstances.settings.globalFilter !== cb.getValue()) {
-                            PluginInstances.settings.globalFilter = cb.getValue();
-                            await PluginInstances.plugin.saveSettings();
-                            PluginInstances.graphsManager.onGlobalFilterChanged(cb.getValue());
-                        }
-                    }
                 });
             });
     }
@@ -132,14 +101,11 @@ export class GCOptions extends GCSection {
     }
 
     private saveForNormalState() {
-        const globalFilter = PluginInstances.settings.globalFilter;
-        PluginInstances.settings.globalFilter = "";
         const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
         
         const engine = getEngine(this.leaf);
         instance.options = engine.getOptions();
         instance.saveOptions();
-        PluginInstances.settings.globalFilter = globalFilter;
     }
 
     private getSVGScreenshot() {

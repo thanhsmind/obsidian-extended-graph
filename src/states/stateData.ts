@@ -3,7 +3,6 @@ import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/internal";
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];
-    search?: string = "";
     // filterOptions
     hideUnresolved?: boolean = !1;
     showAttachments?: boolean = !1;
@@ -27,7 +26,6 @@ export class EngineOptions implements GraphPluginInstanceOptions {
     constructor(engineOptions?: EngineOptions) {
         if (engineOptions) {
             this.colorGroups = engineOptions.colorGroups;
-            this.search = engineOptions.search;
             this.hideUnresolved = engineOptions.hideUnresolved;
             this.showAttachments = engineOptions.showAttachments;
             this.showOrphans = engineOptions.showOrphans;

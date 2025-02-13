@@ -652,20 +652,6 @@ export class GraphsManager extends Component {
         this.registerEvent(leaf.on('extended-graph:reset-plugin', this.resetPlugin.bind(this)));
     }
 
-    // ============================= GLOBAL FILTER =============================
-
-    onGlobalFilterChanged(filter: string): void {
-        for (const [id, instances] of this.allInstances) {
-            instances.engine.updateSearch();
-            this.updateGlobalFilterUI(id, filter);
-        }
-    }
-
-    private updateGlobalFilterUI(dispatcherID: string, filter: string): void {
-        const textarea = this.globalUIs.get(dispatcherID)?.control.sectionSettings.settingGlobalFilter.controlEl.querySelector("textarea");
-        if (textarea) textarea.value = filter;
-    }
-
     // ================================ COLORS =================================
 
     updatePaletteForInteractive(interactive: string): void {

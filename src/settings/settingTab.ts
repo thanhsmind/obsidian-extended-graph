@@ -28,17 +28,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         containerEl.addClass("extended-graph-settings");
 
         new Setting(containerEl)
-            .setName(STRINGS.features.globalFilter)
-            .setDesc(STRINGS.features.globalFilterDesc)
-            .addTextArea(cb => cb
-                .setValue(PluginInstances.settings.globalFilter)
-                .onChange(async (value) => {
-                    PluginInstances.settings.globalFilter = value;
-                    await PluginInstances.plugin.saveSettings();
-                    PluginInstances.graphsManager.onGlobalFilterChanged(value);
-            }));
-
-        new Setting(containerEl)
             .setName(STRINGS.features.disableNodes)
             .setDesc(STRINGS.features.disableNodesDesc)
             .addToggle(cb => {

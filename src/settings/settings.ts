@@ -28,7 +28,6 @@ export interface ExtendedGraphSettings {
     additionalProperties: { [interactive: string] : boolean };
 
     // Graph settings
-    globalFilter: string;
     backupGraphOptions: EngineOptions;
     states: GraphStateData[];
 
@@ -87,7 +86,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     additionalProperties: {},
     
     // Graph settings
-    globalFilter: "",
     backupGraphOptions: new EngineOptions(),
     states: [DEFAULT_STATE_SETTINGS],
 

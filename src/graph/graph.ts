@@ -14,7 +14,6 @@ export class Graph extends Component {
     
     // Functions to override
     onOptionsChangeOriginal: () => void;
-    searchGetValueOriginal: () => string;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -35,7 +34,6 @@ export class Graph extends Component {
         }
 
         // Functions to override
-        this.overrideSearchGetValue();
         this.overrideOnOptionsChange();
     }
 
@@ -73,14 +71,6 @@ export class Graph extends Component {
     private getFolderManagers(): InteractiveManager[] {
         const manager = this.instances.interactiveManagers.get(FOLDER_KEY);
         return manager ? [manager] : [];
-    }
-
-    private overrideSearchGetValue(): void {
-        this.searchGetValueOriginal = this.instances.engine.filterOptions.search.getValue;
-        this.instances.engine.filterOptions.search.getValue = (() => {
-            const prepend = PluginInstances.settings.globalFilter + " ";
-            return prepend + this.instances.engine.filterOptions.search.inputEl.value;
-        }).bind(this);
     }
 
     private overrideOnOptionsChange(): void {
@@ -124,7 +114,6 @@ export class Graph extends Component {
     }
 
     private restoreOriginalFunctions(): void {
-        this.instances.engine.filterOptions.search.getValue = this.searchGetValueOriginal;
         this.instances.leaf.view.onOptionsChange = this.onOptionsChangeOriginal;
     }
 
