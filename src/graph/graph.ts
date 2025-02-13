@@ -155,9 +155,13 @@ export class Graph extends Component {
      * @returns boolean - True if links were found and enabled, otherwise false.
     */
     enableLinkTypes(types: string[]): boolean {
-        const links = this.instances.linksSet.getElementsByTypes(LINK_KEY, types);
-        if (links) {
-            this.enableLinks(links);
+        //const links = this.instances.linksSet.getElementsByTypes(LINK_KEY, types);
+        let linksToEnable: string[] = [];
+        for (const type of types) {
+            linksToEnable = linksToEnable.concat(this.instances.linksSet.enableType(LINK_KEY, type));
+        }
+        if (linksToEnable) {
+            this.enableLinks(new Set<string>(linksToEnable));
             return true;
         }
         return false;

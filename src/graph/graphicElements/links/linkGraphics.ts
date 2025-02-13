@@ -53,8 +53,9 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
 
     toggleType(type: string, enable: boolean): void {
         this.clear();
-        if (enable) {
-            this.redrawType(type);
+        const newType = this.activeType();
+        if (newType) {
+            this.redrawType(newType);
         }
     }
 }
