@@ -9,6 +9,7 @@ export class SettingImages extends SettingsSection {
 
     protected override addBody() {
         this.addImagesFromProperty();
+        this.addImagesFromEmbeds();
         this.addImagesForAttachments();
         this.addBorderFactor();
     }
@@ -35,6 +36,28 @@ export class SettingImages extends SettingsSection {
             }).settingEl);
 
         this.addImageProperty();
+    }
+
+    private addImagesFromEmbeds() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imagesFromEmbeds)
+            .setDesc(STRINGS.features.imagesFromEmbedsDesc)
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesFromEmbeds']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['graph']['imagesFromEmbeds'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesFromEmbeds']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['localgraph']['imagesFromEmbeds'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addImagesForAttachments() {

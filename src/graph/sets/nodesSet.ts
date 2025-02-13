@@ -5,6 +5,8 @@ import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedG
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
 
+const supportedExtensions = ['avif', 'webp', 'png', 'jpg', 'svg'];
+
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
     lastDraggedPinnedNode: string | null;
@@ -36,6 +38,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     
     private loadAssets(ids: Set<string>): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
+            && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) return;
         const { imageURIs, emptyTextures } = this.getImageURIsAndEmptyTextures(ids);
         this.initNodesGraphics(imageURIs, emptyTextures);
@@ -52,6 +55,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
             if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
                 imageUri = this.getImageUriFromProperty(this.instances.settings.imageProperty, id);
+            }
+            if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
+                imageUri = this.getImageUriFromEmbeds(id);
             }
             if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
                 imageUri = this.getImageUriForAttachment(id);
@@ -81,8 +87,28 @@ export class NodesSet extends AbstractSet<GraphNode> {
                     imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
                 }
                 const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
-                const imageUri = imageFile ? PluginInstances.app.vault.getResourcePath(imageFile): null;
-                if (imageUri) return imageUri;
+                if (imageFile) {
+                    if (supportedExtensions.includes(imageFile.extension.toLowerCase())) {
+                        return PluginInstances.app.vault.getResourcePath(imageFile);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private getImageUriFromEmbeds(id: string): string | null {
+        const file = getFile(id);
+        if (file) {
+            const metadata = PluginInstances.app.metadataCache.getFileCache(file);
+            const embeds = metadata?.embeds;
+            if (embeds) {
+                for (const embedCache of embeds) {
+                    const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, ".");
+                    if (!imageFile) continue;
+                    if (!supportedExtensions.includes(imageFile.extension.toLowerCase())) continue;
+                    return PluginInstances.app.vault.getResourcePath(imageFile);
+                }
             }
         }
         return null;
@@ -90,7 +116,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     private getImageUriForAttachment(id: string): string | null {
         const file = getFile(id);
-        const supportedExtensions = ['png', 'jpg', 'jpeg'];
         if (file && supportedExtensions.includes(file.extension.toLowerCase())) {
             const imageUri = file ? PluginInstances.app.vault.getResourcePath(file): null;
             if (imageUri) return imageUri;

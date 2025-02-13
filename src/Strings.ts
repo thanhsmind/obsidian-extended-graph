@@ -49,6 +49,8 @@ export default class STRINGS {
 		imageDesc: "Display image on top of nodes",
 		imagesFromProperty: "From a property",
 		imagesFromPropertyDesc: "Display image from a property in the frontmatter",
+		imagesFromEmbeds: "From embeds",
+		imagesFromEmbedsDesc: "Display an image if one is found among the embeds in the note. The image from a property is taken first when possible.",
 		imagesForAttachments: "For attachments",
 		imagesForAttachmentsDesc: "Display image for attachment nodes",
 		imageProperty: "Image property",

@@ -134,7 +134,6 @@ export class StatesUI extends Component {
         else {
             this.currentStateID = this.select.getValue();
         }
-        console.log(this.select.getValue());
         this.displaySaveDeleteButton();
     }
 

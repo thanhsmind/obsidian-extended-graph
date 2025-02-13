@@ -198,9 +198,6 @@ function getProperty(key: string, file: TFile): Set<string> {
                 }
             }
             else if ((typeof values === "object") && ("path" in values)) {
-                console.log(values);
-            }
-            else if ((typeof values === "object") && ("path" in values)) {
                 const targetFile = getFile(values.path);
                 types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
             }

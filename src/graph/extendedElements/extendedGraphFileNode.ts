@@ -26,7 +26,8 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     public needImage(): boolean {
-        return this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'];
+        return this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
+            || this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'];
     }
     
     public needBackground(): boolean {
