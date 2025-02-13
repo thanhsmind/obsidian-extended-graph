@@ -14,7 +14,6 @@ export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkLineGraphic
 
     override connect(): void {
         if (this.extendedElement.coreElement.line && !this.extendedElement.coreElement.line.getChildByName(this.pixiElement.name)) {
-            //console.log(this.pixiElement);
             this.extendedElement.coreElement.line.addChild(this.pixiElement);
         }
     }
