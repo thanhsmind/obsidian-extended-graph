@@ -1,8 +1,9 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, DisconnectionCause, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, getImageUri, GraphInstances, InteractiveManager } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, PluginInstances } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
+import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
@@ -34,6 +35,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
     // ================================ IMAGES =================================
     
     private loadAssets(ids: Set<string>): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
+            && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) return;
         const { imageURIs, emptyTextures } = this.getImageURIsAndEmptyTextures(ids);
         this.initNodesGraphics(imageURIs, emptyTextures);
     }
@@ -42,14 +45,57 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const imageURIs = new Map<string, string>();
         const emptyTextures: string[] = [];
         for (const id of ids) {
-            const imageUri = getImageUri(this.instances.settings.imageProperty, id);
-            if (imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']) {
+            const extendedNode = this.extendedElementsMap.get(id);
+            if (!extendedNode || !extendedNode.graphicsWrapper) continue;
+
+            let imageUri = null;
+
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
+                imageUri = this.getImageUriFromProperty(this.instances.settings.imageProperty, id);
+            }
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
+                imageUri = this.getImageUriForAttachment(id);
+            }
+
+
+            if (imageUri) {
                 imageURIs.set(id, imageUri);
             } else {
                 emptyTextures.push(id);
             }
         }
         return { imageURIs, emptyTextures };
+    }
+
+    private getImageUriFromProperty(keyProperty: string, id: string): string | null {
+        const file = getFile(id);
+        if (file) {
+            const metadata = PluginInstances.app.metadataCache.getFileCache(file);
+            const frontmatter = metadata?.frontmatter;
+            let imageLink = null;
+            if (frontmatter) {
+                if (typeof frontmatter[keyProperty] === "string") {
+                    imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
+                }
+                else if (Array.isArray(frontmatter[keyProperty])) {
+                    imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
+                }
+                const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
+                const imageUri = imageFile ? PluginInstances.app.vault.getResourcePath(imageFile): null;
+                if (imageUri) return imageUri;
+            }
+        }
+        return null;
+    }
+
+    private getImageUriForAttachment(id: string): string | null {
+        const file = getFile(id);
+        const supportedExtensions = ['png', 'jpg', 'jpeg'];
+        if (file && supportedExtensions.includes(file.extension.toLowerCase())) {
+            const imageUri = file ? PluginInstances.app.vault.getResourcePath(file): null;
+            if (imageUri) return imageUri;
+        }
+        return null;
     }
 
     private initNodesGraphics(imageURIs: Map<string, string>, emptyTextures: string[]) {
@@ -68,8 +114,20 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
         try {
-            (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
-            extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
+            switch (extendedNode.coreElement.type) {
+                case "tag":
+                    break;
+                
+                case "attachment":
+                    (extendedNode.graphicsWrapper as AttachmentNodeGraphicsWrapper).initNodeImage(texture);
+                    extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
+                    break;
+            
+                default:
+                    (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
+                    extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
+                    break;
+            }
         }
         catch {
 
@@ -89,6 +147,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
         let extendedGraphNode: ExtendedGraphNode;
         if (node.type === "tag") {
             extendedGraphNode = new ExtendedGraphTagNode(
+                this.instances,
+                node,
+                types,
+                [...this.managers.values()]
+            );
+        }
+        else if (node.type === "attachment") {
+            extendedGraphNode = new ExtendedGraphAttachmentNode(
                 this.instances,
                 node,
                 types,

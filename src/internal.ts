@@ -19,6 +19,7 @@ export * from "./graph/interactiveManager";
 export * from "./graph/extendedElements/extendedGraphElement";
 export * from "./graph/extendedElements/extendedGraphLink";
 export * from "./graph/extendedElements/extendedGraphNode";
+export * from "./graph/extendedElements/extendedGraphAttachmentNode";
 export * from "./graph/extendedElements/extendedGraphFileNode";
 export * from "./graph/extendedElements/extendedGraphTagNode";
 
@@ -30,6 +31,7 @@ export * from "./graph/graphicElements/links/linkGraphicsWrapper";
 export * from "./graph/graphicElements/links/curveLinkGraphicsWrapper";
 export * from "./graph/graphicElements/links/lineLinkGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/nodeGraphicsWrapper";
+export * from "./graph/graphicElements/nodes/attachmentNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/fileNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/tagNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/arcsCircle";

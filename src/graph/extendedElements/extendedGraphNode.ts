@@ -106,9 +106,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== NODE COLOR ===============================
 
-    abstract changeGetFillColor(): void;
-    abstract restoreGetFillColor(): void;
-    protected abstract getFillColor(): GraphColorAttributes | undefined;
+    changeGetFillColor(): void {}
+    restoreGetFillColor(): void {}
+    protected getFillColor(): GraphColorAttributes | undefined { return; };
 
     // ============================== CORE ELEMENT =============================
 

@@ -112,27 +112,6 @@ export function getFile(path: string): TFile | null {
     return PluginInstances.app.vault.getFileByPath(path);
 }
 
-export function getImageUri(keyProperty: string, path: string): string | null {
-    const file = getFile(path);
-    if (file) {
-        const metadata = PluginInstances.app.metadataCache.getFileCache(file);
-        const frontmatter = metadata?.frontmatter;
-        let imageLink = null;
-        if (frontmatter) {
-            if (typeof frontmatter[keyProperty] === "string") {
-                imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
-            }
-            else if (Array.isArray(frontmatter[keyProperty])) {
-                imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
-            }
-            const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
-            const imageUri = imageFile ? PluginInstances.app.vault.getResourcePath(imageFile): null;
-            if (imageUri) return imageUri;
-        }
-    }
-    return null;
-}
-
 export function getEngine(leaf: WorkspaceLeafExt): GraphEngine {
     if (leaf.view.getViewType() === "graph") {
         return (leaf.view as GraphView).dataEngine;

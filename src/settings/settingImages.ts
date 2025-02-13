@@ -8,14 +8,15 @@ export class SettingImages extends SettingsSection {
     }
 
     protected override addBody() {
-        this.addImageFromProperty();
+        this.addImagesFromProperty();
+        this.addImagesForAttachments();
         this.addBorderFactor();
     }
 
-    private addImageFromProperty() {
+    private addImagesFromProperty() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imageFromProperty)
-            .setDesc(STRINGS.features.imageFromPropertyDesc)
+            .setName(STRINGS.features.imagesFromProperty)
+            .setDesc(STRINGS.features.imagesFromPropertyDesc)
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
                 cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesFromProperty']);
@@ -34,6 +35,28 @@ export class SettingImages extends SettingsSection {
             }).settingEl);
 
         this.addImageProperty();
+    }
+
+    private addImagesForAttachments() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imagesForAttachments)
+            .setDesc(STRINGS.features.imagesForAttachmentsDesc)
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesForAttachments']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['graph']['imagesForAttachments'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesForAttachments']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['localgraph']['imagesForAttachments'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addImageProperty() {

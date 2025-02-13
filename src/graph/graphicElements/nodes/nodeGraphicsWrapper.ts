@@ -65,8 +65,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.pixiElement.addChild(this.opacityLayer);
     }
 
-    abstract createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;
-    abstract resetManagerGraphics(manager: InteractiveManager): void;
+    createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void {};
+    resetManagerGraphics(manager: InteractiveManager): void {};
 
     // ============================ CLEAR GRAPHICS =============================
 

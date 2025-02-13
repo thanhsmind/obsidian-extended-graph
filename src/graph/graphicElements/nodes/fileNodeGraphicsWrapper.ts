@@ -1,5 +1,5 @@
 import { Texture } from "pixi.js";
-import { ArcsCircle, ExtendedGraphFileNode, getFile, getFileInteractives, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape, PluginInstances } from "src/internal";
+import { ArcsCircle, ExtendedGraphFileNode, getFile, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape, PluginInstances } from "src/internal";
 
 export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
