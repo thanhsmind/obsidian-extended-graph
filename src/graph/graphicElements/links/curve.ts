@@ -1,4 +1,4 @@
-import { DestroyOptions, Graphics } from "pixi.js";
+import { IDestroyOptions, Graphics } from "pixi.js";
 import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
 
 
@@ -62,7 +62,7 @@ export class LinkCurveGraphics extends LinkGraphics {
         const P0_ = quadratic(   0.9 * link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
         const P2_ = quadratic(1- 0.9 * link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
 
-        this.setStrokeStyle({width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white"});
+        this.lineStyle({width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white"});
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
         if (link.line && link.line.tint !== renderer.colors.line.rgb) {
             this.tint = link.line.tint;
@@ -97,7 +97,7 @@ export class LinkCurveGraphics extends LinkGraphics {
         }
     }
 
-    override destroy(options?: DestroyOptions): void {
+    override destroy(options?: IDestroyOptions): void {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = true;
         super.destroy(options);
     }

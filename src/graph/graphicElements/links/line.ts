@@ -20,7 +20,7 @@ export class LinkLineGraphics extends LinkGraphics {
         super.redrawType(type, color);
 
         this.clear();
-        this.setStrokeStyle({width: 16, color: this.color})
+        this.lineStyle({width: 16, color: this.color})
             .moveTo(0, 8)
             .lineTo(16, 8);
     }

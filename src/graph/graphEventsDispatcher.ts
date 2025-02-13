@@ -1,5 +1,5 @@
 import { Component, Menu, TFile } from "obsidian";
-import { Container, ContainerChild } from "pixi.js";
+import { Container, DisplayObject } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -173,7 +173,7 @@ export class GraphEventsDispatcher extends Component {
     /**
      * Called when a child is added to the stage by the engine.
      */
-    private onChildAddedToStage(child: ContainerChild, container: Container, index: number): void {
+    private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
         if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.leaf)) {
             this.listenStage = false;
