@@ -72,7 +72,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     getThicknessScale(): number {
-        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats'] ?
+        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && PluginInstances.settings.linksColorFunction !== "default" ?
             PluginInstances.graphsManager.linksSizeCalculator
                 ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
                 ?? 1
@@ -83,7 +84,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     getStrokeColor(): number | undefined {
         //console.log(PluginInstances.graphsManager.linksColorCalculator?.linksStats[this.coreElement.source.id][this.coreElement.target.id]);
-        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats'] ?
+        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && PluginInstances.settings.linksColorFunction !== "default" ?
             PluginInstances.graphsManager.linksColorCalculator
                 ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
             : undefined;
