@@ -47,6 +47,8 @@ export default class STRINGS {
 		globalFilterDesc: "This filter query will be prepend at the beginning of every graph filter",
 		image: "Image",
 		imageDesc: "Display image on top of nodes",
+		imageFromProperty: "From a property",
+		imageFromPropertyDesc: "Display image from a property in the frontmatter",
 		imageProperty: "Image property",
 		imagePropertyDesc: "Name of the propery used to query the image of the node's note",
 		imageBorderWidth: "Border width (%)",

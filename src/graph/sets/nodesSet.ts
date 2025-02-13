@@ -43,7 +43,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const emptyTextures: string[] = [];
         for (const id of ids) {
             const imageUri = getImageUri(this.instances.settings.imageProperty, id);
-            if (imageUri && this.instances.settings.enableFeatures[this.instances.type]['images']) {
+            if (imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']) {
                 imageURIs.set(id, imageUri);
             } else {
                 emptyTextures.push(id);

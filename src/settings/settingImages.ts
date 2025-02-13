@@ -1,15 +1,39 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, graphTypeLabels, isPropertyKeyValid, PluginInstances, SettingsSection } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingImages extends SettingsSectionCollapsible {
+export class SettingImages extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'images', '', STRINGS.features.image, 'image', STRINGS.features.imageDesc)
+        super(settingTab, STRINGS.features.image, 'image', STRINGS.features.imageDesc);
     }
 
     protected override addBody() {
-        this.addImageProperty();
+        this.addImageFromProperty();
         this.addBorderFactor();
+    }
+
+    private addImageFromProperty() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imageFromProperty)
+            .setDesc(STRINGS.features.imageFromPropertyDesc)
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesFromProperty']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['graph']['imagesFromProperty'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesFromProperty']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['localgraph']['imagesFromProperty'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+
+        this.addImageProperty();
     }
 
     private addImageProperty() {
