@@ -3,7 +3,6 @@ export * from "./pluginInstances";
 
 export * from "./graphsManager";
 export * from "./globalVariables";
-export * from "./helperFunctions";
 export * from "./logs";
 
 export * from "./states/state";
@@ -107,3 +106,11 @@ export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapePickerModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
+
+export * from "./helpers/graph";
+export * from "./helpers/color";
+export * from "./helpers/html";
+export * from "./helpers/math";
+export * from "./helpers/media";
+export * from "./helpers/strings";
+export * from "./helpers/vault";

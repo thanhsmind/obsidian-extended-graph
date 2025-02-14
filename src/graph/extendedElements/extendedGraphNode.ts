@@ -1,6 +1,7 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
-import { ExtendedGraphElement, ExtendedGraphSettings, getFile, getFileInteractives, GraphInstances, GraphType, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
+import { getFile, getFileInteractives } from "src/helpers/vault";
+import { ExtendedGraphElement, GraphInstances, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;

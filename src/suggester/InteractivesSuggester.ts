@@ -1,7 +1,5 @@
 import { AbstractInputSuggest } from "obsidian";
-import { getFileInteractives } from "src/helperFunctions";
-import { FOLDER_KEY, LINK_KEY, SourceKey, TAG_KEY } from "src/internal";
-import { PluginInstances } from "src/pluginInstances";
+import { FOLDER_KEY, getFileInteractives, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractInputSuggest<HTMLElement> {
     key: SourceKey | undefined;
