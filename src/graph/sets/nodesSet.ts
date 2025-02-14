@@ -77,34 +77,33 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private async getImageUriFromProperty(keyProperty: string, id: string): Promise<string | null> {
-        const file = getFile(id);
-        if (file) {
-            const metadata = PluginInstances.app.metadataCache.getFileCache(file);
-            const frontmatter = metadata?.frontmatter;
-            let imageLink: string | null = null;
-            if (frontmatter) {
-                if (typeof frontmatter[keyProperty] === "string") {
-                    imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
-                }
-                else if (Array.isArray(frontmatter[keyProperty])) {
-                    imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
-                }
-                if (imageLink) {
-                    const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, ".");
-                    if (imageFile) {
-                        const src = PluginInstances.app.vault.getResourcePath(imageFile);
-                        return this.getStaticImageUri(src);
+        const metadata = PluginInstances.app.metadataCache.getCache(id);
+        if (!metadata) return null;
+
+        const frontmatter = metadata.frontmatter;
+        if (!frontmatter) return null;
+
+        let imageLink: string | null = null;
+        if (typeof frontmatter[keyProperty] === "string") {
+            imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
+        }
+        else if (Array.isArray(frontmatter[keyProperty])) {
+            imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
+        }
+        if (imageLink) {
+            const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, ".");
+            if (imageFile) {
+                const src = PluginInstances.app.vault.getResourcePath(imageFile);
+                return this.getStaticImageUri(src);
+            }
+            else {
+                try {
+                    const validationUrl = new URL(imageLink);
+                    if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
+                        return this.getStaticImageUri(imageLink);
                     }
-                    else {
-                        try {
-                            const validationUrl = new URL(imageLink);
-                            if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
-                                return this.getStaticImageUri(imageLink);
-                            }
-                        } catch (err) {
-                            // Not a valid url
-                        }
-                    }
+                } catch (err) {
+                    return null;
                 }
             }
         }
@@ -112,19 +111,19 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private async getImageUriFromEmbeds(id: string): Promise<string | null> {
-        const file = getFile(id);
-        if (file) {
-            const metadata = PluginInstances.app.metadataCache.getFileCache(file);
-            const embeds = metadata?.embeds;
-            if (embeds) {
-                for (const embedCache of embeds) {
-                    const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, ".");
-                    if (!imageFile) continue;
-                    const uri = await this.getStaticImageUri(PluginInstances.app.vault.getResourcePath(imageFile));
-                    if (uri) return uri;
-                }
-            }
+        const metadata = PluginInstances.app.metadataCache.getCache(id);
+        if (!metadata) return null;
+
+        const embeds = metadata.embeds;
+        if (!embeds) return null;
+        
+        for (const embedCache of embeds) {
+            const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, ".");
+            if (!imageFile) continue;
+            const uri = await this.getStaticImageUri(PluginInstances.app.vault.getResourcePath(imageFile));
+            if (uri) return uri;
         }
+        
         return null;
     }
 
