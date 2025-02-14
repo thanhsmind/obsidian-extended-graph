@@ -34,6 +34,7 @@ export interface ExtendedGraphSettings {
     // Image
     imageProperty: string;
     borderFactor: number;
+    allowExternalImages: boolean;
 
     // Nodes sizes
     nodesSizeProperty: string;
@@ -92,6 +93,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Images
     imageProperty: "image",
     borderFactor: 0.06,
+    allowExternalImages: false,
 
     // Nodes sizes
     nodesSizeProperty: "",

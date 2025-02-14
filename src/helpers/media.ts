@@ -1,4 +1,4 @@
-import { getFile, PluginInstances } from "src/internal";
+import { getFile, getLinkDestination, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class Media {
@@ -9,30 +9,21 @@ export class Media {
         const frontmatter = metadata.frontmatter;
         if (!frontmatter) return null;
 
-        let imageLink: string | null = null;
-        if (typeof frontmatter[keyProperty] === "string") {
-            imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
+        const values = frontmatter[keyProperty];
+        
+        if (typeof values === "string") {
+            const uri = await Media.getImageUriFromLink(getLinkDestination(values));
+            if (uri) return uri;
         }
-        else if (Array.isArray(frontmatter[keyProperty])) {
-            imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
-        }
-        if (imageLink) {
-            const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, ".");
-            if (imageFile) {
-                const src = PluginInstances.app.vault.getResourcePath(imageFile);
-                return Media.getStaticImageUri(src);
-            }
-            else {
-                try {
-                    const validationUrl = new URL(imageLink);
-                    if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
-                        return Media.getStaticImageUri(imageLink);
-                    }
-                } catch (err) {
-                    return null;
+        else if (Array.isArray(values)) {
+            for (const value of values) {
+                if (typeof value === "string") {
+                    const uri = await Media.getImageUriFromLink(getLinkDestination(value));
+                    if (uri) return uri;
                 }
             }
         }
+
         return null;
     }
 
@@ -44,27 +35,12 @@ export class Media {
         if (!embeds) return null;
         
         for (const embedCache of embeds) {
-            const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, ".");
-            if (imageFile) {
-                const src = PluginInstances.app.vault.getResourcePath(imageFile);
-                return Media.getStaticImageUri(src);
-            }
-            else {
-                try {
-                    const validationUrl = new URL(embedCache.link);
-                    if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
-                        return Media.getStaticImageUri(embedCache.link);
-                    }
-                } catch (err) {
-                    return null;
-                }
-            }
+            const uri = await Media.getImageUriFromLink(embedCache.link);
+            if (uri) return uri;
         }
         
         return null;
     }
-
-    
 
     static async getImageUriForAttachment(id: string): Promise<string | null> {
         const file = getFile(id);
@@ -74,7 +50,26 @@ export class Media {
         return null;
     }
 
-    static async getStaticImageUri(src: string): Promise<string | null> {
+    private static async getImageUriFromLink(link: string): Promise<string | null> {
+        const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(link, ".");
+        if (imageFile) {
+            const src = PluginInstances.app.vault.getResourcePath(imageFile);
+            return Media.getStaticImageUri(src);
+        }
+        else if (PluginInstances.settings.allowExternalImages) {
+            try {
+                const validationUrl = new URL(link);
+                if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
+                    return Media.getStaticImageUri(link);
+                }
+            } catch (err) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static async getStaticImageUri(src: string): Promise<string | null> {
         // https://www.iana.org/assignments/media-types/media-types.xhtml
         const type = await Media.getMediaType(src);
         if (!type) return null;
@@ -91,7 +86,7 @@ export class Media {
         return null;
     }
 
-    static async getUriForGif(src: string): Promise<string | null> {
+    private static async getUriForGif(src: string): Promise<string | null> {
         const canvas = createEl('canvas');
         const ctx = canvas.getContext('2d');
         if (ctx) {
@@ -118,7 +113,7 @@ export class Media {
         return null;
     }
 
-    static async getUriForVideo(src: string): Promise<string | null> {
+    private static async getUriForVideo(src: string): Promise<string | null> {
         const canvas = createEl('canvas');
         const ctx = canvas.getContext('2d');
         if (ctx) {
@@ -147,7 +142,7 @@ export class Media {
         return null;
     }
 
-    static async getMediaType(url: string): Promise<string | null> {
+    private static async getMediaType(url: string): Promise<string | null> {
         let type: string | null | undefined;
         
         var request = new XMLHttpRequest();

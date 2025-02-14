@@ -12,6 +12,7 @@ export class SettingImages extends SettingsSection {
         this.addImagesFromEmbeds();
         this.addImagesForAttachments();
         this.addBorderFactor();
+        this.addAllowExternal();
     }
 
     private addImagesFromProperty() {
@@ -35,7 +36,17 @@ export class SettingImages extends SettingsSection {
                 })
             }).settingEl);
 
-        this.addImageProperty();
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imageProperty)
+            .setDesc(STRINGS.features.imagePropertyDesc)
+            .addText(cb => cb
+                .setValue(PluginInstances.settings.imageProperty)
+                .onChange(async (key) => {
+                    if (isPropertyKeyValid(key)) {
+                        PluginInstances.settings.imageProperty = key;
+                        await PluginInstances.plugin.saveSettings();
+                    }
+            })).settingEl);
     }
 
     private addImagesFromEmbeds() {
@@ -82,22 +93,6 @@ export class SettingImages extends SettingsSection {
             }).settingEl);
     }
 
-    private addImageProperty() {
-        const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imageProperty)
-            .setDesc(STRINGS.features.imagePropertyDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.imageProperty)
-                .onChange(async (key) => {
-                    if (isPropertyKeyValid(key)) {
-                        PluginInstances.settings.imageProperty = key;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-            }));
-            
-        this.elementsBody.push(setting.settingEl);
-    }
-
     private addBorderFactor() {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.imageBorderWidth)
@@ -118,5 +113,18 @@ export class SettingImages extends SettingsSection {
         setting.controlEl.addClass("setting-item-description");
 
         this.elementsBody.push(setting.settingEl);
+    }
+
+    private addAllowExternal() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imagesAllowExternal)
+            .setDesc(STRINGS.features.imagesAllowExternalDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.allowExternalImages);
+                cb.onChange(value => {
+                    PluginInstances.settings.allowExternalImages = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 }

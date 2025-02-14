@@ -44,7 +44,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const backgroundColor = getBackgroundColor(this.instances.renderer);
 
         for (const id of ids) {
-            this.getImageURIOrEmptyTextures(id).then(imageURI => {
+            this.getImageURI(id).then(imageURI => {
                 if (imageURI) {
                     Assets.load(imageURI).then((texture:Texture) => {
                         this.initNodeGraphics(id, texture, backgroundColor);
@@ -57,7 +57,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    private async getImageURIOrEmptyTextures(id: string): Promise<string | null> {
+    private async getImageURI(id: string): Promise<string | null> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode || !extendedNode.graphicsWrapper) return null;
 

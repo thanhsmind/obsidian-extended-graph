@@ -52,6 +52,8 @@ export default class STRINGS {
 		globalFilterDesc: "This filter query will be prepend at the beginning of every graph filter",
 		image: "Image",
 		imageDesc: "Display image on top of nodes",
+		imagesAllowExternal: "Allow external images",
+		imagesAllowExternalDesc: "Allow the loading of external images via http: and https: requests",
 		imagesFromProperty: "From a property",
 		imagesFromPropertyDesc: "Display image from a property in the frontmatter",
 		imagesFromEmbeds: "From embeds",
