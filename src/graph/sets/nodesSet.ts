@@ -4,6 +4,7 @@ import { GraphNode } from "obsidian-typings";
 import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, PluginInstances } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
+import STRINGS from "src/Strings";
 
 
 export class NodesSet extends AbstractSet<GraphNode> {
@@ -80,7 +81,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (file) {
             const metadata = PluginInstances.app.metadataCache.getFileCache(file);
             const frontmatter = metadata?.frontmatter;
-            let imageLink = null;
+            let imageLink: string | null = null;
             if (frontmatter) {
                 if (typeof frontmatter[keyProperty] === "string") {
                     imageLink = frontmatter[keyProperty]?.replace("[[", "").replace("]]", "");
@@ -88,10 +89,22 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 else if (Array.isArray(frontmatter[keyProperty])) {
                     imageLink = frontmatter[keyProperty][0]?.replace("[[", "").replace("]]", "");
                 }
-                const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
-                if (imageFile) {
-                    const src = PluginInstances.app.vault.getResourcePath(imageFile);
-                    return this.getStaticImageUri(src);
+                if (imageLink) {
+                    const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, ".");
+                    if (imageFile) {
+                        const src = PluginInstances.app.vault.getResourcePath(imageFile);
+                        return this.getStaticImageUri(src);
+                    }
+                    else {
+                        try {
+                            const validationUrl = new URL(imageLink);
+                            if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
+                                return this.getStaticImageUri(imageLink);
+                            }
+                        } catch (err) {
+                            // Not a valid url
+                        }
+                    }
                 }
             }
         }
@@ -197,22 +210,40 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private async getMediaType(url: string): Promise<string | null> {
-        let type: string | null = null;
-        var xhr = new XMLHttpRequest();
-        xhr.open('HEAD', url, true);
-        xhr.onload = function() {
-            type = xhr.getResponseHeader('Content-Type');
+        let type: string | null | undefined;
+        
+        var request = new XMLHttpRequest();
+        request.open('HEAD', url, false);
+        request.onload = function() {
+            type = request.getResponseHeader('Content-Type');
         };
-        xhr.send();
+        request.onerror = function(e) {
+            console.warn(e);
+            type = null;
+        }
+        request.onreadystatechange = function() {
+            if (request.status === 401) {
+                console.warn(STRINGS.errors.uri401);
+            }
+        }
+        try {
+            request.send();
+        }
+        catch (e) {
+            console.warn(e);
+            type = null;
+        }
+
+
 
         let waitLoop = 0;
         await (async() => {
-            while (type === null && waitLoop < 5) {
+            while (type === undefined && waitLoop < 5) {
                 waitLoop += 1;
                 await new Promise(resolve => setTimeout(resolve, 100));
             }
         })();
-        return type;
+        return type ?? null;
     }
 
     private initNodeGraphics(id: string, texture: Texture | undefined, backgroundColor: Uint8Array): void {

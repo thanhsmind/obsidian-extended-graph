@@ -32,6 +32,10 @@ export default class STRINGS {
 		save: "Save",
 		show: "Show",
 		rows: "rows"
+	};
+
+	static errors = {
+		uri401: "Unauthorized URL (Code 401) while trying to get an image for a node. This probably means that the URL is invalid. No image will be loaded and this message can safely be ignored.",
 	}
 
 	static features = {
@@ -234,7 +238,7 @@ export default class STRINGS {
 		tagsCount: "Number of tags",
 		warningUnreliableOS: "This calculation is unreliable and might vary between OS.",
 		sentiment: "Sentiment",
-	}
+	};
 
 	static {
 		STRINGS.localize();
