@@ -5,7 +5,6 @@ import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedG
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
 
-const supportedExtensions = ['avif', 'webp', 'png', 'jpg', 'svg'];
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
@@ -40,40 +39,43 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) return;
-        const { imageURIs, emptyTextures } = this.getImageURIsAndEmptyTextures(ids);
-        this.initNodesGraphics(imageURIs, emptyTextures);
-    }
 
-    private getImageURIsAndEmptyTextures(ids: Set<string>): { imageURIs: Map<string, string>, emptyTextures: string[] } {
-        const imageURIs = new Map<string, string>();
-        const emptyTextures: string[] = [];
+        const backgroundColor = getBackgroundColor(this.instances.renderer);
+
         for (const id of ids) {
-            const extendedNode = this.extendedElementsMap.get(id);
-            if (!extendedNode || !extendedNode.graphicsWrapper) continue;
-
-            let imageUri = null;
-
-            if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
-                imageUri = this.getImageUriFromProperty(this.instances.settings.imageProperty, id);
-            }
-            if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
-                imageUri = this.getImageUriFromEmbeds(id);
-            }
-            if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
-                imageUri = this.getImageUriForAttachment(id);
-            }
-
-
-            if (imageUri) {
-                imageURIs.set(id, imageUri);
-            } else {
-                emptyTextures.push(id);
-            }
+            this.getImageURIOrEmptyTextures(id).then(imageURI => {
+                if (imageURI) {
+                    Assets.load(imageURI).then((texture:Texture) => {
+                        this.initNodeGraphics(id, texture, backgroundColor);
+                    });
+                }
+                else {
+                    this.initNodeGraphics(id, undefined, backgroundColor);
+                }
+            });
         }
-        return { imageURIs, emptyTextures };
     }
 
-    private getImageUriFromProperty(keyProperty: string, id: string): string | null {
+    private async getImageURIOrEmptyTextures(id: string): Promise<string | null> {
+        const extendedNode = this.extendedElementsMap.get(id);
+        if (!extendedNode || !extendedNode.graphicsWrapper) return null;
+
+        let imageUri: string | null = null;
+
+        if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
+            imageUri = await this.getImageUriFromProperty(this.instances.settings.imageProperty, id);
+        }
+        if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
+            imageUri = await this.getImageUriFromEmbeds(id);
+        }
+        if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
+            imageUri = await this.getImageUriForAttachment(id);
+        }
+
+        return imageUri;
+    }
+
+    private async getImageUriFromProperty(keyProperty: string, id: string): Promise<string | null> {
         const file = getFile(id);
         if (file) {
             const metadata = PluginInstances.app.metadataCache.getFileCache(file);
@@ -88,16 +90,15 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 }
                 const imageFile = imageLink ? PluginInstances.app.metadataCache.getFirstLinkpathDest(imageLink, "."): null;
                 if (imageFile) {
-                    if (supportedExtensions.includes(imageFile.extension.toLowerCase())) {
-                        return PluginInstances.app.vault.getResourcePath(imageFile);
-                    }
+                    const src = PluginInstances.app.vault.getResourcePath(imageFile);
+                    return this.getStaticImageUri(src);
                 }
             }
         }
         return null;
     }
 
-    private getImageUriFromEmbeds(id: string): string | null {
+    private async getImageUriFromEmbeds(id: string): Promise<string | null> {
         const file = getFile(id);
         if (file) {
             const metadata = PluginInstances.app.metadataCache.getFileCache(file);
@@ -106,33 +107,112 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 for (const embedCache of embeds) {
                     const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, ".");
                     if (!imageFile) continue;
-                    if (!supportedExtensions.includes(imageFile.extension.toLowerCase())) continue;
-                    return PluginInstances.app.vault.getResourcePath(imageFile);
+                    const uri = await this.getStaticImageUri(PluginInstances.app.vault.getResourcePath(imageFile));
+                    if (uri) return uri;
                 }
             }
         }
         return null;
     }
 
-    private getImageUriForAttachment(id: string): string | null {
+    private async getImageUriForAttachment(id: string): Promise<string | null> {
         const file = getFile(id);
-        if (file && supportedExtensions.includes(file.extension.toLowerCase())) {
-            const imageUri = file ? PluginInstances.app.vault.getResourcePath(file): null;
-            if (imageUri) return imageUri;
+        if (file) {
+            return this.getStaticImageUri(PluginInstances.app.vault.getResourcePath(file));
         }
         return null;
     }
 
-    private initNodesGraphics(imageURIs: Map<string, string>, emptyTextures: string[]) {
-        const backgroundColor = getBackgroundColor(this.instances.renderer);
-        Assets.load([...imageURIs.values()]).then((textures: Record<string, Texture>) => {
-            for (const [id, uri] of imageURIs) {
-                this.initNodeGraphics(id, textures[uri], backgroundColor);
-            }
-        });
-        for (const id of emptyTextures) {
-            this.initNodeGraphics(id, undefined, backgroundColor);
+    private async getStaticImageUri(src: string): Promise<string | null> {
+        // https://www.iana.org/assignments/media-types/media-types.xhtml
+        const type = await this.getMediaType(src);
+        if (!type) return null;
+
+        if (['image/avif', 'image/webp', 'image/png', 'image/svg+xml', 'image/jpeg'].includes(type)) {
+            return src;
         }
+        else if (['image/gif'].includes(type)) {
+            return this.getUriForGif(src);
+        }
+        else if (['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-matroska'].includes(type)) {
+            return this.getUriForVideo(src);
+        }
+        return null;
+    }
+
+    private async getUriForGif(src: string): Promise<string | null> {
+        const canvas = createEl('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            let uri: string | undefined = undefined;
+
+            const image = new Image();
+            image.onload = () => {
+                canvas.width = image.width;
+                canvas.height = image.height;
+                ctx.drawImage(image, 0, 0);
+                uri = canvas.toDataURL();
+            };
+            image.src = src;
+
+            let waitLoop = 0;
+            await (async() => {
+                while (uri === undefined && waitLoop < 5) {
+                    waitLoop += 1;
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            })();
+            return uri ?? null;
+        }
+        return null;
+    }
+
+    private async getUriForVideo(src: string): Promise<string | null> {
+        const canvas = createEl('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            let uri: string | undefined = undefined;
+
+            const video = createEl('video');
+
+            video.src = src;
+            video.addEventListener('seeked', function() {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                uri = canvas.toDataURL();
+            });
+            video.onloadedmetadata = function() {
+                if (video.duration) video.currentTime = video.duration / 2;
+            };
+
+            let waitLoop = 0;
+            await (async() => {
+                while (uri === undefined && waitLoop < 5) {
+                    waitLoop += 1;
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            })();
+            return uri ?? null;
+        }
+        return null;
+    }
+
+    private async getMediaType(url: string): Promise<string | null> {
+        let type: string | null = null;
+        var xhr = new XMLHttpRequest();
+        xhr.open('HEAD', url, true);
+        xhr.onload = function() {
+            type = xhr.getResponseHeader('Content-Type');
+        };
+        xhr.send();
+
+        let waitLoop = 0;
+        await (async() => {
+            while (type === null && waitLoop < 5) {
+                waitLoop += 1;
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        })();
+        return type;
     }
 
     private initNodeGraphics(id: string, texture: Texture | undefined, backgroundColor: Uint8Array): void {
