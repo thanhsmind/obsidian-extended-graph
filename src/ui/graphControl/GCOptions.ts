@@ -1,13 +1,13 @@
 import { setIcon, Setting } from "obsidian";
-import { GraphPlugin } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, NodeNamesSuggester, PluginInstances, WorkspaceLeafExt } from "src/internal";
+import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, getGraphView, GraphStateModal, NodeNamesSuggester, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     suggester: NodeNamesSuggester;
     
-    constructor(leaf: WorkspaceLeafExt) {
-        super(leaf, "options", STRINGS.plugin.options);
+    constructor(view: GraphView | LocalGraphView) {
+        super(view, "options", STRINGS.plugin.options);
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);
@@ -70,9 +70,9 @@ export class GCOptions extends GCSection {
             .setName(STRINGS.features.zoomOnNode)
             .addSearch(cb => {
                 const callback = (value: string) => {
-                    PluginInstances.graphsManager.zoomOnNode(this.leaf, value);
+                    PluginInstances.graphsManager.zoomOnNode(this.view, value);
                 }
-                this.suggester = new NodeNamesSuggester(cb.inputEl, this.leaf.view.renderer, callback);
+                this.suggester = new NodeNamesSuggester(cb.inputEl, this.view.renderer, callback);
             });
     }
 
@@ -82,7 +82,7 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
-                    const instances = PluginInstances.graphsManager.allInstances.get(this.leaf.id);
+                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
                     if (!instances) return;
                     const modal = new GraphStateModal(instances);
                     modal.open();
@@ -95,20 +95,20 @@ export class GCOptions extends GCSection {
     private saveForDefaultState() {
         const stateData = PluginInstances.settings.states.find(v => v.id === DEFAULT_STATE_ID);
         if (!stateData) return;
-        const engine = getEngine(this.leaf);
+        const engine = getEngine(this.view);
         stateData.engineOptions = new EngineOptions(engine.getOptions());
         PluginInstances.statesManager.onStateNeedsSaving(stateData);
     }
 
     private saveForNormalState() {
-        const instance = (this.leaf.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
+        const instance = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
         
-        const engine = getEngine(this.leaf);
+        const engine = getEngine(this.view);
         instance.options = engine.getOptions();
         instance.saveOptions();
     }
 
     private getSVGScreenshot() {
-        PluginInstances.graphsManager.getSVGScreenshot(this.leaf);
+        PluginInstances.graphsManager.getSVGScreenshot(this.view);
     }
 }

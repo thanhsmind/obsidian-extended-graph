@@ -53,12 +53,12 @@ export class GraphEventsDispatcher extends Component {
     private initializeFoldersUI(): void {
         if (!PluginInstances.settings.enableFeatures[this.instances.type]['folders']) return;
 
-        const graphControls = PluginInstances.graphsManager.globalUIs.get(this.instances.leaf.id)?.control;
+        const graphControls = PluginInstances.graphsManager.globalUIs.get(this.instances.view.leaf.id)?.control;
         if (!graphControls) return;
 
         const foldersManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);
         if (!foldersManager) return;
-        this.instances.foldersUI = new GCFolders(this.instances.leaf, foldersManager);
+        this.instances.foldersUI = new GCFolders(this.instances.view, foldersManager);
         this.instances.foldersUI.display();
     }
 
@@ -113,7 +113,7 @@ export class GraphEventsDispatcher extends Component {
 
     private observeOrphanSettings(): void {
         this.toggleOrphans = this.toggleOrphans.bind(this);
-        const graphFilterControl = this.instances.leaf.containerEl.querySelector(".tree-item.graph-control-section.mod-filter");
+        const graphFilterControl = this.instances.view.containerEl.querySelector(".tree-item.graph-control-section.mod-filter");
         if (graphFilterControl) {
             // @ts-ignore
             const orphanDesc = window.OBSIDIAN_DEFAULT_I18N.plugins.graphView.optionShowOrphansDescription;
@@ -139,12 +139,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createRenderProxy(): void {
-        if (!this.instances.renderer.renderCallback) {
-            new Notice(STRINGS.errors.issueNeedView);
-            this.listenStage = false;
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.leaf.id);
-            return;
-        }
         this.renderCallback = this.instances.renderer.renderCallback;
         const onRendered = this.onRendered.bind(this);
         this.instances.renderer.renderCallback = new Proxy(this.instances.renderer.renderCallback, {
@@ -165,7 +159,7 @@ export class GraphEventsDispatcher extends Component {
         this.unbindStageEvents();
         this.instances.renderer.renderCallback = this.renderCallback;
         this.observerOrphans?.disconnect();
-        PluginInstances.graphsManager.onPluginUnloaded(this.instances.leaf);
+        PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
     }
 
     private unbindStageEvents(): void {
@@ -181,9 +175,9 @@ export class GraphEventsDispatcher extends Component {
      */
     private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
-        if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.leaf)) {
+        if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.view)) {
             this.listenStage = false;
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.leaf.id);
+            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
         

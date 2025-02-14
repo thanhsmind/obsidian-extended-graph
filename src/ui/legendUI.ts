@@ -159,7 +159,7 @@ export class LegendUI extends Component implements InteractiveUI {
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
-        this.viewContent = instances.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.viewContent = instances.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
     
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;

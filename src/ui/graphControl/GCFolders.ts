@@ -1,13 +1,14 @@
 import { Setting, ToggleComponent } from "obsidian";
-import { FOLDER_KEY, GCSection, InteractiveManager, InteractiveUI, WorkspaceLeafExt } from "src/internal";
+import { GraphView, LocalGraphView } from "obsidian-typings";
+import { FOLDER_KEY, GCSection, InteractiveManager, InteractiveUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;
     settingsMap = new Map<string, {setting: Setting, toggle: ToggleComponent}>();
     
-    constructor(leaf: WorkspaceLeafExt, foldersManager: InteractiveManager) {
-        super(leaf, "folders", STRINGS.features.folders);
+    constructor(view: GraphView | LocalGraphView, foldersManager: InteractiveManager) {
+        super(view, "folders", STRINGS.features.folders);
 
         this.foldersManager = foldersManager;
 

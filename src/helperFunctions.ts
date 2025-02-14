@@ -1,7 +1,7 @@
-import { App, getAllTags, getLinkpath, TFile } from "obsidian";
+import { getAllTags, TFile, WorkspaceLeaf } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { GraphEngine, GraphLink, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY, WorkspaceLeafExt } from "./internal";
+import { getGraphViewConstructor, getLocalGraphViewConstructor, GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
+import { ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "./internal";
 import STRINGS from "./Strings";
 
 export function getSVGNode(n: string, v?: any): SVGElement {
@@ -112,20 +112,16 @@ export function getFile(path: string): TFile | null {
     return PluginInstances.app.vault.getFileByPath(path);
 }
 
-export function getEngine(leaf: WorkspaceLeafExt): GraphEngine {
-    if (leaf.view.getViewType() === "graph") {
-        return (leaf.view as GraphView).dataEngine;
-    }
-    else if(leaf.view.getViewType() === "localgraph") {
-        return (leaf.view as LocalGraphView).engine;
+export function getEngine(view: GraphView | LocalGraphView): GraphEngine {
+    if (view.getViewType() === "graph") {
+        return (view as GraphView).dataEngine;
     }
     else {
-        const err = "[Extended Graph plugin] Leaf is not a graph.";
-        throw new Error(err);
+        return (view as LocalGraphView).engine;
     }
 }
 
-export function hasEngine(leaf: WorkspaceLeafExt): boolean {
+export function hasEngine(leaf: WorkspaceLeaf): boolean {
     if (leaf.view.getViewType() === "graph") {
         return leaf.view.hasOwnProperty("dataEngine");
     }
@@ -279,4 +275,17 @@ export function textColor(backgroundColor: Uint8Array, dark: string = "black", l
 
 export function isTagValid(name: string): boolean {
     return /^[a-zA-Z/]+$/.test(name);
+}
+
+
+export function getGraphView(leaf: WorkspaceLeaf): GraphView | LocalGraphView | undefined {
+    if (leaf.view.getViewType() === "graph") {
+        return leaf.view as GraphView;
+    }
+    else if(leaf.view.getViewType() === "localgraph") {
+        return leaf.view as LocalGraphView;
+    }
+    else {
+        return;
+    }
 }

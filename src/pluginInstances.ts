@@ -1,7 +1,7 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, StatesManager, StatesUI, WorkspaceLeafExt } from "./internal";
+import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, StatesManager, StatesUI } from "./internal";
 import ExtendedGraphPlugin from "./main";
-import { GraphEngine, GraphRenderer } from "obsidian-typings";
+import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 
 export class PluginInstances {
     static plugin: ExtendedGraphPlugin; // init in main.ts
@@ -12,7 +12,7 @@ export class PluginInstances {
 }
 
 export class GraphInstances {
-    readonly leaf: WorkspaceLeafExt;
+    readonly view: GraphView | LocalGraphView;
     readonly settings: ExtendedGraphSettings;
     readonly type: GraphType;
     readonly engine: GraphEngine;
@@ -34,11 +34,11 @@ export class GraphInstances {
 
     colorGroupHaveChanged: boolean = false;
 
-    constructor(leaf: WorkspaceLeafExt) {
-        this.leaf = leaf;
+    constructor(view: GraphView | LocalGraphView) {
+        this.view = view;
         this.settings = structuredClone(PluginInstances.settings);
-        this.type = this.leaf.view.getViewType() === "graph" ? "graph" : "localgraph";
-        this.engine   = getEngine(this.leaf);
-        this.renderer = this.leaf.view.renderer;
+        this.type = this.view.getViewType() === "graph" ? "graph" : "localgraph";
+        this.engine   = getEngine(this.view);
+        this.renderer = this.view.renderer;
     }
 }

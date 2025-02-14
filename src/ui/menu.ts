@@ -1,19 +1,20 @@
-import { Component, ExtraButtonComponent, WorkspaceLeaf } from "obsidian";
-import { setPluginIcon } from "src/internal";
+import { Component, ExtraButtonComponent } from "obsidian";
+import { GraphView, LocalGraphView } from "obsidian-typings";
+import { PluginInstances, setPluginIcon } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class MenuUI extends Component {
     viewContent: HTMLElement;
-    leaf: WorkspaceLeaf;
+    view: GraphView | LocalGraphView;
 
     buttonEnable: ExtraButtonComponent;
     buttonReset: ExtraButtonComponent;
     enabled: boolean;
 
-    constructor(leaf: WorkspaceLeaf) {
+    constructor(view: GraphView | LocalGraphView) {
         super();
-        this.leaf = leaf;
-        this.viewContent = this.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.view = view;
+        this.viewContent = this.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
 
         const hr = graphControls.createEl("hr");
@@ -28,9 +29,9 @@ export class MenuUI extends Component {
             //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
-                    this.leaf.trigger("extended-graph:enable-plugin", this.leaf);
+                    PluginInstances.graphsManager.enablePlugin(this.view);
                 } else {
-                    this.leaf.trigger("extended-graph:disable-plugin", this.leaf);
+                    PluginInstances.graphsManager.disablePlugin(this.view);
                 }
             })
             .then(cb => {
@@ -45,7 +46,7 @@ export class MenuUI extends Component {
             .setIcon("rotate-ccw")
             .onClick(() => {
                 if (this.enabled) {
-                    this.leaf.trigger("extended-graph:reset-plugin", this.leaf);
+                    PluginInstances.graphsManager.resetPlugin(this.view);
                 }
             })
             .then(cb => {

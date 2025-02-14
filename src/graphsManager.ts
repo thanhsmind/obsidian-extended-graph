@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from "obsidian";
-import { GraphPluginInstance, GraphPluginInstanceOptions } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, TAG_KEY, StatesManager, WorkspaceLeafExt, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink } from "./internal";
+import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -8,13 +8,12 @@ import STRINGS from "./Strings";
 export class GraphsManager extends Component {
     globalUIs = new Map<string, {menu: MenuUI, control: GraphControlsUI}>();
     optionsBackup = new Map<string, GraphPluginInstanceOptions>();
-    registered = new Map<string, boolean>();
+    allInstances = new Map<string, GraphInstances>();
     activeFile: TFile | null = null;
 
     lastBackup: string;
     localGraphID: string | null = null;
     
-    allInstances = new Map<string, GraphInstances>();
     
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodesColorCalculator: NodeStatCalculator | undefined;
@@ -500,69 +499,74 @@ export class GraphsManager extends Component {
 
     // ================================ LAYOUT =================================
 
-    onNewLeafOpen(leaf: WorkspaceLeafExt): void {
+    onNewLeafOpen(leaf: WorkspaceLeaf): void {
+        const view = getGraphView(leaf);
+        if (!view) return;
+
         try {
-            this.setGlobalUI(leaf);
+            this.setGlobalUI(view);
         }
         catch {
             // UI not set, probably because the graph is in a closed sidebar
         }
-        if (this.isPluginAlreadyEnabled(leaf)) return;
-        if (this.isGlobalGraphAlreadyOpened(leaf)) return;
-        this.backupOptions(leaf);
+        if (this.isPluginAlreadyEnabled(view)) return;
+        if (this.isGlobalGraphAlreadyOpened(view)) return;
+        this.backupOptions(view);
     }
 
-    private isPluginAlreadyEnabled(leaf: WorkspaceLeafExt): boolean {
-        return this.allInstances.has(leaf.id);
+    private isPluginAlreadyEnabled(view: GraphView | LocalGraphView): boolean {
+        return this.allInstances.has(view.leaf.id);
     }
     
-    private isGlobalGraphAlreadyOpened(leaf: WorkspaceLeafExt): boolean {
-        return this.optionsBackup.has(leaf.id) && leaf.view.getViewType() === "graph";
+    private isGlobalGraphAlreadyOpened(view: GraphView | LocalGraphView): boolean {
+        return this.optionsBackup.has(view.leaf.id) && view.getViewType() === "graph";
     }
 
     syncWithLeaves(leaves: WorkspaceLeaf[]): void {
         const currentActiveLeavesID = leaves.map(l => l.id);
-        const currentUsedLeavesID = Array.from(this.optionsBackup.keys());
         const localLeaf = leaves.find(l => l.view.getViewType() === "localgraph");
         
         this.localGraphID = localLeaf ? localLeaf.id : null;
 
         // Remove dispatchers from closed leaves
-        for (const id of currentUsedLeavesID) {
-            if (! currentActiveLeavesID.includes(id)) {
-                this.disablePluginFromLeafID(id);
-                this.globalUIs.delete(id);
-                if (this.lastBackup !== id) this.optionsBackup.delete(id);
+        const allInstancesIDs = [...this.allInstances.keys()];
+        for (const leafID of allInstancesIDs) {
+            if (! currentActiveLeavesID.includes(leafID)) {
+                this.disablePluginFromLeafID(leafID);
+            }
+        }
+        // Remove options backups, but keep one
+        const optionsBackupIDs = [...this.optionsBackup.keys()];
+        for (const leafID of optionsBackupIDs) {
+            if (!currentActiveLeavesID.includes(leafID) && this.lastBackup !== leafID) {
+                this.optionsBackup.delete(leafID);
+            }
+        }
+        // Remove UI from closed leaves
+        const globalUIsIDs = [...this.globalUIs.keys()];
+        for (const leafID of globalUIsIDs) {
+            if (! currentActiveLeavesID.includes(leafID)) {
+                this.globalUIs.delete(leafID);
             }
         }
     }
 
     // =============================== GLOBAL UI ===============================
 
-    private setGlobalUI(leaf: WorkspaceLeafExt): {menu: MenuUI, control: GraphControlsUI} {
-        let globalUI = this.globalUIs.get(leaf.id);
+    private setGlobalUI(view: GraphView | LocalGraphView): {menu: MenuUI, control: GraphControlsUI} {
+        let globalUI = this.globalUIs.get(view.leaf.id);
         if (globalUI) return globalUI;
 
-        const menuUI = new MenuUI(leaf);
-        leaf.view.addChild(menuUI);
+        const menuUI = new MenuUI(view);
+        view.addChild(menuUI);
 
-        const controlsUI = new GraphControlsUI(leaf);
+        const controlsUI = new GraphControlsUI(view);
         controlsUI.onPluginDisabled();
-        leaf.view.addChild(controlsUI);
-
-        this.registerLeafEvents(leaf);
+        view.addChild(controlsUI);
         
         globalUI = {menu: menuUI, control: controlsUI};
-        this.globalUIs.set(leaf.id, globalUI);
+        this.globalUIs.set(view.leaf.id, globalUI);
         return globalUI;
-    }
-
-    private registerLeafEvents(leaf: WorkspaceLeafExt): void {
-        if (this.registered.get(leaf.id)) return;
-        this.registerEvent(leaf.on('extended-graph:disable-plugin', this.disablePlugin.bind(this)));
-        this.registerEvent(leaf.on('extended-graph:enable-plugin', this.enablePlugin.bind(this)));
-        this.registerEvent(leaf.on('extended-graph:reset-plugin', this.resetPlugin.bind(this)));
-        this.registered.set(leaf.id, true);
     }
 
     // ================================ COLORS =================================
@@ -621,11 +625,11 @@ export class GraphsManager extends Component {
 
     // ============================= ENABLE PLUGIN =============================
 
-    enablePlugin(leaf: WorkspaceLeafExt, stateID?: string): void {
-        this.backupOptions(leaf);
+    enablePlugin(view: GraphView | LocalGraphView, stateID?: string): void {
+        this.backupOptions(view);
 
-        if (this.isPluginAlreadyEnabled(leaf)) return;
-        if (this.isNodeLimitExceeded(leaf)) return;
+        if (this.isPluginAlreadyEnabled(view)) return;
+        if (this.isNodeLimitExceeded(view)) return;
         
         if (this.getGraphAnalysis()["graph-analysis"]) {
             if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
@@ -634,37 +638,37 @@ export class GraphsManager extends Component {
         else {
             this.linksSizeCalculator = undefined;
         }
-        const instances = this.addGraph(leaf, stateID);
-        const globalUI = this.setGlobalUI(leaf);
+        const instances = this.addGraph(view, stateID);
+        const globalUI = this.setGlobalUI(view);
         globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(instances);
     }
 
-    private addGraph(leaf: WorkspaceLeafExt, stateID?: string): GraphInstances {
-        let instances = this.allInstances.get(leaf.id);
+    private addGraph(view: GraphView | LocalGraphView, stateID?: string): GraphInstances {
+        let instances = this.allInstances.get(view.leaf.id);
         if (instances) return instances;
 
-        instances = new GraphInstances(leaf);
+        instances = new GraphInstances(view);
         new GraphEventsDispatcher(instances);
         if (stateID) {
             instances.statesUI.currentStateID = stateID;
             instances.statesUI.select.setValue(stateID);
         }
 
-        this.allInstances.set(leaf.id, instances);
+        this.allInstances.set(view.leaf.id, instances);
         instances.dispatcher.load();
-        leaf.view.addChild(instances.dispatcher);
+        view.addChild(instances.dispatcher);
 
-        if (leaf.view.getViewType() === "localgraph") {
-            this.localGraphID = leaf.id;
+        if (view.getViewType() === "localgraph") {
+            this.localGraphID = view.leaf.id;
         }
 
         return instances;
     }
 
-    isNodeLimitExceeded(leaf: WorkspaceLeafExt): boolean {
-        if (leaf.view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
-            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${leaf.view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
+    isNodeLimitExceeded(view: GraphView | LocalGraphView): boolean {
+        if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
+            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
             return true;
         }
         return false;
@@ -691,13 +695,12 @@ export class GraphsManager extends Component {
 
     // ============================ DISABLE PLUGIN =============================
 
-    disablePlugin(leaf: WorkspaceLeafExt): void {
-        this.disablePluginFromLeafID(leaf.id);
-        leaf.view.renderer.changed();
+    disablePlugin(view: GraphView | LocalGraphView): void {
+        this.disablePluginFromLeafID(view.leaf.id);
+        view.renderer.changed();
     }
 
     disablePluginFromLeafID(leafID: string) {
-        this.unregisterLeafEvents(leafID);
         this.disableUI(leafID);
         this.unloadDispatcher(leafID);
     }
@@ -710,17 +713,6 @@ export class GraphsManager extends Component {
         }
     }
 
-    private unregisterLeafEvents(leafID: string): void {
-        if (!this.registered.get(leafID)) return;
-        const instances = this.allInstances.get(leafID);
-        if (instances) {
-            instances.leaf.off('extended-graph:disable-plugin', this.disablePlugin.bind(this));
-            instances.leaf.off('extended-graph:enable-plugin', this.enablePlugin.bind(this));
-            instances.leaf.off('extended-graph:reset-plugin', this.resetPlugin.bind(this));
-            this.registered.set(leafID, false);
-        }
-    }
-
     private unloadDispatcher(leafID: string) {
         const instances = this.allInstances.get(leafID);
         if (instances) {
@@ -728,26 +720,26 @@ export class GraphsManager extends Component {
         }
     }
 
-    onPluginUnloaded(leaf: WorkspaceLeafExt): void {
-        this.allInstances.delete(leaf.id);
+    onPluginUnloaded(view: GraphView | LocalGraphView): void {
+        this.allInstances.delete(view.leaf.id);
         
-        if (this.localGraphID === leaf.id) this.localGraphID = null;
+        if (this.localGraphID === view.leaf.id) this.localGraphID = null;
 
-        if (leaf.view._loaded) {
-            this.applyNormalState(leaf);
+        if (view._loaded) {
+            this.applyNormalState(view);
         }
         this.restoreBackup();
     }
 
     // ============================= RESET PLUGIN ==============================
 
-    resetPlugin(leaf: WorkspaceLeafExt): void {
-        const instances = this.allInstances.get(leaf.id);
+    resetPlugin(view: GraphView | LocalGraphView): void {
+        const instances = this.allInstances.get(view.leaf.id);
         const stateID = instances?.statesUI.currentStateID;
         const scale = instances?.renderer.targetScale ?? false;
-        this.disablePlugin(leaf);
-        this.enablePlugin(leaf, stateID);
-        const newDispatcher = this.allInstances.get(leaf.id);
+        this.disablePlugin(view);
+        this.enablePlugin(view, stateID);
+        const newDispatcher = this.allInstances.get(view.leaf.id);
         if (newDispatcher && scale) {
             newDispatcher.renderer.targetScale = scale;
         }
@@ -774,7 +766,7 @@ export class GraphsManager extends Component {
             this.changeActiveFile(view.file);
             if (this.localGraphID) {
                 const localDispatcher = this.allInstances.get(this.localGraphID);
-                if (localDispatcher) this.resetPlugin(localDispatcher.leaf);
+                if (localDispatcher) this.resetPlugin(localDispatcher.view);
             }
             this.activeFile = view.file;
         }
@@ -804,11 +796,11 @@ export class GraphsManager extends Component {
 
     // ==================== HANDLE NORMAL AND DEFAULT STATE ====================
 
-    backupOptions(leaf: WorkspaceLeafExt) {
-        const engine = getEngine(leaf);
+    backupOptions(view: GraphView | LocalGraphView) {
+        const engine = getEngine(view);
         const options = structuredClone(engine.getOptions());
-        this.optionsBackup.set(leaf.id, options);
-        this.lastBackup = leaf.id;
+        this.optionsBackup.set(view.leaf.id, options);
+        this.lastBackup = view.leaf.id;
         PluginInstances.settings.backupGraphOptions = options;
         PluginInstances.plugin.saveSettings();
     }
@@ -843,9 +835,9 @@ export class GraphsManager extends Component {
         return PluginInstances.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
-    applyNormalState(leaf: WorkspaceLeafExt) {
-        const engine = getEngine(leaf);
-        const options = this.optionsBackup.get(leaf.id);
+    applyNormalState(view: GraphView | LocalGraphView) {
+        const engine = getEngine(view);
+        const options = this.optionsBackup.get(view.leaf.id);
         if (engine && options) {
             engine.setOptions(options);
             engine.updateSearch();
@@ -863,22 +855,22 @@ export class GraphsManager extends Component {
 
     // ============================== SCREENSHOT ===============================
 
-    getSVGScreenshot(leaf: WorkspaceLeafExt) {
-        const instances = this.allInstances.get(leaf.id);
+    getSVGScreenshot(view: GraphView | LocalGraphView) {
+        const instances = this.allInstances.get(view.leaf.id);
         let exportToSVG: ExportGraphToSVG;
         if (instances) {
             exportToSVG = new ExportExtendedGraphToSVG(instances);
         }
         else {
-            exportToSVG = new ExportCoreGraphToSVG(getEngine(leaf));
+            exportToSVG = new ExportCoreGraphToSVG(getEngine(view));
         }
         exportToSVG.toClipboard();
     }
 
     // ============================= ZOOM ON NODE ==============================
 
-    zoomOnNode(leaf: WorkspaceLeafExt, nodeID: string) {
-        const renderer = leaf.view.renderer;
+    zoomOnNode(view: GraphView | LocalGraphView, nodeID: string) {
+        const renderer = view.renderer;
         const node = renderer.nodes.find(node => node.id === nodeID);
         if (!node) return;
         

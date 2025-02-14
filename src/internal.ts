@@ -87,7 +87,6 @@ export * from "./suggester/PropertiesSuggester";
 export * from "./svg/exportToSVG";
 
 export * from "./types/restrictedStrings";
-export * from "./types/leaf";
 export * from "./types/workspace";
 
 export * from "./ui/UIElements";

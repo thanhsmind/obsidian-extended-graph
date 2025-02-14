@@ -21,7 +21,7 @@ export class StatesUI extends Component {
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
-        this.viewContent = this.instances.leaf.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.viewContent = this.instances.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.root = this.viewContent.createDiv();
         this.root.addClass("graph-states-container");
         

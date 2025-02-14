@@ -1,5 +1,5 @@
-import { Menu, Plugin, TAbstractFile, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettings, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY, WorkspaceExt, WorkspaceLeafExt } from './internal';
+import { Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {
@@ -121,7 +121,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             const leaves = found ? this.getAllGraphLeaves(): [];
             PluginInstances.graphsManager.syncWithLeaves(leaves);
             leaves.forEach(leaf => {
-                PluginInstances.graphsManager.onNewLeafOpen(leaf as WorkspaceLeafExt);
+                PluginInstances.graphsManager.onNewLeafOpen(leaf);
             });
         } catch (e) {
             console.error(e);
@@ -162,7 +162,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private isGraph(leaf: WorkspaceLeaf): boolean {
-        return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf as WorkspaceLeafExt);
+        return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf);
     }
 }
 

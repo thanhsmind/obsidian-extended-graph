@@ -74,8 +74,8 @@ export class Graph extends Component {
     }
 
     private overrideOnOptionsChange(): void {
-        this.onOptionsChangeOriginal = this.instances.leaf.view.onOptionsChange;
-        this.instances.leaf.view.onOptionsChange = () => {};
+        this.onOptionsChangeOriginal = this.instances.view.onOptionsChange;
+        this.instances.view.onOptionsChange = () => {};
     }
 
     // ================================ LOADING ================================
@@ -114,7 +114,7 @@ export class Graph extends Component {
     }
 
     private restoreOriginalFunctions(): void {
-        this.instances.leaf.view.onOptionsChange = this.onOptionsChangeOriginal;
+        this.instances.view.onOptionsChange = this.onOptionsChangeOriginal;
     }
 
     private enableDisconnectedNodes(): void {
