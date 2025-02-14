@@ -139,6 +139,12 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createRenderProxy(): void {
+        if (!this.instances.renderer.renderCallback) {
+            new Notice(STRINGS.errors.issueNeedView);
+            this.listenStage = false;
+            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.leaf.id);
+            return;
+        }
         this.renderCallback = this.instances.renderer.renderCallback;
         const onRendered = this.onRendered.bind(this);
         this.instances.renderer.renderCallback = new Proxy(this.instances.renderer.renderCallback, {

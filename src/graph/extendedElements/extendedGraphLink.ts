@@ -83,7 +83,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     // ============================== LINK COLOR ===============================
 
     getStrokeColor(): number | undefined {
-        //console.log(PluginInstances.graphsManager.linksColorCalculator?.linksStats[this.coreElement.source.id][this.coreElement.target.id]);
         return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
             && PluginInstances.settings.linksColorFunction !== "default" ?
             PluginInstances.graphsManager.linksColorCalculator

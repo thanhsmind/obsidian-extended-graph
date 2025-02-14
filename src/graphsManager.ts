@@ -8,6 +8,7 @@ import STRINGS from "./Strings";
 export class GraphsManager extends Component {
     globalUIs = new Map<string, {menu: MenuUI, control: GraphControlsUI}>();
     optionsBackup = new Map<string, GraphPluginInstanceOptions>();
+    registered = new Map<string, boolean>();
     activeFile: TFile | null = null;
 
     lastBackup: string;
@@ -557,9 +558,11 @@ export class GraphsManager extends Component {
     }
 
     private registerLeafEvents(leaf: WorkspaceLeafExt): void {
+        if (this.registered.get(leaf.id)) return;
         this.registerEvent(leaf.on('extended-graph:disable-plugin', this.disablePlugin.bind(this)));
         this.registerEvent(leaf.on('extended-graph:enable-plugin', this.enablePlugin.bind(this)));
         this.registerEvent(leaf.on('extended-graph:reset-plugin', this.resetPlugin.bind(this)));
+        this.registered.set(leaf.id, true);
     }
 
     // ================================ COLORS =================================
@@ -694,6 +697,7 @@ export class GraphsManager extends Component {
     }
 
     disablePluginFromLeafID(leafID: string) {
+        this.unregisterLeafEvents(leafID);
         this.disableUI(leafID);
         this.unloadDispatcher(leafID);
     }
@@ -703,6 +707,17 @@ export class GraphsManager extends Component {
         if (globalUI) {
             globalUI.menu.setDisableUIState();
             globalUI.control.onPluginDisabled();
+        }
+    }
+
+    private unregisterLeafEvents(leafID: string): void {
+        if (!this.registered.get(leafID)) return;
+        const instances = this.allInstances.get(leafID);
+        if (instances) {
+            instances.leaf.off('extended-graph:disable-plugin', this.disablePlugin.bind(this));
+            instances.leaf.off('extended-graph:enable-plugin', this.enablePlugin.bind(this));
+            instances.leaf.off('extended-graph:reset-plugin', this.resetPlugin.bind(this));
+            this.registered.set(leafID, false);
         }
     }
 
