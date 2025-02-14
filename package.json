@@ -19,7 +19,7 @@
 		"esbuild": "0.17.3",
 		"obsidian": "latest",
 		"obsidian-dataview": "^0.5.64",
-		"obsidian-typings": "^2.13.5",
+		"obsidian-typings": "^2.22.0",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
 	},
@@ -29,7 +29,6 @@
 		"graphology-traversal": "^0.3.1",
 		"graphology-types": "^0.24.8",
 		"markdown-link-extractor": "^3.1.0",
-		"mathjs": "^14.0.1",
-		"pixi.js": "^7.4.2"
+		"mathjs": "^14.0.1"
 	}
 }
