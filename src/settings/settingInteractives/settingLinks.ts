@@ -12,14 +12,6 @@ export class SettingLinks extends SettingInteractives {
 
     protected override addBody(): void {
         super.addBody();
-
-        const labels = this.containerEl.querySelectorAll(`.settings-selection-container.${this.itemClasses} label`);
-        const imageLabel = Array.from(labels).find(l => (l as HTMLLabelElement).innerText === PluginInstances.settings.imageProperty) as HTMLLabelElement;
-        if (imageLabel) {
-            const cb = imageLabel.querySelector("input") as HTMLInputElement ;
-            this.deselectInteractive(imageLabel, cb);
-            imageLabel.parentNode?.removeChild(imageLabel);
-        }
         
         // Remove sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
