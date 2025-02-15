@@ -43,6 +43,7 @@ The plugin is completely free to test and will always stay that way, and open so
 # Credits
 
 - [obsidian-typings](https://github.com/Fevol/obsidian-typings) (MIT License)
+- [graph-analysis](https://github.com/SkepticMystic/graph-analysis) (GNU General Public License v3.0)
 - [js-colormaps](https://github.com/timothygebhard/js-colormaps) (MIT License)
 
 # Features ideas
@@ -51,7 +52,8 @@ The plugin is completely free to test and will always stay that way, and open so
 - Node shapes [by danitrusca](https://forum.obsidian.md/t/option-to-change-the-shape-of-graph-nodes/13692)
 - Tag node colors [by dardan](https://forum.obsidian.md/t/provide-tags-as-graph-css-classes-attributes-to-allow-coloring-of-graph-nodes/6300/17)
 - Folders (kind of) [by feva](https://forum.obsidian.md/t/show-folders-as-areas-in-the-graph/8208)
-- Node stats functions [by akaalias and ryanjamurphy](https://forum.obsidian.md/t/graph-view-allow-to-configure-how-node-size-is-calculated/4247)
+- Nodes stats functions [by akaalias and ryanjamurphy](https://forum.obsidian.md/t/graph-view-allow-to-configure-how-node-size-is-calculated/4247)
+- Links stats functions [by SkepticMystic and Emile](https://github.com/SkepticMystic/graph-analysis)
 - SVG Export [by Anthea](https://forum.obsidian.md/t/export-of-graph-view-to-svg/25406)
 - Interface font [by luisitoalvarz](https://forum.obsidian.md/t/graph-view-should-follow-global-interface-font/47913)
 - Zoom on a node [by Docintar](https://forum.obsidian.md/t/find-a-note-in-the-graph/94336)
