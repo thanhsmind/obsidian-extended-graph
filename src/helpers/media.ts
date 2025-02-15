@@ -45,11 +45,10 @@ export class Media {
                 div,
                 id,
                 PluginInstances.plugin
-            ).then(() => {
-                const images = Array.from(div.querySelectorAll("img")).map(img => img.src);
-                const videos = Array.from(div.querySelectorAll("video")).map(vid => vid.src);
-                embeds = embeds.concat(images.concat(videos));
-            })
+            );
+            const images = Array.from(div.querySelectorAll("img")).map(img => img.src);
+            const videos = Array.from(div.querySelectorAll("video")).map(vid => vid.src);
+            embeds = embeds.concat(images.concat(videos));
         }
         
         for (const link of embeds) {
