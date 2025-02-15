@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances } from "src/internal";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -22,12 +22,42 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     display(): void {
-        const {containerEl} = this;
-        containerEl.empty();
+        this.containerEl.empty();
+        this.containerEl.addClass("extended-graph-settings");
 
-        containerEl.addClass("extended-graph-settings");
+        this.addAutoEnable();
+        this.addDisableNodes();
 
-        new Setting(containerEl)
+        // FEATURES
+        for (const section of this.sections) {
+            section.display();
+        }
+    }
+
+    addAutoEnable(): void {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.autoEnable)
+            .setDesc(STRINGS.features.autoEnableDesc)
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['auto-enabled']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['graph']['auto-enabled'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['auto-enabled']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['localgraph']['auto-enabled'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
+    }
+
+    addDisableNodes() {
+        new Setting(this.containerEl)
             .setName(STRINGS.features.disableNodes)
             .setDesc(STRINGS.features.disableNodesDesc)
             .addToggle(cb => {
@@ -37,10 +67,5 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
-
-        // FEATURES
-        for (const section of this.sections) {
-            section.display();
-        }
     }
 }

@@ -119,6 +119,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Feature toggles
     enableFeatures: {
         'graph': {
+            'auto-enabled'        : false,
             'tags'                : false,
             'properties'          : false,
             'property-key'        : true,
@@ -135,6 +136,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'elements-stats'      : true,
         },
         'localgraph': {
+            'auto-enabled'        : false,
             'tags'                : true,
             'properties'          : false,
             'property-key'        : true,

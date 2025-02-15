@@ -40,6 +40,8 @@ export default class STRINGS {
 	}
 
 	static features = {
+		autoEnable: "Auto enable",
+		autoEnableDesc: "Auto enable the plugin in graph views.",
 		disableNodes: "Disable nodes",
 		disableNodesDesc: "When all arcs are disabled on the node, remove it from the graph",
 		focus: "Focus",

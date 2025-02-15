@@ -510,8 +510,14 @@ export class GraphsManager extends Component {
             // UI not set, probably because the graph is in a closed sidebar
         }
         if (this.isPluginAlreadyEnabled(view)) return;
-        if (this.isGlobalGraphAlreadyOpened(view)) return;
-        this.backupOptions(view);
+
+        if (!this.isGlobalGraphAlreadyOpened(view)) {
+            this.backupOptions(view);
+        }
+
+        if (PluginInstances.settings.enableFeatures[view.getViewType()]['auto-enabled']) {
+            this.enablePlugin(view);
+        }
     }
 
     private isPluginAlreadyEnabled(view: GraphView | LocalGraphView): boolean {
