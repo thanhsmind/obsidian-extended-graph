@@ -35,7 +35,7 @@ export interface ExtendedGraphSettings {
     imageProperty: string;
     borderFactor: number;
     allowExternalImages: boolean; // Protocol http: and https:
-    allowExternalLocalImages: boolean; // Protocol file:
+    allowExternalLocalImages: boolean; // Protocol file: and app:
 
     // Nodes sizes
     nodesSizeProperty: string;
