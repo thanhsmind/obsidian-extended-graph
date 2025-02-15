@@ -409,7 +409,7 @@ body {
         }
     }
 
-    > .setting-item:not(.setting-item-heading) {
+    > .setting-item-heading ~ .setting-item:not(.setting-item-heading) {
         background-color: var(--background-secondary);
         padding-inline: 0.75em;
     }
