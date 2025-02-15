@@ -47,14 +47,14 @@ export class SettingColorPalette extends Setting {
             }
             cb.onChange(async (palette) => {
                 if (palette === "") return;
-                plot_colormap(this.canvasPalette.id, palette, false);
+                plot_colormap(this.canvasPalette, palette, false);
                 if (this.onPaletteChanged) this.onPaletteChanged(palette);
             });
         });
     }
 
     setValue(palette: string) {
-        plot_colormap(this.canvasPalette.id, palette, false);
+        plot_colormap(this.canvasPalette, palette, false);
         this.dropdown.setValue(palette);
     }
 

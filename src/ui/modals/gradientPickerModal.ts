@@ -38,7 +38,7 @@ export class GradientPickerModal extends Modal {
                 canvasPalette.id = `picker-canvas-palette-${palette}`;
                 canvasPalette.width = 100;
                 canvasPalette.height = 20;
-                plot_colormap(canvasPalette.id, palette, false);
+                plot_colormap(canvasPalette, palette, false);
             });
         setting.settingEl.onclick = () => {
             this.selectedPalette = palette;

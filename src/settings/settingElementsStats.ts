@@ -68,7 +68,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             
         this.elementsBody.push(setting.settingEl);
         this.warningNodeSizeSetting = setting;
-        this.setWarning(setting);
+        this.setWarning(setting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
     }
     
     private addNodeColorFunction(): void {
@@ -95,7 +95,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             
         this.elementsBody.push(setting.settingEl);
         this.warningNodeColorSetting = setting;
-        this.setWarning(setting);
+        this.setWarning(setting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
     }
 
     private addColorPaletteSettingForNodes(): void {
@@ -183,8 +183,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
 
 
 
-    private setWarning(warningSetting: Setting): void {
-        const warning = PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning();
+    private setWarning(warningSetting: Setting, warning?: string): void {
         if (warning && warning !== "") {
             warningSetting.setDesc(warning);
             warningSetting.settingEl.style.setProperty("display", "");
@@ -203,7 +202,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         PluginInstances.graphsManager.nodesSizeCalculator?.computeStats().then(() => {
             PluginInstances.graphsManager.updateSizeFunctionForNodesStat();
         });
-        this.setWarning(this.warningNodeSizeSetting);
+        this.setWarning(this.warningNodeSizeSetting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
     }
 
     private recomputeNodeColors(functionKey: NodeStatFunction): void {
@@ -212,7 +211,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         PluginInstances.graphsManager.nodesColorCalculator?.computeStats().then(() => {
             PluginInstances.graphsManager.updatePaletteForNodesStat();
         });
-        this.setWarning(this.warningNodeColorSetting);
+        this.setWarning(this.warningNodeColorSetting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
         PluginInstances.plugin.saveSettings();
     }
 

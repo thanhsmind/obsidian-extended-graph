@@ -31,17 +31,17 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     // ============================ CLEAR GRAPHICS =============================
 
     clearGraphics(): void {
-        this.pixiElement.clear();
+        this.pixiElement?.clear();
     }
 
     destroyGraphics(): void {
-        this.pixiElement.destroy({children: true});
+        this.pixiElement?.destroy({children: true});
     }
 
     // ============================ UPDATE GRAPHICS ============================
 
     updateGraphics(): void {
-        this.pixiElement.updateGraphics();
+        this.pixiElement?.updateGraphics();
     }
 
     // ========================== CONNECT/DISCONNECT ===========================
@@ -60,6 +60,6 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     abstract connect(): void;
     
     disconnect(): void {
-        this.pixiElement.removeFromParent();
+        this.pixiElement?.removeFromParent();
     }
 }

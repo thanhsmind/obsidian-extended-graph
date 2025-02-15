@@ -76,9 +76,7 @@ export function rgb2hex(rgb: Uint8Array): string {
     return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
 }
 
-export function plot_colormap(canvas_id: string, name: string, reverse: boolean) {
-    const canvas = <HTMLCanvasElement> document.getElementById(canvas_id);
-    if (!canvas) return;
+export function plot_colormap(canvas: HTMLCanvasElement, name: string, reverse: boolean) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     for (let x = 0; x <= 256; x++) {
