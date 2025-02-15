@@ -1,5 +1,5 @@
 import { DropdownComponent, Setting } from "obsidian";
-import { cmOptions, GradientPickerModal, plot_colormap, PluginInstances } from "src/internal";
+import { cmOptions, GradientPickerModal, plot_colormap } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingColorPalette extends Setting {
@@ -26,7 +26,7 @@ export class SettingColorPalette extends Setting {
                 const modal = new GradientPickerModal();
                 modal.onSelected((palette: string) => {
                     if (palette === "") return;
-                    plot_colormap(this.canvasPalette.id, palette, false);
+                    this.setValue(palette);
                     if (this.onPaletteChanged) this.onPaletteChanged(palette);
                 });
                 modal.open();
