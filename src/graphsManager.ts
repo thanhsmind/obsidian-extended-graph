@@ -840,7 +840,6 @@ export class GraphsManager extends Component {
         const options = this.optionsBackup.get(view.leaf.id);
         if (engine && options) {
             engine.setOptions(options);
-            engine.updateSearch();
         }
     }
 

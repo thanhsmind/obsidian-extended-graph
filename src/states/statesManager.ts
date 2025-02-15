@@ -43,7 +43,6 @@ export class StatesManager {
             }
             instances.graph.updateWorker();
             instances.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
-            instances.engine.updateSearch();
         });
     }
 
