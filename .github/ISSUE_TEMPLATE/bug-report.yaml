@@ -1,0 +1,68 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - ElsaTam
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Please before you start, make sure you are on the latest beta version of Extended Graph.
+        
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen? Feel free to add screenshots or screen recordings.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: |
+        Please describe the exact steps that I can make to reproduce the issue. If you can't reproduce the issue multiple times and can't figure out what happened, provide as much details as you can.
+        Specify the number of nodes you had in your graph at the time of the bug, as well as other relevant settings.
+        If you don't know what is relevant, you can attach `./obsidian/graph.json` (settings for the core plugin) and `.obsidian/plugins/extended-graph/data.json` (settings for this plugin) files.
+    validations:
+      required: true
+        
+  - type: textarea
+    id: other-plugins
+    attributes:
+      label: Does the bug disappear if you disable other plugins?
+      description: |
+        Please, try disabling other plugins and see if the bug is still there.
+        If yes, provide the list of plugins (or attach the file `./obsidian/community-plugin.json`).
+        If you can narrow done the conflicting plugin(s), it will be easier for me to assist.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: operating-systems
+    attributes:
+      label: Which Operating Systems are you using?
+      options:
+        - label: Linux
+        - label: macOS
+        - label: Windows
+
+  - type: input
+    id: obsidian-version
+    attributes:
+      label: Obsidian Version
+      description: Which Obsidian version are you using?
+      placeholder: 1.8.4
+    validations:
+      required: true
+      
+  - type: textarea
+    id: other
+    attributes:
+      label: Anything else?
+      description: |
+        Do you have anything else to tell about this issue? If you have an idea for a fix or a reason for the bug, you are welcome to share it.
