@@ -90,6 +90,7 @@ export default class STRINGS {
 			propertyReservedTags: "This property key is reserved for tags",
 			selection: "Selection",
 			selectionDesc: "Choose which values should be considered by the plugin",
+			selectionFor: "Selection for",
 			specificColors: "Specific colors",
 			specificColorsDesc: "Choose specific colors to override the color palette",
 			tags: "Tags",

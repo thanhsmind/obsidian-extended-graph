@@ -1,5 +1,5 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, INVALID_KEYS, plot_colormap, PluginInstances, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
+import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, InteractivesSelectionModal, INVALID_KEYS, plot_colormap, PluginInstances, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -78,23 +78,25 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
     protected addFilterTypeSetting(): void {
         this.settingInteractiveFilter = new Setting(this.containerEl)
             .setName(STRINGS.features.interactives.selection)
-            .setDesc(STRINGS.features.interactives.selectionDesc);
+            .setDesc(STRINGS.features.interactives.selectionDesc)
+            .addExtraButton(cb => {
+                cb.setIcon('mouse-pointer-click');
+                cb.onClick(() => {
+                    const modal = new InteractivesSelectionModal(this.interactiveKey, this.getAllTypes());
+                    modal.open();
+                })
+            });
         this.elementsBody.push(this.settingInteractiveFilter.settingEl);
-        
-        this.selectionContainer = this.containerEl.createDiv({cls: "setting-item settings-selection-container"});
-        this.elementsBody.push(this.selectionContainer);
+    }
 
-        const allTypes = this.getAllTypes();
-        for (const type of allTypes) {
-            const isActive = !PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(type);
-            const label = this.selectionContainer.createEl("label");
-            const text = label.createSpan({text: type});
-            const toggle = label.createEl("input", {type: "checkbox"});
-            isActive ? this.selectInteractive(label, toggle): this.deselectInteractive(label, toggle);
-            toggle.addEventListener("change", e => {
-                toggle.checked ? this.selectInteractive(label, toggle): this.deselectInteractive(label, toggle);
-            })
+    protected getAllTypes(): string[] {
+        let allTypes = new Set<string>();
+        const files = PluginInstances.app.vault.getFiles();
+        for (const file of files) {
+            console.log(this.interactiveKey, file);
+            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, file)]);
         }
+        return [...allTypes].sort();
     }
 
     protected addColor(type: string, color: HexString): void {
@@ -104,32 +106,6 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
         let previous = this.colors.last() ?? this.settingInteractiveColor;
         this.containerEl.insertAfter(setting.settingEl, previous.settingEl);
         this.colors.push(setting);
-    }
-
-    protected selectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
-        label.addClass("is-active");
-        toggle.checked = true;
-        if (PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
-            PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.remove(label.innerText);
-            PluginInstances.plugin.saveSettings();
-        }
-    }
-
-    protected deselectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
-        label.removeClass("is-active");
-        toggle.checked = false;
-        if (!PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.includes(label.innerText)) {
-            PluginInstances.settings.interactiveSettings[this.interactiveKey].unselected.push(label.innerText);
-            PluginInstances.plugin.saveSettings();
-        }
-    }
-
-    protected getAllTypes(): string[] {
-        let allTypes = new Set<string>();
-        for (const file of this.settingTab.app.vault.getFiles()) {
-            allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, file)]);
-        }
-        return [...allTypes].sort();
     }
 
     protected abstract isValueValid(name: string): boolean;
