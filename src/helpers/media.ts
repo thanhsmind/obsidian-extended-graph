@@ -1,4 +1,4 @@
-import { MarkdownRenderer } from "obsidian";
+import { MarkdownRenderer, Platform } from "obsidian";
 import { getFile, getLinkDestination, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -73,10 +73,29 @@ export class Media {
             const src = PluginInstances.app.vault.getResourcePath(imageFile);
             return Media.getStaticImageUri(src);
         }
-        else if (PluginInstances.settings.allowExternalImages) {
+
+        if (PluginInstances.settings.allowExternalImages) {
             try {
                 const validationUrl = new URL(link);
                 if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
+                    return Media.getStaticImageUri(link);
+                }
+            } catch (err) {
+                return null;
+            }
+        }
+        
+        if (PluginInstances.settings.allowExternalLocalImages) {
+            try {
+                const validationUrl = new URL(link);
+                if (validationUrl.protocol === 'file:') {
+                    if (link.startsWith('file:///')) {
+                        link = link.replace('file:///', '');
+                    }
+                    link = Platform.resourcePathPrefix + link;
+                    return Media.getStaticImageUri(link);
+                }
+                if (validationUrl.protocol === 'app:') {
                     return Media.getStaticImageUri(link);
                 }
             } catch (err) {

@@ -126,5 +126,16 @@ export class SettingImages extends SettingsSection {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.imagesAllowExternalLocal)
+            .setDesc(STRINGS.features.imagesAllowExternalLocalDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.allowExternalLocalImages);
+                cb.onChange(value => {
+                    PluginInstances.settings.allowExternalLocalImages = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 }

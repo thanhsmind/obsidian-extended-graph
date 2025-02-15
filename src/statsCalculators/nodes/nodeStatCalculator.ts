@@ -35,7 +35,6 @@ export abstract class NodeStatCalculator {
     async computeStats(): Promise<void> {
         await this.getStats();
         this.mapStat();
-        console.log(this.filesStats);
     }
 
     private async getStats(): Promise<void> {

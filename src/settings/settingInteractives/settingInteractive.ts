@@ -93,7 +93,6 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
         let allTypes = new Set<string>();
         const files = PluginInstances.app.vault.getFiles();
         for (const file of files) {
-            console.log(this.interactiveKey, file);
             allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, file)]);
         }
         return [...allTypes].sort();
