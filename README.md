@@ -22,6 +22,11 @@ The plugin is available in beta through BRAT:
 
 Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
 
+# Disclosures
+
+- **Network use**: only if you allow the loading of external images from the web (disabled by default).
+- **Files outside of the vault**: only if you allow the loading of external images from your computer (disabled by default).
+
 # Issues
 
 I am currently seeking beta testers willing to try the plugin and report issues. Since the core graph plugin lacks an API and documentation, many features are experimental, and feedback is critical to identify and resolve bugs.
