@@ -40,7 +40,22 @@ Please, if you encounter any bug, even if it is in the list above, report [an is
 
 The plugin is completely free to test and will always stay that way, and open source. If you'd like to support its development, you can make a donation via this link: https://github.com/sponsors/ElsaTam
 
+# Credits
 
-## License
+- [obsidian-typings](https://github.com/Fevol/obsidian-typings) (MIT License)
+- [js-colormaps](https://github.com/timothygebhard/js-colormaps) (MIT License)
+
+# Features ideas
+
+- Pin nodes [by ribbit12](https://forum.obsidian.md/t/save-node-positions-in-graph-view-edit-and-preview-toggle/1423/89)
+- Node shapes [by danitrusca](https://forum.obsidian.md/t/option-to-change-the-shape-of-graph-nodes/13692)
+- Tag node colors [by dardan](https://forum.obsidian.md/t/provide-tags-as-graph-css-classes-attributes-to-allow-coloring-of-graph-nodes/6300/17)
+- Folders (kind of) [by feva](https://forum.obsidian.md/t/show-folders-as-areas-in-the-graph/8208)
+- Node stats functions [by akaalias and ryanjamurphy](https://forum.obsidian.md/t/graph-view-allow-to-configure-how-node-size-is-calculated/4247)
+- SVG Export [by Anthea](https://forum.obsidian.md/t/export-of-graph-view-to-svg/25406)
+- Interface font [by luisitoalvarz](https://forum.obsidian.md/t/graph-view-should-follow-global-interface-font/47913)
+- Zoom on a node [by Docintar](https://forum.obsidian.md/t/find-a-note-in-the-graph/94336)
+
+# License
 
 GNU General Public License version 3 (GPLv3) License
