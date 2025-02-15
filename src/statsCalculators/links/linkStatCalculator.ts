@@ -3,7 +3,7 @@ import { ExtendedGraphSettings, getColor, GraphologyGraphAnalysis, PluginInstanc
 import STRINGS from "src/Strings";
 import { Attributes, EdgeEntry } from "graphology-types";
 
-export type LinkStatFunction = 'default' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Chiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
+export type LinkStatFunction = 'default' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
 
 export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'default': STRINGS.plugin.default,
@@ -12,7 +12,7 @@ export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'Co-Citations': STRINGS.statsFunctions.coCitations,
     'Clustering Coefficient': STRINGS.statsFunctions.clusteringCoefficient,
     'Jaccard': STRINGS.statsFunctions.Jaccard,
-    'Otsuka-Chiai': STRINGS.statsFunctions.OtsukaChiai,
+    'Otsuka-Ochiai': STRINGS.statsFunctions.OtsukaOchiai,
     'Overlap': STRINGS.statsFunctions.overlap,
     'Sentiment': STRINGS.statsFunctions.sentiment,
 };
@@ -24,7 +24,7 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
     'Co-Citations': false,
     'Clustering Coefficient': false,
     'Jaccard': false,
-    'Otsuka-Chiai': true,
+    'Otsuka-Ochiai': true,
     'Overlap': false,
     'Sentiment': true,
 };
@@ -65,7 +65,7 @@ export class LinkStatCalculator {
     async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (this.statFunction === 'default') return 1;
         try {
-            const measure = (await this.g.algs[this.statFunction](link.source))[link.target].measure
+            const measure = (await this.g.algs[this.statFunction](link.source))[link.target].measure;
             return measure;
         }
         catch {

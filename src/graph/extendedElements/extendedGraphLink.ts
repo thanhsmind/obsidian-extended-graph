@@ -21,13 +21,16 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
-            return true;
+            return true; // Always for curved links
+        }
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.getStrokeColor()) {
+            return true; // Always if the colos has to be overriden by the stat
         }
         for (const [key, manager] of this.managers) {
             const types = this.types.get(key);
             if (!types || types.size === 0) continue;
             if (this.instances.settings.interactiveSettings[key].showOnGraph && !types.has(this.instances.settings.interactiveSettings[key].noneType)) {
-                return true;
+                return true; // If an active type must be shown and is not "none"
             }
         }
         return false;
@@ -57,7 +60,10 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (this.coreElement.px
             && PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
             && PluginInstances.settings.linksSizeFunction !== "default"
-            && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+            && (
+                (PluginInstances.settings.enableFeatures[this.instances.type]['links']
+                && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'])
+                || (!PluginInstances.settings.enableFeatures[this.instances.type]['links']))) {
             this.coreElement.px.scale.y = this.getThicknessScale();
         }
         else {
