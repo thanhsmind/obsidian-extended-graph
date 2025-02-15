@@ -41,7 +41,7 @@ export class StatesManager {
                 instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
                 instances.engine.setOptions(stateData.engineOptions);
             }
-            instances.graph.updateWorker();
+            //instances.graph.updateWorker();
             instances.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
         });
     }
