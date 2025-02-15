@@ -1,3 +1,4 @@
+import { MarkdownRenderer } from "obsidian";
 import { getFile, getLinkDestination, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -31,11 +32,28 @@ export class Media {
         const metadata = PluginInstances.app.metadataCache.getCache(id);
         if (!metadata) return null;
 
-        const embeds = metadata.embeds;
-        if (!embeds) return null;
+        let embeds: string[] = metadata.embeds?.map(c => c.link) ?? [];
+        if (embeds.length === 0) {
+            const file = getFile(id);
+            if (!file) return null;
+
+            const data = await PluginInstances.app.vault.cachedRead(file);
+            const div = createDiv();
+            await MarkdownRenderer.render(
+                PluginInstances.app,
+                data,
+                div,
+                id,
+                PluginInstances.plugin
+            ).then(() => {
+                const images = Array.from(div.querySelectorAll("img")).map(img => img.src);
+                const videos = Array.from(div.querySelectorAll("video")).map(vid => vid.src);
+                embeds = embeds.concat(images.concat(videos));
+            })
+        }
         
-        for (const embedCache of embeds) {
-            const uri = await Media.getImageUriFromLink(embedCache.link);
+        for (const link of embeds) {
+            const uri = await Media.getImageUriFromLink(link);
             if (uri) return uri;
         }
         
