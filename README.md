@@ -20,6 +20,7 @@ The plugin is available in beta through BRAT:
 2. Navigate to `Settings > BRAT > Beta Plugin List > Add Beta Plugin`.
 3. Enter `https://github.com/ElsaTam/obsidian-extended-graph` into the input field and select `Add Plugin`.
 
+Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
 
 # Issues
 
