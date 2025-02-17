@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -454,9 +454,10 @@ export class GraphsManager extends Component {
                 );
             }
             // Pinned nodes
+            const pinner = new Pinner(instances);
             for (const [nodeID, extendedNode] of instances.nodesSet.extendedElementsMap) {
                 if (extendedNode.isPinned && predicate(oldPath, nodeID)) {
-                    instances.nodesSet.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
+                    pinner.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
                 }
             }
             for (const state of PluginInstances.settings.states) {

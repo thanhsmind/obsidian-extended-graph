@@ -1,4 +1,4 @@
-import { App, Modal, setIcon, Setting } from "obsidian";
+import { Modal, setIcon, Setting } from "obsidian";
 import { cmOptions, plot_colormap, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 

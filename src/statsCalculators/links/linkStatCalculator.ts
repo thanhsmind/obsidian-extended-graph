@@ -1,5 +1,4 @@
-import { App } from "obsidian";
-import { ExtendedGraphSettings, getColor, GraphologyGraphAnalysis, PluginInstances, rgb2int } from "src/internal";
+import { getColor, GraphologyGraphAnalysis, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 import { Attributes, EdgeEntry } from "graphology-types";
 

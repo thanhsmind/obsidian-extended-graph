@@ -1,6 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, PluginInstances, StatesUI } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
@@ -257,6 +257,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
+        console.log(this.instances.renderer.idleFrames);
         // If some elements must be added because of cascading effect, add them now and reset to null once it's done
         if (this.instances.nodesSet.elementsToAddToCascade) {
             this.instances.nodesSet.loadCascadesForMissingElements(this.instances.nodesSet.elementsToAddToCascade);
@@ -273,6 +274,12 @@ export class GraphEventsDispatcher extends Component {
                 extendedElement.graphicsWrapper?.updateFillColor();
             }
             this.instances.colorGroupHaveChanged = false;
+        }
+
+        // If nodes need to be pinned because we just changed the state and new nodes were added
+        if (this.instances.statePinnedNodes) {
+            const pinner = new Pinner(this.instances);
+            pinner.setPinnedNodesFromState();
         }
 
         // Update the graphics of folders in order to redraw the box when nodes move
@@ -540,22 +547,27 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private pinNode(file: TFile) {
-        this.instances.nodesSet.pinNode(file.path);
+        const pinner = new Pinner(this.instances);
+        pinner.pinNode(file.path);
     }
 
     private unpinNode(file: TFile) {
-        this.instances.nodesSet.unpinNode(file.path);
+        const pinner = new Pinner(this.instances);
+        pinner.unpinNode(file.path);
         this.instances.renderer.changed();
     }
 
     preventDraggingPinnedNodes() {
         var node = this.instances.renderer.dragNode;
         if (node && this.instances.nodesSet.isNodePinned(node.id)) {
-            this.instances.nodesSet.setLastDraggedPinnedNode(node.id);
+            console.log(node.id);
+            const pinner = new Pinner(this.instances);
+            pinner.setLastDraggedPinnedNode(node.id);
         }
     }
 
     pinDraggingPinnedNode() {
-        this.instances.nodesSet.pinLastDraggedPinnedNode();
+        const pinner = new Pinner(this.instances);
+        pinner.pinLastDraggedPinnedNode();
     }
 }

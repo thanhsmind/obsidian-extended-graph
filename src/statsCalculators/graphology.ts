@@ -1,5 +1,5 @@
 import Graphology from 'graphology';
-import { App, TFile } from "obsidian";
+import { TFile } from "obsidian";
 import { dfsFromNode } from "graphology-traversal/dfs";
 import { getFile, PluginInstances } from 'src/internal';
 

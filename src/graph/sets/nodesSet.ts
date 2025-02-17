@@ -4,12 +4,10 @@ import { GraphNode } from "obsidian-typings";
 import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, Media, PluginInstances } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
-import STRINGS from "src/Strings";
 
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
-    lastDraggedPinnedNode: string | null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -244,67 +242,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // =============================== PIN NODES ===============================
 
-    setPinnedNodes(ids: Record<string, {x: number, y: number}>) {
-        for (const [id, extendedNode] of this.extendedElementsMap) {
-            const isPinned = ids.hasOwnProperty(id);
-            if (isPinned && !extendedNode.isPinned) {
-                this.instances.nodesSet.pinNode(id, ids[id].x, ids[id].y);
-            }
-            else if (!isPinned && extendedNode.isPinned) {
-                this.instances.nodesSet.unpinNode(id);
-            }
-        }
-    }
-
-    pinNode(id: string, x?: number, y?: number) {
-        const extendedNode = this.extendedElementsMap.get(id);
-        if (!extendedNode) return;
-        const node = extendedNode.coreElement;
-        if (x) node.x = x;
-        if (y) node.y = y;
-        node.fx = node.x;
-        node.fy = node.y;
-        this.instances.renderer.worker.postMessage({
-            run: true,
-            forceNode: {
-                id: node.id,
-                x: node.x,
-                y: node.y
-            }
-        });
-        extendedNode.pin();
-    }
-
-    unpinNode(id: string) {
-        const extendedNode = this.extendedElementsMap.get(id);
-        if (!extendedNode) return;
-        const node = extendedNode.coreElement;
-        node.fx = null;
-        node.fy = null;
-        this.instances.renderer.worker.postMessage({
-            forceNode: {
-                id: node.id,
-                x: null,
-                y: null
-            }
-        });
-        extendedNode.unpin();
-    }
-
     isNodePinned(id: string): boolean | undefined {
-        const extendedNode = this.extendedElementsMap.get(id);
+        const extendedNode = this.instances.nodesSet.extendedElementsMap.get(id);
         if (!extendedNode) return;
         return extendedNode.isPinned;
-    }
-
-    setLastDraggedPinnedNode(id: string): void {
-        this.lastDraggedPinnedNode = id;
-    }
-
-    pinLastDraggedPinnedNode(): void {
-        if (!this.lastDraggedPinnedNode) return;
-        this.pinNode(this.lastDraggedPinnedNode);
-        this.lastDraggedPinnedNode = null;
     }
 
     // ================================= DEBUG =================================

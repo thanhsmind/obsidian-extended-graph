@@ -11,7 +11,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
 
     protected override addBody() {
         const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(PluginInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
-            return a[1].index - b[1].index;
+            return (a[1].index ?? 0) - (b[1].index ?? 0);
         }));
         const values = Object.keys(shapeQueries);
         for (const shape of values) {
@@ -92,7 +92,6 @@ class SettingShape extends Setting {
             cb.setTooltip(STRINGS.query.editShapeQuery);
             cb.onClick(() => {
                 const modal = new ShapeQueryModal(
-                    PluginInstances.app,
                     this.shape,
                     PluginInstances.settings.shapeQueries[this.shape],
                     this.saveShapeQuery.bind(this)

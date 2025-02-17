@@ -33,6 +33,7 @@ export class GraphInstances {
     statesUI: StatesUI;
 
     colorGroupHaveChanged: boolean = false;
+    statePinnedNodes: Record<string, {x: number; y: number; handled?: boolean}> | null = null;
 
     constructor(view: GraphView | LocalGraphView) {
         this.view = view;

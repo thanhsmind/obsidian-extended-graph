@@ -37,6 +37,9 @@ export * from "./graph/graphicElements/nodes/arcsCircle";
 export * from "./graph/graphicElements/nodes/image";
 export * from "./graph/graphicElements/nodes/shapes";
 
+export * from "./graph/pin/pinner";
+export * from "./graph/pin/pinShapes";
+
 export * from "./graph/interfaces/interactiveUI";
 export * from "./graph/interfaces/managerGraphics";
 
@@ -104,7 +107,8 @@ export * from "./ui/modals/interactivesSelectionModal";
 export * from "./ui/modals/newNameModal";
 export * from "./ui/modals/propertyModal";
 export * from "./ui/modals/queryMatchesModal";
-export * from "./ui/modals/shapePickerModal";
+export * from "./ui/modals/nodesQueryModal";
+export * from "./ui/modals/pinMultipleNodesModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 

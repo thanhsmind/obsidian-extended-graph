@@ -1,11 +1,11 @@
-import { App, TFile } from "obsidian";
+import { TFile } from "obsidian";
 import { PluginInstances, RuleQuery } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type CombinationLogic = 'AND' | 'OR';
 export type QueryData = {
     combinationLogic: CombinationLogic,
-    index: number,
+    index?: number,
     rules: Record<string, string>[]
 }
 

@@ -524,7 +524,7 @@ body {
     }
 }
 
-.graph-modal-shape-query {
+.graph-modal-nodes-query {
     .modal-title {
         display: flex;
         gap: 15px;

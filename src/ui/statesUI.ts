@@ -94,7 +94,6 @@ export class StatesUI extends Component {
 
     private openModalToAddState() {
         const modal = new NewNameModal(
-            PluginInstances.app,
             STRINGS.states.newStateName,
             this.newState.bind(this)
         );

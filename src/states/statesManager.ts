@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
+import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, Pinner, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -42,7 +42,8 @@ export class StatesManager {
                 instances.engine.setOptions(stateData.engineOptions);
             }
             //instances.graph.updateWorker();
-            instances.nodesSet.setPinnedNodes(stateData.pinNodes ?? {});
+        
+            instances.statePinnedNodes = stateData.pinNodes ?? {};
         });
     }
 

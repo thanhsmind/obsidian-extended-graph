@@ -1,11 +1,12 @@
-import { App, TFile, TFolder } from "obsidian";
+import { TFile, TFolder } from "obsidian";
 import { getFileInteractives, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
-export type SourceKey = 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec' | 'path';
+export type SourceKey = 'all' | 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec' | 'path';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot' | 'isEmpty' | 'isEmptyNot';
 
 export const sourceKeyLabels: Record<SourceKey, string> = {
+    'all': STRINGS.query.source.all,
     'tag': STRINGS.query.source.tag,
     'link': STRINGS.query.source.link,
     'property': STRINGS.query.source.property,
@@ -58,6 +59,8 @@ export class RuleQuery {
         if (!this.isValid()) return null;
         const folder = file.path;
         switch ((this.source as SourceKey)) {
+            case 'all':
+                return true;
             case 'tag':
                 const tags = getFileInteractives(TAG_KEY, file);
                 return this.checkLogic([...tags]);
@@ -163,6 +166,7 @@ export class RuleQuery {
 
     isValid(): boolean {
         if (this.source === "") return false;
+        if (this.source === "all") return true;
         if (this.source === "property" && this.property === "") return false;
         if (this.logic === "") return false;
         if (this.value === "" && this.logic !== 'isEmpty' && this.logic !== 'isEmptyNot') return false;
@@ -172,6 +176,7 @@ export class RuleQuery {
     toString(): string | null {
         if (!this.isValid()) return null;
         let str = sourceKeyLabels[this.source as SourceKey];
+        if (this.source === 'all') return str;
         if (this.source === "property") str += ":" + this.property;
         str += " " + logicKeyLabel[this.logic as LogicKey];
         str += " " + this.value;

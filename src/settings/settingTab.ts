@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { PluginSettingTab, Setting } from "obsidian";
 import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
@@ -6,8 +6,8 @@ import STRINGS from "src/Strings";
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     sections: SettingsSection[] = [];
 
-    constructor(app: App, plugin: ExtendedGraphPlugin) {
-        super(app, plugin);
+    constructor(plugin: ExtendedGraphPlugin) {
+        super(PluginInstances.app, plugin);
 
         this.sections.push(new SettingTags(this));
         this.sections.push(new SettingPropertiesArray(this));

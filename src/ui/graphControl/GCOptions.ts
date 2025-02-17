@@ -1,6 +1,6 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, getGraphView, GraphStateModal, NodeNamesSuggester, PluginInstances } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, getGraphView, GraphStateModal, NodeNamesSuggester, PinMultipleNodesModal, Pinner, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
@@ -25,6 +25,8 @@ export class GCOptions extends GCSection {
         this.createZoomOnNode();
         this.createScreenshot();
         if (enable) this.createButtonViewState();
+        if (enable) this.createPinMultipleNodes();
+        if (enable) this.createUnpinAllNodes();
     }
 
     private createSaveForDefaultState(): Setting {
@@ -88,6 +90,37 @@ export class GCOptions extends GCSection {
                     modal.open();
                 })
             })
+    }
+
+    private createPinMultipleNodes(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName(STRINGS.features.pinMultipleNodes)
+            .addExtraButton(cb => {
+                cb.setIcon('pin');
+                cb.onClick(() => {
+                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
+                    if (!instances) return;
+                    const pinner = new Pinner(instances);
+                    const modal = new PinMultipleNodesModal((shapeData, queryData) => {
+                            pinner.pinInShape(shapeData, queryData);
+                        });
+                    modal.open();
+                })
+            });
+    }
+
+    private createUnpinAllNodes(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName(STRINGS.features.unpinAllNodes)
+            .addExtraButton(cb => {
+                cb.setIcon('pin-off');
+                cb.onClick(() => {
+                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
+                    if (!instances) return;
+                    const pinner = new Pinner(instances);
+                    pinner.unpinAllNodes();
+                })
+            });
     }
 
     // =============================== CALLBACKS ===============================

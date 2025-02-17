@@ -14,6 +14,7 @@ export default class STRINGS {
 
 	static controls = {
 		add: "Add",
+		apply: "Apply",
 		cancel: "Cancel",
 		delete: "Delete",
 		disable: "Disable",
@@ -104,6 +105,13 @@ export default class STRINGS {
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",
 		unpinNode: "Unpin node",
+		unpinAllNodes: "Unpin all nodes",
+		pinMultipleNodes: "Pin multiple nodes",
+		pinMultipleShape: "Shape",
+		pinMultipleGap: "Gap between nodes",
+		pinMultipleCenter: "Center",
+		pinMultipleGridSize: "Number of columns",
+		pinMultipleGridSizeDesc: "Values can be 'N' (single row), 'auto' (square grid) or a positive number",
 		size: "Size",
 		elementsStats: "Nodes and links statistics",
 		elementsStatsDesc: "Choose how nodes and links sizes/colors must be computed",
@@ -148,6 +156,8 @@ export default class STRINGS {
 			star10: "star (10)",
 			polygon: "polygon",
 			starburst: "starburst",
+			grid: "grid",
+			line: "line",
 			unknown: "unknown"
 		},
 		svgScreenshotArcs: "Show arcs (tags and/or types)",
@@ -199,6 +209,7 @@ export default class STRINGS {
 		query: "Query",
 		rules: "Rules",
 		source: {
+			all: "All",
 			tag: "Tags",
 			link: "Links",
 			property: "Property",

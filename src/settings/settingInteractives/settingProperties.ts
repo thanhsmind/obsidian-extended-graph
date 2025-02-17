@@ -41,7 +41,6 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
 
     protected openModalToAddInteractive() {
         const modal = new PropertyModal(
-            this.settingTab.app,
             "Property key",
             this.addProperty.bind(this)
         );

@@ -13,7 +13,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         await this.loadSettings();
 
         this.initializeInvalidKeys();
-        this.addSettingTab(new ExtendedGraphSettingTab(this.app, this));
+        this.addSettingTab(new ExtendedGraphSettingTab(this));
 
         this.registerEvent(this.app.workspace.on('layout-ready', () => {
             this.loadGraphsManager();

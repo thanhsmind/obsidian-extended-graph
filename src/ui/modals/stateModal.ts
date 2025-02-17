@@ -1,5 +1,5 @@
-import { App, ButtonComponent, ExtraButtonComponent, Modal, Setting, TextComponent, TFile, ValueComponent } from "obsidian";
-import { getFile, Graph, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
+import { ButtonComponent, ExtraButtonComponent, Modal, Setting, TFile } from "obsidian";
+import { getFile, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphStateModal extends Modal {
