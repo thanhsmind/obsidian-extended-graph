@@ -43,13 +43,25 @@ export class FolderBlob {
         this.text.destroy();
     }
 
-    updateGraphics(scale: number) {
-        this.draw();
-        this.placeText(scale);
+    updateGraphics(rendererScale: number) {
+        if (this.nodes.length > 0) {
+            this.draw();
+            this.placeText(rendererScale);
+            this.text.visible = true;
+        }
+        else {
+            this.area.clear();
+            this.text.visible = false;
+        }
     }
 
     addNode(node: GraphNode) {
+        if (this.nodes.includes(node)) return;
         this.nodes.push(node);
+    }
+
+    removeNode(node: GraphNode) {
+        this.nodes.remove(node);
     }
 
     private draw() {
@@ -130,9 +142,10 @@ export class FoldersSet {
     }
 
     private initContainer(): void {
+        if (this.container) return;
         this.container = new Container();
         this.container.name = "Blobs";
-        (this.instances.renderer.px.stage.children[1] as Container).addChildAt(this.container, 0);
+        this.instances.renderer.hanger.addChildAt(this.container, 0);
     }
 
     private addMissingFolders(): void {
@@ -140,10 +153,9 @@ export class FoldersSet {
             let missingFolders = new Set<string>();
     
             for (const node of this.instances.renderer.nodes) {
-                if (this.foldersMap.has(node.id)) continue;
-    
                 const file = getFile(node.id);
                 if (!file) continue;
+                if (this.foldersMap.has(file.path)) continue;
     
                 const interactives = getFileInteractives(FOLDER_KEY, file);
                 this.addInteractivesToSet(key, interactives, missingFolders);
@@ -190,12 +202,16 @@ export class FoldersSet {
 
     // ========================= ADD AND REMOVE FOLDER =========================
 
-    addFolder(key: string, path: string): void {
-        this.removeFolder(path);
+    loadFolder(key: string, path: string): void {
         const manager = this.managers.get(key);
         const folder = PluginInstances.app.vault.getFolderByPath(path);
         if (folder && manager) {
-            const blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
+            let blob = this.foldersMap.get(path);
+            let blobExists = true;
+            if (!blob) {
+                blobExists = false;
+                blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
+            }
             for (const file of folder.children) {
                 if (file instanceof TFile) {
                     const node = this.instances.nodesSet.extendedElementsMap.get(file.path)?.coreElement;
@@ -207,8 +223,10 @@ export class FoldersSet {
             }
             if (blob.nodes.length > 0) {
                 this.foldersMap.set(path, blob);
-                this.container.addChild(blob.area);
                 blob.updateGraphics(this.instances.renderer.scale);
+                if (!blobExists) {
+                    this.container.addChild(blob.area);
+                }
             }
         }
     }

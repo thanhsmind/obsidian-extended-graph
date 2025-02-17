@@ -1,6 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, PluginInstances, StatesUI } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
@@ -104,6 +104,9 @@ export class GraphEventsDispatcher extends Component {
         this.onChildAddedToStage = this.onChildAddedToStage.bind(this);
         this.instances.renderer.hanger.on('childAdded', this.onChildAddedToStage);
 
+        this.onChildRemovedFromStage = this.onChildRemovedFromStage.bind(this);
+        this.instances.renderer.hanger.on('childRemoved', this.onChildRemovedFromStage);
+
         this.onPointerDown = this.onPointerDown.bind(this);
         this.instances.renderer.px.stage.on('pointerdown', this.onPointerDown);
 
@@ -163,7 +166,8 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private unbindStageEvents(): void {
-        this.instances.renderer.px.stage.children[1].off('childAdded', this.onChildAddedToStage);
+        this.instances.renderer.hanger.off('childAdded', this.onChildAddedToStage);
+        this.instances.renderer.hanger.off('childRemoved', this.onChildRemovedFromStage);
         this.instances.renderer.px.stage.off('pointerdown', this.onPointerDown);
         this.instances.renderer.px.stage.off('pointerup', this.onPointerUp);
     }
@@ -182,19 +186,24 @@ export class GraphEventsDispatcher extends Component {
         }
         
         const node = this.instances.renderer.nodes.find(n => n.circle === child);
-        let addedNodes: Set<string> = new Set();
         if (node) {
             const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
-                addedNodes = this.instances.nodesSet.load();
+                this.instances.nodesSet.load();
             }
             else {
                 extendedNode.setCoreElement(node);
             }
+            const file = getFile(node.id);
+            if (file) {
+                const paths = getFileInteractives(FOLDER_KEY, file);
+                for (const path of paths) {
+                    this.instances.foldersSet?.loadFolder(FOLDER_KEY, path);
+                }
+            }
         }
 
         const linkPx = this.instances.renderer.links.find(l => l.px === child);
-        let addedLinks: Set<string> = new Set();
         if (linkPx) {
             const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(linkPx));
             if (!extendedLink) {
@@ -204,13 +213,22 @@ export class GraphEventsDispatcher extends Component {
                 extendedLink.setCoreElement(linkPx);
             }
         }
-/*
-        if (addedNodes.size > 0) {
-            this.instances.nodesSet.loadCascadesForMissingElements(addedNodes);
+    }
+
+    private onChildRemovedFromStage(child: DisplayObject, container: Container<DisplayObject>, index: number): void {
+        if (!this.listenStage) return;
+        
+        if (this.instances.foldersSet) {
+            for (const [id, folderBlob] of this.instances.foldersSet.foldersMap) {
+                const nodesToRemove = folderBlob.nodes.filter(n => n.circle === null);
+                for (const node of nodesToRemove) {
+                    folderBlob.removeNode(node);
+                }
+                if (nodesToRemove.length > 0) {
+                    folderBlob.updateGraphics(this.instances.renderer.scale);
+                }
+            }
         }
-        if (addedLinks.size > 0) {
-            this.instances.linksSet.loadCascadesForMissingElements(addedLinks);
-        }*/
     }
 
     private onPointerDown(): void {
@@ -239,6 +257,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
+        // If some elements must be added because of cascading effect, add them now and reset to null once it's done
         if (this.instances.nodesSet.elementsToAddToCascade) {
             this.instances.nodesSet.loadCascadesForMissingElements(this.instances.nodesSet.elementsToAddToCascade);
             this.instances.nodesSet.elementsToAddToCascade = null;
@@ -247,13 +266,19 @@ export class GraphEventsDispatcher extends Component {
             this.instances.linksSet.loadCascadesForMissingElements(this.instances.linksSet.elementsToAddToCascade);
             this.instances.linksSet.elementsToAddToCascade = null;
         }
+
+        // If the color groups have changed, recolor the nodes and reset to false once it's done
         if (this.instances.colorGroupHaveChanged) {
             for (const [id, extendedElement] of this.instances.nodesSet.extendedElementsMap) {
                 extendedElement.graphicsWrapper?.updateFillColor();
             }
             this.instances.colorGroupHaveChanged = false;
         }
+
+        // Update the graphics of folders in order to redraw the box when nodes move
         if (this.instances.foldersSet) this.instances.foldersSet.updateGraphics();
+
+        // Update the graphics of the links
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
             for (const id of this.instances.linksSet.connectedIDs) {
                 this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.pixiElement.updateFrame();
@@ -447,7 +472,7 @@ export class GraphEventsDispatcher extends Component {
         // Update Graph is needed
         if (PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault && this.instances.foldersSet) {
             for (const [path, color] of colorMaps) {
-                this.instances.foldersSet.addFolder(FOLDER_KEY, path);
+                this.instances.foldersSet.loadFolder(FOLDER_KEY, path);
             }
             this.instances.renderer.changed();
         }
@@ -486,7 +511,7 @@ export class GraphEventsDispatcher extends Component {
 
     private addBBox(path: string) {
         if (!this.instances.foldersSet) return;
-        this.instances.foldersSet.addFolder(FOLDER_KEY, path);
+        this.instances.foldersSet.loadFolder(FOLDER_KEY, path);
         this.instances.renderer.changed();
     }
 
