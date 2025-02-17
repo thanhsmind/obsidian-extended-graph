@@ -29,7 +29,7 @@ function getTags(file: TFile): Set<string> {
 }
 
 function getProperty(key: string, file: TFile): Set<string> {
-    const dv = getDataviewAPI();
+    const dv = getDataviewAPI(PluginInstances.app);
     const types = new Set<string>();
 
     // With Dataview
@@ -100,14 +100,14 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
         if ((typeof value === "object") && ("path" in value)) {
             const targetID = (value as any).path;
             if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-            linkTypes.get(targetID)?.add(key);
+            linkTypes.get(targetID)?.add(key.toLocaleLowerCase());
         }
         else if (Array.isArray(value)) {
             for (const l of value) {
                 if ((typeof l === "object") && ("path" in l)) {
                     const targetID = (l as any).path;
                     if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-                    linkTypes.get(targetID)?.add(key);
+                    linkTypes.get(targetID)?.add(key.toLocaleLowerCase());
                 }
             }
         }

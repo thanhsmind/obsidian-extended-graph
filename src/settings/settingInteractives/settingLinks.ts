@@ -100,7 +100,7 @@ export class SettingLinks extends SettingInteractives {
     protected override getAllTypes(): string[] {
         let allTypes = new Set<string>();
 
-        const dv = getDataviewAPI();
+        const dv = getDataviewAPI(PluginInstances.app);
         if (dv) {
             for (const page of dv.pages()) {
                 for (const [key, value] of Object.entries(page)) {
@@ -108,16 +108,19 @@ export class SettingLinks extends SettingInteractives {
                     if (value === null || value === undefined || value === '') continue;
 
                     if ((typeof value === "object") && ("path" in value)) {
-                        allTypes.add(key);
+                        allTypes.add(key.toLocaleLowerCase());
                     }
 
                     if (Array.isArray(value)) {
                         for (const link of value) {
-                            allTypes.add(key);
+                            if ((typeof link === "object") && ("path" in link)) {
+                                allTypes.add(key.toLocaleLowerCase());
+                            }
                         }
                     }
                 }
             }
+
         }
         else {
             for (const file of this.settingTab.app.vault.getFiles()) {
