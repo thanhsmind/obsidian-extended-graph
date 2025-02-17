@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, LinkStatFunction, NodeStatFunction, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, LinkStatFunction, NodeStatFunction, PinShapeData, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -61,6 +61,12 @@ export interface ExtendedGraphSettings {
 
     // Shapes
     shapeQueries: Record<string, QueryData>;
+
+    // Last multiple nodes data
+    multipleNodesData: {
+        shapeData?: PinShapeData,
+        queryData?: QueryData
+    };
 
     // Export SVG
     exportSVGOptions: ExportSVGOptions;
@@ -170,6 +176,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'star8'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
         'star10'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
     },
+
+    // Last multiple nodes data
+    multipleNodesData: {},
 
     // Export SVG
     exportSVGOptions: {

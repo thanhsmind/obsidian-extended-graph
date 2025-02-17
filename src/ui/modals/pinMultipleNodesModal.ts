@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, QueryData } from "src/internal";
+import { NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, PluginInstances, QueryData, RuleQuery } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class PinMultipleNodesModal extends NodesQueryModal {
@@ -8,12 +8,13 @@ export class PinMultipleNodesModal extends NodesQueryModal {
     gridSetting: Setting | null;
 
     constructor(pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
+        console.log(PluginInstances.settings.multipleNodesData);
         super(STRINGS.features.pinMultipleNodes,
-            {combinationLogic: 'AND', rules: []},
+            PluginInstances.settings.multipleNodesData.queryData ?? {combinationLogic: 'AND', rules: []},
             (queryData) => { this.pinCallback(this.shapeData, queryData); }
         );
         this.pinCallback = pinCallback;
-        this.shapeData = {
+        this.shapeData = PluginInstances.settings.multipleNodesData.shapeData ?? {
             type: 'grid',
             center: {x: 0, y: 0},
             step: 100
@@ -30,8 +31,10 @@ export class PinMultipleNodesModal extends NodesQueryModal {
             .setButtonText(STRINGS.controls.apply)
             .setIcon('check');
 
-        this.addRule({source: 'all'});
-        this.onChange();
+        if (this.rulesSettings.length === 0) {
+            this.addRule({source: 'all'});
+            this.onChange();
+        }
     }
 
     private addShapeType() {
@@ -42,6 +45,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
                 cb.setValue(this.shapeData.type);
                 cb.onChange((value) => {
                     this.changeType(value as PinShapeType);
+                    this.saveSettings();
                 });
             });
     }
@@ -55,6 +59,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
                         this.shapeData.step = intValue;
+                        this.saveSettings();
                     }
                 })
             });
@@ -70,6 +75,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
                         this.shapeData.center.x = intValue;
+                        this.saveSettings();
                     }
                 })
             })
@@ -80,6 +86,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
                         this.shapeData.center.y = intValue;
+                        this.saveSettings();
                     }
                 })
             });
@@ -88,7 +95,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
     private addGridSettings() {
         if (this.gridSetting) return;
         // grid size
-        new Setting(this.contentEl)
+        this.gridSetting = new Setting(this.contentEl)
             .setName(STRINGS.features.pinMultipleGridSize)
             .setDesc(STRINGS.features.pinMultipleGridSizeDesc)
             .addText(cb => {
@@ -96,14 +103,17 @@ export class PinMultipleNodesModal extends NodesQueryModal {
                 cb.onChange((value) => {
                     if (value === '') {
                         this.shapeData.columns = undefined;
+                        this.saveSettings();
                     }
                     else if (value === 'N' || value === 'auto') {
                         this.shapeData.columns = value;
+                        this.saveSettings();
                     }
                     else {
                         const intValue = parseInt(value);
                         if (!isNaN(intValue) && intValue >= 1) {
                             this.shapeData.columns = intValue;
+                            this.saveSettings();
                         }
                     }
                 })
@@ -119,8 +129,21 @@ export class PinMultipleNodesModal extends NodesQueryModal {
 
     private changeType(type: PinShapeType) {
         this.shapeData.type = type;
-
         this.shapeData.type === 'grid' ? this.addGridSettings() : this.removeGridSettings();
+        this.saveSettings();
+    }
+
+    override onChange(ruleQuery?: RuleQuery): void {
+        super.onChange(ruleQuery);
+        this.saveSettings();
+    }
+
+    private saveSettings() {
+        PluginInstances.settings.multipleNodesData = {
+            shapeData: this.shapeData,
+            queryData: this.queryData
+        }
+        PluginInstances.plugin.saveSettings();
     }
 }
 
