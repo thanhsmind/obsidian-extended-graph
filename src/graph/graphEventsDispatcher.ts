@@ -257,7 +257,6 @@ export class GraphEventsDispatcher extends Component {
     // ============================= RENDER EVENTS =============================
 
     private onRendered() {
-        console.log(this.instances.renderer.idleFrames);
         // If some elements must be added because of cascading effect, add them now and reset to null once it's done
         if (this.instances.nodesSet.elementsToAddToCascade) {
             this.instances.nodesSet.loadCascadesForMissingElements(this.instances.nodesSet.elementsToAddToCascade);
@@ -560,7 +559,6 @@ export class GraphEventsDispatcher extends Component {
     preventDraggingPinnedNodes() {
         var node = this.instances.renderer.dragNode;
         if (node && this.instances.nodesSet.isNodePinned(node.id)) {
-            console.log(node.id);
             const pinner = new Pinner(this.instances);
             pinner.setLastDraggedPinnedNode(node.id);
         }

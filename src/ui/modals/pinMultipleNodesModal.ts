@@ -8,7 +8,6 @@ export class PinMultipleNodesModal extends NodesQueryModal {
     gridSetting: Setting | null;
 
     constructor(pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
-        console.log(PluginInstances.settings.multipleNodesData);
         super(STRINGS.features.pinMultipleNodes,
             PluginInstances.settings.multipleNodesData.queryData ?? {combinationLogic: 'AND', rules: []},
             (queryData) => { this.pinCallback(this.shapeData, queryData); }

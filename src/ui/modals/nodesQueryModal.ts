@@ -199,7 +199,6 @@ class RuleSetting extends Setting {
             cb.addOptions(sourceKeyLabels);
             cb.setValue('tag');
             cb.onChange((value: SourceKey) => {
-                console.log(value);
                 if (value === 'all') {
                     this.logicDropdown?.selectEl.parentNode?.removeChild(this.logicDropdown.selectEl);
                     this.logicDropdown = null;
