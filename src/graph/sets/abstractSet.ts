@@ -215,8 +215,10 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     }
 
     protected isTypeValid(key: string, type: string): boolean {
-        if (!this.instances.settings.interactiveSettings[key].unselected || this.instances.settings.interactiveSettings[key].unselected.includes(type)) return false;
-        if (INVALID_KEYS[key].includes(type)) return false;
+        if (!this.instances.settings.interactiveSettings[key].unselected || this.instances.settings.interactiveSettings[key].unselected.includes(type))
+            return false;
+        if (INVALID_KEYS.hasOwnProperty(key) && [key].includes(type))
+            return false;
         return true;
     }
 

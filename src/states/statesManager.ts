@@ -43,7 +43,7 @@ export class StatesManager {
             }
             //instances.graph.updateWorker();
         
-            instances.statePinnedNodes = stateData.pinNodes ?? {};
+            instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
         });
     }
 

@@ -15,12 +15,13 @@ export class Pinner {
         if (!this.instances.statePinnedNodes) return;
 
         const notYetHandled = Object.fromEntries(Object.entries(this.instances.statePinnedNodes).filter(([id, value]) => !value.handled));
+        const N = Object.keys(notYetHandled).length;
         
         for (const [id, extendedNode] of this.instances.nodesSet.extendedElementsMap) {
             const shouldBePinned = notYetHandled.hasOwnProperty(id);
 
             if (shouldBePinned && (!extendedNode.isPinned || extendedNode.coreElement.x !== notYetHandled[id].x || extendedNode.coreElement.y !== notYetHandled[id].y)) {
-                this.pinNode(id, notYetHandled[id].x, notYetHandled[id].y);
+                this.pinNode(id, notYetHandled[id].x, notYetHandled[id].y, Math.min(0.1 * N, 1));
             }
             else if (!this.instances.statePinnedNodes.hasOwnProperty(id) && extendedNode.isPinned) {
                 this.unpinNode(id);
@@ -30,12 +31,12 @@ export class Pinner {
         }
 
         // If all the nodes of the state have been handled (might take a few onRendered calls), set reset it to null
-        if (this.instances.statePinnedNodes && !Object.values(this.instances.statePinnedNodes).find(p => p.handled)) {
+        if (this.instances.statePinnedNodes && Object.values(this.instances.statePinnedNodes).filter(p => !p.handled).length === 0) {
             this.instances.statePinnedNodes = null;
         }
     }
 
-    pinNode(id: string, x?: number, y?: number) {
+    pinNode(id: string, x?: number, y?: number, alpha: number = 0.3) {
         const extendedNode = this.instances.nodesSet.extendedElementsMap.get(id);
         if (!extendedNode) return;
         const node = extendedNode.coreElement;
@@ -44,7 +45,7 @@ export class Pinner {
         node.fx = node.x;
         node.fy = node.y;
         this.instances.nodesSet.instances.renderer.worker.postMessage({
-            alpha: 0.3, // temperature of the simulation
+            alpha: alpha, // temperature of the simulation
             alphaTarget: 0, // target temperature to stop the simulation
             run: true, // run the simulation
             forceNode: {
