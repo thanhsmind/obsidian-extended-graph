@@ -2,7 +2,7 @@ export default class STRINGS {
 	static plugin = {
 		default: "Default",
 		folder: "Folder",
-		filename: "Filename",
+		nodeName: "Node Name",
 		info: "Info",
 		name: "Extended Graph",
 		nodes: "Nodes",

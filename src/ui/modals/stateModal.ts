@@ -14,7 +14,7 @@ export class GraphStateModal extends Modal {
         pagination: HTMLDivElement,
         maxRows: number
     }> = {};
-    defaultMaxRows: number = 2;
+    defaultMaxRows: number = 10;
 
     constructor(instances: GraphInstances) {
         super(PluginInstances.app);
@@ -45,7 +45,7 @@ export class GraphStateModal extends Modal {
         let cell: HTMLTableCellElement;
         cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.filename);
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.nodeName);
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
@@ -118,17 +118,21 @@ export class GraphStateModal extends Modal {
 
         cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.source})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-source"]);
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.filename} (${STRINGS.plugin.source})`);
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.nodeName} (${STRINGS.plugin.source})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-source"]);
         cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.target})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-target"]);
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.filename} (${STRINGS.plugin.target})`);
+        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.nodeName} (${STRINGS.plugin.target})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-target"]);
         cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
         colgroup.createEl("col").addClass("col-enabled");
         for (const [key, manager] of this.instances.linksSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
+        }
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
+            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
+            colgroup.createEl("col").addClass("col-size");
         }
 
         if (!hasRows) return;
@@ -162,6 +166,10 @@ export class GraphStateModal extends Modal {
                     }
                 }
             }
+
+            if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
+                cell = tr.insertCell(); cell.setText(extendedLink.getThicknessScale().toFixed(2));
+            }
         }
 
         this.prepareTable("links", table);
@@ -180,7 +188,7 @@ export class GraphStateModal extends Modal {
         let cell;
         cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.filename);
+        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.nodeName);
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText("X");
         colgroup.createEl("col").addClass("col-pos-x");
@@ -231,7 +239,7 @@ export class GraphStateModal extends Modal {
         }
     }
 
-    private getNodeData(id: string): { file?: TFile, path: string, link?: HTMLAnchorElement } {
+    private getNodeData(id: string): { file?: TFile, path: string, link?: HTMLSpanElement } {
         const file = getFile(id);
         const path = this.getPath(file);
         const link = this.getLink(file);
@@ -248,17 +256,24 @@ export class GraphStateModal extends Modal {
         return path;
     }
 
-    private getLink(file: TFile | null): HTMLAnchorElement | undefined {
-        let link: HTMLAnchorElement | undefined;
+    private getLink(file: TFile | null): HTMLSpanElement | undefined {
         if (file) {
-            link = createEl("a");
+            let link = createEl("a");
             link.setText(file.basename);
             link.onclick = (ev) => {
                 this.close();
                 this.app.workspace.getLeaf(true).openFile(file);
             }
+            let ext = createEl("code");
+            ext.setText(file.extension);
+            
+            let span = createEl("span");
+            span.appendChild(link);
+            span.insertAdjacentText("beforeend", " ");
+            span.appendChild(ext);
+            return span;
         }
-        return link;
+        return;
     }
 
     private prepareTable(key: string, table: HTMLTableElement, index: number = 1) {
@@ -330,7 +345,7 @@ export class GraphStateModal extends Modal {
                 });
         }
 
-        if (this.sortableTables[key].page < this.numberOfPages(key) - nShow) {
+        if (this.sortableTables[key].page < this.numberOfPages(key) - nShow - 1) {
             paginationInner.createSpan().setText("...");
         }
 

@@ -111,7 +111,6 @@ export class StatesUI extends Component {
     }
 
     addState(key: string, name: string) {
-        console.log("addState", key, name);
         this.addOption(key, name);
         this.select.setValue(key);
     }
