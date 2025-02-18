@@ -111,6 +111,7 @@ export class StatesUI extends Component {
     }
 
     addState(key: string, name: string) {
+        console.log("addState", key, name);
         this.addOption(key, name);
         this.select.setValue(key);
     }
@@ -128,11 +129,16 @@ export class StatesUI extends Component {
             this.addOption(state.id, state.name);
         });
         if (PluginInstances.settings.states.find(v => v.id === this.currentStateID)) {
-            this.select.setValue(this.currentStateID);
+            this.setValue(this.currentStateID);
         }
         else {
             this.currentStateID = this.select.getValue();
         }
+    }
+
+    setValue(id: string) {
+        this.currentStateID = id;
+        this.select.setValue(id);
         this.displaySaveDeleteButton();
     }
 

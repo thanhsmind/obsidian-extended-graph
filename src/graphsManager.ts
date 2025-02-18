@@ -517,7 +517,7 @@ export class GraphsManager extends Component {
         }
 
         if (PluginInstances.settings.enableFeatures[view.getViewType()]['auto-enabled']) {
-            this.enablePlugin(view);
+            this.enablePlugin(view, PluginInstances.settings.startingStateID);
         }
     }
 
@@ -645,21 +645,20 @@ export class GraphsManager extends Component {
         else {
             this.linksSizeCalculator = undefined;
         }
-        const instances = this.addGraph(view, stateID);
+        const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
         const globalUI = this.setGlobalUI(view);
         globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(instances);
     }
 
-    private addGraph(view: GraphView | LocalGraphView, stateID?: string): GraphInstances {
+    private addGraph(view: GraphView | LocalGraphView, stateID: string): GraphInstances {
         let instances = this.allInstances.get(view.leaf.id);
         if (instances) return instances;
 
         instances = new GraphInstances(view);
         new GraphEventsDispatcher(instances);
         if (stateID) {
-            instances.statesUI.currentStateID = stateID;
-            instances.statesUI.select.setValue(stateID);
+            instances.statesUI.setValue(stateID);
         }
 
         this.allInstances.set(view.leaf.id, instances);

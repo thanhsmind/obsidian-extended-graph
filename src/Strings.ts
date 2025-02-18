@@ -42,7 +42,7 @@ export default class STRINGS {
 
 	static features = {
 		autoEnable: "Auto enable",
-		autoEnableDesc: "Auto enable the plugin in graph views.",
+		autoEnableDesc: "Auto enable the plugin in graph views",
 		borderUnresolved: "Border of unresolved nodes",
 		borderUnresolvedDesc: "If greater than 0, unresolved nodes will only show an outside circle border instead of a full disk",
 		disableNodes: "Disable nodes",
@@ -232,7 +232,9 @@ export default class STRINGS {
         saveForNormalState: "Save for normal state",
         saveForNormalStateDesc: "Save the current settings as the normal state settings (no plugin enabled)",
 		showGraphState: "Show graph state",
-		states: "States"
+		startingState: "Starting state",
+		startingStateDesc: "Select which state should be used to initiate the plugin",
+		states: "States",
     };
 
 	static statsFunctions = {

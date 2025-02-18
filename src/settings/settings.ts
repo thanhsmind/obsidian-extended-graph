@@ -30,6 +30,7 @@ export interface ExtendedGraphSettings {
     // Graph settings
     backupGraphOptions: EngineOptions;
     states: GraphStateData[];
+    startingStateID: string;
 
     // Image
     imageProperty: string;
@@ -97,6 +98,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Graph settings
     backupGraphOptions: new EngineOptions(),
     states: [DEFAULT_STATE_SETTINGS],
+    startingStateID: DEFAULT_STATE_ID,
 
     // Images
     imageProperty: "image",

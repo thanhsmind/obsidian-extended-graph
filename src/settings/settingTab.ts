@@ -55,6 +55,20 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
+        
+        new Setting(this.containerEl)
+            .setName(STRINGS.states.startingState)
+            .setDesc(STRINGS.states.startingStateDesc)
+            .addDropdown(cb => {
+                cb.addOptions(Object.fromEntries(Object.values(PluginInstances.settings.states).map(data => {
+                    return [data.id, data.name]
+                })));
+                cb.setValue(PluginInstances.settings.startingStateID);
+                cb.onChange(id => {
+                    PluginInstances.settings.startingStateID = id;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
     }
 
     addDisableNodes() {
