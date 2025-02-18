@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "extended-graph",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Extended Graph plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -10,25 +10,28 @@
 	},
 	"keywords": [],
 	"author": "",
-	"license": "MIT",
+	"license": "GPL-3.0-only",
 	"devDependencies": {
-		"@types/node": "^16.18.121",
+		"@types/node": "^18.17.0 || >=20.1.0",
+		"@types/parsimmon": "^1.10.9",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
-		"esbuild": "0.17.3",
+		"esbuild": "^0.21.0",
 		"obsidian": "latest",
 		"obsidian-dataview": "^0.5.64",
 		"obsidian-typings": "^2.22.0",
 		"tslib": "2.4.0",
-		"typescript": "4.7.4"
+		"typescript": "^5.7.3"
 	},
 	"dependencies": {
+		"emoji-regex": "^10.4.0",
 		"graphology": "^0.25.4",
 		"graphology-metrics": "^2.3.1",
 		"graphology-traversal": "^0.3.1",
 		"graphology-types": "^0.24.8",
 		"markdown-link-extractor": "^3.1.0",
-		"mathjs": "^14.0.1"
+		"mathjs": "^14.0.1",
+		"parsimmon": "^1.18.1"
 	}
 }

@@ -142,7 +142,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         });
     }
 
-    private clearWaitInterval(intervalId: NodeJS.Timer, resolve: (value: boolean) => void, result: boolean): void {
+    private clearWaitInterval(intervalId: NodeJS.Timeout, resolve: (value: boolean) => void, result: boolean): void {
         clearInterval(intervalId);
         this.waitingTime = 0;
         resolve(result);

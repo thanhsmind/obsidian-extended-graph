@@ -1,6 +1,6 @@
 import { Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -108,13 +108,13 @@ export class SettingLinks extends SettingInteractives {
                     if (value === null || value === undefined || value === '') continue;
 
                     if ((typeof value === "object") && ("path" in value)) {
-                        allTypes.add(key.toLocaleLowerCase());
+                        allTypes.add(canonicalizeVarName(key));
                     }
 
                     if (Array.isArray(value)) {
                         for (const link of value) {
                             if ((typeof link === "object") && ("path" in link)) {
-                                allTypes.add(key.toLocaleLowerCase());
+                                allTypes.add(canonicalizeVarName(key));
                             }
                         }
                     }

@@ -409,12 +409,6 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             );
     }
 
-    private createImageName(): string {
-        const stateName = PluginInstances.statesManager.getStateDataById(this.instances.statesUI.currentStateID);
-        const timestamp = moment().format("YYYYMMDDHHmmss");
-        return `graph${stateName ? '-' + stateName : ''}-${timestamp}.svg`;
-    }
-
     protected getModal(): ExportSVGOptionModal {
         return new ExportSVGOptionModal(this.instances);
     }

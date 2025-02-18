@@ -1,6 +1,6 @@
 import { getAllTags, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
 
 export function getFile(path: string): TFile | null {
     return PluginInstances.app.vault.getFileByPath(path);
@@ -100,14 +100,14 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
         if ((typeof value === "object") && ("path" in value)) {
             const targetID = (value as any).path;
             if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-            linkTypes.get(targetID)?.add(key.toLocaleLowerCase());
+            linkTypes.get(targetID)?.add(canonicalizeVarName(key));
         }
         else if (Array.isArray(value)) {
             for (const l of value) {
                 if ((typeof l === "object") && ("path" in l)) {
                     const targetID = (l as any).path;
                     if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-                    linkTypes.get(targetID)?.add(key.toLocaleLowerCase());
+                    linkTypes.get(targetID)?.add(canonicalizeVarName(key));
                 }
             }
         }
