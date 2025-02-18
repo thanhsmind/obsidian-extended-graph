@@ -21,6 +21,7 @@ export * from "./graph/extendedElements/extendedGraphNode";
 export * from "./graph/extendedElements/extendedGraphAttachmentNode";
 export * from "./graph/extendedElements/extendedGraphFileNode";
 export * from "./graph/extendedElements/extendedGraphTagNode";
+export * from "./graph/extendedElements/extendedGraphUnresolvedNode";
 
 export * from "./graph/graphicElements/graphicsWrapper";
 export * from "./graph/graphicElements/links/linkGraphics";
@@ -33,6 +34,7 @@ export * from "./graph/graphicElements/nodes/nodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/attachmentNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/fileNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/tagNodeGraphicsWrapper";
+export * from "./graph/graphicElements/nodes/unresolvedNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/arcsCircle";
 export * from "./graph/graphicElements/nodes/image";
 export * from "./graph/graphicElements/nodes/shapes";

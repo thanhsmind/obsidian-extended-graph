@@ -43,6 +43,8 @@ export default class STRINGS {
 	static features = {
 		autoEnable: "Auto enable",
 		autoEnableDesc: "Auto enable the plugin in graph views.",
+		borderUnresolved: "Border of unresolved nodes",
+		borderUnresolvedDesc: "If greater than 0, unresolved nodes will only show an outside circle border instead of a full disk",
 		disableNodes: "Disable nodes",
 		disableNodesDesc: "When all arcs are disabled on the node, remove it from the graph",
 		focus: "Focus",

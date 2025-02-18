@@ -27,6 +27,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
 
         this.addAutoEnable();
         this.addDisableNodes();
+        this.addBorderUnresolved();
 
         // FEATURES
         for (const section of this.sections) {
@@ -67,5 +68,20 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
+    }
+
+    addBorderUnresolved() {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.borderUnresolved)
+            .setDesc(STRINGS.features.borderUnresolvedDesc)
+            .addText(cb => cb
+                .setValue(PluginInstances.settings.borderUnresolved.toString())
+                .onChange(async (value) => {
+                    const intValue = parseFloat(value);
+                    if (!isNaN(intValue)) {
+                        PluginInstances.settings.borderUnresolved = Math.clamp(intValue, 0, 1);
+                        await PluginInstances.plugin.saveSettings();
+                    }
+            }));
     }
 }

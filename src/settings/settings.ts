@@ -74,6 +74,7 @@ export interface ExtendedGraphSettings {
     // Display settings
     fadeOnDisable: boolean;
     focusScaleFactor: number;
+    borderUnresolved: number;
 
     // Internal settings (not set by the user)
     collapseState: boolean;
@@ -196,6 +197,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Display settings
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
+    borderUnresolved: 0.1,
 
     // Internal settings (not set by the user)
     collapseState: true,

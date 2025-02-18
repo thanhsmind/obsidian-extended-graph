@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, Media, PluginInstances } from "src/internal";
+import { AbstractSet, DisconnectionCause, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, ExtendedGraphUnresolvedNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, Media, PluginInstances } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
 
@@ -20,7 +20,19 @@ export class NodesSet extends AbstractSet<GraphNode> {
     // ================================ LOADING ================================
 
     protected override handleMissingElements(ids: Set<string>): void {
+        this.applyBackgroundColor(ids);
         this.loadAssets(ids);
+    }
+
+    private applyBackgroundColor(ids: Set<string>) {
+        const backgroundColor = getBackgroundColor(this.instances.renderer);
+        for (const id of ids) {
+            const extendedNode = this.extendedElementsMap.get(id);
+            if (!extendedNode || !extendedNode.graphicsWrapper) continue;
+            if (extendedNode.coreElement.type !== "tag") {
+                extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
+            }
+        }
     }
 
     // =============================== UNLOADING ===============================
@@ -39,17 +51,13 @@ export class NodesSet extends AbstractSet<GraphNode> {
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) return;
 
-        const backgroundColor = getBackgroundColor(this.instances.renderer);
 
         for (const id of ids) {
             this.getImageURI(id).then(imageURI => {
                 if (imageURI) {
                     Assets.load(imageURI).then((texture:Texture) => {
-                        this.initNodeGraphics(id, texture, backgroundColor);
+                        this.initNodeImages(id, texture);
                     });
-                }
-                else {
-                    this.initNodeGraphics(id, undefined, backgroundColor);
                 }
             });
         }
@@ -74,22 +82,19 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return imageUri;
     }
 
-    private initNodeGraphics(id: string, texture: Texture | undefined, backgroundColor: Uint8Array): void {
+    private initNodeImages(id: string, texture: Texture): void {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
+        if (extendedNode.coreElement.type === "tag" || extendedNode.coreElement.type === "unresolved") return;
+
         try {
             switch (extendedNode.coreElement.type) {
-                case "tag":
-                    break;
-                
                 case "attachment":
                     (extendedNode.graphicsWrapper as AttachmentNodeGraphicsWrapper).initNodeImage(texture);
-                    extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
                     break;
             
-                default:
+                case "":
                     (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
-                    extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
                     break;
             }
         }
@@ -123,6 +128,12 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 node,
                 types,
                 [...this.managers.values()]
+            );
+        }
+        else if (node.type === "unresolved") {
+            extendedGraphNode = new ExtendedGraphUnresolvedNode(
+                this.instances,
+                node
             );
         }
         else {
