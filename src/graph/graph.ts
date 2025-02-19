@@ -1,7 +1,6 @@
 
 import { Component } from 'obsidian';
-import { GraphEngine, GraphRenderer } from 'obsidian-typings';
-import { DisconnectionCause, FOLDER_KEY, FoldersSet, getEngine, getLinkID, GraphInstances, InteractiveManager, LINK_KEY, LinksSet, NodesSet, PluginInstances, TAG_KEY } from 'src/internal';
+import { DisconnectionCause, FOLDER_KEY, FoldersSet, getLinkID, GraphInstances, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     instances: GraphInstances;

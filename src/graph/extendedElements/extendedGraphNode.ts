@@ -1,7 +1,7 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
-import { ExtendedGraphElement, GraphInstances, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
+import { ExtendedGraphElement, GraphInstances, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
@@ -27,6 +27,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // ================================ UNLOAD =================================
 
     unload() {
+        if (this.isPinned) {
+            new Pinner(this.instances).unpinNode(this.id);
+        }
         this.restoreGetSize();
     }
 
