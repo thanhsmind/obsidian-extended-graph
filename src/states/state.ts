@@ -1,4 +1,5 @@
-import { EngineOptions, FOLDER_KEY, Graph, GraphInstances, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import { EngineOptions, FOLDER_KEY, GraphInstances, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import { omit } from 'lodash';
 
 export class GraphState {
     data = new GraphStateData();
@@ -78,7 +79,7 @@ export class GraphState {
 
         for (const key in this.data) {
             if (!this.isValidProperty(key)) {
-                delete (this.data as any)[key];
+                this.data = omit(this.data, key) as GraphStateData;
                 hasChanged = true;
             }
         }
