@@ -1,5 +1,4 @@
 import { EngineOptions, FOLDER_KEY, GraphInstances, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
-import { omit } from 'lodash';
 
 export class GraphState {
     data = new GraphStateData();
@@ -79,11 +78,16 @@ export class GraphState {
 
         for (const key in this.data) {
             if (!this.isValidProperty(key)) {
-                this.data = omit(this.data, key) as GraphStateData;
+                this.data = this.excludeKey(this.data, key) as GraphStateData;
                 hasChanged = true;
             }
         }
 
         return hasChanged;
+    }
+
+    excludeKey<T extends object, U extends keyof any>(obj: T, key: U) {
+        const { [key]: _, ...newObj } = obj;
+        return newObj;
     }
 }
