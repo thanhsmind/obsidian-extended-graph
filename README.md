@@ -46,9 +46,7 @@ The plugin is completely free to test and will always stay that way, and open so
 
 - [obsidian-typings](https://github.com/Fevol/obsidian-typings) (MIT License)
 - [graph-analysis](https://github.com/SkepticMystic/graph-analysis) (GNU General Public License v3.0)
-- [breadcrumbs](https://github.com/SkepticMystic/breadcrumbs) (MIT License)
 - [js-colormaps](https://github.com/timothygebhard/js-colormaps) (MIT License)
-- [dTree-Seed](https://github.com/JMHeartley/dTree-Seed) (MIT License)
 
 # Features ideas
 
