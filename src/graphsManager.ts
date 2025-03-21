@@ -816,7 +816,6 @@ export class GraphsManager extends Component {
         const corePluginInstance = this.getCorePluginInstance();
         if (corePluginInstance && backup) {
             corePluginInstance.options.colorGroups = backup.colorGroups;
-            corePluginInstance.options.search = backup.search;
             corePluginInstance.options.hideUnresolved = backup.hideUnresolved;
             corePluginInstance.options.showAttachments = backup.showAttachments;
             corePluginInstance.options.showOrphans = backup.showOrphans;
