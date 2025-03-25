@@ -2,9 +2,9 @@ export default class STRINGS {
 	static plugin = {
 		default: "Default",
 		folder: "Folder",
-		nodeName: "Node Name",
+		nodeName: "Node name",
 		info: "Info",
-		name: "Extended Graph",
+		name: "Extended graph",
 		nodes: "Nodes",
 		options: "Options",
 		source: "Source",
@@ -223,29 +223,29 @@ export default class STRINGS {
 		viewMatches: "View matches",
 	};
 
-    static states = {
+	static states = {
 		graphState: "Graph state",
 		newStateName: "New state name",
 		openSettings: "Open state settings",
-        saveForDefaultState: "Save for default state",
-        saveForDefaultStateDesc: "Save the current settings as the default state settings",
-        saveForNormalState: "Save for normal state",
-        saveForNormalStateDesc: "Save the current settings as the normal state settings (no plugin enabled)",
+		saveForDefaultState: "Save for default state",
+		saveForDefaultStateDesc: "Save the current settings as the default state settings",
+		saveForNormalState: "Save for normal state",
+		saveForNormalStateDesc: "Save the current settings as the normal state settings (no plugin enabled)",
 		showGraphState: "Show graph state",
 		startingState: "Starting state",
 		startingStateDesc: "Select which state should be used to initiate the plugin",
 		states: "States",
-    };
+	};
 
 	static statsFunctions = {
 		AdamicAdar: "Adamic Adar",
 		authority: "Authority centrality (from HITS)",
 		backlinksCount: "Number of backlinks",
 		betweenness: "Betweenness centrality",
-		BoW: "Bag of Words",
+		BoW: "Bag of words",
 		closeness: "Closeness centrality",
 		clusteringCoefficient: "Clustering coefficient",
-		coCitations: "Co-Citations",
+		coCitations: "Co-citations",
 		creationTime: "Time since file creation",
 		degree: "Degree centrality",
 		eccentricity: "Eccentricity in the connected graph",
@@ -254,10 +254,10 @@ export default class STRINGS {
 		forwardlinksCount: "Number of forward links",
 		forwardUniquelinksCount: "Number of unique forward links",
 		hub: "Hub centrality (from HITS)",
-		Jaccard: "Jaccard Similarity",
+		Jaccard: "Jaccard similarity",
 		modifiedTime: "Time since last modification",
-		OtsukaOchiai: "Otsuka-Ochiai Coefficient",
-		overlap: "Overlap Coefficient",
+		OtsukaOchiai: "Otsuka-Ochiai coefficient",
+		overlap: "Overlap coefficient",
 		tagsCount: "Number of tags",
 		warningUnreliableOS: "This calculation is unreliable and might vary between OS.",
 		sentiment: "Sentiment",
