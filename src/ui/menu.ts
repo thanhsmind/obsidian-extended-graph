@@ -1,6 +1,6 @@
-import { Component, ExtraButtonComponent } from "obsidian";
+import { Component, ExtraButtonComponent, setIcon } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { PluginInstances, setPluginIcon } from "src/internal";
+import { PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class MenuUI extends Component {
@@ -26,7 +26,7 @@ export class MenuUI extends Component {
 
     createEnableButton() {
         this.buttonEnable = new ExtraButtonComponent(this.graphControlsEl)
-            .setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, {placement: 'top'})
+            .setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, { placement: 'top' })
             //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
@@ -36,7 +36,7 @@ export class MenuUI extends Component {
                 }
             })
             .then(cb => {
-                setPluginIcon(cb.extraSettingsEl);
+                setIcon(cb.extraSettingsEl, "git-fork-sparkles");
                 cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-extended-graph-toggle"]);
             });
     }
@@ -59,14 +59,14 @@ export class MenuUI extends Component {
     setEnableUIState() {
         this.enabled = true;
         this.buttonEnable.extraSettingsEl.addClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.disable} ${STRINGS.plugin.name}`, {placement: 'top'});
+        this.buttonEnable.setTooltip(`${STRINGS.controls.disable} ${STRINGS.plugin.name}`, { placement: 'top' });
         this.graphControlsEl.insertAfter(this.buttonReset.extraSettingsEl, this.buttonEnable.extraSettingsEl);
     }
 
     setDisableUIState() {
         this.enabled = false;
         this.buttonEnable.extraSettingsEl.removeClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, {placement: 'top'});
+        this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, { placement: 'top' });
         this.buttonReset.extraSettingsEl.remove();
     }
 }

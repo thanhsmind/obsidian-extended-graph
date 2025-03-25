@@ -1,6 +1,6 @@
 import { Component, setIcon } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { GraphInstances, setPluginIcon } from "src/internal";
+import { GraphInstances } from "src/internal";
 
 export abstract class GCSection extends Component {
     instances: GraphInstances | undefined;
@@ -13,7 +13,7 @@ export abstract class GCSection extends Component {
     root: HTMLDivElement;
     treeItemChildren: HTMLDivElement;
     collapseIcon: HTMLDivElement;
-    
+
     constructor(view: GraphView | LocalGraphView, sectionID: string, title: string) {
         super();
         this.view = view;
@@ -25,7 +25,7 @@ export abstract class GCSection extends Component {
         this.collapseIcon = collapsible.createDiv("tree-item-icon collapse-icon is-collapsed");
         setIcon(this.collapseIcon, "right-triangle");
         const icon = collapsible.createDiv("tree-item-header-icon");
-        setPluginIcon(icon);
+        setIcon(icon, "git-fork-sparkles");
         const inner = collapsible.createDiv("tree-item-inner");
         const header = inner.createEl("header", {
             cls: "graph-control-section-header",
@@ -69,7 +69,7 @@ export abstract class GCSection extends Component {
         this.root.addClass("is-collapsed");
         if (this.treeItemChildren) this.root.removeChild(this.treeItemChildren);
         this.collapseIcon.addClass("is-collapsed");
-        
+
         this.isCollapsed = true;
     }
 }

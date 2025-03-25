@@ -1,4 +1,4 @@
-import { Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { addIcon, Plugin, View, WorkspaceLeaf } from 'obsidian';
 import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -11,6 +11,8 @@ export default class ExtendedGraphPlugin extends Plugin {
         PluginInstances.plugin = this;
         PluginInstances.app = this.app;
         await this.loadSettings();
+
+        addIcon("git-fork-sparkles", `<g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="git-fork-sparkles"><circle cx="50" cy="76" r="12"/><circle cx="25" cy="25" r="12"/><circle cx="76" cy="25" r="12"/><path d="M76 36v8c0 2.4-1.6 4-4 4H28c-2.4 0-4-1.6-4-4V36"/><path d="M50 50v12"/><path d="m 82.03746,54.745552 v 16"/><path d="m 90.03746,62.745552  h -16"/><path d="m 72.5023,80.767008 v 8"/><path d="m 76.5023,84.767008 h -8"/><path d="m 14.7461264,54.15018 v 8"/><path d="m 18.7461264,58.15018 h -8"/></g>`);
 
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this));
@@ -66,7 +68,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             showOnGraph: true,
             enableByDefault: true,
         };
-        
+
         DEFAULT_SETTINGS.interactiveSettings[LINK_KEY] = {
             colormap: "rainbow",
             colors: [],
@@ -75,7 +77,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             showOnGraph: true,
             enableByDefault: true,
         };
-        
+
         DEFAULT_SETTINGS.interactiveSettings[FOLDER_KEY] = {
             colormap: "winter",
             colors: [],
@@ -111,14 +113,14 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     // ============================= LAYOUT CHANGE =============================
-    
+
     async onLayoutChange() {
         if (!this.app.internalPlugins.getPluginById("graph")?._loaded) return;
         this.waitingTime = 0;
 
         try {
             const found = await this.waitForRenderer();
-            const leaves = found ? this.getAllGraphLeaves(): [];
+            const leaves = found ? this.getAllGraphLeaves() : [];
             PluginInstances.graphsManager.syncWithLeaves(leaves);
             leaves.forEach(leaf => {
                 PluginInstances.graphsManager.onNewLeafOpen(leaf);
@@ -127,7 +129,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             console.error(e);
         }
     }
-    
+
     private waitForRenderer(): Promise<boolean> {
         return new Promise((resolve) => {
             const intervalId = setInterval(() => {
