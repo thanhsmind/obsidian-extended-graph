@@ -17,6 +17,7 @@ export class MenuUI extends Component {
         this.view = view;
         this.viewContent = this.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
         this.graphControlsEl = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
+        this.graphControlsEl.addClass("graph-controls-extended-graph");
 
         const hr = this.graphControlsEl.createEl("hr");
         hr.addClass("separator-exended-graph");
