@@ -50,7 +50,7 @@ export class GraphologySingleton {
             return graph;
         }
 
-        const addNeighbors = function(originalGraph: Graphology, subGraph: Graphology, node: string) {
+        const addNeighbors = function (originalGraph: Graphology, subGraph: Graphology, node: string) {
             const neighbors = originalGraph.neighbors(node);
             if (!subGraph.hasNode(node)) subGraph.addNode(node);
             for (const target of neighbors) {

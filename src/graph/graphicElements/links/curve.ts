@@ -17,15 +17,15 @@ export class LinkCurveGraphics extends LinkGraphics {
         this.arrow.beginFill("white");
         this.arrow.moveTo(0, 0);
         this.arrow.lineTo(-4, -2);
-        this.arrow.lineTo(-3,  0);
-        this.arrow.lineTo(-4,  2);
+        this.arrow.lineTo(-3, 0);
+        this.arrow.lineTo(-4, 2);
         this.arrow.lineTo(0, 0);
         this.arrow.endFill();
         this.arrow.name = "arrow";
         this.arrow.eventMode = "none";
         this.arrow.zIndex = 1;
         this.arrow.pivot.set(0, 0);
-        if(this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
+        if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
     override toggleType(type: string, enable: boolean): void {
@@ -46,7 +46,7 @@ export class LinkCurveGraphics extends LinkGraphics {
         this.clear();
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
-        
+
         const f = renderer.nodeScale;
         const dx = link.target.x - link.source.x;
         const dy = link.target.y - link.source.y;
@@ -59,10 +59,10 @@ export class LinkCurveGraphics extends LinkGraphics {
         };
 
         const L = lengthQuadratic(1, P0, P1, P2); // length of the arc between centers
-        const P0_ = quadratic(   0.9 * link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
-        const P2_ = quadratic(1- 0.9 * link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
+        const P0_ = quadratic(0.9 * link.source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
+        const P2_ = quadratic(1 - 0.9 * link.target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
 
-        this.lineStyle({width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white"});
+        this.lineStyle({ width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white" });
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
         if (link.line && link.line.tint !== renderer.colors.line.rgb) {
             this.tint = link.line.tint;

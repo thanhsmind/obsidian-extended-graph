@@ -20,7 +20,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
 
     clearGraphics(): void {
         this.clear();
-        this.destroy({children: true});
+        this.destroy({ children: true });
         this.removeFromParent();
     }
 
@@ -47,7 +47,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
         const overrideColor = this.extendedLink.getStrokeColor();
         this.color = overrideColor !== undefined ? int2rgb(overrideColor) : color ?? this.manager.getColor(type);
     }
-    
+
     abstract updateFrame(): void;
 
     toggleType(type: string, enable: boolean): void {

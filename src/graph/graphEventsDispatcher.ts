@@ -120,7 +120,7 @@ export class GraphEventsDispatcher extends Component {
         if (graphFilterControl) {
             // @ts-ignore
             const orphanDesc = window.OBSIDIAN_DEFAULT_I18N.plugins.graphView.optionShowOrphansDescription;
-            const listenToOrphanChanges = (function(treeItemChildren: HTMLElement) {
+            const listenToOrphanChanges = (function (treeItemChildren: HTMLElement) {
                 const cb = treeItemChildren.querySelector(`.setting-item.mod-toggle:has([aria-label="${orphanDesc}"]) .checkbox-container`);
                 cb?.addEventListener("click", this.toggleOrphans)
             }).bind(this);
@@ -135,7 +135,7 @@ export class GraphEventsDispatcher extends Component {
                     cb?.removeEventListener("click", this.toggleOrphans)
                 }
             })
-            this.observerOrphans.observe(graphFilterControl, {childList: true});
+            this.observerOrphans.observe(graphFilterControl, { childList: true });
             const treeItemChildren = graphFilterControl.querySelector(".tree-item-children");
             (treeItemChildren) && listenToOrphanChanges(treeItemChildren as HTMLElement);
         }
@@ -184,7 +184,7 @@ export class GraphEventsDispatcher extends Component {
             PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
-        
+
         const node = this.instances.renderer.nodes.find(n => n.circle === child);
         if (node) {
             const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
@@ -217,7 +217,7 @@ export class GraphEventsDispatcher extends Component {
 
     private onChildRemovedFromStage(child: DisplayObject, container: Container<DisplayObject>, index: number): void {
         if (!this.listenStage) return;
-        
+
         if (this.instances.foldersSet) {
             for (const [id, folderBlob] of this.instances.foldersSet.foldersMap) {
                 const nodesToRemove = folderBlob.nodes.filter(n => n.circle === null);
