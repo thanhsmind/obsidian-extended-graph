@@ -4,9 +4,15 @@
 
 This plugin enables you to:
 - Add images to graph nodes.
+- Change the shapes of the nodes.
 - Easily filter by tags and properties.
 - Remove links based on relationship types.
-- Configure multiple views and switch between them seamlessly.
+- Configure multiple views and switch between them.
+- Export the graph view to SVG.
+- Increase the size on the currently active node.
+- Focus on a specific node.
+- Pin nodes.
+- Change the size of nodes and links based on statistical functions.
 
 ![](doc/images/overview.webp)
 
@@ -59,6 +65,20 @@ The plugin is completely free to test and will always stay that way, and open so
 - SVG Export [by Anthea](https://forum.obsidian.md/t/export-of-graph-view-to-svg/25406)
 - Interface font [by luisitoalvarz](https://forum.obsidian.md/t/graph-view-should-follow-global-interface-font/47913)
 - Zoom on a node [by Docintar](https://forum.obsidian.md/t/find-a-note-in-the-graph/94336)
+
+# Related plugins
+
+If you don't need every features from this plugin and are looking for something simpler, have a look at those, you might find exactly what you are looking for.
+- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by AlexW00 and its for [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru
+- [Custom Node Size](https://github.com/jackvonhouse/custom-node-size) by jackvonhouse
+- [Folders to Graph](https://github.com/Ratibus11/folders2graph) by Ratibus11
+- [Export Graph View](https://github.com/seantiz/obsidian_egv_plugin) by seantiz
+- [Graph Link Types](https://github.com/natefrisch01/Graph-Link-Types) by natefrisch01
+- [Juggl](https://github.com/HEmile/juggl) by HEmile
+- [Nested Tags](https://github.com/drPilman/obsidian-graph-nested-tags) by drPilman
+- [Node Factor](https://github.com/CalfMoon/node-factor) by CalfMoon (not yet released)
+
+(if you know more, let me know)
 
 # License
 
