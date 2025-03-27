@@ -70,7 +70,7 @@ The plugin is completely free and will always stay that way, and open source. If
 # Related plugins
 
 If you don't need every features from this plugin and are looking for something simpler, have a look at those, you might find exactly what you are looking for.
-- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by AlexW00 and its for [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru
+- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by AlexW00 and its fork [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru
 - [Custom Node Size](https://github.com/jackvonhouse/custom-node-size) by jackvonhouse
 - [Folders to Graph](https://github.com/Ratibus11/folders2graph) by Ratibus11
 - [Export Graph View](https://github.com/seantiz/obsidian_egv_plugin) by seantiz
