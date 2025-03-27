@@ -14,16 +14,18 @@ This plugin enables you to:
 - Pin nodes.
 - Change the size of nodes and links based on statistical functions.
 
+Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
+
 ![](doc/images/overview.webp)
 
 # Installation
 
-The plugin is available in beta through BRAT:
+You can install this plugin as any other plugin on desktop via the plugin gallery. it is not supported on mobile.
+
+The plugin is also available in beta through BRAT:
 1. Install and enable the [BRAT plugin](https://github.com/TfTHacker/obsidian42-brat) in your vault.
 2. Navigate to `Settings > BRAT > Beta Plugin List > Add Beta Plugin`.
 3. Enter `https://github.com/ElsaTam/obsidian-extended-graph` into the input field and select `Add Plugin`.
-
-Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
 
 # Disclosures
 
@@ -38,7 +40,6 @@ Since the core graph plugin lacks an API and documentation, many features are ex
 - **Graph settings loss**: If the app does not close properly, graph settings could be lost. It *should* not happened, I haven't seen this bug in a long time, but I'm waiting for more testing before removing it from this list. If you want to be extra careful, make a copy of the file `.obsidian/graph.json` before enabling the plugin.
 
 **Expected bugs**:
-- **Search filter conflicts**: The way the core plugin handles the Search filter makes it hard to synchronize the graph properly. Depending on what was displayed when enabling the plugin and what the search filter changes, it might create some bugs. If this happens, best for now is to set up the search filter while the plugin is disabled and enable the plugin after.
 - **Files modification issues**: The plugin might not synchronize correctly with changes made in your vault even if the core plugin handles them properly (such as renaming, deleting or moving a file).
 - **Asynchronous errors**: Rapid interactions (e.g., toggling features, switching views, modifying filters) can result in data inconsistencies due to asynchronous processing. Resetting the plugin usually resolves the issue. If not, close and reopen the tab.
 
@@ -46,7 +47,7 @@ Please, if you encounter any bug, even if it is in the list above, report [an is
 
 # Supporting
 
-The plugin is completely free to test and will always stay that way, and open source. If you'd like to support its development, you can make a donation via this link: https://github.com/sponsors/ElsaTam
+The plugin is completely free and will always stay that way, and open source. If you'd like to support its development, you can make a donation via this link: https://github.com/sponsors/ElsaTam
 
 # Credits
 
