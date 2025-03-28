@@ -76,6 +76,7 @@ If you don't need every features from this plugin and are looking for something 
 - [Export Graph View](https://github.com/seantiz/obsidian_egv_plugin) by seantiz
 - [Graph Link Types](https://github.com/natefrisch01/Graph-Link-Types) by natefrisch01
 - [Juggl](https://github.com/HEmile/juggl) by HEmile
+- [Living Graph](https://github.com/geoffreysflaminglasersword/obsidian-living-graph) by geoffreysflaminglasersword
 - [Nested Tags](https://github.com/drPilman/obsidian-graph-nested-tags) by drPilman
 - [Node Factor](https://github.com/CalfMoon/node-factor) by CalfMoon (not yet released)
 
