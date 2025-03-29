@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-        Please before you start, make sure you are on the latest beta version of Extended Graph.
+        Please before you start, make sure you are on the latest version of Extended Graph.
         
   - type: textarea
     id: what-happened
