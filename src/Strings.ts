@@ -177,6 +177,7 @@ export default class STRINGS {
 	};
 
 	static notices = {
+		changeInSettings: "You can change this in the settings",
 		disabled: "disabled",
 		graphAnalysisPluginRequired: "Graph Analysis community plugin must be enabled to use this function",
 		invalidCharacter: "Invalid character",

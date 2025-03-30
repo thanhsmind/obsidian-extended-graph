@@ -6,22 +6,22 @@ import STRINGS from "./Strings";
 
 
 export class GraphsManager extends Component {
-    globalUIs = new Map<string, {menu: MenuUI, control: GraphControlsUI}>();
+    globalUIs = new Map<string, { menu: MenuUI, control: GraphControlsUI }>();
     optionsBackup = new Map<string, GraphPluginInstanceOptions>();
     allInstances = new Map<string, GraphInstances>();
     activeFile: TFile | null = null;
 
     lastBackup: string;
     localGraphID: string | null = null;
-    
-    
+
+
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodesColorCalculator: NodeStatCalculator | undefined;
     linksSizeCalculator: LinkStatCalculator | undefined;
     linksColorCalculator: LinkStatCalculator | undefined;
 
     // ============================== CONSTRUCTOR ==============================
-    
+
     constructor() {
         super();
     }
@@ -56,7 +56,7 @@ export class GraphsManager extends Component {
         }));
 
         this.onCSSChange = this.onCSSChange.bind(this);
-        this.registerEvent(PluginInstances.app.workspace.on('css-change', ()  => {
+        this.registerEvent(PluginInstances.app.workspace.on('css-change', () => {
             if (!this.isCoreGraphLoaded()) return;
             this.onCSSChange();
         }));
@@ -172,7 +172,7 @@ export class GraphsManager extends Component {
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
         this.allInstances.forEach(instances => {
             if (!instances.graph || !instances.renderer) return;
-    
+
             // Update nodes interactives
             const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path) as ExtendedGraphFileNode;
             if (!extendedNode) return;
@@ -185,11 +185,11 @@ export class GraphsManager extends Component {
                 if (newTypes.length === 0) {
                     newTypes.push(instances.settings.interactiveSettings[key].noneType);
                 }
-                const {typesToRemove: typesToRemoveForTheNode, typesToAdd: typesToAddForTheNode} = extendedNode.matchesTypes(key, [...newTypes]);
+                const { typesToRemove: typesToRemoveForTheNode, typesToAdd: typesToAddForTheNode } = extendedNode.matchesTypes(key, [...newTypes]);
                 for (const type of typesToRemoveForTheNode) {
                     instances.nodesSet.typesMap[key][type].delete(extendedNode.id);
                 }
-                for (const type of typesToAddForTheNode)    {
+                for (const type of typesToAddForTheNode) {
                     if (!instances.nodesSet.typesMap[key][type]) instances.nodesSet.typesMap[key][type] = new Set<string>();
                     instances.nodesSet.typesMap[key][type].add(extendedNode.id);
                 }
@@ -217,7 +217,7 @@ export class GraphsManager extends Component {
             const linkManager = instances.linksSet.managers.get(LINK_KEY);
             if (!linkManager) return;
             for (let [targetID, newTypes] of newOutlinkTypes) {
-                const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({source: {id: file.path}, target: {id: targetID}}));
+                const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: file.path }, target: { id: targetID } }));
                 if (!extendedLink) continue;
                 newTypes = new Set<string>([...newTypes].filter(type =>
                     !INVALID_KEYS[LINK_KEY]?.includes(type)
@@ -226,11 +226,11 @@ export class GraphsManager extends Component {
                 if (newTypes.size === 0) {
                     newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
                 }
-                const {typesToRemove: typesToRemoveForTheLink, typesToAdd: typesToAddForTheLink} = extendedLink.matchesTypes(LINK_KEY, [...newTypes]);
+                const { typesToRemove: typesToRemoveForTheLink, typesToAdd: typesToAddForTheLink } = extendedLink.matchesTypes(LINK_KEY, [...newTypes]);
                 for (const type of typesToRemoveForTheLink) {
                     instances.linksSet.typesMap[LINK_KEY][type].delete(extendedLink.id);
                 }
-                for (const type of typesToAddForTheLink)    {
+                for (const type of typesToAddForTheLink) {
                     if (!instances.linksSet.typesMap[LINK_KEY][type]) instances.linksSet.typesMap[LINK_KEY][type] = new Set<string>();
                     instances.linksSet.typesMap[LINK_KEY][type].add(extendedLink.id);
                 }
@@ -253,7 +253,7 @@ export class GraphsManager extends Component {
                     extendedLink.graphicsWrapper?.resetManagerGraphics(linkManager);
                 }
             }
-            
+
             const extendedOutlinks = Array.from(instances.linksSet.extendedElementsMap.values()).filter(
                 link => link.coreElement.source.id === file.path
             );
@@ -309,7 +309,7 @@ export class GraphsManager extends Component {
                 const extendedLinks = [...linksSet.extendedElementsMap.values()].filter(el => el.coreElement.source.id === id);
                 for (const extendedLink of extendedLinks) {
                     const linkID = extendedLink.id;
-                    
+
                     const types = extendedLink.getTypes(LINK_KEY);
                     const typesToRemove: string[] = [];
                     for (const type of types) {
@@ -351,12 +351,12 @@ export class GraphsManager extends Component {
         let predicate: (oldPath: string, currentPath: string) => boolean;
 
         if (file instanceof TFile) {
-            predicate = function(oldPath: string, currentPath: string): boolean {
+            predicate = function (oldPath: string, currentPath: string): boolean {
                 return oldPath === currentPath;
             }
         }
         else {
-            predicate = function(oldPath: string, currentPath: string): boolean {
+            predicate = function (oldPath: string, currentPath: string): boolean {
                 return currentPath.startsWith(oldPath + "/");
             }
         }
@@ -524,7 +524,7 @@ export class GraphsManager extends Component {
     private isPluginAlreadyEnabled(view: GraphView | LocalGraphView): boolean {
         return this.allInstances.has(view.leaf.id);
     }
-    
+
     private isGlobalGraphAlreadyOpened(view: GraphView | LocalGraphView): boolean {
         return this.optionsBackup.has(view.leaf.id) && view.getViewType() === "graph";
     }
@@ -532,13 +532,13 @@ export class GraphsManager extends Component {
     syncWithLeaves(leaves: WorkspaceLeaf[]): void {
         const currentActiveLeavesID = leaves.map(l => l.id);
         const localLeaf = leaves.find(l => l.view.getViewType() === "localgraph");
-        
+
         this.localGraphID = localLeaf ? localLeaf.id : null;
 
         // Remove dispatchers from closed leaves
         const allInstancesIDs = [...this.allInstances.keys()];
         for (const leafID of allInstancesIDs) {
-            if (! currentActiveLeavesID.includes(leafID)) {
+            if (!currentActiveLeavesID.includes(leafID)) {
                 this.disablePluginFromLeafID(leafID);
             }
         }
@@ -552,7 +552,7 @@ export class GraphsManager extends Component {
         // Remove UI from closed leaves
         const globalUIsIDs = [...this.globalUIs.keys()];
         for (const leafID of globalUIsIDs) {
-            if (! currentActiveLeavesID.includes(leafID)) {
+            if (!currentActiveLeavesID.includes(leafID)) {
                 this.globalUIs.delete(leafID);
             }
         }
@@ -560,7 +560,7 @@ export class GraphsManager extends Component {
 
     // =============================== GLOBAL UI ===============================
 
-    private setGlobalUI(view: GraphView | LocalGraphView): {menu: MenuUI, control: GraphControlsUI} {
+    private setGlobalUI(view: GraphView | LocalGraphView): { menu: MenuUI, control: GraphControlsUI } {
         let globalUI = this.globalUIs.get(view.leaf.id);
         if (globalUI) return globalUI;
 
@@ -570,8 +570,8 @@ export class GraphsManager extends Component {
         const controlsUI = new GraphControlsUI(view);
         controlsUI.onPluginDisabled();
         view.addChild(controlsUI);
-        
-        globalUI = {menu: menuUI, control: controlsUI};
+
+        globalUI = { menu: menuUI, control: controlsUI };
         this.globalUIs.set(view.leaf.id, globalUI);
         return globalUI;
     }
@@ -637,7 +637,7 @@ export class GraphsManager extends Component {
 
         if (this.isPluginAlreadyEnabled(view)) return;
         if (this.isNodeLimitExceeded(view)) return;
-        
+
         if (this.getGraphAnalysis()["graph-analysis"]) {
             if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
             if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
@@ -674,13 +674,13 @@ export class GraphsManager extends Component {
 
     isNodeLimitExceeded(view: GraphView | LocalGraphView): boolean {
         if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
-            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}.`);
+            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
             return true;
         }
         return false;
     }
-    
-    getGraphAnalysis(): {"graph-analysis": Plugin | null, "nlp": Plugin | null} {
+
+    getGraphAnalysis(): { "graph-analysis": Plugin | null, "nlp": Plugin | null } {
         const ga = PluginInstances.app.plugins.getPlugin("graph-analysis");
         if (ga && ga._loaded) {
             let nlp = PluginInstances.app.plugins.getPlugin("nlp");
@@ -697,7 +697,7 @@ export class GraphsManager extends Component {
             };
         }
     }
-    
+
 
     // ============================ DISABLE PLUGIN =============================
 
@@ -728,7 +728,7 @@ export class GraphsManager extends Component {
 
     onPluginUnloaded(view: GraphView | LocalGraphView): void {
         this.allInstances.delete(view.leaf.id);
-        
+
         if (this.localGraphID === view.leaf.id) this.localGraphID = null;
 
         if (view._loaded) {
@@ -877,13 +877,13 @@ export class GraphsManager extends Component {
         const renderer = view.renderer;
         const node = renderer.nodes.find(node => node.id === nodeID);
         if (!node) return;
-        
+
         let scale = renderer.scale;
         let targetScale = PluginInstances.settings.zoomFactor;
         let panX = renderer.panX
         let panY = renderer.panY;
         renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
-        
+
         let zoomCenterX = renderer.zoomCenterX;
         let zoomCenterY = renderer.zoomCenterY;
 

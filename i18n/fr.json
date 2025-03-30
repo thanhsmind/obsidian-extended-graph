@@ -169,6 +169,7 @@
 		"zoomScaleDesc": "Nouvelle mise échelle de la vue graphique lorsqu'un zoom est réalisé sur un noeud"
 	},
 	"notices": {
+		"changeInSettings": "Vous pouvez changer cette valeur dans les réglages",
 		"disabled": "désactivé",
 		"graphAnalysisPluginRequired": "Le module communautaire Graph Analysis doit être activé pour utiliser cette fonction",
 		"invalidCharacter": "Caractère invalide",
