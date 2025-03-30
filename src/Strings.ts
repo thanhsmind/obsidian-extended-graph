@@ -247,6 +247,7 @@ export default class STRINGS {
 		closeness: "Closeness centrality",
 		clusteringCoefficient: "Clustering coefficient",
 		coCitations: "Co-citations",
+		constant: "Constant",
 		creationTime: "Time since file creation",
 		degree: "Degree centrality",
 		eccentricity: "Eccentricity in the connected graph",

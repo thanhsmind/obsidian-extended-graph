@@ -236,6 +236,7 @@
 		"closeness": "Closeness centrality",
 		"clusteringCoefficient": "Clustering coefficient",
 		"coCitations": "Co-citations",
+		"constant": "Constante",
 		"creationTime": "Durée depuis la création du fichier",
 		"degree": "Degree centrality",
 		"eccentricity": "Eccentricity in the connected graph",

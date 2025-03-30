@@ -1,11 +1,13 @@
 import { GraphologySingleton } from "../graphology";
-import { BacklinkCountCalculator, CreationTimeCalculator, EccentricityCalculator, ExtendedGraphSettings, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances, TagsCountCalculator } from "src/internal";
+import { BacklinkCountCalculator, ConstantCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances, TagsCountCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
 
 
 export class NodeStatCalculatorFactory {
     static getCalculator(stat: NodeStat): NodeStatCalculator | undefined {
         switch (stat === 'size' ? PluginInstances.settings.nodesSizeFunction : PluginInstances.settings.nodesColorFunction) {
+            case 'constant':
+                return new ConstantCalculator(stat);
             case 'backlinksCount':
                 return new BacklinkCountCalculator(stat);
             case 'forwardlinksCount':

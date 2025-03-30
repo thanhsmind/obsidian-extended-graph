@@ -38,7 +38,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     protected needGraphicsWrapper(): boolean {
         return this.needPin() || this.needOpacityLayer();
     }
-    
+
     public needOpacityLayer(): boolean { return this.instances.settings.fadeOnDisable; }
 
     public needPin(): boolean { return true; }
@@ -55,7 +55,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
         const file = getFile(this.id);
         if (!file) return;
-        
+
         const values = getFileInteractives(property, file);
         for (const value of values) {
             if (isNumber(value)) {
@@ -65,7 +65,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             }
         }
     }
-    
+
     changeGetSize() {
         if (!(this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
             && !(this.instances.settings.enableFeatures[this.instances.type]["elements-stats"] && PluginInstances.settings.nodesSizeFunction !== "default")) {
@@ -110,8 +110,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== NODE COLOR ===============================
 
-    changeGetFillColor(): void {}
-    restoreGetFillColor(): void {}
+    changeGetFillColor(): void { }
+    restoreGetFillColor(): void { }
     protected getFillColor(): GraphColorAttributes | undefined { return; };
 
     // ============================== CORE ELEMENT =============================

@@ -2,10 +2,11 @@ import { TFile } from "obsidian";
 import { getColor, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 
-export type NodeStatFunction = 'default' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
+export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': STRINGS.plugin.default,
+    'constant': STRINGS.statsFunctions.constant,
     'backlinksCount': STRINGS.statsFunctions.backlinksCount,
     'forwardlinksCount': STRINGS.statsFunctions.forwardlinksCount,
     'forwardUniquelinksCount': STRINGS.statsFunctions.forwardUniquelinksCount,
@@ -25,7 +26,7 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
 export type NodeStat = 'size' | 'color';
 
 export abstract class NodeStatCalculator {
-    filesStats: Map<string, {measure: number, value: number}>;
+    filesStats: Map<string, { measure: number, value: number }>;
     stat: NodeStat;
 
     constructor(stat: NodeStat) {
@@ -38,10 +39,10 @@ export abstract class NodeStatCalculator {
     }
 
     private async getStats(): Promise<void> {
-        this.filesStats = new Map<string, {measure: number, value: number}>();
+        this.filesStats = new Map<string, { measure: number, value: number }>();
         const files = PluginInstances.app.vault.getMarkdownFiles();
         for (const file of files) {
-            this.getStat(file).then(size => this.filesStats.set(file.path, {measure: size, value: 0}));
+            this.getStat(file).then(size => this.filesStats.set(file.path, { measure: size, value: 0 }));
         }
     }
 
@@ -55,11 +56,11 @@ export abstract class NodeStatCalculator {
             case 'color':
                 this.normalizeValues(0, 100);
                 this.cleanNanAndInfiniteValues(50);
-                this.filesStats.forEach(({measure, value}, path) => {
-                    this.filesStats.set(path, {measure: measure, value: rgb2int(getColor(PluginInstances.settings.nodesColorColormap, value / 100))});
+                this.filesStats.forEach(({ measure, value }, path) => {
+                    this.filesStats.set(path, { measure: measure, value: rgb2int(getColor(PluginInstances.settings.nodesColorColormap, value / 100)) });
                 });
                 break;
-        
+
             default:
                 break;
         }
@@ -69,19 +70,19 @@ export abstract class NodeStatCalculator {
         const N = this.getMeasures();
         const min = Math.min(...N);
         const max = Math.max(...N);
-        this.filesStats.forEach(({measure, value}, path) => {
-            this.filesStats.set(path, {measure: measure, value: (to - from) * (measure - min) / (max - min) + from});
+        this.filesStats.forEach(({ measure, value }, path) => {
+            this.filesStats.set(path, { measure: measure, value: (to - from) * (measure - min) / (max - min) + from });
         });
     }
 
     private getMeasures(): number[] {
-        return [...this.filesStats.values()].map(({measure, value}) => measure).filter(n => isFinite(n) && !isNaN(n));
+        return [...this.filesStats.values()].map(({ measure, value }) => measure).filter(n => isFinite(n) && !isNaN(n));
     }
 
     private cleanNanAndInfiniteValues(defaultValue: number) {
-        this.filesStats.forEach(({measure, value}, path) => {
+        this.filesStats.forEach(({ measure, value }, path) => {
             if (!isFinite(value) || isNaN(value)) {
-                this.filesStats.set(path, {measure: measure, value: defaultValue});
+                this.filesStats.set(path, { measure: measure, value: defaultValue });
             }
         });
     }

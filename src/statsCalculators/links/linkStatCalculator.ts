@@ -31,7 +31,7 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
 export type LinkStat = 'size' | 'color';
 
 export class LinkStatCalculator {
-    linksStats: {[source: string]: {[target: string]: {measure: number, value: number}}};
+    linksStats: { [source: string]: { [target: string]: { measure: number, value: number } } };
     stat: LinkStat;
     statFunction: LinkStatFunction;
     g: GraphologyGraphAnalysis;
@@ -48,7 +48,7 @@ export class LinkStatCalculator {
     }
 
     private async getStats(): Promise<void> {
-        this.linksStats = { };
+        this.linksStats = {};
         const links = this.g.edgeEntries();
         for (const link of links) {
             if (!this.linksStats[link.source]) {
@@ -83,12 +83,12 @@ export class LinkStatCalculator {
                 this.normalizeValues(0, 100);
                 this.cleanNanAndInfiniteValues(50);
                 Object.entries(this.linksStats).forEach(([source, targets]) => {
-                    Object.entries(targets).forEach(([target, {measure, value}]) => {
+                    Object.entries(targets).forEach(([target, { measure, value }]) => {
                         this.linksStats[source][target].value = rgb2int(getColor(PluginInstances.settings.linksColorColormap, value / 100));
                     })
                 });
                 break;
-        
+
             default:
                 break;
         }
@@ -99,7 +99,7 @@ export class LinkStatCalculator {
         const min = Math.min(...N);
         const max = Math.max(...N);
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            Object.entries(targets).forEach(([target, {measure, value}]) => {
+            Object.entries(targets).forEach(([target, { measure, value }]) => {
                 this.linksStats[source][target].value = (to - from) * (measure - min) / (max - min) + from;
             })
         });
@@ -108,14 +108,14 @@ export class LinkStatCalculator {
     private getMeasures(): number[] {
         let N: number[] = [];
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            N = N.concat(Object.values(targets).map(({measure, value}) => measure));
+            N = N.concat(Object.values(targets).map(({ measure, value }) => measure));
         });
         return N.filter(n => isFinite(n) && !isNaN(n));
     }
 
     private cleanNanAndInfiniteValues(defaultValue: number) {
         Object.entries(this.linksStats).forEach(([source, targets]) => {
-            Object.entries(targets).forEach(([target, {measure, value}]) => {
+            Object.entries(targets).forEach(([target, { measure, value }]) => {
                 if (!isFinite(value) || isNaN(value)) {
                     this.linksStats[source][target].value = defaultValue;
                 }

@@ -56,6 +56,7 @@ export * from "./statsCalculators/links/graphAnalysisPluginInterfaces";
 export * from "./statsCalculators/nodes/nodeStatCalculator";
 export * from "./statsCalculators/nodes/nodeStatCalculatorFactory";
 export * from "./statsCalculators/nodes/backlinkCountCalculator";
+export * from "./statsCalculators/nodes/constantCalculator";
 export * from "./statsCalculators/nodes/centralityCalculator";
 export * from "./statsCalculators/nodes/creationTimeCalculator";
 export * from "./statsCalculators/nodes/eccentricityCalculator";
