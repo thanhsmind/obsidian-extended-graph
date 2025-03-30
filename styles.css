@@ -399,10 +399,12 @@ body {
         margin-top: 0.75em;
         padding-inline: 0.75em;
         border-radius: var(--radius-s);
+        border: 1px solid var(--background-modifier-border);
     }
     > .setting-item-heading:not(.is-collapsed) {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
+        border-bottom: 0;
         z-index: 1;
         position: relative;
     }
@@ -423,6 +425,8 @@ body {
     > .setting-item-heading ~ .setting-item:not(.setting-item-heading) {
         background-color: var(--background-secondary);
         padding-inline: 0.75em;
+        border: 1px solid var(--background-modifier-border);
+        border-top: 0;
     }
     
     > .setting-item-heading + .setting-item {
