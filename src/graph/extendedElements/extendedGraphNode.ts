@@ -26,11 +26,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ================================ UNLOAD =================================
 
-    unload() {
+    override unload() {
         if (this.isPinned) {
             new Pinner(this.instances).unpinNode(this.id);
         }
         this.restoreGetSize();
+        super.unload();
     }
 
     // =============================== GRAPHICS ================================

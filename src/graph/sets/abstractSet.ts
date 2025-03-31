@@ -11,8 +11,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     coreCollection: T[];
     extendedElementsMap = new Map<string, ExtendedGraphElement<T>>();
     connectedIDs = new Set<string>();
-    disconnectedIDs: {[cause: string] : Set<string>} = {};
-    typesMap: {[key: string]: {[type: string]: Set<string>}} = {}; // [key][type].get(id)
+    disconnectedIDs: { [cause: string]: Set<string> } = {};
+    typesMap: { [key: string]: { [type: string]: Set<string> } } = {}; // [key][type].get(id)
 
     // Temporary elements
     elementsToAddToCascade: Set<string> | null = null;
@@ -43,7 +43,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             this.typesMap[key] = {};
         }
     }
-    
+
     private initializeDisconnectedIDs(): void {
         for (const value of Object.values(DisconnectionCause)) {
             this.disconnectedIDs[value] = new Set<string>();
@@ -63,7 +63,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         }
         return addedElements;
     }
-    
+
     /**
      * Initializes the tag types for the nodes set.
      * @returns True if there are missing nodes in the graph, false otherwise.
@@ -80,7 +80,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
             const file = this.getAbstractFile(element);
             isElementMissing = true;
-            
+
             let types: Set<string> = new Set<string>();
             if ((element as GraphNode).type === "tag") {
                 if (key === TAG_KEY) {
@@ -157,17 +157,11 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         this.clearExtendedElements();
         this.clearMaps();
     }
-    
+
     private clearExtendedElements() {
         this.extendedElementsMap.forEach(el => {
-            this.clearExtendedElement(el);
+            el.unload();
         });
-    }
-
-    protected clearExtendedElement(el: ExtendedGraphElement<T>): void {
-        el.graphicsWrapper?.disconnect();
-        el.graphicsWrapper?.clearGraphics();
-        el.graphicsWrapper?.destroyGraphics();
     }
 
     protected clearMaps() {
@@ -194,7 +188,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
                 wrapperTypes.forEach(type => types.add(type));
             }
         });
-        
+
         return new Set([...types].sort());
     }
 
@@ -225,7 +219,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     protected abstract getID(coreElement: T): string;
     protected abstract getTypesFromFile(key: string, coreElement: T, file: TFile): Set<string>;
     protected abstract getAbstractFile(coreElement: T): TAbstractFile | null;
-    
+
     // ============================= TOGGLE TYPES ==============================
 
     disableType(key: string, type: string): string[] {
@@ -254,7 +248,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             if (!elementTypes.has(type)) {
                 continue;
             }
-        
+
             extendedElement.enableType(key, type);
 
             if (!extendedElement.isAnyManagerDisabled()) {
@@ -291,7 +285,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     private enableElement(id: string, cause: string): boolean {
         const extendedElement = this.extendedElementsMap.get(id);
         if (!extendedElement) return false;
-        
+
         this.disconnectedIDs[cause].delete(id);
         this.connectedIDs.add(id);
 

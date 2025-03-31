@@ -15,7 +15,7 @@ export class LinkLineGraphics extends LinkGraphics {
         this.alpha = this.targetAlpha;
         if (!this.extendedLink.coreElement.px) return;
     }
-    
+
     redrawType(type: string, color?: Uint8Array): void {
         super.redrawType(type, color);
 
@@ -26,6 +26,7 @@ export class LinkLineGraphics extends LinkGraphics {
     }
 
     override updateFrame(): void {
-
+        console.log("updateFrame");
+        this.extendedLink.coreElement.arrow?.position.set(100, 0);
     }
 }

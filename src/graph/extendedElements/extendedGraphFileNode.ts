@@ -3,7 +3,7 @@ import { ExtendedGraphNode, FileNodeGraphicsWrapper, GraphInstances, Interactive
 
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
-    
+
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
         this.changeGetFillColor();
@@ -11,13 +11,13 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
     // ================================ UNLOAD =================================
 
-    unload(): void {
+    override unload(): void {
         this.restoreGetFillColor();
         super.unload();
     }
 
     // =============================== GRAPHICS ================================
-    
+
     protected override needGraphicsWrapper(): boolean {
         return super.needGraphicsWrapper()
             || this.needBackground()
@@ -29,16 +29,16 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
         return this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
             || this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'];
     }
-    
+
     public needBackground(): boolean {
         return this.instances.settings.enableFeatures[this.instances.type]['focus']
             || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
     }
-        
+
     public needArcs(): boolean {
         if (this.coreElement.type !== "" || this.managers.size === 0)
             return false;
-        
+
         for (const [key, manager] of this.managers) {
             if (this.instances.settings.interactiveSettings[key].showOnGraph) {
                 return true;
@@ -47,7 +47,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
         return false;
     }
-    
+
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new FileNodeGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
@@ -63,7 +63,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     // ============================== NODE COLOR ===============================
-    
+
     override changeGetFillColor() {
         if (!this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
             || PluginInstances.settings.nodesColorFunction === "default") {

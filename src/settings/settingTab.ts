@@ -28,6 +28,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addAutoEnable();
         this.addDisableNodes();
         this.addBorderUnresolved();
+        this.addInvertArrows();
 
         // FEATURES
         for (const section of this.sections) {
@@ -55,7 +56,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
-        
+
         new Setting(this.containerEl)
             .setName(STRINGS.states.startingState)
             .setDesc(STRINGS.states.startingStateDesc)
@@ -100,6 +101,19 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                         PluginInstances.settings.borderUnresolved = Math.clamp(intValue, 0, 1);
                         await PluginInstances.plugin.saveSettings();
                     }
-            }));
+                }));
+    }
+
+    addInvertArrows() {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.invertArrows)
+            .setDesc(STRINGS.features.invertArrowsDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.invertArrows);
+                cb.onChange(value => {
+                    PluginInstances.settings.invertArrows = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
     }
 }

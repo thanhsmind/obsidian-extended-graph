@@ -1,5 +1,5 @@
 import { Component, Menu, TFile } from "obsidian";
-import { Container, DisplayObject } from "pixi.js";
+import { Container, DisplayObject, Matrix } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
 

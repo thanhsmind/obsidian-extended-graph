@@ -1,6 +1,6 @@
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container } from "pixi.js";
-import {  GraphicsWrapper, GraphInstances, GraphType, InteractiveManager } from "src/internal";
+import { GraphicsWrapper, GraphInstances, GraphType, InteractiveManager } from "src/internal";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     instances: GraphInstances;
@@ -12,7 +12,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     isActive: boolean = true;
 
     // ============================== CONSTRUCTOR ==============================
-    
+
     constructor(instances: GraphInstances, coreElement: T, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         this.instances = instances;
         this.coreElement = coreElement;
@@ -31,9 +31,17 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             this.createGraphicsWrapper();
         }
     }
-    
+
     protected abstract needGraphicsWrapper(): boolean;
     protected abstract createGraphicsWrapper(): void;
+
+    // ================================= UNLOAD ================================
+
+    unload() {
+        this.graphicsWrapper?.disconnect();
+        this.graphicsWrapper?.clearGraphics();
+        this.graphicsWrapper?.destroyGraphics();
+    }
 
     // ============================== CORE ELEMENT =============================
 
@@ -82,7 +90,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             if (types.size === 0) continue;
             if ([...types].every(type => !manager.isActive(type))) return true;
         }
-        return  false;
+        return false;
     }
 
     getActiveType(key: string): string | undefined {
@@ -95,7 +103,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         return;
     }
 
-    matchesTypes(key: string, newTypes: string[]): {typesToRemove: string[], typesToAdd: string[]} {
+    matchesTypes(key: string, newTypes: string[]): { typesToRemove: string[], typesToAdd: string[] } {
         const currentTypes = this.getTypes(key);
         const typesToRemove = structuredClone(currentTypes);
         const typesToAdd = structuredClone(newTypes);
@@ -105,7 +113,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
                 typesToAdd.remove(type);
             }
         }
-        return {typesToRemove: [...typesToRemove], typesToAdd: typesToAdd};
+        return { typesToRemove: [...typesToRemove], typesToAdd: typesToAdd };
     }
 
     hasType(key: string, type: string): boolean {

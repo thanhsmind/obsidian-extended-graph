@@ -96,6 +96,8 @@
 			"tags": "Tags",
 			"tagsDesc": "Affiche et filtre les noeuds par tags"
 		},
+		"invertArrows": "Inverser les flèches",
+		"invertArrowsDesc": "Inverse les flèches des liens",
 		"linksFeatureRequired": "La fonctionnalité des liens doit être activée.",
 		"pinnedNodes": "Noeuds épinglés",
 		"pinNode": "Épingler le noeud",

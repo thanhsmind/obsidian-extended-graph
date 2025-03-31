@@ -11,13 +11,13 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
 
     // ================================ UNLOAD =================================
 
-    unload(): void {
+    override unload(): void {
         this.restoreGetFillColor();
         super.unload();
     }
 
     // =============================== GRAPHICS ================================
-    
+
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new TagNodeGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();

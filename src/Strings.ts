@@ -103,6 +103,8 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
+		invertArrows: "Invert arrows",
+		invertArrowsDesc: "Invert the direction of the arrows on the links",
 		linksFeatureRequired: "The Links feature needs to be enabled.",
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",

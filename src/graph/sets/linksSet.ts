@@ -47,11 +47,6 @@ export class LinksSet extends AbstractSet<GraphLink> {
         }
     }
 
-    protected override clearExtendedElement(el: ExtendedGraphLink): void {
-        super.clearExtendedElement(el);
-        el.restoreCoreLinkThickness();
-    }
-
     // ================================ GETTERS ================================
 
     protected override getID(element: GraphLink): string {

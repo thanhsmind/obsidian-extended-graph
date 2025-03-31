@@ -1,17 +1,21 @@
-import { GraphColorAttributes, GraphLink } from "obsidian-typings";
-import { Container } from "pixi.js";
+import { GraphLink } from "obsidian-typings";
+import { Container, Graphics } from "pixi.js";
 import { CurveLinkGraphicsWrapper, ExtendedGraphElement, GraphInstances, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
 
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
     graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
+    originalArrow: Graphics | null = null;
 
     // ============================== CONSTRUCTOR ==============================
 
     constructor(instances: GraphInstances, link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, link, types, managers);
         this.initGraphicsWrapper();
+        if (this.instances.settings.invertArrows) {
+            this.invertArrowDirection();
+        }
     }
 
     protected override initGraphicsWrapper(): void {
@@ -54,6 +58,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
     }
 
+    // ================================= UNLOAD ================================
+
+    override unload(): void {
+        this.restoreCoreLinkThickness();
+        this.resetArrowDirection();
+        super.unload();
+    }
+
     // ========================= LINK SIZE (THICKNESS) =========================
 
     changeCoreLinkThickness(): void {
@@ -62,7 +74,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             && PluginInstances.settings.linksSizeFunction !== "default"
             && (
                 (PluginInstances.settings.enableFeatures[this.instances.type]['links']
-                && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'])
+                    && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'])
                 || (!PluginInstances.settings.enableFeatures[this.instances.type]['links']))) {
             this.coreElement.px.scale.y = this.getThicknessScale();
         }
@@ -82,7 +94,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             && PluginInstances.settings.linksColorFunction !== "default" ?
             PluginInstances.graphsManager.linksSizeCalculator
                 ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
-                ?? 1
+            ?? 1
             : 1;
     }
 
@@ -94,6 +106,49 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             PluginInstances.graphsManager.linksColorCalculator
                 ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
             : undefined;
+    }
+
+    // ============================ ARROW DIRECTION ============================
+
+    invertArrowDirection(): void {
+        const link = this.coreElement;
+        if (link.arrow && !this.originalArrow) {
+            this.originalArrow = link.arrow;
+            link.arrow = new Proxy(link.arrow, {
+                set(target, prop, value, receiver) {
+                    if (prop === "x" || prop === "y") {
+                        var c2c_x = link.target.x - link.source.x
+                            , c2c_y = link.target.y - link.source.y
+                            , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
+                            , source_r = link.source.getSize() * link.renderer.nodeScale
+                            , target_r = link.target.getSize() * link.renderer.nodeScale;
+
+                        if (prop === "x") {
+                            target.x = link.source.x + c2c_x * source_r / diag;
+                        }
+                        else {
+                            target.y = link.source.y + c2c_y * source_r / diag;
+                        }
+                    }
+                    else if (prop === "rotation") {
+                        target.rotation = value + Math.PI;
+                    }
+                    else {
+                        // @ts-ignore
+                        target[prop] = value;
+                    }
+                    //console.log(`property set: ${prop.toString()} = ${value}`);
+                    return true;
+                }
+            })
+        }
+    }
+
+    resetArrowDirection(): void {
+        if (this.coreElement.arrow && this.originalArrow) {
+            this.coreElement.arrow = this.originalArrow;
+            this.originalArrow = null;
+        }
     }
 
     // ============================== CORE ELEMENT =============================
@@ -109,7 +164,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     override getCoreCollection(): GraphLink[] {
         return this.coreElement.renderer.links;
     }
-    
+
     protected override getCoreParentGraphics(coreElement: GraphLink): Container | null {
         if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             return coreElement.px;
@@ -138,6 +193,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 }
 
-export function getLinkID(link: {source: {id: string}, target: {id: string}}): string {
+export function getLinkID(link: { source: { id: string }, target: { id: string } }): string {
     return link.source.id + "--to--" + link.target.id;
 }

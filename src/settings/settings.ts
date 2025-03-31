@@ -3,7 +3,7 @@ import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, Li
 
 type InteractiveSettings = {
     colormap: string;
-    colors: {type: string, color: string}[];
+    colors: { type: string, color: string }[];
     unselected: string[];
     noneType: string;
     showOnGraph: boolean;
@@ -24,8 +24,8 @@ export type ExportSVGOptions = {
 
 export interface ExtendedGraphSettings {
     // Interactive settings
-    interactiveSettings: { [interactive: string] : InteractiveSettings };
-    additionalProperties: { [interactive: string] : boolean };
+    interactiveSettings: { [interactive: string]: InteractiveSettings };
+    additionalProperties: { [interactive: string]: boolean };
 
     // Graph settings
     backupGraphOptions: EngineOptions;
@@ -76,6 +76,7 @@ export interface ExtendedGraphSettings {
     fadeOnDisable: boolean;
     focusScaleFactor: number;
     borderUnresolved: number | string;
+    invertArrows: boolean;
 
     // Internal settings (not set by the user)
     collapseState: boolean;
@@ -86,7 +87,7 @@ export const DEFAULT_STATE_SETTINGS = {
     id: DEFAULT_STATE_ID,
     name: "Vault (default)",
     engineOptions: new EngineOptions(),
-    toggleTypes: { }
+    toggleTypes: {}
 };
 
 let shapeQueriesIndex = 0;
@@ -94,7 +95,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Interactive settings
     interactiveSettings: {},
     additionalProperties: {},
-    
+
     // Graph settings
     backupGraphOptions: new EngineOptions(),
     states: [DEFAULT_STATE_SETTINGS],
@@ -128,56 +129,56 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Feature toggles
     enableFeatures: {
         'graph': {
-            'auto-enabled'        : false,
-            'tags'                : false,
-            'properties'          : false,
-            'property-key'        : true,
-            'links'               : false,
-            'curvedLinks'         : false,
-            'folders'             : false,
-            'imagesFromProperty'  : false,
-            'imagesFromEmbeds'     : false,
+            'auto-enabled': false,
+            'tags': false,
+            'properties': false,
+            'property-key': true,
+            'links': false,
+            'curvedLinks': false,
+            'folders': false,
+            'imagesFromProperty': false,
+            'imagesFromEmbeds': false,
             'imagesForAttachments': false,
-            'focus'               : true,
-            'shapes'              : false,
-            'source'              : false,
-            'target'              : false,
-            'elements-stats'      : true,
+            'focus': true,
+            'shapes': false,
+            'source': false,
+            'target': false,
+            'elements-stats': true,
         },
         'localgraph': {
-            'auto-enabled'        : false,
-            'tags'                : true,
-            'properties'          : false,
-            'property-key'        : true,
-            'links'               : true,
-            'curvedLinks'         : false,
-            'folders'             : false,
-            'imagesFromProperty'  : true,
-            'imagesFromEmbeds'     : false,
+            'auto-enabled': false,
+            'tags': true,
+            'properties': false,
+            'property-key': true,
+            'links': true,
+            'curvedLinks': false,
+            'folders': false,
+            'imagesFromProperty': true,
+            'imagesFromEmbeds': false,
             'imagesForAttachments': false,
-            'focus'               : false,
-            'shapes'              : true,
-            'source'              : false,
-            'target'              : false,
-            'elements-stats'      : true,
+            'focus': false,
+            'shapes': true,
+            'source': false,
+            'target': false,
+            'elements-stats': true,
         }
     },
 
     // Shapes
     shapeQueries: {
-        'circle'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'square'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'triangle' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'diamond'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'pentagon' : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'hexagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'octagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'decagon'  : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star4'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star5'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star6'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star8'    : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
-        'star10'   : {combinationLogic: 'AND', index: shapeQueriesIndex++, rules: []},
+        'circle': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'square': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'triangle': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'diamond': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'pentagon': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'hexagon': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'octagon': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'decagon': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'star4': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'star5': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'star6': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'star8': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
+        'star10': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
     },
 
     // Last multiple nodes data
@@ -200,6 +201,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
     borderUnresolved: '',
+    invertArrows: false,
 
     // Internal settings (not set by the user)
     collapseState: true,

@@ -35,17 +35,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    // =============================== UNLOADING ===============================
-
-    override unload() {
-        for (const node of this.extendedElementsMap.values()) {
-            node.unload();
-        }
-        super.unload();
-    }
-
     // ================================ IMAGES =================================
-    
+
     private loadAssets(ids: Set<string>): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
@@ -55,7 +46,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         for (const id of ids) {
             this.getImageURI(id).then(imageURI => {
                 if (imageURI) {
-                    Assets.load(imageURI).then((texture:Texture) => {
+                    Assets.load(imageURI).then((texture: Texture) => {
                         this.initNodeImages(id, texture);
                     });
                 }
@@ -92,7 +83,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 case "attachment":
                     (extendedNode.graphicsWrapper as AttachmentNodeGraphicsWrapper).initNodeImage(texture);
                     break;
-            
+
                 case "":
                     (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
                     break;
@@ -172,13 +163,13 @@ export class NodesSet extends AbstractSet<GraphNode> {
     protected override getTypesFromFile(key: string, element: GraphNode, file: TFile): Set<string> {
         return getFileInteractives(key, file);
     }
-    
+
     protected getAbstractFile(node: GraphNode): TFile | null {
         return getFile(node.id);
     }
 
     // ============================= INTERACTIVES ==============================
-    
+
     /**
      * Reset arcs for each node
      */
@@ -191,7 +182,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 (extendedElement.graphicsWrapper as FileNodeGraphicsWrapper).resetManagerGraphics(manager);
             }
             catch {
-                
+
             }
         }
     }
@@ -208,7 +199,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     // ================================== CSS ==================================
-    
+
     /**
      * Update the background color. Called when the theme changes.
      */
