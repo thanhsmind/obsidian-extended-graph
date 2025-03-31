@@ -1,5 +1,5 @@
 import { PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels } from "src/internal";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -18,6 +18,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingElementsStats(this));
         this.sections.push(new SettingZoom(this));
+        this.sections.push(new SettingNames(this));
         this.sections.push(new SettingPerformance(this));
     }
 

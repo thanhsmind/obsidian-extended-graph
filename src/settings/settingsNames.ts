@@ -1,0 +1,64 @@
+import { Setting } from "obsidian";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionCollapsible } from "src/internal";
+import STRINGS from "src/Strings";
+
+export class SettingNames extends SettingsSectionCollapsible {
+    constructor(settingTab: ExtendedGraphSettingTab) {
+        super(settingTab, 'names', '', STRINGS.features.names, 'case-sensitive', STRINGS.features.namesDesc);
+    }
+
+    protected override addBody() {
+        this.addNumberOfCharacters();
+        this.addOnlyFilename();
+        this.addUseProperty();
+    }
+
+    private addNumberOfCharacters() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesNumberOfCharacters)
+            .setDesc(STRINGS.features.namesNumberOfCharactersDesc)
+            .addText(cb => cb
+                .setValue(PluginInstances.settings.numberOfCharacters?.toString() || '')
+                .onChange(async (value) => {
+                    const intValue = parseInt(value);
+                    if (!isNaN(intValue)) {
+                        PluginInstances.settings.numberOfCharacters = intValue;
+                    }
+                    else {
+                        PluginInstances.settings.numberOfCharacters = null;
+                    }
+                    await PluginInstances.plugin.saveSettings();
+                })).settingEl);
+    }
+
+    private addOnlyFilename() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesShowOnlyFileName)
+            .setDesc(STRINGS.features.namesShowOnlyFileNameDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.showOnlyFileName);
+                cb.onChange(value => {
+                    PluginInstances.settings.showOnlyFileName = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addUseProperty() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesUseProperty)
+            .setDesc(STRINGS.features.namesUsePropertyDesc)
+            .addText(cb => {
+                cb.setValue(PluginInstances.settings.usePropertyForName || '');
+                cb.onChange(value => {
+                    if (value === '') {
+                        PluginInstances.settings.usePropertyForName = null;
+                    } else if (isPropertyKeyValid(value)) {
+                        PluginInstances.settings.usePropertyForName = value;
+                    }
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+}

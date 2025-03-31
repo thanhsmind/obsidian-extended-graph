@@ -76,6 +76,7 @@ export * from "./settings/settingFocus";
 export * from "./settings/settingImages";
 export * from "./settings/settingElementsStats";
 export * from "./settings/settingPerformance";
+export * from "./settings/settingsNames";
 export * from "./settings/settingShapes";
 export * from "./settings/settingZoom";
 export * from "./settings/settingInteractives/settingInteractive";

@@ -7,6 +7,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
+    originalText: string | null = null;
 
     // Size
     graphicsWrapperScale: number = 1;
@@ -22,6 +23,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.changeGetSize();
         this.initGraphicsWrapper();
         this.updateFontFamily();
+        this.updateText();
     }
 
     // ================================ UNLOAD =================================
@@ -31,6 +33,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             new Pinner(this.instances).unpinNode(this.id);
         }
         this.restoreGetSize();
+        this.resetText();
         super.unload();
     }
 
@@ -152,6 +155,43 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             textStyle.fontFamily = fontInterface;
             this.coreElement.text.style = textStyle;
         }
+    }
+
+    updateText(): void {
+        if (!this.coreElement.text || this.originalText !== null || !this.instances.settings.enableFeatures[this.instances.type]['names']) return;
+
+        let text = this.coreElement.text.text;
+
+        if (this.instances.settings.usePropertyForName) {
+            const file = getFile(this.id);
+            if (file) {
+                const values = getFileInteractives(this.instances.settings.usePropertyForName, file);
+                for (const value of values) {
+                    if (value !== undefined && value !== null) {
+                        text = value.toString();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (this.instances.settings.showOnlyFileName) {
+            text = text.split("/").last() || text;
+        }
+
+        if (this.instances.settings.numberOfCharacters && this.instances.settings.numberOfCharacters > 0) {
+            text = text.slice(0, this.instances.settings.numberOfCharacters);
+        }
+
+        if (text !== this.coreElement.text.text) {
+            this.originalText = this.coreElement.text.text;
+            this.coreElement.text.text = text;
+        }
+    }
+
+    resetText(): void {
+        if (!this.coreElement.text || this.originalText === null) return;
+        this.coreElement.text.text = this.originalText;
     }
 
     // ================================ GETTERS ================================

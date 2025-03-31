@@ -78,6 +78,11 @@ export interface ExtendedGraphSettings {
     borderUnresolved: number | string;
     invertArrows: boolean;
 
+    // Names
+    numberOfCharacters: number | null;
+    showOnlyFileName: boolean;
+    usePropertyForName: string | null;
+
     // Internal settings (not set by the user)
     collapseState: boolean;
     collapseLegend: boolean;
@@ -144,6 +149,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'source': false,
             'target': false,
             'elements-stats': true,
+            'names': false,
         },
         'localgraph': {
             'auto-enabled': false,
@@ -161,6 +167,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'source': false,
             'target': false,
             'elements-stats': true,
+            'names': false,
         }
     },
 
@@ -202,6 +209,11 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     focusScaleFactor: 1.8,
     borderUnresolved: '',
     invertArrows: false,
+
+    // Names
+    numberOfCharacters: null,
+    showOnlyFileName: false,
+    usePropertyForName: null,
 
     // Internal settings (not set by the user)
     collapseState: true,
