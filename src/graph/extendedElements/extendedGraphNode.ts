@@ -158,7 +158,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     updateText(): void {
-        if (!this.coreElement.text || this.originalText !== null || !this.instances.settings.enableFeatures[this.instances.type]['names']) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text || this.originalText !== null) return;
 
         let text = this.coreElement.text.text;
 
@@ -179,12 +179,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             text = text.split("/").last() || text;
         }
 
-        if (this.instances.settings.numberOfCharacters && this.instances.settings.numberOfCharacters > 0) {
-            text = text.slice(0, this.instances.settings.numberOfCharacters);
-        }
-
         if (this.instances.settings.noExtension) {
             text = text.replace(/\.[^/.]+$/, "");
+        }
+
+        if (this.instances.settings.numberOfCharacters && this.instances.settings.numberOfCharacters > 0) {
+            text = text.slice(0, this.instances.settings.numberOfCharacters);
         }
 
         if (text !== this.coreElement.text.text) {
