@@ -81,6 +81,7 @@ export interface ExtendedGraphSettings {
     // Names
     numberOfCharacters: number | null;
     showOnlyFileName: boolean;
+    noExtension: boolean;
     usePropertyForName: string | null;
 
     // Internal settings (not set by the user)
@@ -213,6 +214,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Names
     numberOfCharacters: null,
     showOnlyFileName: false,
+    noExtension: false,
     usePropertyForName: null,
 
     // Internal settings (not set by the user)

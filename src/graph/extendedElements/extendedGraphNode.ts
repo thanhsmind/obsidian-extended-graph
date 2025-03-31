@@ -183,6 +183,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             text = text.slice(0, this.instances.settings.numberOfCharacters);
         }
 
+        if (this.instances.settings.noExtension) {
+            text = text.replace(/\.[^/.]+$/, "");
+        }
+
         if (text !== this.coreElement.text.text) {
             this.originalText = this.coreElement.text.text;
             this.coreElement.text.text = text;

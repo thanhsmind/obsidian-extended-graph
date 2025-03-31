@@ -10,6 +10,7 @@ export class SettingNames extends SettingsSectionCollapsible {
     protected override addBody() {
         this.addNumberOfCharacters();
         this.addOnlyFilename();
+        this.addNoExtension();
         this.addUseProperty();
     }
 
@@ -39,6 +40,19 @@ export class SettingNames extends SettingsSectionCollapsible {
                 cb.setValue(PluginInstances.settings.showOnlyFileName);
                 cb.onChange(value => {
                     PluginInstances.settings.showOnlyFileName = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addNoExtension() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesNoExtension)
+            .setDesc(STRINGS.features.namesNoExtensionDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.noExtension);
+                cb.onChange(value => {
+                    PluginInstances.settings.noExtension = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

@@ -130,6 +130,8 @@ export default class STRINGS {
 		namesNumberOfCharactersDesc: "Maximum number of characters to display for the node name. Leave empty to display the full name.",
 		namesShowOnlyFileName: "Show only file name",
 		namesShowOnlyFileNameDesc: "Show only the file name without the path",
+		namesNoExtension: "No extension",
+		namesNoExtensionDesc: "Remove the file extension from the name",
 		namesUseProperty: "Use property",
 		namesUsePropertyDesc: "Use a property as the node name instead of the filename",
 		nodeSizesFunction: "Node size function",
