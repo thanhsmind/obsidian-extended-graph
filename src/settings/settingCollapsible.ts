@@ -1,5 +1,5 @@
 import { ToggleComponent } from "obsidian";
-import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, PluginInstances, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, makeCompatibleForClass, PluginInstances, SettingsSection } from "src/internal";
 
 
 export abstract class SettingsSectionCollapsible extends SettingsSection {
@@ -7,14 +7,14 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
     interactiveKey: string;
     itemClasses: string[] = [];
     toggles: Partial<Record<GraphType, HTMLDivElement>> = {};
-    
+
     constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, key: string, title: string, icon: string, description: string) {
         super(settingTab, title, icon, description);
 
         this.feature = feature;
         this.interactiveKey = key;
         this.itemClasses.push(`setting-${this.feature}`);
-        if (key !== '') this.itemClasses.push(`setting-${this.feature}-${key}`);
+        if (key !== '') this.itemClasses.push(`setting-${this.feature}-${makeCompatibleForClass(key)}`);
     }
 
     override display() {

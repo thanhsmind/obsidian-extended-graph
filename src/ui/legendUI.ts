@@ -1,5 +1,5 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, PluginInstances, TAG_KEY, textColor } from "src/internal";
+import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, makeCompatibleForClass, PluginInstances, TAG_KEY, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {
@@ -38,11 +38,11 @@ class LegendRow extends Setting {
                         this.enableAllButton.extraSettingsEl.remove();
                     });
             })
-            .setClass(`graph-legend-${name}s-row`);
+            .setClass(`${this.getClassName(name)}s-row`);
     }
 
     private getClassName(type: string): string {
-        return "graph-legend-" + type.replace(" ", "-");
+        return "graph-legend-" + makeCompatibleForClass(type);
     }
 
     addLegend(type: string, color: Uint8Array): void {
@@ -64,12 +64,12 @@ class LegendRow extends Setting {
                 });
         })
 
-        const sortByName = function(a: HTMLButtonElement, b: HTMLButtonElement) {
+        const sortByName = function (a: HTMLButtonElement, b: HTMLButtonElement) {
             return b.className.replace("graph-legend", "").toLowerCase().localeCompare(a.className.replace("graph-legend", "").toLowerCase());
         };
-    
+
         const sortedChildren = Array.from(this.controlEl.getElementsByClassName("graph-legend")).sort(sortByName);
-        for (let i = sortedChildren.length-1; i >= 0; i--) {
+        for (let i = sortedChildren.length - 1; i >= 0; i--) {
             this.controlEl.appendChild(sortedChildren[i]);
         }
     }
@@ -127,7 +127,7 @@ class LegendRow extends Setting {
     }
 
     disableAll() {
-        for(const type of this.manager.getTypes()) {
+        for (const type of this.manager.getTypes()) {
             this.disable(type);
         }
         this.manager.disable(this.manager.getTypes());
@@ -136,7 +136,7 @@ class LegendRow extends Setting {
     }
 
     enableAll() {
-        for(const type of this.manager.getTypes()) {
+        for (const type of this.manager.getTypes()) {
             this.enable(type);
         }
         this.manager.enable(this.manager.getTypes());
@@ -152,7 +152,7 @@ export class LegendUI extends Component implements InteractiveUI {
     legendRows: Map<string, LegendRow>;
 
     isOpen: boolean;
-    
+
     root: HTMLDivElement;
     toggleButton: ExtraButtonComponent;
 
@@ -160,7 +160,7 @@ export class LegendUI extends Component implements InteractiveUI {
         super();
         this.instances = instances;
         this.viewContent = instances.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
-    
+
         // TOGGLE BUTTON
         const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)

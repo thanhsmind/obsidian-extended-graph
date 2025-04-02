@@ -26,15 +26,19 @@ export function getLinkDestination(link: string): string {
     return link.replace("[[", "").replace("]]", "");
 }
 
+export function makeCompatibleForClass(str: string): string {
+    return str.replaceAll(" ", "-").replaceAll(/[~!@$%^&*()+=,.\\\/';:"?><[\]{}|`#]/g, "");
+}
+
 
 // Code from the Dataview plugin, under MIT License
 // https://github.com/blacksmithgu/obsidian-dataview/blob/master/src/util/normalize.ts
 const VAR_NAME_CANONICALIZER: P.Parser<string> = P.alt(
-        P.regex(new RegExp(emojiRegex(), "")),
-        P.regex(/[0-9\p{Letter}_-]+/u).map((str: string) => str.toLocaleLowerCase()),
-        P.whitespace.map((_: any) => "-"),
-        P.any.map((_: any) => "")
-    )
+    P.regex(new RegExp(emojiRegex(), "")),
+    P.regex(/[0-9\p{Letter}_-]+/u).map((str: string) => str.toLocaleLowerCase()),
+    P.whitespace.map((_: any) => "-"),
+    P.any.map((_: any) => "")
+)
     .many()
     .map((result: string[]) => result.join(""));
 
