@@ -28,16 +28,26 @@ export function hasIconInIconize(fullpath: string): boolean {
         || !iconize.hasOwnProperty("api")
         || !iconize.api.hasOwnProperty("util")
         || !iconize.api.util.hasOwnProperty("dom")
-        || !iconize.api.util.dom.hasOwnProperty("getIconNodeFromPath")) return false;
+        || !iconize.api.util.dom.hasOwnProperty("getIconNodeFromPath")
+        || !iconize.hasOwnProperty("data")) return false;
 
     const paths = getListOfSubpaths(fullpath).reverse();
 
     for (const path of paths) {
+        // Check if there is an icon for the path
         const iconNode = iconize.api.util.dom.getIconNodeFromPath(path);
-        if (!iconNode) continue;
+        if (iconNode) {
+            const svg = iconNode.querySelector("svg") as SVGSVGElement;
+            if (svg) return true;
+        }
 
-        const svg = iconNode.querySelector("svg") as SVGSVGElement;
-        if (svg) return true;
+        // Check if there is an emoji for the path
+        if (iconize.data.hasOwnProperty(path)) {
+            const emoji = iconize.data[path];
+            if (typeof emoji === "string" && emoji !== "") {
+                return true;
+            }
+        }
     }
 
     return false;
@@ -60,20 +70,32 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement, color: str
     return { svg, color };
 }
 
-export function getSvgFromIconize(path: string): { svg: SVGSVGElement, color: string | null } | null {
+export function getSvgFromIconize(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
     const iconize: IconizePlugin | null = PluginInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
     if (!iconize) return null;
 
+    // Try to get an SVG
     const iconNode = iconize.api.util.dom.getIconNodeFromPath(path);
-    if (!iconNode) return null;
-    const svg = iconNode.querySelector("svg") as SVGSVGElement;
-    if (!svg) return null;
-
-    if (!iconize.hasOwnProperty("data")
-        || !iconize.data.hasOwnProperty(path)
-        || !iconize.data[path].hasOwnProperty("iconColor")) {
-        return { svg, color: null };
+    if (iconNode) {
+        const svg = iconNode.querySelector("svg") as SVGSVGElement;
+        if (svg) {
+            if (!iconize.hasOwnProperty("data")
+                || !iconize.data.hasOwnProperty(path)
+                || !iconize.data[path].hasOwnProperty("iconColor")) {
+                return { svg, color: null, emoji: null };
+            }
+            const color = iconize.data[path].iconColor;
+            return { svg: svg.cloneNode(true) as SVGSVGElement, color, emoji: null };
+        }
     }
-    const color = iconize.data[path].iconColor;
-    return { svg: svg.cloneNode(true) as SVGSVGElement, color };
+
+    // Try to get an emoji
+    if (iconize.data.hasOwnProperty(path)) {
+        const emoji = iconize.data[path];
+        if (typeof emoji === "string" && emoji !== "") {
+            return { svg: null, color: null, emoji };
+        }
+    }
+
+    return null;
 }

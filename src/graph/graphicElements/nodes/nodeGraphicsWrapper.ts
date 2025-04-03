@@ -1,5 +1,5 @@
 import { getIcon } from 'obsidian';
-import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
+import { Assets, ColorSource, Container, Sprite, Text, Texture } from 'pixi.js';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
 import { ExtendedGraphNode, getBackgroundColor, getFile, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphicsWrapper, IconicPlugin, IconizePlugin, int2hex, NodeShape, PluginInstances, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
 
@@ -70,6 +70,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     private initIcon() {
         let svg: SVGSVGElement | null = null;
         let color: string | null = null;
+        let emoji: string | null = null;
 
         // Recursively get icon for file, or if it doesn't exist, for parent folders
         const fullpath = this.extendedElement.id; // full path with filename
@@ -83,6 +84,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
                 if (fromIconize) {
                     svg = fromIconize.svg;
                     color = fromIconize.color;
+                    emoji = fromIconize.emoji;
                     break;
                 }
             }
@@ -92,40 +94,55 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
                 break;
             }
         }
-        if (!svg) return;
 
+        // If an svg was found, create an asset and use it
+        if (svg) {
+            svg.setAttribute("stroke", "white");
+            const s = new XMLSerializer();
+            const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`;
 
-        svg.setAttribute("stroke", "white");
-        const s = new XMLSerializer();
-        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`;
+            this.pixiElement.sortableChildren = true;
+            const createSprite = (texture: Texture) => {
+                const sprite = new Sprite(texture);
+                sprite.name = "icon";
+                sprite.anchor.set(0.5, 0.5);
+                sprite.height = 200;
+                sprite.width = 200;
+                sprite.tint = color || this.getFillColor().rgb;
+                this.pixiElement.addChild(sprite);
+            }
 
-        this.pixiElement.sortableChildren = true;
-        const createSprite = (texture: Texture) => {
-            const sprite = new Sprite(texture);
-            sprite.name = "icon";
-            sprite.anchor.set(0.5, 0.5);
-            sprite.height = 200;
-            sprite.width = 200;
-            sprite.tint = color || this.getFillColor().rgb;
-            this.pixiElement.addChild(sprite);
+            // Lower resolution, better performance
+            /*Assets.load(svgDataUrl).then(texture => {
+                createSprite(texture);
+            });*/
+
+            // Higher resolution, worse performance
+            const texture = Texture.from(svgDataUrl, { resourceOptions: { scale: 40 / svg.width.baseVal.value } });
+            createSprite(texture);
         }
 
-        // Lower resolution, better performance
-        /*Assets.load(svgDataUrl).then(texture => {
-            createSprite(texture);
-        });*/
-
-        // Higher resolution, worse performance
-        const texture = Texture.from(svgDataUrl, { resourceOptions: { scale: 40 / svg.width.baseVal.value } });
-        createSprite(texture);
+        // If an emoji was found, create a text element
+        else if (emoji) {
+            const emojiText = new Text(emoji, {
+                fontFamily: "Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Android Emoji, EmojiSymbols, Symbola, Twemoji Mozilla, Twemoji Mozilla Color Emoji, Twemoji Mozilla Color Emoji 13.1.0",
+                fontSize: 150,
+                align: "center",
+            });
+            emojiText.name = "icon";
+            emojiText.anchor.set(0.5, 0.5);
+            this.pixiElement.addChild(emojiText);
+        }
 
         // Hide circle
-        this.iconBackgroundLayer = new NodeShape(this.shape);
-        this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
-        this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
-        this.iconBackgroundLayer.alpha = 10;
-        this.iconBackgroundLayer.zIndex = -1;
-        this.pixiElement.addChild(this.iconBackgroundLayer);
+        if (svg || emoji) {
+            this.iconBackgroundLayer = new NodeShape(this.shape);
+            this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
+            this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
+            this.iconBackgroundLayer.alpha = 10;
+            this.iconBackgroundLayer.zIndex = -1;
+            this.pixiElement.addChildAt(this.iconBackgroundLayer, 0);
+        }
     }
 
     updateIconBackgroundLayerColor(backgroundColor: ColorSource): void {
