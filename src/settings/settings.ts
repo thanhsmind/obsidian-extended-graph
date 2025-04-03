@@ -151,6 +151,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'target': false,
             'elements-stats': true,
             'names': false,
+            'icons': true,
         },
         'localgraph': {
             'auto-enabled': false,
@@ -169,6 +170,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'target': false,
             'elements-stats': true,
             'names': false,
+            'icons': false,
         }
     },
 

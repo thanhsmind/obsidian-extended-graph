@@ -26,7 +26,6 @@ export class LinkLineGraphics extends LinkGraphics {
     }
 
     override updateFrame(): void {
-        console.log("updateFrame");
         this.extendedLink.coreElement.arrow?.position.set(100, 0);
     }
 }

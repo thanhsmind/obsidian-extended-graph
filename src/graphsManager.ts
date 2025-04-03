@@ -154,8 +154,7 @@ export class GraphsManager extends Component {
     private onCSSChange() {
         this.allInstances.forEach(instance => {
             if (instance.nodesSet) {
-                instance.nodesSet.updateOpacityLayerColor();
-                instance.nodesSet.updateFontFamily();
+                instance.nodesSet.onCSSChange();
                 instance.renderer.changed();
             }
         });

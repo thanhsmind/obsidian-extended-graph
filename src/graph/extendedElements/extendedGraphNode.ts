@@ -1,7 +1,7 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { Graphics } from "pixi.js";
+import { Graphics, Sprite, Texture } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
-import { ExtendedGraphElement, GraphInstances, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
+import { ExtendedGraphElement, getBackgroundColor, GraphInstances, hasIconInIconic, hasIconInIconize, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
@@ -40,12 +40,17 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== GRAPHICS ================================
 
     protected needGraphicsWrapper(): boolean {
-        return this.needPin() || this.needOpacityLayer();
+        return this.needPin() || this.needOpacityLayer() || this.needIcon();
     }
 
     public needOpacityLayer(): boolean { return this.instances.settings.fadeOnDisable; }
 
     public needPin(): boolean { return true; }
+
+    public needIcon(): boolean {
+        return this.instances.settings.enableFeatures[this.instances.type]['icons']
+            && (hasIconInIconic(this.id) || hasIconInIconize(this.id));
+    }
 
     protected abstract createGraphicsWrapper(): void;
 
@@ -142,6 +147,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     protected override getCoreParentGraphics(coreElement: GraphNode): Graphics | null {
         return coreElement.circle;
     }
+
+    // ================================= TEXT ==================================
 
     updateFontFamily(): void {
         if (!this.coreElement.text) return;

@@ -92,6 +92,7 @@ export * from "./suggester/PropertiesSuggester";
 
 export * from "./svg/exportToSVG";
 
+export * from "./types/plugins";
 export * from "./types/restrictedStrings";
 export * from "./types/workspace";
 
@@ -121,5 +122,6 @@ export * from "./helpers/color";
 export * from "./helpers/html";
 export * from "./helpers/math";
 export * from "./helpers/media";
+export * from "./helpers/plugins";
 export * from "./helpers/strings";
 export * from "./helpers/vault";

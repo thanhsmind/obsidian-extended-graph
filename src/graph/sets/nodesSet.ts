@@ -200,18 +200,18 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // ================================== CSS ==================================
 
-    /**
-     * Update the background color. Called when the theme changes.
-     */
-    updateOpacityLayerColor(): void {
+    updateOpacityLayerColor() {
         const color = getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
     }
 
-    updateFontFamily(): void {
+    onCSSChange(): void {
+        const color = getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
+            extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
+            extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
             extendedNode.updateFontFamily();
         });
     }

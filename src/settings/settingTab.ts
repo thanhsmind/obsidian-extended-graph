@@ -30,6 +30,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addDisableNodes();
         this.addBorderUnresolved();
         this.addInvertArrows();
+        this.addIcons();
 
         // FEATURES
         for (const section of this.sections) {
@@ -113,6 +114,28 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 cb.setValue(PluginInstances.settings.invertArrows);
                 cb.onChange(value => {
                     PluginInstances.settings.invertArrows = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
+    }
+
+    addIcons(): void {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.icons)
+            .setDesc(STRINGS.features.iconsDesc)
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['graph']['icons']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['graph']['icons'] = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            })
+            .addToggle(cb => {
+                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
+                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['icons']);
+                cb.onChange(value => {
+                    PluginInstances.settings.enableFeatures['localgraph']['icons'] = value;
                     PluginInstances.plugin.saveSettings();
                 })
             });

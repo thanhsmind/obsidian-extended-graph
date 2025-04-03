@@ -55,6 +55,8 @@ export default class STRINGS {
 		foldersDesc: "Display folder boxes",
 		globalFilter: "Global filter",
 		globalFilterDesc: "This filter query will be prepend at the beginning of every graph filter",
+		icons: "Use icons for nodes",
+		iconsDesc: "Requires \"Iconic\" community plugin or \"Iconize\" community plugin, icons set in the file explorer will be used in the graph view",
 		image: "Image",
 		imageDesc: "Display image on top of nodes",
 		imagesAllowExternal: "Allow images from the web",

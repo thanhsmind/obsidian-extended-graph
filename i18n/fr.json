@@ -48,6 +48,8 @@
 		"foldersDesc": "Affiche des boîtes englobantes pour les dossiers",
 		"globalFilter": "Filtre global",
 		"globalFilterDesc": "Ce filtre sera ajouté au début de chaque filtre des vues graphiques",
+		"icons": "Utilise des icônes pour les noeuds",
+		"iconsDesc": "Nécessite le module communautaire \"Iconic\" ou \"Iconize\", les icônes choisis dans l'explorateur de fichiers seront affichées dans le graphe",
 		"image": "Image",
 		"imageDesc": "Affiche les images dans les noeuds",
 		"imagesAllowExternal": "Autorise les images web",
