@@ -40,37 +40,58 @@ export class NodesSet extends AbstractSet<GraphNode> {
     private loadAssets(ids: Set<string>): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
-            && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) return;
+            && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']
+            && !this.instances.settings.enableFeatures[this.instances.type]['icons']) return;
 
 
         for (const id of ids) {
             this.getImageURI(id).then(imageURI => {
                 if (imageURI) {
-                    Assets.load(imageURI).then((texture: Texture) => {
-                        this.initNodeImages(id, texture);
-                    });
+                    if (imageURI.type === "image") {
+                        Assets.load(imageURI.uri).then((texture: Texture) => {
+                            this.initNodeImages(id, texture);
+                        });
+                    }
+                    else if (imageURI.type === "icon") {
+                        const extendedNode = this.extendedElementsMap.get(id);
+                        extendedNode?.graphicsWrapper?.initIcon();
+                    }
                 }
             });
         }
     }
 
-    private async getImageURI(id: string): Promise<string | null> {
+    private async getImageURI(id: string): Promise<{ uri: string, type: 'icon' | 'image' } | null> {
         const extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode || !extendedNode.graphicsWrapper) return null;
 
         let imageUri: string | null = null;
 
-        if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
-            imageUri = await Media.getImageUriFromProperty(this.instances.settings.imageProperty, id);
-        }
-        if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
-            imageUri = await Media.getImageUriFromEmbeds(id);
-        }
-        if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
-            imageUri = await Media.getImageUriForAttachment(id);
+        // Priority to images
+        if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
+            || this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
+            || this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) {
+
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
+                imageUri = await Media.getImageUriFromProperty(this.instances.settings.imageProperty, id);
+            }
+            if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
+                imageUri = await Media.getImageUriFromEmbeds(id);
+            }
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
+                imageUri = await Media.getImageUriForAttachment(id);
+            }
+
+            if (imageUri) return { uri: imageUri, type: 'image' }
         }
 
-        return imageUri;
+        // Then, icons (or emojis)
+        if (this.instances.settings.enableFeatures[this.instances.type]['icons']) {
+            const icon = extendedNode.getIcon();
+            if (icon?.svg || icon?.emoji) return { uri: "", type: "icon" }
+        }
+
+        return null;
     }
 
     private initNodeImages(id: string, texture: Texture): void {

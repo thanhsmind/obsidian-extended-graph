@@ -1,3 +1,4 @@
+import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics, Sprite, Texture } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
@@ -55,9 +56,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     public needPin(): boolean { return true; }
 
-    public getIcon() {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['icons']) return;
+    public needIcon(): boolean { return this.instances.settings.enableFeatures[this.instances.type]['icons']; }
 
+    public getIcon() {
         // Recursively get icon for file, or if it doesn't exist, for parent folders
         const fullpath = this.id; // full path with filename
         const paths = getListOfSubpaths(fullpath).reverse();
@@ -100,6 +101,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
 
         if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
+
+        return this.icon;
     }
 
     protected abstract createGraphicsWrapper(): void;

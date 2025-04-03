@@ -49,7 +49,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
     initGraphics(): void {
         this.placeNode();
-        if (this.extendedElement.icon) this.initIcon();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         this.connect();
     }
@@ -67,7 +66,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.pixiElement.addChild(this.opacityLayer);
     }
 
-    private initIcon() {
+    initIcon() {
         if (!this.extendedElement.icon) return;
         if (!this.extendedElement.icon.svg && !this.extendedElement.icon.emoji) return;
 
@@ -114,6 +113,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
         // Hide circle
         this.iconBackgroundLayer = new NodeShape(this.shape);
+        this.iconBackgroundLayer.name = "icon-background";
         this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
         this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
         this.iconBackgroundLayer.alpha = 10;

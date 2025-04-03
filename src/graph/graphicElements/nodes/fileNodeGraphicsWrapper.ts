@@ -17,7 +17,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         if (this.extendedElement.needBackground()) this.initBackground();
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
     }
-    
+
     private initArcsWrapper() {
         this.managerGraphicsMap = new Map<string, ArcsCircle>();
     }
@@ -33,8 +33,10 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
-        this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
-        this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
+        if (texture) {
+            this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
+            this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
+        }
     }
 
     createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
@@ -71,7 +73,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     override clearGraphics(): void {
         this.background?.destroy();
-        this.nodeImage?.destroy({children: true});
+        this.nodeImage?.destroy({ children: true });
         if (this.managerGraphicsMap) {
             for (const arcWrapper of this.managerGraphicsMap.values()) {
                 arcWrapper.clearGraphics();
@@ -79,7 +81,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         }
         super.clearGraphics();
     }
-    
+
     // =============================== EMPHASIZE ===============================
 
     emphasize(bigger: boolean) {
