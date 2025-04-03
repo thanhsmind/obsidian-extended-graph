@@ -1,7 +1,7 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics, Sprite, Texture } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
-import { ExtendedGraphElement, getBackgroundColor, GraphInstances, hasIconInIconic, hasIconInIconize, InteractiveManager, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
+import { ExtendedGraphElement, getBackgroundColor, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphInstances, InteractiveManager, isEmoji, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
@@ -13,6 +13,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     graphicsWrapperScale: number = 1;
     radius: number = NodeShape.RADIUS;
     coreGetSize?: () => number;
+
+    // icon
+    icon: {
+        svg: SVGSVGElement | null,
+        color: string | null,
+        emoji: string | null
+    } | null = null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -40,16 +47,59 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== GRAPHICS ================================
 
     protected needGraphicsWrapper(): boolean {
-        return this.needPin() || this.needOpacityLayer() || this.needIcon();
+        this.getIcon();
+        return this.needPin() || this.needOpacityLayer() || !!this.icon;
     }
 
     public needOpacityLayer(): boolean { return this.instances.settings.fadeOnDisable; }
 
     public needPin(): boolean { return true; }
 
-    public needIcon(): boolean {
-        return this.instances.settings.enableFeatures[this.instances.type]['icons']
-            && (hasIconInIconic(this.id) || hasIconInIconize(this.id));
+    public getIcon() {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['icons']) return;
+
+        // Recursively get icon for file, or if it doesn't exist, for parent folders
+        const fullpath = this.id; // full path with filename
+        const paths = getListOfSubpaths(fullpath).reverse();
+
+        // try to find in properties
+        if (this.instances.settings.iconProperty !== "") {
+            const file = getFile(this.id);
+            if (file) {
+                const iconList = getFileInteractives(this.instances.settings.iconProperty, file);
+                for (const iconString of iconList) {
+                    if (isEmoji(iconString)) {
+                        this.icon = { svg: null, color: null, emoji: iconString };
+                        break;
+                    }
+                    const svg = getIcon(iconString);
+                    if (svg) {
+                        svg.setAttribute("stroke", "white");
+                        this.icon = { svg: svg, color: null, emoji: null };
+                        break;
+                    }
+                }
+            }
+        }
+
+        // try to find with plugins
+        if (!this.icon && this.instances.settings.usePluginForIcon) {
+            for (const path of paths) {
+                this.icon = getSvgFromIconic(path);
+                if (!this.icon) {
+                    this.icon = getSvgFromIconize(path);
+                }
+                if (this.icon) {
+                    break;
+                }
+            }
+            this.icon?.svg?.setAttribute("stroke", "white");
+        }
+        if (this.icon && !this.instances.settings.usePluginForIconColor) {
+            this.icon.color = null;
+        }
+
+        if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
     }
 
     protected abstract createGraphicsWrapper(): void;

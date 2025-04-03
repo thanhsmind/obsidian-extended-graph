@@ -1,5 +1,5 @@
 import { PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames } from "src/internal";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames, SettingIcons } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -14,6 +14,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingLinks(this));
         this.sections.push(new SettingFolders(this));
         this.sections.push(new SettingImages(this));
+        this.sections.push(new SettingIcons(this));
         this.sections.push(new SettingFocus(this));
         this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingElementsStats(this));
@@ -30,7 +31,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addDisableNodes();
         this.addBorderUnresolved();
         this.addInvertArrows();
-        this.addIcons();
 
         // FEATURES
         for (const section of this.sections) {
@@ -114,28 +114,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 cb.setValue(PluginInstances.settings.invertArrows);
                 cb.onChange(value => {
                     PluginInstances.settings.invertArrows = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            });
-    }
-
-    addIcons(): void {
-        new Setting(this.containerEl)
-            .setName(STRINGS.features.icons)
-            .setDesc(STRINGS.features.iconsDesc)
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['icons']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['icons'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['icons']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['icons'] = value;
                     PluginInstances.plugin.saveSettings();
                 })
             });

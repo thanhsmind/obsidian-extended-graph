@@ -32,13 +32,13 @@ export class PropertiesSuggester extends AbstractInputSuggest<HTMLElement> {
         });
     }
 
-    renderSuggestion(value: HTMLElement, el: HTMLElement): void {
+    override renderSuggestion(value: HTMLElement, el: HTMLElement): void {
         value.childNodes.forEach((childNode) => {
             el.appendChild(childNode.cloneNode(true));
         });
     }
 
-    selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {
+    override selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {
         this.setValue(value.innerText);
         this.callback(value.innerText);
         this.close();

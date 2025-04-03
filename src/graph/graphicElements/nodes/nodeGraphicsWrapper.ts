@@ -49,7 +49,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
     initGraphics(): void {
         this.placeNode();
-        if (this.extendedElement.needIcon()) this.initIcon();
+        if (this.extendedElement.icon) this.initIcon();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         this.connect();
     }
@@ -68,37 +68,14 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     }
 
     private initIcon() {
-        let svg: SVGSVGElement | null = null;
-        let color: string | null = null;
-        let emoji: string | null = null;
-
-        // Recursively get icon for file, or if it doesn't exist, for parent folders
-        const fullpath = this.extendedElement.id; // full path with filename
-        // list of subpaths, removing the last element each time
-
-        const paths = getListOfSubpaths(fullpath).reverse();
-        for (const path of paths) {
-            const fromIconic = getSvgFromIconic(path);
-            if (fromIconic) {
-                svg = fromIconic.svg;
-                color = fromIconic.color;
-                emoji = fromIconic.emoji;
-                break;
-            }
-            else {
-                const fromIconize = getSvgFromIconize(path);
-                if (fromIconize) {
-                    svg = fromIconize.svg;
-                    color = fromIconize.color;
-                    emoji = fromIconize.emoji;
-                    break;
-                }
-            }
-        }
+        if (!this.extendedElement.icon) return;
+        if (!this.extendedElement.icon.svg && !this.extendedElement.icon.emoji) return;
 
         // If an svg was found, create an asset and use it
-        if (svg) {
-            svg.setAttribute("stroke", "white");
+        if (this.extendedElement.icon.svg) {
+            const svg = this.extendedElement.icon.svg;
+            const color = this.extendedElement.icon.color || this.getFillColor().rgb;
+
             const s = new XMLSerializer();
             const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`;
 
@@ -109,7 +86,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
                 sprite.anchor.set(0.5, 0.5);
                 sprite.height = 200;
                 sprite.width = 200;
-                sprite.tint = color || this.getFillColor().rgb;
+                sprite.tint = color;
                 this.pixiElement.addChild(sprite);
             }
 
@@ -124,8 +101,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         }
 
         // If an emoji was found, create a text element
-        else if (emoji) {
-            const emojiText = new Text(emoji, {
+        else if (this.extendedElement.icon.emoji) {
+            const emojiText = new Text(this.extendedElement.icon.emoji, {
                 fontFamily: "Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Android Emoji, EmojiSymbols, Symbola, Twemoji Mozilla, Twemoji Mozilla Color Emoji, Twemoji Mozilla Color Emoji 13.1.0",
                 fontSize: 150,
                 align: "center",
@@ -136,14 +113,12 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         }
 
         // Hide circle
-        if (svg || emoji) {
-            this.iconBackgroundLayer = new NodeShape(this.shape);
-            this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
-            this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
-            this.iconBackgroundLayer.alpha = 10;
-            this.iconBackgroundLayer.zIndex = -1;
-            this.pixiElement.addChildAt(this.iconBackgroundLayer, 0);
-        }
+        this.iconBackgroundLayer = new NodeShape(this.shape);
+        this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
+        this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
+        this.iconBackgroundLayer.alpha = 10;
+        this.iconBackgroundLayer.zIndex = -1;
+        this.pixiElement.addChildAt(this.iconBackgroundLayer, 0);
     }
 
     updateIconBackgroundLayerColor(backgroundColor: ColorSource): void {

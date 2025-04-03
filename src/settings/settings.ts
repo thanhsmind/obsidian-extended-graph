@@ -84,6 +84,11 @@ export interface ExtendedGraphSettings {
     noExtension: boolean;
     usePropertyForName: string | null;
 
+    // Icons
+    iconProperty: string;
+    usePluginForIcon: boolean;
+    usePluginForIconColor: boolean;
+
     // Internal settings (not set by the user)
     collapseState: boolean;
     collapseLegend: boolean;
@@ -218,6 +223,11 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     showOnlyFileName: false,
     noExtension: false,
     usePropertyForName: null,
+
+    // Icons
+    iconProperty: "",
+    usePluginForIcon: true,
+    usePluginForIconColor: true,
 
     // Internal settings (not set by the user)
     collapseState: true,
