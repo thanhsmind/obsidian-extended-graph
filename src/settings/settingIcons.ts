@@ -4,6 +4,7 @@ import STRINGS from "src/Strings";
 
 export class SettingIcons extends SettingsSectionCollapsible {
     colorSetting: Setting | undefined;
+    parentSetting: Setting | undefined;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'icons', '', STRINGS.features.icons, 'origami', STRINGS.features.iconsDesc);
@@ -44,6 +45,7 @@ export class SettingIcons extends SettingsSectionCollapsible {
                         PluginInstances.settings.usePluginForIcon = value;
                         PluginInstances.plugin.saveSettings();
                         this.colorSetting?.setVisibility(value);
+                        this.parentSetting?.setVisibility(value);
                     })
                 }).settingEl
         );
@@ -60,5 +62,18 @@ export class SettingIcons extends SettingsSectionCollapsible {
             });
         this.colorSetting?.setVisibility(PluginInstances.settings.usePluginForIcon);
         this.elementsBody.push(this.colorSetting.settingEl);
+
+        this.parentSetting = new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.iconUseParentIcon)
+            .setDesc(STRINGS.features.iconUseParentIconDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.useParentIcon);
+                cb.onChange((value) => {
+                    PluginInstances.settings.useParentIcon = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
+        this.parentSetting?.setVisibility(PluginInstances.settings.usePluginForIcon);
+        this.elementsBody.push(this.parentSetting.settingEl);
     }
 }

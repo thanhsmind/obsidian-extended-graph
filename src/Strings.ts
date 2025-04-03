@@ -63,6 +63,8 @@ export default class STRINGS {
 		iconUsePluginDesc: "Use the icons set in the file explorer via \"Iconic\" or \"Iconize\" community plugins",
 		iconUsePluginColor: "Use \"Iconic\" or \"Iconize\" for color",
 		iconUsePluginColorDesc: "Use the color of the icons set in the file explorer via \"Iconic\" or \"Iconize\"",
+		iconUseParentIcon: "Use the icon of a parent folder",
+		iconUseParentIconDesc: "If no icon is set on the file itself with \"Iconic\" or \"Iconize\", it will try to find one set on a parent folder",
 		image: "Image",
 		imageDesc: "Display image on top of nodes",
 		imagesAllowExternal: "Allow images from the web",

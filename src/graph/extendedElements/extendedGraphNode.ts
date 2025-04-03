@@ -60,8 +60,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     public getIcon() {
         // Recursively get icon for file, or if it doesn't exist, for parent folders
-        const fullpath = this.id; // full path with filename
-        const paths = getListOfSubpaths(fullpath).reverse();
+        const paths = this.instances.settings.useParentIcon ? getListOfSubpaths(this.id).reverse() : [this.id];
 
         // try to find in properties
         if (this.instances.settings.iconProperty !== "") {
