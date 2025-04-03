@@ -1,7 +1,7 @@
 import { getIcon } from 'obsidian';
 import { Assets, ColorSource, Container, Sprite, Texture } from 'pixi.js';
 import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { ExtendedGraphNode, getBackgroundColor, getFile, GraphicsWrapper, IconicPlugin, IconizePlugin, int2hex, NodeShape, PluginInstances, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
+import { ExtendedGraphNode, getBackgroundColor, getFile, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphicsWrapper, IconicPlugin, IconizePlugin, int2hex, NodeShape, PluginInstances, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
@@ -67,87 +67,65 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.pixiElement.addChild(this.opacityLayer);
     }
 
-    private getSvgFromIconic(): SVGSVGElement | null {
-        const iconic: IconicPlugin | null = PluginInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
-        if (!iconic || !iconic.settings.fileIcons.hasOwnProperty(this.extendedElement.id)) return null;
-
-        const data = iconic.settings.fileIcons[this.extendedElement.id];
-        const svg = getIcon(data.icon);
-        if (!svg) return null;
-
-        const bodyStyle = getComputedStyle(document.body);
-        let color: string;
-        if (data.hasOwnProperty("color")) {
-            color = bodyStyle.getPropertyValue(`--color-${data.color}`) || bodyStyle.getPropertyValue("--graph-node") || bodyStyle.getPropertyValue("--color-base-00");
-        }
-        else {
-            color = int2hex(this.getFillColor().rgb);
-        }
-
-        svg.setAttribute("stroke", color);
-        return svg;
-    }
-
-    private getSvgFromIconize(): SVGSVGElement | null {
-        const iconize: IconizePlugin | null = PluginInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
-        if (!iconize || !iconize.api.util.dom.hasOwnProperty("getIconNodeFromPath")) return null;
-
-        const iconNode = iconize.api.util.dom.getIconNodeFromPath(this.extendedElement.id);
-        const svg = iconNode.querySelector("svg") as SVGSVGElement;
-        if (!svg) return null;
-
-        if (!iconize.hasOwnProperty("data")
-            || !iconize.data.hasOwnProperty(this.extendedElement.id)
-            || !iconize.data[this.extendedElement.id].hasOwnProperty("iconColor")) {
-            const bodyStyle = getComputedStyle(document.body);
-            const color = bodyStyle.getPropertyValue("--graph-node") || bodyStyle.getPropertyValue("--color-base-00");
-            svg.setAttribute("stroke", color);
-            return svg;
-        }
-        const color = iconize.data[this.extendedElement.id].iconColor;
-        svg.setAttribute("stroke", color);
-        return svg;
-    }
-
     private initIcon() {
         let svg: SVGSVGElement | null = null;
+        let color: string | null = null;
 
-        svg = this.getSvgFromIconic();
-        if (!svg) {
-            svg = this.getSvgFromIconize();
-        }
+        // Recursively get icon for file, or if it doesn't exist, for parent folders
+        const fullpath = this.extendedElement.id; // full path with filename
+        // list of subpaths, removing the last element each time
 
-        if (svg) {
-            const s = new XMLSerializer();
-            const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`;
-
-            this.pixiElement.sortableChildren = true;
-            const createSprite = (texture: Texture) => {
-                const sprite = new Sprite(texture);
-                sprite.name = "icon";
-                sprite.anchor.set(0.5, 0.5);
-                sprite.height = 200;
-                sprite.width = 200;
-                this.pixiElement.addChild(sprite);
+        const paths = getListOfSubpaths(fullpath).reverse();
+        for (const path of paths) {
+            const fromIconic = getSvgFromIconic(path);
+            if (!fromIconic) {
+                const fromIconize = getSvgFromIconize(path);
+                if (fromIconize) {
+                    svg = fromIconize.svg;
+                    color = fromIconize.color;
+                    break;
+                }
             }
-
-            // Lower resolution, better performance
-            /*Assets.load(svgDataUrl).then(texture => {
-                createSprite(texture);
-            });*/
-
-            // Higher resolution, worse performance
-            const texture = Texture.from(svgDataUrl, { resourceOptions: { scale: 12 / svg.width.baseVal.value * 3 } });
-            createSprite(texture);
-
-            // Hide circle
-            this.iconBackgroundLayer = new NodeShape(this.shape);
-            this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
-            this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
-            this.iconBackgroundLayer.alpha = 10;
-            this.iconBackgroundLayer.zIndex = -1;
-            this.pixiElement.addChild(this.iconBackgroundLayer);
+            else {
+                svg = fromIconic.svg;
+                color = fromIconic.color;
+                break;
+            }
         }
+        if (!svg) return;
+
+
+        svg.setAttribute("stroke", "white");
+        const s = new XMLSerializer();
+        const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`;
+
+        this.pixiElement.sortableChildren = true;
+        const createSprite = (texture: Texture) => {
+            const sprite = new Sprite(texture);
+            sprite.name = "icon";
+            sprite.anchor.set(0.5, 0.5);
+            sprite.height = 200;
+            sprite.width = 200;
+            sprite.tint = color || this.getFillColor().rgb;
+            this.pixiElement.addChild(sprite);
+        }
+
+        // Lower resolution, better performance
+        /*Assets.load(svgDataUrl).then(texture => {
+            createSprite(texture);
+        });*/
+
+        // Higher resolution, worse performance
+        const texture = Texture.from(svgDataUrl, { resourceOptions: { scale: 40 / svg.width.baseVal.value } });
+        createSprite(texture);
+
+        // Hide circle
+        this.iconBackgroundLayer = new NodeShape(this.shape);
+        this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
+        this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
+        this.iconBackgroundLayer.alpha = 10;
+        this.iconBackgroundLayer.zIndex = -1;
+        this.pixiElement.addChild(this.iconBackgroundLayer);
     }
 
     updateIconBackgroundLayerColor(backgroundColor: ColorSource): void {

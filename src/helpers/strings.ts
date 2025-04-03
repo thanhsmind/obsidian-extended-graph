@@ -30,6 +30,16 @@ export function makeCompatibleForClass(str: string): string {
     return str.replaceAll(" ", "-").replaceAll(/[~!@$%^&*()+=,.\\\/';:"?><[\]{}|`#]/g, "");
 }
 
+export function getListOfSubpaths(fullpath: string): string[] {
+    return fullpath.split("/").reduce((acc: string[], el: string, i: number) => {
+        if (el === "") return acc;
+        const last = acc.last();
+        if (last && last !== "") acc.push(last + "/" + el);
+        else acc.push(el);
+        return acc;
+    }, []);
+}
+
 
 // Code from the Dataview plugin, under MIT License
 // https://github.com/blacksmithgu/obsidian-dataview/blob/master/src/util/normalize.ts
