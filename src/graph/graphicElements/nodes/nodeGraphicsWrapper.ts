@@ -79,7 +79,13 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         const paths = getListOfSubpaths(fullpath).reverse();
         for (const path of paths) {
             const fromIconic = getSvgFromIconic(path);
-            if (!fromIconic) {
+            if (fromIconic) {
+                svg = fromIconic.svg;
+                color = fromIconic.color;
+                emoji = fromIconic.emoji;
+                break;
+            }
+            else {
                 const fromIconize = getSvgFromIconize(path);
                 if (fromIconize) {
                     svg = fromIconize.svg;
@@ -87,11 +93,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
                     emoji = fromIconize.emoji;
                     break;
                 }
-            }
-            else {
-                svg = fromIconic.svg;
-                color = fromIconic.color;
-                break;
             }
         }
 

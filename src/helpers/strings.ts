@@ -40,6 +40,11 @@ export function getListOfSubpaths(fullpath: string): string[] {
     }, []);
 }
 
+export function isEmoji(str: string): boolean {
+    return emojiRegex().test(str);
+    //return /^[\p{Extended_Pictographic}\p{Emoji_Component}]+$/gu.test(str);
+}
+
 
 // Code from the Dataview plugin, under MIT License
 // https://github.com/blacksmithgu/obsidian-dataview/blob/master/src/util/normalize.ts
