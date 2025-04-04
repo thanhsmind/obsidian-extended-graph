@@ -65,6 +65,7 @@ export * from "./statsCalculators/nodes/filenameLengthCalculator";
 export * from "./statsCalculators/nodes/forwardlinkCountCalculator";
 export * from "./statsCalculators/nodes/modifiedTimeCalculator";
 export * from "./statsCalculators/nodes/tagsCountCalculator";
+export * from "./statsCalculators/nodes/topologicalSortCalculator";
 
 export * from "./queries/queriesMatcher";
 export * from "./queries/ruleQuery";

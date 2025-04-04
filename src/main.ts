@@ -1,5 +1,8 @@
 import { addIcon, Plugin, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
+import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, GraphologySingleton, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
+import { stronglyConnectedComponents } from 'graphology-components';
+import { DirectedGraph } from 'graphology';
+import { topologicalSort } from 'graphology-dag';
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {

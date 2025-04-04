@@ -1,5 +1,5 @@
 import { GraphologySingleton } from "../graphology";
-import { BacklinkCountCalculator, ConstantCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances, TagsCountCalculator } from "src/internal";
+import { BacklinkCountCalculator, ConstantCalculator, CreationTimeCalculator, EccentricityCalculator, FilenameLengthCalculator, ForwardlinkCountCalculator, ModifiedTimeCalculator, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances, TagsCountCalculator, TopologicalSortCalculator } from "src/internal";
 import * as centrality from "./centralityCalculator";
 
 
@@ -36,6 +36,8 @@ export class NodeStatCalculatorFactory {
                 return new centrality.HubsCalculator(stat, GraphologySingleton.getGraphology());
             case 'authority':
                 return new centrality.AuthoritiesCalculator(stat, GraphologySingleton.getGraphology());
+            case 'topological':
+                return new TopologicalSortCalculator(stat);
             default:
                 return;
         }

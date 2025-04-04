@@ -287,6 +287,7 @@ export default class STRINGS {
 		OtsukaOchiai: "Otsuka-Ochiai coefficient",
 		overlap: "Overlap coefficient",
 		tagsCount: "Number of tags",
+		topological: "Topological propagation",
 		warningUnreliableOS: "This calculation is unreliable and might vary between OS.",
 		sentiment: "Sentiment",
 	};
