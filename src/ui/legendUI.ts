@@ -148,7 +148,6 @@ class LegendRow extends Setting {
 export class LegendUI extends Component implements InteractiveUI {
     instances: GraphInstances;
 
-    viewContent: HTMLElement;
     legendRows: Map<string, LegendRow>;
 
     isOpen: boolean;
@@ -159,10 +158,9 @@ export class LegendUI extends Component implements InteractiveUI {
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
-        this.viewContent = instances.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
 
         // TOGGLE BUTTON
-        const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
+        const graphControls = this.instances.view.contentEl.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
             .setTooltip(STRINGS.controls.openLegend)
             .setIcon("tags")
@@ -179,7 +177,7 @@ export class LegendUI extends Component implements InteractiveUI {
             });
 
         this.legendRows = new Map<string, LegendRow>();
-        this.root = this.viewContent.createDiv();
+        this.root = this.instances.view.contentEl.createDiv();
         this.root?.addClass("graph-legend-container");
         for (const [key, manager] of this.instances.interactiveManagers) {
             if (key === FOLDER_KEY) continue;
