@@ -76,7 +76,10 @@ export interface ExtendedGraphSettings {
     fadeOnDisable: boolean;
     focusScaleFactor: number;
     borderUnresolved: number | string;
+
+    // Arrows
     invertArrows: boolean;
+    flatArrows: boolean;
 
     // Names
     numberOfCharacters: number | null;
@@ -159,7 +162,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'target': false,
             'elements-stats': true,
             'names': false,
-            'icons': true,
+            'icons': false,
+            'arrows': false,
         },
         'localgraph': {
             'auto-enabled': false,
@@ -179,6 +183,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'elements-stats': true,
             'names': false,
             'icons': false,
+            'arrows': false,
         }
     },
 
@@ -219,7 +224,10 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
     borderUnresolved: '',
+
+    // Arrows
     invertArrows: false,
+    flatArrows: false,
 
     // Names
     numberOfCharacters: null,

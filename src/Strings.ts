@@ -41,6 +41,12 @@ export default class STRINGS {
 	}
 
 	static features = {
+		arrows: "Arrows",
+		arrowsDesc: "Customize how arrows are displayed",
+		arrowsInvert: "Invert arrows",
+		arrowsInvertDesc: "Invert the direction of the arrows on the links",
+		arrowsFlat: "Triangle arrows",
+		arrowsFlatDesc: "Use triangle arrows instead of the default curved ones",
 		autoEnable: "Auto enable",
 		autoEnableDesc: "Auto enable the plugin in graph views",
 		borderUnresolved: "Border of unresolved nodes",
@@ -113,8 +119,6 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
-		invertArrows: "Invert arrows",
-		invertArrowsDesc: "Invert the direction of the arrows on the links",
 		linksFeatureRequired: "The Links feature needs to be enabled.",
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",

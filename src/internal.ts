@@ -74,6 +74,7 @@ export * from "./settings/settings";
 export * from "./settings/settingTab";
 export * from "./settings/settingsSection";
 export * from "./settings/settingCollapsible";
+export * from "./settings/settingArrows";
 export * from "./settings/settingFocus";
 export * from "./settings/settingIcons";
 export * from "./settings/settingImages";

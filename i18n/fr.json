@@ -34,6 +34,12 @@
 		"rows": "lignes"
 	},
 	"features": {
+		"arrows": "Flèches",
+		"arrowsDesc": "Personnalise la façon dont les flèches sont affichées",
+		"arrowsInvert": "Inverser les flèches",
+		"arrowsInvertDesc": "Inverse les flèches des liens",
+		"arrowsFlat": "Flèches triangulaires",
+		"arrowsFlatDesc": "Utilise des flèches triangulaires au lieu de flèches courbées",
 		"autoEnable": "Activation auto",
 		"autoEnableDesc": "Active automatiquement le plugin dans la vue graphique",
 		"borderUnresolved": "Bordure des noeuds non-résolus",
@@ -106,8 +112,6 @@
 			"tags": "Tags",
 			"tagsDesc": "Affiche et filtre les noeuds par tags"
 		},
-		"invertArrows": "Inverser les flèches",
-		"invertArrowsDesc": "Inverse les flèches des liens",
 		"linksFeatureRequired": "La fonctionnalité des liens doit être activée.",
 		"pinnedNodes": "Noeuds épinglés",
 		"pinNode": "Épingler le noeud",
