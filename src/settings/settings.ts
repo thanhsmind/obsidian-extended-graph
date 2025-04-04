@@ -83,6 +83,7 @@ export interface ExtendedGraphSettings {
     showOnlyFileName: boolean;
     noExtension: boolean;
     usePropertyForName: string | null;
+    addBackgroundToName: boolean;
 
     // Icons
     iconProperty: string;
@@ -224,6 +225,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     showOnlyFileName: false,
     noExtension: false,
     usePropertyForName: null,
+    addBackgroundToName: false,
 
     // Icons
     iconProperty: "",

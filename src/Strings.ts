@@ -144,6 +144,8 @@ export default class STRINGS {
 		namesNoExtensionDesc: "Remove the file extension from the name",
 		namesUseProperty: "Use property",
 		namesUsePropertyDesc: "Use a property as the node name instead of the filename",
+		namesBackground: "Add a background",
+		namesBackgroundDesc: "Add a background to the node name in order to make it more readable by hiding elements behind it",
 		nodeSizesFunction: "Node size function",
 		nodeSizesFunctionDesc: "Select how the graph engine should compute the size of the nodes",
 		nodeSizesProperty: "Node size property",

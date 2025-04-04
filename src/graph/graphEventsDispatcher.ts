@@ -79,6 +79,10 @@ export class GraphEventsDispatcher extends Component {
         const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
+            for (const node of this.instances.renderer.nodes) {
+                // @ts-ignore
+                node.fontDirty = true;
+            }
         }
     }
 

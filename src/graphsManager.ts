@@ -844,6 +844,10 @@ export class GraphsManager extends Component {
         const options = this.optionsBackup.get(view.leaf.id);
         if (engine && options) {
             engine.setOptions(options);
+            for (const node of engine.renderer.nodes) {
+                // @ts-ignore
+                node.fontDirty = true;
+            }
         }
     }
 

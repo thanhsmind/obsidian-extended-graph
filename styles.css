@@ -441,6 +441,7 @@ body {
     .setting-item-heading.setting-images.is-collapsed ~ .setting-images,
     .setting-item-heading.setting-icons.is-collapsed ~ .setting-icons,
     .setting-item-heading.setting-focus.is-collapsed ~ .setting-focus,
+    .setting-item-heading.setting-names.is-collapsed ~ .setting-names,
     .setting-item-heading.setting-shapes.is-collapsed ~ .setting-shapes,
     .setting-item-heading.setting-elements-stats.is-collapsed ~ .setting-elements-stats {
         display: none;

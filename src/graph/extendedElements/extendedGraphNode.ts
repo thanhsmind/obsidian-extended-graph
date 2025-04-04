@@ -1,6 +1,6 @@
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { Graphics, Sprite, Texture } from "pixi.js";
+import { Graphics, Sprite, Texture, Text, ColorSource } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import { ExtendedGraphElement, getBackgroundColor, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphInstances, InteractiveManager, isEmoji, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
 
@@ -22,6 +22,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         emoji: string | null
     } | null = null;
 
+    // name
+    textBackground: Sprite | null = null;
+    textClone: Text | null = null;
+
     // ============================== CONSTRUCTOR ==============================
 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
@@ -32,6 +36,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.initGraphicsWrapper();
         this.updateFontFamily();
         this.updateText();
+        if (this.instances.settings.enableFeatures[instances.type]['names'] && this.instances.settings.addBackgroundToName) this.addBackgroundToText();
     }
 
     // ================================ UNLOAD =================================
@@ -253,8 +258,45 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     resetText(): void {
-        if (!this.coreElement.text || this.originalText === null) return;
-        this.coreElement.text.text = this.originalText;
+        if (this.coreElement.text && this.originalText !== null) {
+            this.coreElement.text.text = this.originalText;
+            this.originalText = null;
+        }
+        if (this.textBackground) {
+            this.textBackground.removeFromParent();
+            this.textBackground.destroy(true);
+            this.textBackground = null;
+        }
+        if (this.textClone) {
+            this.textClone.removeFromParent();
+            this.textClone.destroy(true);
+            this.textClone = null;
+        }
+    }
+
+    addBackgroundToText(): void {
+        if (!this.coreElement.text) return;
+        this.textBackground = new Sprite(Texture.WHITE);
+        this.textBackground.width = (this.coreElement.text.getBounds().width + this.coreElement.text.width) / 2;
+        this.textBackground.height = (this.coreElement.text.getBounds().height + this.coreElement.text.height) / 2;
+        this.textBackground.anchor.set(0.5, 0);
+        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
+        this.textBackground.tint = "red";
+        this.textBackground.alpha = 2;
+        this.textClone = new Text(this.coreElement.text.text, this.coreElement.text.style);
+        this.textClone.anchor.set(0.5, 0);
+        this.coreElement.text.addChild(this.textBackground);
+        this.coreElement.text.addChild(this.textClone);
+    }
+
+    updateTextBackgroundColor(backgroundColor: ColorSource): void {
+        if (!this.textBackground) return;
+        this.textBackground.tint = backgroundColor;
+        if (this.textClone && this.coreElement.text) {
+            // @ts-ignore
+            this.textClone.style.fill = this.coreElement.getTextStyle().fill;
+        }
+        console.log(this.coreElement.getSize());
     }
 
     // ================================ GETTERS ================================

@@ -12,6 +12,7 @@ export class SettingNames extends SettingsSectionCollapsible {
         this.addOnlyFilename();
         this.addNoExtension();
         this.addUseProperty();
+        this.addBackground();
     }
 
     private addNumberOfCharacters() {
@@ -70,6 +71,19 @@ export class SettingNames extends SettingsSectionCollapsible {
                     } else if (isPropertyKeyValid(value)) {
                         PluginInstances.settings.usePropertyForName = value;
                     }
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addBackground() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesBackground)
+            .setDesc(STRINGS.features.namesBackgroundDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.addBackgroundToName);
+                cb.onChange(value => {
+                    PluginInstances.settings.addBackgroundToName = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
