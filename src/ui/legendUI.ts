@@ -1,5 +1,5 @@
 import { Component, ExtraButtonComponent, Setting } from "obsidian";
-import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, makeCompatibleForClass, PluginInstances, TAG_KEY, textColor } from "src/internal";
+import { FOLDER_KEY, GraphInstances, InteractiveManager, InteractiveUI, makeCompatibleForClass, PluginInstances, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {

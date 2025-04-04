@@ -1,6 +1,6 @@
-import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -530,7 +530,10 @@ export class GraphsManager extends Component {
 
     syncWithLeaves(leaves: WorkspaceLeaf[]): void {
         const currentActiveLeavesID = leaves.map(l => l.id);
-        const localLeaf = leaves.find(l => l.view.getViewType() === "localgraph");
+        const localLeaf = leaves.find(l =>
+            l.view.getViewType() === "localgraph"
+            && (l.view instanceof View)
+            && !isGraphBannerView(l.view as LocalGraphView));
 
         this.localGraphID = localLeaf ? localLeaf.id : null;
 
@@ -561,6 +564,7 @@ export class GraphsManager extends Component {
 
     private setGlobalUI(view: GraphView | LocalGraphView): { menu: MenuUI, control: GraphControlsUI } {
         let globalUI = this.globalUIs.get(view.leaf.id);
+
         if (globalUI) return globalUI;
 
         const menuUI = new MenuUI(view);
@@ -664,7 +668,7 @@ export class GraphsManager extends Component {
         instances.dispatcher.load();
         view.addChild(instances.dispatcher);
 
-        if (view.getViewType() === "localgraph") {
+        if (view.getViewType() === "localgraph" && !isGraphBannerView(view)) {
             this.localGraphID = view.leaf.id;
         }
 
@@ -844,6 +848,10 @@ export class GraphsManager extends Component {
         const options = this.optionsBackup.get(view.leaf.id);
         if (engine && options) {
             engine.setOptions(options);
+            for (const node of engine.renderer.nodes) {
+                // @ts-ignore
+                node.fontDirty = true;
+            }
         }
     }
 

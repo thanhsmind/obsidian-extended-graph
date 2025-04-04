@@ -1,5 +1,8 @@
-import { addIcon, Plugin, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, GraphsManager, hasEngine, INVALID_KEYS, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
+import { addIcon, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, getGraphBannerClass, getGraphBannerPlugin, GraphBannerPlugin, GraphologySingleton, GraphsManager, hasEngine, INVALID_KEYS, isGraphBannerLoaded, LINK_KEY, PluginInstances, StatesManager, TAG_KEY } from './internal';
+import { stronglyConnectedComponents } from 'graphology-components';
+import { DirectedGraph } from 'graphology';
+import { topologicalSort } from 'graphology-dag';
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {
@@ -21,6 +24,25 @@ export default class ExtendedGraphPlugin extends Plugin {
             this.loadGraphsManager();
             this.onLayoutChange();
         }));
+
+        this.registerEvent(
+            this.app.workspace.on('file-open', async (file) => {
+                if (!isGraphBannerLoaded()) return;
+
+                if (!file || file.extension !== "md") return;
+
+                const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || view.file !== file) return;
+
+                this.onMarkdownViewOpen(view);
+            }),
+        );
+
+        this.registerEvent(
+            this.app.workspace.on('layout-change', async () => {
+                //this.onLayoutChange();
+            })
+        )
     }
 
     private initializeInvalidKeys(): void {
@@ -153,6 +175,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     private isGraphOpen(): boolean {
         if (this.app.workspace.getLeavesOfType('graph').find(leaf => this.isGraph(leaf))) return true;
         if (this.app.workspace.getLeavesOfType('localgraph').find(leaf => this.isGraph(leaf))) return true;
+        if (getGraphBannerPlugin()?.graphViews.find(v => this.isGraph(v.leaf))) return true;
         return false;
     }
 
@@ -160,11 +183,48 @@ export default class ExtendedGraphPlugin extends Plugin {
         let leaves: WorkspaceLeaf[] = [];
         leaves = leaves.concat(this.app.workspace.getLeavesOfType('graph').filter(leaf => this.isGraph(leaf)));
         leaves = leaves.concat(this.app.workspace.getLeavesOfType('localgraph').filter(leaf => this.isGraph(leaf)));
-        return leaves;
+        leaves = leaves.concat(getGraphBannerPlugin()?.graphViews.map(v => v.leaf) || []);
+        return [...(new Set(leaves))];
     }
 
     private isGraph(leaf: WorkspaceLeaf): boolean {
         return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf);
+    }
+
+    private onMarkdownViewOpen(view: MarkdownView): void {
+        // Select the node that will be observed for mutations
+        const targetNode = view.contentEl;
+
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: true, childList: true, subtree: true };
+
+        // Callback function to execute when mutations are observed
+        const callback: MutationCallback = (mutationList, observer) => {
+            for (const mutation of mutationList) {
+                if (mutation.type === "childList") {
+                    if (mutation.addedNodes.length > 0) {
+                        if ((mutation.addedNodes[0] as HTMLElement).classList?.contains(getGraphBannerClass())) {
+                            this.onLayoutChange();
+                            /*const leaf = getGraphBannerPlugin()?.graphViews.find(v => v.node === mutation.addedNodes[0])?.leaf;
+                            if (leaf && this.isGraph(leaf)) {
+                                PluginInstances.graphsManager.onNewLeafOpen(leaf);
+                            }*/
+                        }
+                    }
+                }
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
+
+        // Stop observing after 2 seconds
+        setTimeout(() => {
+            observer.disconnect();
+        }, 2000);
     }
 }
 

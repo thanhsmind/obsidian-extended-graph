@@ -7,14 +7,21 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
     graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
     originalArrow: Graphics | null = null;
+    hasChangedArrowShape: boolean = false;
 
     // ============================== CONSTRUCTOR ==============================
 
     constructor(instances: GraphInstances, link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, link, types, managers);
         this.initGraphicsWrapper();
-        if (this.instances.settings.invertArrows) {
-            this.invertArrowDirection();
+
+        if (this.instances.settings.enableFeatures[this.instances.type]['arrows']) {
+            if (this.instances.settings.invertArrows) {
+                this.invertArrowDirection();
+            }
+            if (this.instances.settings.flatArrows) {
+                this.createFlatArrow();
+            }
         }
     }
 
@@ -63,6 +70,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     override unload(): void {
         this.restoreCoreLinkThickness();
         this.resetArrowDirection();
+        this.resetArrowShape();
         super.unload();
     }
 
@@ -108,9 +116,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             : undefined;
     }
 
-    // ============================ ARROW DIRECTION ============================
+    // ================================ ARROWS =================================
 
-    invertArrowDirection(): void {
+    private invertArrowDirection(): void {
         const link = this.coreElement;
         if (link.arrow && !this.originalArrow) {
             this.originalArrow = link.arrow;
@@ -137,18 +145,44 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                         // @ts-ignore
                         target[prop] = value;
                     }
-                    //console.log(`property set: ${prop.toString()} = ${value}`);
                     return true;
                 }
             })
         }
     }
 
-    resetArrowDirection(): void {
+    private resetArrowDirection(): void {
         if (this.coreElement.arrow && this.originalArrow) {
             this.coreElement.arrow = this.originalArrow;
             this.originalArrow = null;
         }
+    }
+
+    private createFlatArrow(): void {
+        const arrow = this.coreElement.arrow;
+        if (!arrow) return;
+        arrow.clear();
+        arrow.beginFill(16777215);
+        arrow.moveTo(0, 0);
+        arrow.lineTo(-4, -2);
+        arrow.lineTo(-4, 2);
+        arrow.lineTo(0, 0);
+        arrow.endFill();
+        this.hasChangedArrowShape = true;
+    }
+
+    private resetArrowShape(): void {
+        if (!this.hasChangedArrowShape) return;
+        const arrow = this.coreElement.arrow;
+        if (!arrow) return;
+        arrow.clear();
+        arrow.beginFill(16777215);
+        arrow.moveTo(0, 0);
+        arrow.lineTo(-4, -2);
+        arrow.lineTo(-3, 0);
+        arrow.lineTo(-4, 2);
+        arrow.lineTo(0, 0);
+        arrow.endFill();
     }
 
     // ============================== CORE ELEMENT =============================

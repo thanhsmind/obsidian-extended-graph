@@ -62,7 +62,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private async getImageURI(id: string): Promise<{ uri: string, type: 'icon' | 'image' } | null> {
-        const extendedNode = this.extendedElementsMap.get(id);
+        let extendedNode = this.extendedElementsMap.get(id);
         if (!extendedNode || !extendedNode.graphicsWrapper) return null;
 
         let imageUri: string | null = null;
@@ -72,13 +72,18 @@ export class NodesSet extends AbstractSet<GraphNode> {
             || this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
             || this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']) {
 
-            if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty'] && extendedNode.coreElement.type === "") {
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
+                && (extendedNode.coreElement.type === ""
+                    || extendedNode.coreElement.type === "focused")) {
                 imageUri = await Media.getImageUriFromProperty(this.instances.settings.imageProperty, id);
             }
-            if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds'] && extendedNode.coreElement.type === "") {
+            if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
+                && (extendedNode.coreElement.type === ""
+                    || extendedNode.coreElement.type === "focused")) {
                 imageUri = await Media.getImageUriFromEmbeds(id);
             }
-            if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments'] && extendedNode.coreElement.type === "attachment") {
+            if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']
+                && extendedNode.coreElement.type === "attachment") {
                 imageUri = await Media.getImageUriForAttachment(id);
             }
 
@@ -106,7 +111,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
                     break;
 
                 case "":
-                    (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
+                case "focused":
+                    if ('initNodeImage' in extendedNode.graphicsWrapper) {
+                        (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).initNodeImage(texture);
+                    }
                     break;
             }
         }
@@ -233,7 +241,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
-            extendedNode.updateFontFamily();
+            extendedNode.extendedText.updateTextBackgroundColor(color);
+            extendedNode.extendedText.updateFontFamily();
         });
     }
 
@@ -305,6 +314,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         let table = hr + "\n" + header + "\n" + hr + "\n" + rows.join("\n") + "\n" + hr;
 
-        console.log(table);
+        console.debug(table);
     }
 }

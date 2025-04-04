@@ -4,7 +4,6 @@
 
 This plugin enables you to:
 - Add images to graph nodes.
-- Use icons or emojis instead of circles (supports Iconic and Iconize plugin).
 - Change the shapes of the nodes.
 - Easily filter by tags and properties.
 - Remove links based on relationship types.
@@ -14,8 +13,6 @@ This plugin enables you to:
 - Focus on a specific node.
 - Pin nodes.
 - Change the size of nodes and links based on statistical functions.
-- Supports Graph Banner plugin.
-- ...and more.
 
 Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
 
@@ -52,15 +49,11 @@ Please, if you encounter any bug, even if it is in the list above, report [an is
 
 The plugin is completely free and will always stay that way, and open source. If you'd like to support its development, you can make a donation via this link: https://github.com/sponsors/ElsaTam
 
-# Credits and APIs integrations
+# Credits
 
-- [obsidian-dataview](https://github.com/blacksmithgu/obsidian-dataview) by _blacksmithgu_ (MIT License)
-- [obsidian-typings](https://github.com/Fevol/obsidian-typings) by _Fevol_ (MIT License)
-- [graph-analysis](https://github.com/SkepticMystic/graph-analysis) by _SkepticMystic_ (GNU General Public License v3.0)
-- [js-colormaps](https://github.com/timothygebhard/js-colormaps) by _timothygebhard_ (MIT License)
-- [iconic](https://github.com/gfxholo/iconic) by _gfxholo_ (MIT-0 License)
-- [obsidian-iconize](https://github.com/FlorianWoelki/obsidian-iconize) by _FlorianWoelki_ (MIT License)
-- [obsidian-graph-banner](https://github.com/ras0q/obsidian-graph-banner) by _ras0q_ (MIT License)
+- [obsidian-typings](https://github.com/Fevol/obsidian-typings) (MIT License)
+- [graph-analysis](https://github.com/SkepticMystic/graph-analysis) (GNU General Public License v3.0)
+- [js-colormaps](https://github.com/timothygebhard/js-colormaps) (MIT License)
 
 # Features ideas
 

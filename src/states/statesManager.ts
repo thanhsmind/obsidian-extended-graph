@@ -6,7 +6,7 @@ import STRINGS from "src/Strings";
 export class StatesManager {
 
     // ================================ GETTERS ================================
-    
+
     getStateDataById(id: string): GraphStateData | undefined {
         return PluginInstances.settings.states.find(v => v.id === id);
     }
@@ -28,7 +28,7 @@ export class StatesManager {
     }
 
     // ============================= CHANGE STATE ==============================
-    
+
     changeState(instances: GraphInstances, id: string) {
         let stateData = this.getStateDataById(id);
         if (!stateData) return;
@@ -40,9 +40,13 @@ export class StatesManager {
             if (stateData.engineOptions) {
                 instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
                 instances.engine.setOptions(stateData.engineOptions);
+                for (const node of instances.renderer.nodes) {
+                    // @ts-ignore
+                    node.fontDirty = true;
+                }
             }
             //instances.graph.updateWorker();
-        
+
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
         });
     }
@@ -55,7 +59,7 @@ export class StatesManager {
         }
         return state.data;
     }
-    
+
     private async updateInteractiveManagers(stateData: GraphStateData, instance: GraphInstances): Promise<void> {
         new Promise(resolve => setTimeout(() => {
             this.updateManagers(stateData, instance.nodesSet.managers, instance.legendUI);
@@ -63,7 +67,7 @@ export class StatesManager {
             if (instance.foldersSet) this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
         }, 200));
     }
-    
+
     private updateManagers(stateData: GraphStateData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {
         for (const [key, manager] of managers) {
             if (!PluginInstances.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
@@ -148,7 +152,7 @@ export class StatesManager {
             PluginInstances.settings.states.push(stateData);
         }
     }
-    
+
     private updateAllStates(): void {
         PluginInstances.graphsManager.allInstances.forEach(instances => {
             instances.statesUI.updateStatesList();
@@ -156,7 +160,7 @@ export class StatesManager {
     }
 
     // ============================= DELETE STATE ==============================
-    
+
     /**
      * Deletes the state with the specified ID.
      * @param id - The ID of the state to delete.

@@ -17,7 +17,9 @@ export class LinkCurveGraphics extends LinkGraphics {
         this.arrow.beginFill("white");
         this.arrow.moveTo(0, 0);
         this.arrow.lineTo(-4, -2);
-        this.arrow.lineTo(-3, 0);
+        if (!this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] || !this.extendedLink.instances.settings.flatArrows) {
+            this.arrow.lineTo(-3, 0);
+        }
         this.arrow.lineTo(-4, 2);
         this.arrow.lineTo(0, 0);
         this.arrow.endFill();
