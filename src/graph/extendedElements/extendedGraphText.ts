@@ -106,7 +106,8 @@ export class ExtendedGraphText {
 
     addBackgroundToText(): void {
         if (!this.coreElement.text) return;
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.addBackgroundToName) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names']
+            || !this.instances.settings.addBackgroundToName) return;
         this.textBackground = new Sprite(Texture.WHITE);
         this.textBackground.width = (this.coreElement.text.getBounds().width + this.coreElement.text.width) / 2;
         this.textBackground.height = (this.coreElement.text.getBounds().height + this.coreElement.text.height) / 2;
@@ -133,7 +134,9 @@ export class ExtendedGraphText {
     // ================== Slightly move thex text to avoid overlapping the arrow
 
     moveTextToAvoidArrow(): void {
-        if (this.instances.settings.nameVerticalOffset === 0 || !this.coreElement.text || this.originalText) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names']
+            || this.instances.settings.nameVerticalOffset === 0
+            || !this.coreElement.text || this.originalText) return;
         this.originalText = this.coreElement.text;
         const offset = this.instances.settings.nameVerticalOffset;
         this.coreElement.text = new Proxy(this.coreElement.text, {
