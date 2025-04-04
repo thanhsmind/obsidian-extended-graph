@@ -132,7 +132,7 @@ export class GraphEventsDispatcher extends Component {
 
     private observeOrphanSettings(): void {
         this.toggleOrphans = this.toggleOrphans.bind(this);
-        const graphFilterControl = this.instances.view.containerEl.querySelector(".tree-item.graph-control-section.mod-filter");
+        const graphFilterControl = this.instances.view.contentEl.querySelector(".tree-item.graph-control-section.mod-filter");
         if (graphFilterControl) {
             // @ts-ignore
             const orphanDesc = window.OBSIDIAN_DEFAULT_I18N.plugins.graphView.optionShowOrphansDescription;

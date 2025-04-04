@@ -10,11 +10,11 @@ export class GraphControlsUI extends Component {
 
     // Sections
     sectionSettings: GCOptions;
-    
+
     constructor(view: GraphView | LocalGraphView) {
         super();
         this.view = view;
-        this.graphControls = view.containerEl.querySelector(".graph-controls") as HTMLElement;
+        this.graphControls = view.contentEl.querySelector(".graph-controls") as HTMLElement;
         this.sectionSettings = new GCOptions(view);
     }
 
