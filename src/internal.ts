@@ -22,6 +22,7 @@ export * from "./graph/extendedElements/extendedGraphAttachmentNode";
 export * from "./graph/extendedElements/extendedGraphFileNode";
 export * from "./graph/extendedElements/extendedGraphTagNode";
 export * from "./graph/extendedElements/extendedGraphUnresolvedNode";
+export * from "./graph/extendedElements/extendedGraphText";
 
 export * from "./graph/graphicElements/graphicsWrapper";
 export * from "./graph/graphicElements/links/linkGraphics";

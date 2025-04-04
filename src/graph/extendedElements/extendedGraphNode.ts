@@ -1,14 +1,29 @@
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { Graphics, Sprite, Texture, Text, ColorSource } from "pixi.js";
+import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
-import { ExtendedGraphElement, getBackgroundColor, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphInstances, InteractiveManager, isEmoji, isNumber, NodeGraphicsWrapper, NodeShape, Pinner, PluginInstances, ShapeEnum } from "src/internal";
+import {
+    ExtendedGraphElement,
+    ExtendedGraphText,
+    getListOfSubpaths,
+    getSvgFromIconic,
+    getSvgFromIconize,
+    GraphInstances,
+    InteractiveManager,
+    isEmoji,
+    isNumber,
+    NodeGraphicsWrapper,
+    NodeShape,
+    Pinner,
+    PluginInstances,
+    ShapeEnum
+} from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
     coreGetFillColor: (() => GraphColorAttributes) | undefined;
-    originalText: string | null = null;
+    extendedText: ExtendedGraphText;
 
     // Size
     graphicsWrapperScale: number = 1;
@@ -22,21 +37,16 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         emoji: string | null
     } | null = null;
 
-    // name
-    textBackground: Sprite | null = null;
-    textClone: Text | null = null;
-
     // ============================== CONSTRUCTOR ==============================
 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
 
+        this.extendedText = new ExtendedGraphText(instances, node);
+
         this.initRadius();
         this.changeGetSize();
         this.initGraphicsWrapper();
-        this.updateFontFamily();
-        this.updateText();
-        if (this.instances.settings.enableFeatures[instances.type]['names'] && this.instances.settings.addBackgroundToName) this.addBackgroundToText();
     }
 
     // ================================ UNLOAD =================================
@@ -46,7 +56,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             new Pinner(this.instances).unpinNode(this.id);
         }
         this.restoreGetSize();
-        this.resetText();
+        this.extendedText.unload();
         super.unload();
     }
 
@@ -197,106 +207,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     override setCoreElement(coreElement: GraphNode | undefined): void {
         super.setCoreElement(coreElement);
         if (coreElement) {
-            this.updateFontFamily();
+            this.extendedText.updateFontFamily();
         }
     }
 
     protected override getCoreParentGraphics(coreElement: GraphNode): Graphics | null {
         return coreElement.circle;
-    }
-
-    // ================================= TEXT ==================================
-
-    updateFontFamily(): void {
-        if (!this.coreElement.text) return;
-        const style = window.getComputedStyle(this.coreElement.renderer.interactiveEl);
-        const fontInterface = style.getPropertyValue("--font-interface");
-        const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
-            ? this.coreElement.text.style.fontFamily
-            : this.coreElement.text.style.fontFamily.join(', ');
-        if (fontNode !== fontInterface) {
-            const textStyle = this.coreElement.text.style;
-            textStyle.fontFamily = fontInterface;
-            this.coreElement.text.style = textStyle;
-        }
-    }
-
-    updateText(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text || this.originalText !== null) return;
-
-        let text = this.coreElement.text.text;
-
-        if (this.instances.settings.usePropertyForName) {
-            const file = getFile(this.id);
-            if (file) {
-                const values = getFileInteractives(this.instances.settings.usePropertyForName, file);
-                for (const value of values) {
-                    if (value !== undefined && value !== null) {
-                        text = value.toString();
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (this.instances.settings.showOnlyFileName) {
-            text = text.split("/").last() || text;
-        }
-
-        if (this.instances.settings.noExtension) {
-            text = text.replace(/\.[^/.]+$/, "");
-        }
-
-        if (this.instances.settings.numberOfCharacters && this.instances.settings.numberOfCharacters > 0) {
-            text = text.slice(0, this.instances.settings.numberOfCharacters);
-        }
-
-        if (text !== this.coreElement.text.text) {
-            this.originalText = this.coreElement.text.text;
-            this.coreElement.text.text = text;
-        }
-    }
-
-    resetText(): void {
-        if (this.coreElement.text && this.originalText !== null) {
-            this.coreElement.text.text = this.originalText;
-            this.originalText = null;
-        }
-        if (this.textBackground) {
-            this.textBackground.removeFromParent();
-            this.textBackground.destroy(true);
-            this.textBackground = null;
-        }
-        if (this.textClone) {
-            this.textClone.removeFromParent();
-            this.textClone.destroy(true);
-            this.textClone = null;
-        }
-    }
-
-    addBackgroundToText(): void {
-        if (!this.coreElement.text) return;
-        this.textBackground = new Sprite(Texture.WHITE);
-        this.textBackground.width = (this.coreElement.text.getBounds().width + this.coreElement.text.width) / 2;
-        this.textBackground.height = (this.coreElement.text.getBounds().height + this.coreElement.text.height) / 2;
-        this.textBackground.anchor.set(0.5, 0);
-        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
-        this.textBackground.tint = "red";
-        this.textBackground.alpha = 2;
-        this.textClone = new Text(this.coreElement.text.text, this.coreElement.text.style);
-        this.textClone.anchor.set(0.5, 0);
-        this.coreElement.text.addChild(this.textBackground);
-        this.coreElement.text.addChild(this.textClone);
-    }
-
-    updateTextBackgroundColor(backgroundColor: ColorSource): void {
-        if (!this.textBackground) return;
-        this.textBackground.tint = backgroundColor;
-        if (this.textClone && this.coreElement.text) {
-            // @ts-ignore
-            this.textClone.style.fill = this.coreElement.getTextStyle().fill;
-        }
-        console.log(this.coreElement.getSize());
     }
 
     // ================================ GETTERS ================================
