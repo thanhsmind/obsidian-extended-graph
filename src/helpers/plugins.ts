@@ -1,5 +1,9 @@
-import { getIcon } from "obsidian";
-import { IconicPlugin, IconizePlugin, isEmoji, PluginInstances } from "src/internal";
+import { getIcon, View } from "obsidian";
+import { GraphView, LocalGraphView } from "obsidian-typings";
+import { GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, PluginInstances } from "src/internal";
+
+
+// ======================== Iconic
 
 export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
     const iconic: IconicPlugin | null = PluginInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
@@ -30,6 +34,8 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, col
 
     return null;
 }
+
+// ======================== Iconize
 
 export function getSvgFromIconize(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
     const iconize: IconizePlugin | null = PluginInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
@@ -64,4 +70,22 @@ export function getSvgFromIconize(path: string): { svg: SVGSVGElement | null, co
     }
 
     return null;
+}
+
+// ======================== Graph banner
+
+export function isGraphBannerLoaded(): boolean {
+    return this.app.plugins.getPlugin('graph-banner')?._loaded;
+}
+
+export function getGraphBannerClass(): string {
+    return "graph-banner-content";
+}
+
+export function isGraphBannerView(view: LocalGraphView | GraphView) {
+    return view.contentEl.classList.contains(getGraphBannerClass());
+}
+
+export function getGraphBannerPlugin(): GraphBannerPlugin | undefined {
+    return PluginInstances.app.plugins.getPlugin('graph-banner') as GraphBannerPlugin
 }

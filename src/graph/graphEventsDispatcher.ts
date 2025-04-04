@@ -93,7 +93,19 @@ export class GraphEventsDispatcher extends Component {
         this.updateOpacityLayerColor();
         this.bindStageEvents();
         this.observeOrphanSettings();
-        this.createRenderProxy();
+        try {
+            this.createRenderProxy();
+        }
+        catch (error) {
+            this.listenStage = false;
+            if (typeof error === "string") {
+                console.error(error.toUpperCase());
+            } else if (error instanceof Error) {
+                console.error(error.message);
+            }
+            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            return;
+        }
         this.preventDraggingPinnedNodes();
         PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
     }

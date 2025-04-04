@@ -17,7 +17,7 @@ export abstract class GCSection extends Component {
     constructor(view: GraphView | LocalGraphView, sectionID: string, title: string) {
         super();
         this.view = view;
-        this.graphControls = view.leaf.containerEl.querySelector(".graph-controls") as HTMLElement;
+        this.graphControls = view.contentEl.querySelector(".graph-controls") as HTMLElement;
 
         this.root = this.graphControls.createDiv(`tree-item graph-control-section mod-extended-graph-${sectionID}`);
 

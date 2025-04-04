@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, WorkspaceLeaf } from "obsidian";
 
 export interface IconizePlugin extends Plugin {
     api: {
@@ -15,4 +15,11 @@ export interface IconicPlugin extends Plugin {
     settings: {
         fileIcons: Record<string, { icon: string; color: string }>,
     }
+}
+
+export interface GraphBannerPlugin extends Plugin {
+    graphViews: {
+        leaf: WorkspaceLeaf,
+        node: Node,
+    }[];
 }

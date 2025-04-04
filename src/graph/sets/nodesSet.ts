@@ -306,6 +306,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         let table = hr + "\n" + header + "\n" + hr + "\n" + rows.join("\n") + "\n" + hr;
 
-        console.log(table);
+        console.debug(table);
     }
 }

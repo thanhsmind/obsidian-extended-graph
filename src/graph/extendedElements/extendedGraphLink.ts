@@ -145,7 +145,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                         // @ts-ignore
                         target[prop] = value;
                     }
-                    //console.log(`property set: ${prop.toString()} = ${value}`);
                     return true;
                 }
             })

@@ -126,7 +126,6 @@ export class ExtendedGraphText {
             // @ts-ignore
             this.textClone.style.fill = this.coreElement.getTextStyle().fill;
         }
-        console.log(this.coreElement.getSize());
     }
 
 
