@@ -8,7 +8,8 @@ export class ExtendedGraphText {
     textClone: Text | null = null;
     coreElement: GraphNode;
     instances: GraphInstances;
-    originalText: string | null = null;
+    originalText: Text | null = null;
+    hasChangedText: boolean = false;
 
     constructor(instances: GraphInstances, coreElement: GraphNode) {
         this.instances = instances;
@@ -17,12 +18,13 @@ export class ExtendedGraphText {
         this.updateFontFamily();
         this.updateText();
         this.addBackgroundToText();
+        this.moveTextToAvoidArrow();
     }
 
     unload(): void {
-        if (this.coreElement.text && this.originalText !== null) {
-            this.coreElement.text.text = this.originalText;
-            this.originalText = null;
+        if (this.coreElement.text && this.hasChangedText) {
+            this.coreElement.text.text = this.coreElement.getDisplayText();
+            this.hasChangedText = false;
         }
         if (this.textBackground) {
             this.textBackground.removeFromParent();
@@ -34,7 +36,15 @@ export class ExtendedGraphText {
             this.textClone.destroy(true);
             this.textClone = null;
         }
+        if (this.originalText) {
+            this.coreElement.text = this.originalText;
+            this.originalText = null;
+        }
     }
+
+
+
+    // ================== Change font family to match the interface font
 
     updateFontFamily(): void {
         if (!this.coreElement.text) return;
@@ -50,8 +60,12 @@ export class ExtendedGraphText {
         }
     }
 
+
+
+    // ================== Change display text
+
     updateText(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text || this.originalText !== null) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text || this.hasChangedText) return;
 
         let text = this.coreElement.text.text;
 
@@ -81,10 +95,14 @@ export class ExtendedGraphText {
         }
 
         if (text !== this.coreElement.text.text) {
-            this.originalText = this.coreElement.text.text;
+            this.hasChangedText = true;
             this.coreElement.text.text = text;
         }
     }
+
+
+
+    // ================== Add background behind text
 
     addBackgroundToText(): void {
         if (!this.coreElement.text) return;
@@ -110,4 +128,27 @@ export class ExtendedGraphText {
         }
         console.log(this.coreElement.getSize());
     }
+
+
+
+    // ================== Slightly move thex text to avoid overlapping the arrow
+
+    moveTextToAvoidArrow(): void {
+        if (this.instances.settings.nameVerticalOffset === 0 || !this.coreElement.text || this.originalText) return;
+        this.originalText = this.coreElement.text;
+        const offset = this.instances.settings.nameVerticalOffset;
+        this.coreElement.text = new Proxy(this.coreElement.text, {
+            set(target, prop, value, receiver) {
+                if (prop === "y") {
+                    target.y = value + offset;
+                }
+                else {
+                    // @ts-ignore
+                    target[prop] = value;
+                }
+                return true;
+            }
+        })
+    }
+
 }

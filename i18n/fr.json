@@ -139,6 +139,8 @@
 		"namesUsePropertyDesc": "Utiliser une propriété pour le nom du noeud plutôt que le nom de fichier",
 		"namesBackground": "Ajoute un fond",
 		"namesBackgroundDesc": "Ajoute un fond au nom du noeud pour le rendre plus lisible en cachant les éléments derrière",
+		"namesVerticalOffset": "Décalage vertical",
+		"namesVerticalOffsetDesc": "Décalage vertical du texte. Une valeur de 15 est recommandée pour éviter un chevauchement avec la flèche",
 		"nodeSizesFunction": "Fonction pour la taille des noeuds",
 		"nodeSizesFunctionDesc": "Sélectionne comment le moteur du graphe doit calculer la taille des noeuds",
 		"nodeSizesProperty": "Propriété pour la taille d'un noeud",

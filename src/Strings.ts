@@ -146,6 +146,8 @@ export default class STRINGS {
 		namesUsePropertyDesc: "Use a property as the node name instead of the filename",
 		namesBackground: "Add a background",
 		namesBackgroundDesc: "Add a background to the node name in order to make it more readable by hiding elements behind it",
+		namesVerticalOffset: "Vertical offset",
+		namesVerticalOffsetDesc: "Vertical offset of the text. A value of 15 is recommended to avoid an overlap with the arrow.",
 		nodeSizesFunction: "Node size function",
 		nodeSizesFunctionDesc: "Select how the graph engine should compute the size of the nodes",
 		nodeSizesProperty: "Node size property",
