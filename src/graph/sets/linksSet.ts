@@ -107,7 +107,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
         let table = hr + "\n" + header + "\n" + hr + "\n" + rows.join("\n") + "\n" + hr;
 
-        console.debug(table);
+        console.log(table);
     }
 
 }

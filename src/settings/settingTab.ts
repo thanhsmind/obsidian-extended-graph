@@ -1,5 +1,5 @@
 import { PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames, SettingIcons, SettingArrows } from "src/internal";
+import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames, SettingIcons } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -12,7 +12,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingTags(this));
         this.sections.push(new SettingPropertiesArray(this));
         this.sections.push(new SettingLinks(this));
-        this.sections.push(new SettingArrows(this));
         this.sections.push(new SettingFolders(this));
         this.sections.push(new SettingImages(this));
         this.sections.push(new SettingIcons(this));
@@ -31,6 +30,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addAutoEnable();
         this.addDisableNodes();
         this.addBorderUnresolved();
+        this.addInvertArrows();
 
         // FEATURES
         for (const section of this.sections) {
@@ -104,5 +104,18 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                         await PluginInstances.plugin.saveSettings();
                     }
                 }));
+    }
+
+    addInvertArrows() {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.invertArrows)
+            .setDesc(STRINGS.features.invertArrowsDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.invertArrows);
+                cb.onChange(value => {
+                    PluginInstances.settings.invertArrows = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
     }
 }

@@ -4,6 +4,7 @@ import { PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class MenuUI extends Component {
+    viewContent: HTMLElement;
     view: GraphView | LocalGraphView;
 
     graphControlsEl: HTMLDivElement;
@@ -14,7 +15,8 @@ export class MenuUI extends Component {
     constructor(view: GraphView | LocalGraphView) {
         super();
         this.view = view;
-        this.graphControlsEl = this.view.contentEl.querySelector(".graph-controls") as HTMLDivElement;
+        this.viewContent = this.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.graphControlsEl = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.graphControlsEl.addClass("graph-controls-extended-graph");
 
         const hr = this.graphControlsEl.createEl("hr");

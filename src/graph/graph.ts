@@ -8,9 +8,9 @@ export class Graph extends Component {
     // Elements
 
     // Disconnection chains
-    nodesDisconnectionCascade = new Map<string, { isDiconnected: boolean, links: Set<string>, nodes: Set<string> }>();
-    linksDisconnectionCascade = new Map<string, { isDiconnected: boolean, links: Set<string>, nodes: Set<string> }>();
-
+    nodesDisconnectionCascade = new Map<string, {isDiconnected: boolean, links: Set<string>, nodes: Set<string>}>();
+    linksDisconnectionCascade = new Map<string, {isDiconnected: boolean, links: Set<string>, nodes: Set<string>}>();
+    
     // Functions to override
     onOptionsChangeOriginal: () => void;
 
@@ -26,8 +26,8 @@ export class Graph extends Component {
         this.initializeInteractiveManagers();
 
         // Sets
-        this.instances.nodesSet = new NodesSet(this.instances, this.getNodeManagers());
-        this.instances.linksSet = new LinksSet(this.instances, this.getLinkManagers());
+        this.instances.nodesSet  = new NodesSet(this.instances, this.getNodeManagers());
+        this.instances.linksSet  = new LinksSet(this.instances, this.getLinkManagers());
         if (instances.settings.enableFeatures[instances.type]['folders']) {
             this.instances.foldersSet = new FoldersSet(this.instances, this.getFolderManagers());
         }
@@ -52,8 +52,8 @@ export class Graph extends Component {
                 if (this.instances.settings.additionalProperties[property]) keys.push(property);
             }
         }
-        if (this.instances.settings.enableFeatures[this.instances.type]['tags']) keys.push(TAG_KEY);
-        if (this.instances.settings.enableFeatures[this.instances.type]['links']) keys.push(LINK_KEY);
+        if (this.instances.settings.enableFeatures[this.instances.type]['tags'])    keys.push(TAG_KEY);
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'])   keys.push(LINK_KEY);
         if (this.instances.settings.enableFeatures[this.instances.type]['folders']) keys.push(FOLDER_KEY);
         return keys;
     }
@@ -74,7 +74,7 @@ export class Graph extends Component {
 
     private overrideOnOptionsChange(): void {
         this.onOptionsChangeOriginal = this.instances.view.onOptionsChange;
-        this.instances.view.onOptionsChange = () => { };
+        this.instances.view.onOptionsChange = () => {};
     }
 
     // ================================ LOADING ================================
@@ -96,7 +96,7 @@ export class Graph extends Component {
         this.instances.foldersSet?.load();
     }
 
-    delay(ms: number): Promise<void> {
+    private delay(ms: number): Promise<void> {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
@@ -175,13 +175,13 @@ export class Graph extends Component {
 
         if (this.instances.settings.enableFeatures[this.instances.type]['source'] || this.instances.settings.enableFeatures[this.instances.type]['target']) {
             for (const linkID of ids) {
-                const cascade = this.linksDisconnectionCascade.get(linkID) || { isDiconnected: true, links: new Set<string>(), nodes: new Set<string>() };
+                const cascade = this.linksDisconnectionCascade.get(linkID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
 
                 // Disable nodes by cascading
                 const cascadeDisabledNodes = this.getNodesByCascadingLink(linkID);
                 cascade.nodes = new Set([...cascade.nodes, ...cascadeDisabledNodes]);
                 if (disabledLinks.has(linkID)) this.instances.nodesSet.disableElements([...cascadeDisabledNodes], DisconnectionCause.USER);
-
+                
                 // Disable links by cascading
                 for (const nodeID of cascadeDisabledNodes) {
                     const cascadeDisabledLinks = this.getLinksByCascadingNode(nodeID, [...ids]);
@@ -198,7 +198,7 @@ export class Graph extends Component {
         return disabledLinks.size > 0;
     }
 
-    private getNodesByCascadingLink(linkID: string, invalidNodeIDs: readonly string[] = []): Set<string> {
+    private getNodesByCascadingLink(linkID: string, invalidNodeIDs: readonly string[] = []) : Set<string> {
         const nodesToDisable = new Set<string>();
         const link = this.instances.linksSet.extendedElementsMap.get(linkID)?.coreElement;
         if (!link) return nodesToDisable;
@@ -212,17 +212,17 @@ export class Graph extends Component {
         return nodesToDisable;
     }
 
-    private getLinksByCascadingNode(nodeID: string, invalidLinkIDs: readonly string[] = []): Set<string> {
+    private getLinksByCascadingNode(nodeID: string, invalidLinkIDs: readonly string[] = []) : Set<string> {
         const linksToDisable = new Set<string>();
         const node = this.instances.nodesSet.extendedElementsMap.get(nodeID)?.coreElement;
         if (!node) return new Set<string>();
 
         for (const forward in node.forward) {
-            const linkID = getLinkID({ source: { id: nodeID }, target: { id: forward } });
+            const linkID = getLinkID({source: {id: nodeID}, target: {id: forward}});
             if (!invalidLinkIDs.includes(linkID)) linksToDisable.add(linkID);
         }
         for (const reverse in node.reverse) {
-            const linkID = getLinkID({ source: { id: reverse }, target: { id: nodeID } });
+            const linkID = getLinkID({source: {id: reverse}, target: {id: nodeID}});
             if (!invalidLinkIDs.includes(linkID)) linksToDisable.add(linkID);
         }
         return linksToDisable;
@@ -260,7 +260,7 @@ export class Graph extends Component {
             // Cascade first, in order to enable the nodes
             this.enableCascadeChainFromLink(linkID, cascades, nodesToKeepDisabled, linksToKeepDisabled);
         }
-
+        
         // Enable links directly
         this.instances.linksSet.enableElements(linksToEnable, DisconnectionCause.USER);
 
@@ -269,17 +269,17 @@ export class Graph extends Component {
         return linksToEnable.length > 0;
     }
 
-    private getAndCleanCascadeLinks(linkIDs: Set<string>): Map<string, { links: Set<string>, nodes: Set<string> }> {
-        const cascades = new Map<string, { links: Set<string>, nodes: Set<string> }>();
+    private getAndCleanCascadeLinks(linkIDs: Set<string>): Map<string, {links: Set<string>, nodes: Set<string>}> {
+        const cascades = new Map<string, {links: Set<string>, nodes: Set<string>}>();
         for (const linkID of linkIDs) {
-            const cascade = structuredClone(this.linksDisconnectionCascade.get(linkID)) || { links: new Set<string>(), nodes: new Set<string>() };
-            this.linksDisconnectionCascade.set(linkID, { isDiconnected: false, links: new Set<string>(), nodes: new Set<string>() });
+            const cascade = structuredClone(this.linksDisconnectionCascade.get(linkID)) || {links: new Set<string>(), nodes: new Set<string>()};
+            this.linksDisconnectionCascade.set(linkID, {isDiconnected: false, links: new Set<string>(), nodes: new Set<string>()});
             cascades.set(linkID, cascade);
         }
         return cascades;
     }
 
-    private enableCascadeChainFromLink(linkID: string, cascades: Map<string, { links: Set<string>, nodes: Set<string> }>, nodesToKeepDisabled: string[] = [], linksToKeepDisabled: string[] = []): void {
+    private enableCascadeChainFromLink(linkID: string, cascades: Map<string, {links: Set<string>, nodes: Set<string>}>, nodesToKeepDisabled: string[] = [], linksToKeepDisabled: string[] = []) : void {
         const cascade = cascades.get(linkID);
         if (!cascade) return;
 
@@ -360,7 +360,7 @@ export class Graph extends Component {
         const disabledNodes = this.instances.nodesSet.disableElements(ids, DisconnectionCause.USER);
 
         for (const nodeID of ids) {
-            const cascade = this.nodesDisconnectionCascade.get(nodeID) || { isDiconnected: true, links: new Set<string>(), nodes: new Set<string>() };
+            const cascade = this.nodesDisconnectionCascade.get(nodeID) || {isDiconnected: true, links: new Set<string>(), nodes: new Set<string>()};
 
             // Disable links by cascading
             const cascadeDisabledLinks = this.getLinksByCascadingNode(nodeID);
@@ -426,17 +426,17 @@ export class Graph extends Component {
         return nodesToEnable.size > 0;
     }
 
-    private getAndCleanCascadeNodes(nodeIDs: Set<string>): Map<string, { links: Set<string>, nodes: Set<string> }> {
-        const cascades = new Map<string, { links: Set<string>, nodes: Set<string> }>();
+    private getAndCleanCascadeNodes(nodeIDs: Set<string>): Map<string, {links: Set<string>, nodes: Set<string>}> {
+        const cascades = new Map<string, {links: Set<string>, nodes: Set<string>}>();
         for (const nodeID of nodeIDs) {
-            const cascade = structuredClone(this.nodesDisconnectionCascade.get(nodeID)) || { links: new Set<string>(), nodes: new Set<string>() };
-            this.nodesDisconnectionCascade.set(nodeID, { isDiconnected: false, links: new Set<string>(), nodes: new Set<string>() });
+            const cascade = structuredClone(this.nodesDisconnectionCascade.get(nodeID)) || {links: new Set<string>(), nodes: new Set<string>()};
+            this.nodesDisconnectionCascade.set(nodeID, {isDiconnected: false, links: new Set<string>(), nodes: new Set<string>()});
             cascades.set(nodeID, cascade);
         }
         return cascades;
     }
 
-    private enableCascadeChainFromNode(nodeID: string, cascades: Map<string, { links: Set<string>, nodes: Set<string> }>, nodesToKeepDisabled: string[] = [], linksToKeepDisabled: string[] = []): void {
+    private enableCascadeChainFromNode(nodeID: string, cascades: Map<string, {links: Set<string>, nodes: Set<string>}>, nodesToKeepDisabled: string[] = [], linksToKeepDisabled: string[] = []) : void {
         const cascade = cascades.get(nodeID);
         if (!cascade) return;
 
@@ -466,7 +466,7 @@ export class Graph extends Component {
         return shouldBeDisabled;
     }
 
-    disableOrphans(): boolean {
+    disableOrphans() : boolean {
         if (this.instances.engine.options.showOrphans) return false;
         const newOrphans = [...this.instances.nodesSet.connectedIDs].filter(id =>
             this.instances.nodesSet.extendedElementsMap.get(id)?.coreElement.renderer && this.nodeIsOrphan(id)
@@ -476,7 +476,7 @@ export class Graph extends Component {
         return nodesDisabled.size > 0;
     }
 
-    enableOrphans(): boolean {
+    enableOrphans() : boolean {
         const oldOrphans = this.instances.nodesSet.disconnectedIDs[DisconnectionCause.ORPHAN];
         if (oldOrphans.size === 0) return false;
 
@@ -488,13 +488,13 @@ export class Graph extends Component {
         else {
             const nonOrphans = [...oldOrphans].filter(id => !this.nodeIsOrphan(id));
             if (nonOrphans.length === 0) return false;
-
+            
             this.instances.nodesSet.enableElements(nonOrphans, DisconnectionCause.ORPHAN);
         }
         return true;
     }
-
-    private nodeIsOrphan(id: string): boolean {
+    
+    private nodeIsOrphan(id: string) : boolean {
         for (const linkID of this.instances.linksSet.connectedIDs) {
             const link = this.instances.linksSet.extendedElementsMap.get(linkID)?.coreElement;
             if (!link) continue;
@@ -503,7 +503,7 @@ export class Graph extends Component {
         return true;
     }
 
-
+    
     private fadeOutNodes(ids: string[]): boolean {
         for (const id of ids) {
             const extendedElement = this.instances.nodesSet.extendedElementsMap.get(id);
@@ -521,7 +521,7 @@ export class Graph extends Component {
         }
         return false;
     }
-
+    
     // ============================ UPDATING WORKER ============================
 
     /**

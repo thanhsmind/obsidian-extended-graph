@@ -2,7 +2,7 @@ import { TFile } from "obsidian";
 import { getColor, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 
-export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
+export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': STRINGS.plugin.default,
@@ -21,7 +21,6 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'eigenvector': STRINGS.statsFunctions.eigenvector,
     'hub': STRINGS.statsFunctions.hub,
     'authority': STRINGS.statsFunctions.authority,
-    'topological': STRINGS.statsFunctions.topological,
 }
 
 export type NodeStat = 'size' | 'color';

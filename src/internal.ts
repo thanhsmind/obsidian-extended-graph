@@ -22,7 +22,6 @@ export * from "./graph/extendedElements/extendedGraphAttachmentNode";
 export * from "./graph/extendedElements/extendedGraphFileNode";
 export * from "./graph/extendedElements/extendedGraphTagNode";
 export * from "./graph/extendedElements/extendedGraphUnresolvedNode";
-export * from "./graph/extendedElements/extendedGraphText";
 
 export * from "./graph/graphicElements/graphicsWrapper";
 export * from "./graph/graphicElements/links/linkGraphics";
@@ -65,7 +64,6 @@ export * from "./statsCalculators/nodes/filenameLengthCalculator";
 export * from "./statsCalculators/nodes/forwardlinkCountCalculator";
 export * from "./statsCalculators/nodes/modifiedTimeCalculator";
 export * from "./statsCalculators/nodes/tagsCountCalculator";
-export * from "./statsCalculators/nodes/topologicalSortCalculator";
 
 export * from "./queries/queriesMatcher";
 export * from "./queries/ruleQuery";
@@ -74,7 +72,6 @@ export * from "./settings/settings";
 export * from "./settings/settingTab";
 export * from "./settings/settingsSection";
 export * from "./settings/settingCollapsible";
-export * from "./settings/settingArrows";
 export * from "./settings/settingFocus";
 export * from "./settings/settingIcons";
 export * from "./settings/settingImages";

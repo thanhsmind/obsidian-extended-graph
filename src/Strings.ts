@@ -41,12 +41,6 @@ export default class STRINGS {
 	}
 
 	static features = {
-		arrows: "Arrows",
-		arrowsDesc: "Customize how arrows are displayed",
-		arrowsInvert: "Invert arrows",
-		arrowsInvertDesc: "Invert the direction of the arrows on the links",
-		arrowsFlat: "Triangle arrows",
-		arrowsFlatDesc: "Use triangle arrows instead of the default curved ones",
 		autoEnable: "Auto enable",
 		autoEnableDesc: "Auto enable the plugin in graph views",
 		borderUnresolved: "Border of unresolved nodes",
@@ -119,6 +113,8 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
+		invertArrows: "Invert arrows",
+		invertArrowsDesc: "Invert the direction of the arrows on the links",
 		linksFeatureRequired: "The Links feature needs to be enabled.",
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",
@@ -148,10 +144,6 @@ export default class STRINGS {
 		namesNoExtensionDesc: "Remove the file extension from the name",
 		namesUseProperty: "Use property",
 		namesUsePropertyDesc: "Use a property as the node name instead of the filename",
-		namesBackground: "Add a background",
-		namesBackgroundDesc: "Add a background to the node name in order to make it more readable by hiding elements behind it",
-		namesVerticalOffset: "Vertical offset",
-		namesVerticalOffsetDesc: "Vertical offset of the text. A value of 15 is recommended to avoid an overlap with the arrow.",
 		nodeSizesFunction: "Node size function",
 		nodeSizesFunctionDesc: "Select how the graph engine should compute the size of the nodes",
 		nodeSizesProperty: "Node size property",
@@ -291,7 +283,6 @@ export default class STRINGS {
 		OtsukaOchiai: "Otsuka-Ochiai coefficient",
 		overlap: "Overlap coefficient",
 		tagsCount: "Number of tags",
-		topological: "Topological propagation",
 		warningUnreliableOS: "This calculation is unreliable and might vary between OS.",
 		sentiment: "Sentiment",
 	};

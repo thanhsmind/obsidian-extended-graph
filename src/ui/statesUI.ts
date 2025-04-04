@@ -1,10 +1,12 @@
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances } from "src/internal";
+import { DEFAULT_STATE_ID, Graph, GraphStateData, NewNameModal, UIElements, StatesManager, PluginInstances, GraphInstances } from "src/internal";
+import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export class StatesUI extends Component {
     instances: GraphInstances;
 
+    viewContent: HTMLElement;
     currentStateID: string;
 
     isOpen: boolean;
@@ -16,15 +18,16 @@ export class StatesUI extends Component {
     saveButton: ExtraButtonComponent;
     addButton: ExtraButtonComponent;
     deleteButton: ExtraButtonComponent;
-
+    
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
-        this.root = this.instances.view.contentEl.createDiv();
+        this.viewContent = this.instances.view.containerEl.getElementsByClassName("view-content")[0] as HTMLElement;
+        this.root = this.viewContent.createDiv();
         this.root.addClass("graph-states-container");
-
+        
         // TOGGLE BUTTON
-        const graphControls = this.instances.view.contentEl.querySelector(".graph-controls") as HTMLDivElement;
+        const graphControls = this.viewContent.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
             .setTooltip(STRINGS.states.openSettings)
             .setIcon("eye")
@@ -119,7 +122,7 @@ export class StatesUI extends Component {
         this.currentStateID = id;
         return true;
     }
-
+    
     updateStatesList(): void {
         this.clear();
         PluginInstances.settings.states.forEach(state => {
@@ -140,7 +143,7 @@ export class StatesUI extends Component {
     }
 
     clear() {
-        for (let i = this.select.selectEl.length; i >= 0; i--) {
+        for(let i = this.select.selectEl.length; i >= 0; i--) {
             this.select.selectEl.remove(i);
         }
     }

@@ -79,10 +79,6 @@ export class GraphEventsDispatcher extends Component {
         const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
-            for (const node of this.instances.renderer.nodes) {
-                // @ts-ignore
-                node.fontDirty = true;
-            }
         }
     }
 
@@ -93,19 +89,7 @@ export class GraphEventsDispatcher extends Component {
         this.updateOpacityLayerColor();
         this.bindStageEvents();
         this.observeOrphanSettings();
-        try {
-            this.createRenderProxy();
-        }
-        catch (error) {
-            this.listenStage = false;
-            if (typeof error === "string") {
-                console.error(error.toUpperCase());
-            } else if (error instanceof Error) {
-                console.error(error.message);
-            }
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
-            return;
-        }
+        this.createRenderProxy();
         this.preventDraggingPinnedNodes();
         PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
     }

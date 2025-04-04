@@ -12,8 +12,6 @@ export class SettingNames extends SettingsSectionCollapsible {
         this.addOnlyFilename();
         this.addNoExtension();
         this.addUseProperty();
-        this.addBackground();
-        this.addVerticalOffset();
     }
 
     private addNumberOfCharacters() {
@@ -74,35 +72,6 @@ export class SettingNames extends SettingsSectionCollapsible {
                     }
                     PluginInstances.plugin.saveSettings();
                 })
-            }).settingEl);
-    }
-
-    private addBackground() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesBackground)
-            .setDesc(STRINGS.features.namesBackgroundDesc)
-            .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.addBackgroundToName);
-                cb.onChange(value => {
-                    PluginInstances.settings.addBackgroundToName = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            }).settingEl);
-    }
-
-    private addVerticalOffset() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesVerticalOffset)
-            .setDesc(STRINGS.features.namesVerticalOffsetDesc)
-            .addText(cb => {
-                cb.setValue(PluginInstances.settings.nameVerticalOffset.toString());
-                cb.onChange(value => {
-                    const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.nameVerticalOffset = intValue;
-                        PluginInstances.plugin.saveSettings();
-                    }
-                });
             }).settingEl);
     }
 
