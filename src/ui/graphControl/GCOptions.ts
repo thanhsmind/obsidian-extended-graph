@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     suggester: NodeNamesSuggester;
-    
+
     constructor(view: GraphView | LocalGraphView) {
         super(view, "options", STRINGS.plugin.options);
 
@@ -102,8 +102,8 @@ export class GCOptions extends GCSection {
                     if (!instances) return;
                     const pinner = new Pinner(instances);
                     const modal = new PinMultipleNodesModal((shapeData, queryData) => {
-                            pinner.pinInShape(shapeData, queryData);
-                        });
+                        pinner.pinInShape(shapeData, queryData);
+                    });
                     modal.open();
                 })
             });
@@ -135,10 +135,12 @@ export class GCOptions extends GCSection {
 
     private saveForNormalState() {
         const instance = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
-        
+
         const engine = getEngine(this.view);
         instance.options = engine.getOptions();
         instance.saveOptions();
+        PluginInstances.graphsManager.backupOptions(this.view);
+        new Notice(STRINGS.notices.normalStateSave);
     }
 
     private getSVGScreenshot() {

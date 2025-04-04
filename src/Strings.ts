@@ -216,6 +216,7 @@ export default class STRINGS {
 		nodeLimiteIs: "The limite is",
 		stateDeleted: "State has been removed",
 		stateSaved: "State has been saved",
+		normalStateSave: "Engine options have been saved for the normal state",
 		svgCopied: "SVG copied to clipboard",
 	};
 
