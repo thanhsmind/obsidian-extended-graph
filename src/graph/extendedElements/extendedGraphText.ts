@@ -137,12 +137,30 @@ export class ExtendedGraphText {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || this.instances.settings.nameVerticalOffset === 0
             || !this.coreElement.text || this.originalText) return;
-        this.originalText = this.coreElement.text;
+        const node = this.coreElement;
+        if (!node.circle) return;
         const offset = this.instances.settings.nameVerticalOffset;
+        const renderer = this.instances.renderer;
+
+        this.originalText = this.coreElement.text;
         this.coreElement.text = new Proxy(this.coreElement.text, {
             set(target, prop, value, receiver) {
                 if (prop === "y") {
-                    target.y = value + offset;
+                    // if the offset is negative, we need to modify the offset
+                    // to take in account the node size
+                    if (offset < -5 && offset > -105) {
+                        const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                        const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
+                        target.y = value + newOffset;
+                    }
+                    else if (offset <= -105) {
+                        const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                        const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
+                        target.y = value + newOffset;
+                    }
+                    else {
+                        target.y = value + offset * renderer.nodeScale;
+                    }
                 }
                 else {
                     // @ts-ignore
