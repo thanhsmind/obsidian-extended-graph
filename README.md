@@ -18,6 +18,9 @@ Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wik
 
 ![](doc/images/overview.webp)
 
+> [!WARNING]
+> The plugin has been released on March 27th, and since multiple bugs have been reported and feature requests have been made. I'm working on all of them and apologize for the inconvenience! Thank you for everyone contributing with this issue reports :D
+
 # Installation
 
 You can install this plugin as any other plugin on desktop via the plugin gallery. it is not supported on mobile.
