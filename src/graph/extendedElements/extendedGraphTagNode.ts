@@ -1,5 +1,5 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, PluginInstances, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
@@ -32,22 +32,20 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
             this.restoreGetFillColor();
             return;
         }
-        if (this.coreGetFillColor) {
-            return;
-        }
-        this.coreGetFillColor = this.coreElement.getFillColor;
         const getFillColor = this.getFillColor.bind(this);
-        this.coreElement.getFillColor = new Proxy(this.coreElement.getFillColor, {
-            apply(target, thisArg, args) {
-                return getFillColor.call(this, ...args) ?? target.call(thisArg, ...args);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+            this.coreElement,
+            "getFillColor",
+            {
+                apply(target, thisArg, args) {
+                    return getFillColor.call(this, ...args) ?? target.call(thisArg, ...args);
+                }
             }
-        });
+        );
     }
 
     override restoreGetFillColor() {
-        if (!this.coreGetFillColor) return;
-        this.coreElement.getFillColor = this.coreGetFillColor;
-        this.coreGetFillColor = undefined;
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {

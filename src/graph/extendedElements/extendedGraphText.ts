@@ -1,14 +1,13 @@
 
 import { GraphNode } from "obsidian-typings";
 import { Sprite, Texture, Text, ColorSource } from "pixi.js";
-import { getBackgroundColor, getFile, getFileInteractives, GraphInstances } from "src/internal";
+import { getBackgroundColor, getFile, getFileInteractives, GraphInstances, PluginInstances } from "src/internal";
 
 export class ExtendedGraphText {
     textBackground: Sprite | null = null;
     textClone: Text | null = null;
     coreElement: GraphNode;
     instances: GraphInstances;
-    originalText: Text | null = null;
     hasChangedText: boolean = false;
 
     constructor(instances: GraphInstances, coreElement: GraphNode) {
@@ -36,10 +35,8 @@ export class ExtendedGraphText {
             this.textClone.destroy(true);
             this.textClone = null;
         }
-        if (this.originalText) {
-            this.coreElement.text = this.originalText;
-            this.originalText = null;
-        }
+
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
     }
 
 
@@ -136,39 +133,42 @@ export class ExtendedGraphText {
     moveTextToAvoidArrow(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || this.instances.settings.nameVerticalOffset === 0
-            || !this.coreElement.text || this.originalText) return;
+            || !this.coreElement.text) return;
         const node = this.coreElement;
         if (!node.circle) return;
         const offset = this.instances.settings.nameVerticalOffset;
         const renderer = this.instances.renderer;
 
-        this.originalText = this.coreElement.text;
-        this.coreElement.text = new Proxy(this.coreElement.text, {
-            set(target, prop, value, receiver) {
-                if (prop === "y") {
-                    // if the offset is negative, we need to modify the offset
-                    // to take in account the node size
-                    if (offset < -5 && offset > -105) {
-                        const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
-                        const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
-                        target.y = value + newOffset;
-                    }
-                    else if (offset <= -105) {
-                        const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
-                        const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
-                        target.y = value + newOffset;
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+            this.coreElement,
+            "text",
+            {
+                set(target, prop, value, receiver) {
+                    if (prop === "y") {
+                        // if the offset is negative, we need to modify the offset
+                        // to take in account the node size
+                        if (offset < -5 && offset > -105) {
+                            const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                            const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
+                            target.y = value + newOffset;
+                        }
+                        else if (offset <= -105) {
+                            const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                            const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
+                            target.y = value + newOffset;
+                        }
+                        else {
+                            target.y = value + offset * renderer.nodeScale;
+                        }
                     }
                     else {
-                        target.y = value + offset * renderer.nodeScale;
+                        // @ts-ignore
+                        target[prop] = value;
                     }
+                    return true;
                 }
-                else {
-                    // @ts-ignore
-                    target[prop] = value;
-                }
-                return true;
             }
-        })
+        );
     }
 
 }

@@ -23,8 +23,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     constructor(extendedElement: ExtendedGraphNode) {
         this.extendedElement = extendedElement;
         this.name = extendedElement.id;
-        this.pixiElement = new Container();
-        this.pixiElement.name = this.name;
 
         this.initShape();
     }
@@ -48,6 +46,14 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     // ============================= INITALIZATION =============================
 
     initGraphics(): void {
+        if (this.pixiElement) {
+            if (this.pixiElement.parent) this.pixiElement.removeFromParent();
+            if (!this.pixiElement.destroyed) this.pixiElement.destroy();
+        }
+
+        this.pixiElement = new Container();
+        this.pixiElement.name = this.name;
+
         this.placeNode();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         this.connect();

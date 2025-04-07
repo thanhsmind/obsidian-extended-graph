@@ -52,14 +52,6 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
         this.graphicsWrapper = new FileNodeGraphicsWrapper(this);
         this.graphicsWrapper.initGraphics();
         this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
-
-        let layer = 1;
-        for (const [key, manager] of this.managers) {
-            if (!this.instances.settings.interactiveSettings[key].showOnGraph) continue;
-            const validTypes = this.getTypes(key);
-            this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
-            layer++;
-        }
     }
 
     // ============================== NODE COLOR ===============================
@@ -70,22 +62,21 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             this.restoreGetFillColor();
             return;
         }
-        if (this.coreGetFillColor) {
-            return;
-        }
-        this.coreGetFillColor = this.coreElement.getFillColor;
+
         const getFillColor = this.getFillColor.bind(this);
-        this.coreElement.getFillColor = new Proxy(this.coreElement.getFillColor, {
-            apply(target, thisArg, args) {
-                return getFillColor.call(this, ...args) ?? target.call(thisArg, ...args);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+            this.coreElement,
+            "getFillColor",
+            {
+                apply(target, thisArg, args) {
+                    return getFillColor.call(this, ...args) ?? Reflect.apply(target, thisArg, args);
+                }
             }
-        });
+        );
     }
 
     override restoreGetFillColor() {
-        if (!this.coreGetFillColor) return;
-        this.coreElement.getFillColor = this.coreGetFillColor;
-        this.coreGetFillColor = undefined;
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {

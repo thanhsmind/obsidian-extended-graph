@@ -11,7 +11,7 @@ export class NodeImage extends Sprite {
 
         this.name = "image";
         this.anchor.set(0.5);
-        
+
         // Mask
         const mask = new NodeShape(shape).drawMask();
         this.mask = mask;

@@ -7,7 +7,7 @@ export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
     extendedElement: ExtendedGraphNode | ExtendedGraphLink;
     managerGraphicsMap?: Map<string, ManagerGraphics>;
     pixiElement: Graphics | Container;
-    
+
     initGraphics(): void;
     clearGraphics(): void;
     destroyGraphics(): void;

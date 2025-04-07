@@ -1,14 +1,15 @@
 import { Component, Menu, TFile } from "obsidian";
-import { Container, DisplayObject, Matrix } from "pixi.js";
+import { GraphRenderer } from "obsidian-typings";
+import { Container, DisplayObject } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
+
+const util = require('util');
 
 export class GraphEventsDispatcher extends Component {
 
     instances: GraphInstances;
     observerOrphans: MutationObserver;
-
-    renderCallback: () => void;
 
     listenStage: boolean = true;
 
@@ -93,8 +94,11 @@ export class GraphEventsDispatcher extends Component {
         this.updateOpacityLayerColor();
         this.bindStageEvents();
         this.observeOrphanSettings();
+
         try {
-            this.createRenderProxy();
+            this.createRenderCallbackProxy();
+            this.createInitGraphicsProxy();
+            this.createDestroyGraphicsProxy();
         }
         catch (error) {
             this.listenStage = false;
@@ -106,6 +110,7 @@ export class GraphEventsDispatcher extends Component {
             PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
+
         this.preventDraggingPinnedNodes();
         PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
     }
@@ -157,16 +162,47 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    private createRenderProxy(): void {
-        this.renderCallback = this.instances.renderer.renderCallback;
+    private createRenderCallbackProxy(): void {
         const onRendered = this.onRendered.bind(this);
-        this.instances.renderer.renderCallback = new Proxy(this.instances.renderer.renderCallback, {
-            apply(target, thisArg, args) {
-                onRendered();
-                const res = target.call(thisArg, ...args);
-                return res;
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.renderCallback>(
+            this.instances.renderer,
+            "renderCallback",
+            {
+                apply(target, thisArg, args) {
+                    onRendered();
+                    return Reflect.apply(target, thisArg, args);
+                }
             }
-        });
+        );
+    }
+
+    private createDestroyGraphicsProxy() {
+        const beforeDestroyGraphics = this.beforeDestroyGraphics.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.destroyGraphics>(
+            this.instances.renderer,
+            "destroyGraphics",
+            {
+                apply(target, thisArg, argArray) {
+                    beforeDestroyGraphics();
+                    return Reflect.apply(target, thisArg, argArray);
+                },
+            }
+        );
+    }
+
+    private createInitGraphicsProxy() {
+        const afterInitGraphics = this.afterInitGraphics.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.initGraphics>(
+            this.instances.renderer,
+            "initGraphics",
+            {
+                apply(target, thisArg, argArray) {
+                    const res = Reflect.apply(target, thisArg, argArray);
+                    afterInitGraphics();
+                    return res;
+                },
+            }
+        );
     }
 
     // =============================== UNLOADING ===============================
@@ -176,9 +212,15 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        this.instances.renderer.renderCallback = this.renderCallback;
+        this.removeProxys();
         this.observerOrphans?.disconnect();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
+    }
+
+    private removeProxys() {
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
     }
 
     private unbindStageEvents(): void {
@@ -270,7 +312,23 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    // ============================= RENDER EVENTS =============================
+    // ============================== GRAPH CYCLE ==============================
+
+    private beforeDestroyGraphics() {
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+    }
+
+    private afterInitGraphics() {
+        setTimeout(() => {
+            this.instances.linksSet.extendedElementsMap.forEach(el => {
+                el.graphicsWrapper?.initGraphics();
+            })
+            this.instances.nodesSet.extendedElementsMap.forEach(el => {
+                el.graphicsWrapper?.initGraphics();
+            })
+            this.createRenderCallbackProxy();
+        }, this.instances.settings.delay);
+    }
 
     private onRendered() {
         // If some elements must be added because of cascading effect, add them now and reset to null once it's done

@@ -22,13 +22,11 @@ import {
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
-    coreGetFillColor: (() => GraphColorAttributes) | undefined;
     extendedText: ExtendedGraphText;
 
     // Size
     graphicsWrapperScale: number = 1;
     radius: number = NodeShape.RADIUS;
-    coreGetSize?: () => number;
 
     // icon
     icon: {
@@ -148,22 +146,21 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             this.restoreGetSize();
             return;
         }
-        if (this.coreGetSize) {
-            return;
-        }
-        this.coreGetSize = this.coreElement.getSize;
+
         const getSize = this.getSize.bind(this);
-        this.coreElement.getSize = new Proxy(this.coreElement.getSize, {
-            apply(target, thisArg, args) {
-                return getSize.call(this, ...args)
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
+            this.coreElement,
+            "getSize",
+            {
+                apply(target, thisArg, args) {
+                    return getSize.call(this, ...args)
+                }
             }
-        });
+        );
     }
 
     private restoreGetSize() {
-        if (!this.coreGetSize) return;
-        this.coreElement.getSize = this.coreGetSize;
-        this.coreGetSize = undefined;
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
     }
 
     getSize(): number {

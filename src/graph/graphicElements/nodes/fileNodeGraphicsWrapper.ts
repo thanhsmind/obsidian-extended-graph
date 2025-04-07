@@ -8,6 +8,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // Additional graphics elements
     nodeImage?: NodeImage;
+    texture?: Texture;
     background?: NodeShape;
 
     // ============================= INITALIZATION =============================
@@ -16,13 +17,34 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         super.initGraphics();
         if (this.extendedElement.needBackground()) this.initBackground();
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
+        if (this.texture) this.initNodeImage(this.texture);
     }
 
     private initArcsWrapper() {
-        this.managerGraphicsMap = new Map<string, ArcsCircle>();
+        if (this.managerGraphicsMap && this.managerGraphicsMap.size > 0) {
+            for (const arcWrapper of this.managerGraphicsMap.values() || []) {
+                if (arcWrapper.parent) arcWrapper.removeFromParent();
+                if (!arcWrapper.destroyed) arcWrapper.destroy({ children: true });
+            }
+            this.managerGraphicsMap.clear()
+        }
+        else {
+            this.managerGraphicsMap = new Map<string, ArcsCircle>();
+        }
+        let layer = 1;
+        for (const [key, manager] of this.extendedElement.managers) {
+            if (!this.extendedElement.instances.settings.interactiveSettings[key].showOnGraph) continue;
+            const validTypes = this.extendedElement.getTypes(key);
+            this.createManagerGraphics(manager, validTypes, layer);
+            layer++;
+        }
     }
 
     private initBackground() {
+        if (this.background) {
+            if (this.background.parent) this.background.removeFromParent();
+            if (!this.background.destroyed) this.background.destroy({ children: true });
+        }
         this.background = new NodeShape(this.shape);
         if (this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
             this.background.drawFill(this.getFillColor().rgb);
@@ -33,13 +55,18 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     initNodeImage(texture: Texture | undefined) {
         if (!this.extendedElement.needImage()) return;
+        if (this.nodeImage && (this.nodeImage.destroyed || !this.nodeImage.parent)) {
+            if (this.nodeImage.parent) this.nodeImage.removeFromParent();
+            if (!this.nodeImage.destroyed) this.nodeImage.destroy({ children: true });
+        }
         if (texture) {
+            this.texture = texture;
             this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
             this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
         }
     }
 
-    createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
+    protected createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
         const arcsCircle = new ArcsCircle(types, manager, layer, this.shape);
         this.managerGraphicsMap?.set(manager.name, arcsCircle);
         this.pixiElement.addChild(arcsCircle);

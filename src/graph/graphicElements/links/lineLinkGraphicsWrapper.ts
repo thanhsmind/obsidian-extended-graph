@@ -4,8 +4,8 @@ import { InteractiveManager, LinkGraphicsWrapper, LinkLineGraphics } from "src/i
 export class LineLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkLineGraphics> {
 
     // ============================= INITALIZATION =============================
-    
-    override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
+
+    protected override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
         const lineLink = new LinkLineGraphics(manager, types, this.name, this.extendedElement);
         this.setManagerGraphics(manager, lineLink);
     }

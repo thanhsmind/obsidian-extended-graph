@@ -2,10 +2,10 @@ import { InteractiveManager, LinkCurveGraphics, LinkGraphicsWrapper } from "src/
 
 
 export class CurveLinkGraphicsWrapper extends LinkGraphicsWrapper<LinkCurveGraphics> {
-    
+
     // ============================= INITALIZATION =============================
-    
-    override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
+
+    protected override createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
         const curveLink = new LinkCurveGraphics(manager, types, this.name, this.extendedElement);
         this.setManagerGraphics(manager, curveLink);
     }

@@ -13,6 +13,8 @@ export class LinkCurveGraphics extends LinkGraphics {
     }
 
     private initArrow() {
+        if (this.destroyed) return;
+
         this.arrow = new Graphics();
         this.arrow.beginFill("white");
         this.arrow.moveTo(0, 0);
@@ -31,6 +33,8 @@ export class LinkCurveGraphics extends LinkGraphics {
     }
 
     override toggleType(type: string, enable: boolean): void {
+        if (this.destroyed) return;
+
         if (!enable && this.arrow) {
             this.arrow.clear();
             this.arrow.destroy();
@@ -40,11 +44,15 @@ export class LinkCurveGraphics extends LinkGraphics {
     }
 
     redrawType(type: string, color?: Uint8Array): void {
+        if (this.destroyed) return;
+
         super.redrawType(type, color);
         this.updateFrame();
     }
 
     override updateFrame(): void {
+        if (this.destroyed) return;
+
         this.clear();
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
@@ -101,11 +109,20 @@ export class LinkCurveGraphics extends LinkGraphics {
 
     override destroy(options?: IDestroyOptions): void {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = true;
+
+        if (this.destroyed) return;
         super.destroy(options);
     }
 
     override clearGraphics(): void {
+        if (this.destroyed) return;
+
         this.arrow?.clear();
         super.clearGraphics();
+    }
+
+    override clear(): this {
+        if (this.destroyed) return this;
+        return super.clear();
     }
 }

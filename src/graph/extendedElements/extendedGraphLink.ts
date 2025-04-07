@@ -6,7 +6,6 @@ import { CurveLinkGraphicsWrapper, ExtendedGraphElement, GraphInstances, Interac
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
     graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
-    originalArrow: Graphics | null = null;
     hasChangedArrowShape: boolean = false;
 
     // ============================== CONSTRUCTOR ==============================
@@ -55,14 +54,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
         }
         this.graphicsWrapper.initGraphics();
-
-        let layer = 1;
-        for (const [key, manager] of this.managers) {
-            if (!this.instances.settings.interactiveSettings[key].showOnGraph) continue;
-            const validTypes = this.getTypes(key);
-            this.graphicsWrapper.createManagerGraphics(manager, validTypes, layer);
-            layer++;
-        }
     }
 
     // ================================= UNLOAD ================================
@@ -120,42 +111,42 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     private invertArrowDirection(): void {
         const link = this.coreElement;
-        if (link.arrow && !this.originalArrow) {
-            this.originalArrow = link.arrow;
-            link.arrow = new Proxy(link.arrow, {
-                set(target, prop, value, receiver) {
-                    if (prop === "x" || prop === "y") {
-                        var c2c_x = link.target.x - link.source.x
-                            , c2c_y = link.target.y - link.source.y
-                            , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
-                            , source_r = link.source.getSize() * link.renderer.nodeScale
-                            , target_r = link.target.getSize() * link.renderer.nodeScale;
+        if (link.arrow) {
+            PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
+                this.coreElement,
+                "arrow",
+                {
+                    set(target, prop, value, receiver) {
+                        if (prop === "x" || prop === "y") {
+                            var c2c_x = link.target.x - link.source.x
+                                , c2c_y = link.target.y - link.source.y
+                                , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
+                                , source_r = link.source.getSize() * link.renderer.nodeScale
+                                , target_r = link.target.getSize() * link.renderer.nodeScale;
 
-                        if (prop === "x") {
-                            target.x = link.source.x + c2c_x * source_r / diag;
+                            if (prop === "x") {
+                                target.x = link.source.x + c2c_x * source_r / diag;
+                            }
+                            else {
+                                target.y = link.source.y + c2c_y * source_r / diag;
+                            }
+                        }
+                        else if (prop === "rotation") {
+                            target.rotation = value + Math.PI;
                         }
                         else {
-                            target.y = link.source.y + c2c_y * source_r / diag;
+                            // @ts-ignore
+                            target[prop] = value;
                         }
+                        return true;
                     }
-                    else if (prop === "rotation") {
-                        target.rotation = value + Math.PI;
-                    }
-                    else {
-                        // @ts-ignore
-                        target[prop] = value;
-                    }
-                    return true;
                 }
-            })
+            );
         }
     }
 
     private resetArrowDirection(): void {
-        if (this.coreElement.arrow && this.originalArrow) {
-            this.coreElement.arrow = this.originalArrow;
-            this.originalArrow = null;
-        }
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
     }
 
     private createFlatArrow(): void {
