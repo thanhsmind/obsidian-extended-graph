@@ -14,16 +14,17 @@ export class FolderBlob {
     radius: number = 50;
     borderWidth: number = 2;
     textStyle: TextStyle;
-    BBox: {left: number, right: number, top: number, bottom: number};
+    BBox: { left: number, right: number, top: number, bottom: number };
 
     constructor(path: string, color?: string) {
         this.path = path;
-
         this.color = color ? color : randomColor();
+    }
 
+    initGraphics() {
         this.area = new Graphics();
         this.area.eventMode = 'none';
-        
+
         this.textStyle = new TextStyle({
             fontSize: 14,
             fill: this.color,
@@ -32,7 +33,7 @@ export class FolderBlob {
             wordWrapWidth: 300,
             align: "center"
         });
-        this.text = new Text(path, this.textStyle);
+        this.text = new Text(this.path, this.textStyle);
         this.text.anchor.set(0.5, 0);
         this.area.addChild(this.text);
     }
@@ -102,7 +103,7 @@ export class FolderBlob {
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
         this.text.style.fontSize = 14 * t;
-        this.text.x = this.BBox.left +  0.5 * (this.BBox.right - this.BBox.left);
+        this.text.x = this.BBox.left + 0.5 * (this.BBox.right - this.BBox.left);
         this.text.y = this.BBox.top;
         this.text.scale.set(1 / t);
     }
@@ -137,30 +138,36 @@ export class FoldersSet {
     // ================================ LOADING ================================
 
     load(): void {
-        this.initContainer();
+        this.initGraphics();
         this.addMissingFolders();
     }
 
-    private initContainer(): void {
-        if (this.container) return;
+    initGraphics(): void {
+        if (this.container && !this.container.destroyed) return;
         this.container = new Container();
         this.container.name = "Blobs";
         this.instances.renderer.hanger.addChildAt(this.container, 0);
+
+        for (const blob of this.foldersMap.values()) {
+            if (blob.area.destroyed) {
+                this.loadFolder(FOLDER_KEY, blob.path);
+            }
+        }
     }
 
     private addMissingFolders(): void {
         for (const [key, manager] of this.managers) {
             let missingFolders = new Set<string>();
-    
+
             for (const node of this.instances.renderer.nodes) {
                 const file = getFile(node.id);
                 if (!file) continue;
                 if (this.foldersMap.has(file.path)) continue;
-    
+
                 const interactives = getFileInteractives(FOLDER_KEY, file);
                 this.addInteractivesToSet(key, interactives, missingFolders);
             }
-    
+
             manager.addTypes(missingFolders);
         }
     }
@@ -185,7 +192,7 @@ export class FoldersSet {
             missingFolders.add(this.instances.settings.interactiveSettings[FOLDER_KEY].noneType);
         }
     }
-    
+
     private isFolderValid(type: string): boolean {
         if (this.instances.settings.interactiveSettings[FOLDER_KEY].unselected.includes(type)) return false;
         if (INVALID_KEYS[FOLDER_KEY].includes(type)) return false;
@@ -195,7 +202,7 @@ export class FoldersSet {
     // =============================== UNLOADING ===============================
 
     unload(): void {
-        this.container.destroy({children: true});
+        this.container.destroy({ children: true });
         this.container.removeFromParent();
         this.foldersMap.clear();
     }
@@ -211,6 +218,11 @@ export class FoldersSet {
             if (!blob) {
                 blobExists = false;
                 blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
+                blob.initGraphics();
+            }
+            else if (blob.area.destroyed || !blob.area.parent) {
+                blobExists = false;
+                blob.initGraphics();
             }
             for (const file of folder.children) {
                 if (file instanceof TFile) {

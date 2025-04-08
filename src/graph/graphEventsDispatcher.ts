@@ -326,6 +326,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.nodesSet.extendedElementsMap.forEach(el => {
                 el.graphicsWrapper?.initGraphics();
             })
+            this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
         }, this.instances.settings.delay);
     }
