@@ -316,11 +316,17 @@ export class GraphEventsDispatcher extends Component {
 
     private beforeDestroyGraphics() {
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        this.instances.linksSet.extendedElementsMap.forEach(el => {
+            el.revertCoreGraphicsChanges();
+        })
+        console.log("beforeDestroyGraphics");
     }
 
     private afterInitGraphics() {
+        console.log("afterInitGraphics");
         setTimeout(() => {
             this.instances.linksSet.extendedElementsMap.forEach(el => {
+                el.makeCoreGraphicsChanges();
                 el.graphicsWrapper?.initGraphics();
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {

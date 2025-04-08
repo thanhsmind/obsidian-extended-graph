@@ -57,4 +57,12 @@ export class ProxysManager {
             owner[property] = coreTarget;
         }
     }
+
+    unregisterAll() {
+        for (const [proxy, element] of this.coreTargets) {
+            const { owner, property, coreTarget } = element;
+            this.coreTargets.delete(proxy);
+            owner[property] = coreTarget;
+        }
+    }
 }

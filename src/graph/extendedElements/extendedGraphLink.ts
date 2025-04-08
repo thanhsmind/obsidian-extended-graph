@@ -13,20 +13,17 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     constructor(instances: GraphInstances, link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, link, types, managers);
         this.initGraphicsWrapper();
-
-        if (this.instances.settings.enableFeatures[this.instances.type]['arrows']) {
-            if (this.instances.settings.invertArrows) {
-                this.invertArrowDirection();
-            }
-            if (this.instances.settings.flatArrows) {
-                this.createFlatArrow();
-            }
-        }
     }
 
     protected override initGraphicsWrapper(): void {
         super.initGraphicsWrapper();
         this.changeCoreLinkThickness();
+        this.makeCoreGraphicsChanges();
+    }
+
+    makeCoreGraphicsChanges(): void {
+        this.invertArrowDirection();
+        this.createFlatArrow();
     }
 
     protected override needGraphicsWrapper(): boolean {
@@ -60,9 +57,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override unload(): void {
         this.restoreCoreLinkThickness();
+        this.revertCoreGraphicsChanges();
+        super.unload();
+    }
+
+    revertCoreGraphicsChanges(): void {
         this.resetArrowDirection();
         this.resetArrowShape();
-        super.unload();
     }
 
     // ========================= LINK SIZE (THICKNESS) =========================
@@ -110,6 +111,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     // ================================ ARROWS =================================
 
     private invertArrowDirection(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
         const link = this.coreElement;
         if (link.arrow) {
             PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
@@ -121,8 +123,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                             var c2c_x = link.target.x - link.source.x
                                 , c2c_y = link.target.y - link.source.y
                                 , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
-                                , source_r = link.source.getSize() * link.renderer.nodeScale
-                                , target_r = link.target.getSize() * link.renderer.nodeScale;
+                                , source_r = link.source.getSize() * link.renderer.nodeScale;
 
                             if (prop === "x") {
                                 target.x = link.source.x + c2c_x * source_r / diag;
@@ -150,6 +151,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     private createFlatArrow(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.flatArrows) return;
         const arrow = this.coreElement.arrow;
         if (!arrow) return;
         arrow.clear();
