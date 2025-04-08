@@ -15,6 +15,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
     opacityLayer?: NodeShape;
     iconBackgroundLayer?: NodeShape;
+    iconSprite?: Sprite;
+    emojiText?: Text;
     scaleFactor: number = 1;
 
     // Shape specific
@@ -56,6 +58,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
         this.placeNode();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
+        if (this.extendedElement.icon?.svg || this.extendedElement.icon?.emoji) this.initIcon();
         this.connect();
     }
 
@@ -75,6 +78,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     initIcon() {
         if (!this.extendedElement.icon) return;
         if (!this.extendedElement.icon.svg && !this.extendedElement.icon.emoji) return;
+        if (this.iconSprite?.parent || this.emojiText?.parent) return;
 
         // If an svg was found, create an asset and use it
         if (this.extendedElement.icon.svg) {
@@ -86,13 +90,13 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
             this.pixiElement.sortableChildren = true;
             const createSprite = (texture: Texture) => {
-                const sprite = new Sprite(texture);
-                sprite.name = "icon";
-                sprite.anchor.set(0.5, 0.5);
-                sprite.height = 200;
-                sprite.width = 200;
-                sprite.tint = color;
-                this.pixiElement.addChild(sprite);
+                this.iconSprite = new Sprite(texture);
+                this.iconSprite.name = "icon";
+                this.iconSprite.anchor.set(0.5, 0.5);
+                this.iconSprite.height = 200;
+                this.iconSprite.width = 200;
+                this.iconSprite.tint = color;
+                this.pixiElement.addChild(this.iconSprite);
             }
 
             // Lower resolution, better performance
@@ -107,14 +111,14 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
         // If an emoji was found, create a text element
         else if (this.extendedElement.icon.emoji) {
-            const emojiText = new Text(this.extendedElement.icon.emoji, {
+            this.emojiText = new Text(this.extendedElement.icon.emoji, {
                 fontFamily: "Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Android Emoji, EmojiSymbols, Symbola, Twemoji Mozilla, Twemoji Mozilla Color Emoji, Twemoji Mozilla Color Emoji 13.1.0",
                 fontSize: 150,
                 align: "center",
             });
-            emojiText.name = "icon";
-            emojiText.anchor.set(0.5, 0.5);
-            this.pixiElement.addChild(emojiText);
+            this.emojiText.name = "icon";
+            this.emojiText.anchor.set(0.5, 0.5);
+            this.pixiElement.addChild(this.emojiText);
         }
 
         // Hide circle
