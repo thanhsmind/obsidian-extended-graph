@@ -1,6 +1,7 @@
 import { Component, Menu, TFile } from "obsidian";
+import { LocalGraphView } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
@@ -107,6 +108,7 @@ export class GraphEventsDispatcher extends Component {
             PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
+
 
         this.preventDraggingPinnedNodes();
         PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);

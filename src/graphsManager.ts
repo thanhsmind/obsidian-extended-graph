@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -777,6 +777,16 @@ export class GraphsManager extends Component {
                 const localDispatcher = this.allInstances.get(this.localGraphID);
                 if (localDispatcher) this.resetPlugin(localDispatcher.view);
             }
+            if (view.file) {
+                // If there is a Graph Banner plugin graph, center it on the correct node.
+                // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
+                // which means that nodes get a new position after the zooming.
+                const graphBannerView = getGraphBannerPlugin()?.graphViews.find(el => el.node === view.contentEl.querySelector(`.${getGraphBannerClass()}`))?.leaf.view;
+                if (graphBannerView && this.allInstances.get(graphBannerView.leaf.id)) {
+                    const graphBannerViewTyped = graphBannerView as LocalGraphView;
+                    this.zoomOnNode(graphBannerViewTyped, view.file.path, graphBannerViewTyped.renderer.targetScale);
+                }
+            }
             this.activeFile = view.file;
         }
     }
@@ -880,13 +890,13 @@ export class GraphsManager extends Component {
 
     // ============================= ZOOM ON NODE ==============================
 
-    zoomOnNode(view: GraphView | LocalGraphView, nodeID: string) {
+    zoomOnNode(view: GraphView | LocalGraphView, nodeID: string, targetScale?: number) {
         const renderer = view.renderer;
         const node = renderer.nodes.find(node => node.id === nodeID);
         if (!node) return;
 
         let scale = renderer.scale;
-        let targetScale = PluginInstances.settings.zoomFactor;
+        if (targetScale === undefined) targetScale = PluginInstances.settings.zoomFactor;
         let panX = renderer.panX
         let panY = renderer.panY;
         renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));
