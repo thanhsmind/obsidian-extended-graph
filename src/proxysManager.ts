@@ -12,7 +12,7 @@ export class ProxysManager {
 
     coreTargets: Map<any, Target> = new Map(); // key: proxy, value: core target
 
-    registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): void {
+    registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): any {
         if (!(property in owner)) return;
 
         const coreTarget = owner[property];
@@ -34,6 +34,10 @@ export class ProxysManager {
             property,
             coreTarget
         });
+
+        this.clean();
+
+        return proxy;
     }
 
     private isProxy(target: any) {
@@ -64,5 +68,9 @@ export class ProxysManager {
             this.coreTargets.delete(proxy);
             owner[property] = coreTarget;
         }
+    }
+
+    clean() {
+        console.log(this.coreTargets.size);
     }
 }

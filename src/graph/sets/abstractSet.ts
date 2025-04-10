@@ -289,6 +289,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         this.disconnectedIDs[cause].delete(id);
         this.connectedIDs.add(id);
 
+        if (!extendedElement.canBeAddedWithEngineOptions()) return false;
+
         if (!extendedElement.getCoreCollection().includes(extendedElement.coreElement))
             extendedElement.getCoreCollection().push(extendedElement.coreElement);
         extendedElement.coreElement.initGraphics();

@@ -149,7 +149,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
 
         const getSize = this.getSize.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
+        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
             this.coreElement,
             "getSize",
             {
@@ -158,6 +158,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
                 }
             }
         );
+        this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
     }
 
     private restoreGetSize() {
@@ -211,6 +212,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected override getCoreParentGraphics(coreElement: GraphNode): Graphics | null {
         return coreElement.circle;
+    }
+
+    override canBeAddedWithEngineOptions(): boolean {
+        if (this.coreElement.type === "tag" && !this.instances.engine.getOptions().showTags) return false;
+        if (this.coreElement.type === "attachment" && !this.instances.engine.getOptions().showAttachments) return false;
+
+        return true;
     }
 
     // ================================ GETTERS ================================

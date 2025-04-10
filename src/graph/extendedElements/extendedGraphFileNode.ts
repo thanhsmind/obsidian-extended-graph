@@ -64,7 +64,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
         }
 
         const getFillColor = this.getFillColor.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
             this.coreElement,
             "getFillColor",
             {
@@ -73,6 +73,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
                 }
             }
         );
+        this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
     }
 
     override restoreGetFillColor() {

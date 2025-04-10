@@ -169,7 +169,7 @@ export class GraphsManager extends Component {
      * @param cache - The new cached metadata
      */
     private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
-        this.allInstances.forEach(instances => {
+        for (const instances of this.allInstances.values()) {
             if (!instances.graph || !instances.renderer) return;
 
             // Update nodes interactives
@@ -266,7 +266,7 @@ export class GraphsManager extends Component {
             for (const id of idsToRemove) {
                 instances.linksSet.extendedElementsMap.delete(id);
             }
-        });
+        }
     }
 
     private onDelete(file: TAbstractFile) {

@@ -114,7 +114,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
         const link = this.coreElement;
         if (link.arrow) {
-            PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
+            const proxy = PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
                 this.coreElement,
                 "arrow",
                 {
@@ -143,6 +143,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                     }
                 }
             );
+
+            this.coreElement.arrow?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
         }
     }
 
@@ -199,6 +201,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         else {
             return coreElement.line;
         }
+    }
+
+    override canBeAddedWithEngineOptions(): boolean {
+        const extendedSource = this.instances.nodesSet.extendedElementsMap.get(this.coreElement.source.id);
+        const extendedTarget = this.instances.nodesSet.extendedElementsMap.get(this.coreElement.target.id);
+        if (!extendedSource || !extendedTarget) return false;
+
+        return extendedSource.canBeAddedWithEngineOptions() && extendedTarget.canBeAddedWithEngineOptions();
     }
 
     // ================================ GETTERS ================================

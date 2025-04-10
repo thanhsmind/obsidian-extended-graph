@@ -1,11 +1,16 @@
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, PluginInstances, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { ExtendedGraphNode, GraphInstances, InteractiveManager, NodeShape, PluginInstances, ProxysManager, rgb2int, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
+        this.changeGetFillColor();
+    }
+
+    protected initGraphicsWrapper(): void {
+        super.initGraphicsWrapper();
         this.changeGetFillColor();
     }
 
@@ -33,7 +38,7 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
             return;
         }
         const getFillColor = this.getFillColor.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
             this.coreElement,
             "getFillColor",
             {
@@ -42,6 +47,7 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
                 }
             }
         );
+        this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
     }
 
     override restoreGetFillColor() {
@@ -52,5 +58,14 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
         const rgb = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
         if (!rgb) return undefined;
         return { rgb: rgb2int(rgb), a: 1 }
+    }
+
+    // ============================== CORE ELEMENT =============================
+
+    override setCoreElement(coreElement: GraphNode | undefined): void {
+        super.setCoreElement(coreElement);
+        if (coreElement) {
+            this.changeGetFillColor();
+        }
     }
 }

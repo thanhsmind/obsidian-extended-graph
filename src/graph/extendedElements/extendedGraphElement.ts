@@ -1,6 +1,6 @@
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { GraphicsWrapper, GraphInstances, GraphType, InteractiveManager } from "src/internal";
+import { GraphicsWrapper, GraphInstances, GraphType, InteractiveManager, PluginInstances } from "src/internal";
 
 export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     instances: GraphInstances;
@@ -79,6 +79,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     protected abstract isCoreElementUptodate(): boolean;
     abstract isSameCoreElement(coreElement: T): boolean;
     abstract getCoreCollection(): T[];
+    abstract canBeAddedWithEngineOptions(): boolean;
     protected abstract getCoreParentGraphics(coreElement: T): Container | null;
 
 

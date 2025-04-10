@@ -166,7 +166,7 @@ export class ExtendedGraphText {
         const offset = this.instances.settings.nameVerticalOffset;
         const renderer = this.instances.renderer;
 
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
             this.coreElement,
             "text",
             {
@@ -204,6 +204,8 @@ export class ExtendedGraphText {
                 }
             }
         );
+
+        this.coreElement.text.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
     }
 
 }
