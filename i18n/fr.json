@@ -152,6 +152,8 @@
 		"nodeColorsFunction": "Fonction pour la couleur des noeuds",
 		"nodeColorsFunctionDesc": "électionne comment le moteur du graphe doit calculer la couleur des noeuds",
 		"nodeColorsPaletteDesc": "Choisissez la palette de couleur pour les noeuds",
+		"namesInterfaceFont": "Utilise la police d'interface",
+		"namesInterfaceFontDesc": "Utilisa la même police de caractères que celle pour l'interface de votre coffre",
 		"performance": "Performances",
 		"performanceDelay": "Délai d'initialisation (millisecondes)",
 		"performanceDelayDesc": "Il peut être nécessaire d'attendre quelques fractions de secondes avant d'initialiser le module dans une vue graphique à cause de mécaniques asynchrones",

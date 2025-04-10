@@ -150,6 +150,8 @@ export default class STRINGS {
 		namesUsePropertyDesc: "Use a property as the node name instead of the filename",
 		namesBackground: "Add a background",
 		namesBackgroundDesc: "Add a background to the node name in order to make it more readable by hiding elements behind it",
+		namesInterfaceFont: "Use interface font",
+		namesInterfaceFontDesc: "Use the same font as the one for your vault's interface",
 		namesVerticalOffset: "Vertical offset",
 		namesVerticalOffsetDesc: "Vertical offset of the text. A value of 15 is recommended to avoid an overlap with the arrow.",
 		nodeSizesFunction: "Node size function",

@@ -1,6 +1,6 @@
 
 import { GraphNode } from "obsidian-typings";
-import { Sprite, Texture, Text, ColorSource } from "pixi.js";
+import { Sprite, Texture, Text, ColorSource, TextStyle } from "pixi.js";
 import { getBackgroundColor, getFile, getFileInteractives, GraphInstances, PluginInstances } from "src/internal";
 
 export class ExtendedGraphText {
@@ -10,17 +10,24 @@ export class ExtendedGraphText {
     instances: GraphInstances;
     hasChangedText: boolean = false;
 
+    coreGetTextStyle: () => TextStyle;
+
     constructor(instances: GraphInstances, coreElement: GraphNode) {
         this.instances = instances;
         this.coreElement = coreElement;
+        this.coreGetTextStyle = this.coreElement.getTextStyle.bind(this.coreElement);
+        this.initGraphics();
+    }
 
+    initGraphics() {
         this.updateFontFamily();
         this.updateText();
         this.addBackgroundToText();
-        this.moveTextToAvoidArrow();
+        this.verticalOffsetText();
     }
 
     unload(): void {
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
         if (this.coreElement.text && this.hasChangedText) {
             this.coreElement.text.text = this.coreElement.getDisplayText();
             this.hasChangedText = false;
@@ -35,8 +42,7 @@ export class ExtendedGraphText {
             this.textClone.destroy(true);
             this.textClone = null;
         }
-
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
+        this.restoreFontFamily();
     }
 
 
@@ -44,17 +50,25 @@ export class ExtendedGraphText {
     // ================== Change font family to match the interface font
 
     updateFontFamily(): void {
-        if (!this.coreElement.text) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.instances.settings.useInterfaceFont || !this.coreElement.text) return;
         const style = window.getComputedStyle(this.coreElement.renderer.interactiveEl);
         const fontInterface = style.getPropertyValue("--font-interface");
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
         if (fontNode !== fontInterface) {
-            const textStyle = this.coreElement.text.style;
-            textStyle.fontFamily = fontInterface;
-            this.coreElement.text.style = textStyle;
+            this.coreElement.getTextStyle = () => {
+                const coreStyle = this.coreGetTextStyle();
+                coreStyle.fontFamily = fontInterface + ", " + fontNode;
+                return coreStyle;
+            }
+            this.coreElement.fontDirty = true;
         }
+    }
+
+    restoreFontFamily(): void {
+        this.coreElement.getTextStyle = this.coreGetTextStyle;
+        this.coreElement.fontDirty = true;
     }
 
 
@@ -62,9 +76,9 @@ export class ExtendedGraphText {
     // ================== Change display text
 
     updateText(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text || this.hasChangedText) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text) return;
 
-        let text = this.coreElement.text.text;
+        let text = this.coreElement.getDisplayText();
 
         if (this.instances.settings.usePropertyForName) {
             const file = getFile(this.coreElement.id);
@@ -105,16 +119,29 @@ export class ExtendedGraphText {
         if (!this.coreElement.text) return;
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || !this.instances.settings.addBackgroundToName) return;
+
         this.textBackground = new Sprite(Texture.WHITE);
-        this.textBackground.width = (this.coreElement.text.getBounds().width + this.coreElement.text.width) / 2;
-        this.textBackground.height = (this.coreElement.text.getBounds().height + this.coreElement.text.height) / 2;
+        // Clone the text to create a second one
+        this.textClone = new Text(this.coreElement.text.text, this.coreElement.getTextStyle());
+        console.log(this.textClone.style.fontFamily);
+        // Compute the size
+        this.textBackground.width = (this.textClone.getBounds().width + this.textClone.width) / 2;
+        this.textBackground.height = (this.textClone.getBounds().height + this.textClone.height) / 2;
+        // Set the anchors in the middle, verticaly
         this.textBackground.anchor.set(0.5, 0);
-        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
-        this.textBackground.alpha = 2;
-        this.textClone = new Text(this.coreElement.text.text, this.coreElement.text.style);
         this.textClone.anchor.set(0.5, 0);
+        // Change the color
+        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
+        // Use a higher alpha than 1 in order to have a better opacity (which changes when hovering or zooming in/out)
+        this.textBackground.alpha = 2;
+        // Add the background and the cloned text to the scene
         this.coreElement.text.addChild(this.textBackground);
         this.coreElement.text.addChild(this.textClone);
+
+        // We need to create a clone text in order to bind the background to the core text element.
+        // When we do that, we don't need to worry about transforms applied to the core text
+        // but a parent is always behind its children, therefore the background covers the core text
+        // Which is why we need to clone it and add the second text as a child too
     }
 
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
@@ -130,7 +157,7 @@ export class ExtendedGraphText {
 
     // ================== Slightly move thex text to avoid overlapping the arrow
 
-    moveTextToAvoidArrow(): void {
+    verticalOffsetText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || this.instances.settings.nameVerticalOffset === 0
             || !this.coreElement.text) return;
@@ -145,15 +172,23 @@ export class ExtendedGraphText {
             {
                 set(target, prop, value, receiver) {
                     if (prop === "y") {
+                        const size = node.getSize();
+                        // if the offset places the text above the center of the node
+                        // we need to inverse the value when hovered (text moving)
+                        if (offset < -55) {
+                            const origin = node.y + (size + 5) * renderer.nodeScale;
+                            const move = value - origin;
+                            value = origin - move;
+                        }
                         // if the offset is negative, we need to modify the offset
                         // to take in account the node size
                         if (offset < -5 && offset > -105) {
-                            const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                            const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
                             const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
                             target.y = value + newOffset;
                         }
                         else if (offset <= -105) {
-                            const nodeFactor = node.getSize() * renderer.nodeScale / 50 + target.height / 100;
+                            const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
                             const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
                             target.y = value + newOffset;
                         }

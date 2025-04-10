@@ -8,6 +8,7 @@ export class SettingNames extends SettingsSectionCollapsible {
     }
 
     protected override addBody() {
+        this.addInterfaceFont();
         this.addNumberOfCharacters();
         this.addOnlyFilename();
         this.addNoExtension();
@@ -98,11 +99,22 @@ export class SettingNames extends SettingsSectionCollapsible {
                 cb.setValue(PluginInstances.settings.nameVerticalOffset.toString());
                 cb.onChange(value => {
                     const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.nameVerticalOffset = intValue;
-                        PluginInstances.plugin.saveSettings();
-                    }
+                    PluginInstances.settings.nameVerticalOffset = isNaN(intValue) ? 0 : intValue;
+                    PluginInstances.plugin.saveSettings();
                 });
+            }).settingEl);
+    }
+
+    private addInterfaceFont() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesInterfaceFont)
+            .setDesc(STRINGS.features.namesInterfaceFontDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.useInterfaceFont);
+                cb.onChange(value => {
+                    PluginInstances.settings.useInterfaceFont = value;
+                    PluginInstances.plugin.saveSettings();
+                })
             }).settingEl);
     }
 

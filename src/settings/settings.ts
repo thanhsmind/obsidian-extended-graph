@@ -88,6 +88,7 @@ export interface ExtendedGraphSettings {
     usePropertyForName: string | null;
     addBackgroundToName: boolean;
     nameVerticalOffset: number;
+    useInterfaceFont: boolean;
 
     // Icons
     iconProperty: string;
@@ -236,6 +237,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     usePropertyForName: null,
     addBackgroundToName: false,
     nameVerticalOffset: 0,
+    useInterfaceFont: true,
 
     // Icons
     iconProperty: "",

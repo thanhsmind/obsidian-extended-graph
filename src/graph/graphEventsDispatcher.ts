@@ -1,10 +1,7 @@
 import { Component, Menu, TFile } from "obsidian";
-import { GraphRenderer } from "obsidian-typings";
-import { Container, DisplayObject } from "pixi.js";
+import { Container, DisplayObject, Text } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
 import STRINGS from "src/Strings";
-
-const util = require('util');
 
 export class GraphEventsDispatcher extends Component {
 
@@ -271,6 +268,16 @@ export class GraphEventsDispatcher extends Component {
                 extendedLink.setCoreElement(linkPx);
             }
         }
+
+        if ("text" in child) {
+            const node = this.instances.renderer.nodes.find(n => n.text === child as Text);
+            if (node) {
+                const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
+                if (extendedNode) {
+                    extendedNode.extendedText.initGraphics();
+                }
+            }
+        }
     }
 
     private onChildRemovedFromStage(child: DisplayObject, container: Container<DisplayObject>, index: number): void {
@@ -315,7 +322,11 @@ export class GraphEventsDispatcher extends Component {
     // ============================== GRAPH CYCLE ==============================
 
     private beforeDestroyGraphics() {
+        this.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        this.instances.nodesSet.extendedElementsMap.forEach(el => {
+            PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
+        })
         this.instances.linksSet.extendedElementsMap.forEach(el => {
             el.revertCoreGraphicsChanges();
         })
@@ -331,9 +342,11 @@ export class GraphEventsDispatcher extends Component {
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {
                 el.graphicsWrapper?.initGraphics();
+                el.extendedText.initGraphics();
             })
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
+            this.bindStageEvents();
         }, this.instances.settings.delay);
     }
 
