@@ -332,11 +332,9 @@ export class GraphEventsDispatcher extends Component {
         this.instances.linksSet.extendedElementsMap.forEach(el => {
             el.revertCoreGraphicsChanges();
         })
-        console.log("beforeDestroyGraphics");
     }
 
     private afterInitGraphics() {
-        console.log("afterInitGraphics");
         setTimeout(() => {
             this.instances.linksSet.extendedElementsMap.forEach(el => {
                 el.makeCoreGraphicsChanges();

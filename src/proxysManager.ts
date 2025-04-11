@@ -19,8 +19,6 @@ export class ProxysManager {
         if (!coreTarget) return;
         if (this.isProxy(coreTarget)) return;
 
-        //console.log("Register proxy,", property);
-
         const proxy = new Proxy(owner[property], handler);
         owner[property] = proxy;
 
@@ -34,8 +32,6 @@ export class ProxysManager {
             property,
             coreTarget
         });
-
-        this.clean();
 
         return proxy;
     }
@@ -56,8 +52,6 @@ export class ProxysManager {
             const { owner, property, coreTarget } = found;
             this.coreTargets.delete(proxy);
 
-            //console.log("Unregister proxy,", property);
-
             owner[property] = coreTarget;
         }
     }
@@ -68,9 +62,5 @@ export class ProxysManager {
             this.coreTargets.delete(proxy);
             owner[property] = coreTarget;
         }
-    }
-
-    clean() {
-        console.log(this.coreTargets.size);
     }
 }

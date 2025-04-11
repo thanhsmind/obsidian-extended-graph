@@ -16,6 +16,8 @@ export class ExtendedGraphText {
         this.instances = instances;
         this.coreElement = coreElement;
         this.coreGetTextStyle = this.coreElement.getTextStyle.bind(this.coreElement);
+        this.restoreText = this.restoreText.bind(this);
+        this.changeText = this.changeText.bind(this)
         this.initGraphics();
     }
 
@@ -29,7 +31,9 @@ export class ExtendedGraphText {
     unload(): void {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
         if (this.coreElement.text && this.hasChangedText) {
-            this.coreElement.text.text = this.coreElement.getDisplayText();
+            this.restoreText();
+            this.coreElement.circle?.removeListener('mouseenter', this.restoreText);
+            this.coreElement.circle?.removeListener('mouseleave', this.changeText);
             this.hasChangedText = false;
         }
         if (this.textBackground) {
@@ -62,12 +66,14 @@ export class ExtendedGraphText {
                 coreStyle.fontFamily = fontInterface + ", " + fontNode;
                 return coreStyle;
             }
+            // @ts-ignore
             this.coreElement.fontDirty = true;
         }
     }
 
     restoreFontFamily(): void {
         this.coreElement.getTextStyle = this.coreGetTextStyle;
+        // @ts-ignore
         this.coreElement.fontDirty = true;
     }
 
@@ -77,6 +83,17 @@ export class ExtendedGraphText {
 
     updateText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text) return;
+
+        this.coreElement.circle?.addListener('mouseenter', this.restoreText);
+        this.coreElement.circle?.addListener('mouseleave', this.changeText);
+
+        this.hasChangedText = true;
+
+        this.changeText();
+    }
+
+    private changeText() {
+        if (!this.coreElement.text) return;
 
         let text = this.coreElement.getDisplayText();
 
@@ -106,9 +123,13 @@ export class ExtendedGraphText {
         }
 
         if (text !== this.coreElement.text.text) {
-            this.hasChangedText = true;
             this.coreElement.text.text = text;
         }
+    }
+
+    private restoreText() {
+        if (!this.coreElement.text) return;
+        this.coreElement.text.text = this.coreElement.getDisplayText();
     }
 
 
@@ -123,7 +144,6 @@ export class ExtendedGraphText {
         this.textBackground = new Sprite(Texture.WHITE);
         // Clone the text to create a second one
         this.textClone = new Text(this.coreElement.text.text, this.coreElement.getTextStyle());
-        console.log(this.textClone.style.fontFamily);
         // Compute the size
         this.textBackground.width = (this.textClone.getBounds().width + this.textClone.width) / 2;
         this.textBackground.height = (this.textClone.getBounds().height + this.textClone.height) / 2;
