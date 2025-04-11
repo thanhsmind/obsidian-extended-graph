@@ -238,7 +238,9 @@ export class GraphEventsDispatcher extends Component {
         if (!this.listenStage) return;
         if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.view)) {
             this.listenStage = false;
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            setTimeout(() => {
+                PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            }, 200);
             return;
         }
 
