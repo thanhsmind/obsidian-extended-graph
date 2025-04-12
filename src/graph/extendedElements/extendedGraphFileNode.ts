@@ -36,7 +36,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     public needArcs(): boolean {
-        if (this.coreElement.type !== "" || this.managers.size === 0)
+        if ((this.coreElement.type !== "" && !(this.instances.type === "localgraph" && this.coreElement.type === "focused")) || this.managers.size === 0)
             return false;
 
         for (const [key, manager] of this.managers) {
