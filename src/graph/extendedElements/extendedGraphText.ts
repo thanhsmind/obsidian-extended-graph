@@ -6,6 +6,7 @@ import { getBackgroundColor, getFile, getFileInteractives, GraphInstances, Plugi
 export class ExtendedGraphText {
     textBackground: Sprite | null = null;
     textClone: Text | null = null;
+    textProxy: Text | null = null;
     coreElement: GraphNode;
     instances: GraphInstances;
     hasChangedText: boolean = false;
@@ -49,7 +50,12 @@ export class ExtendedGraphText {
         this.restoreFontFamily();
     }
 
-
+    disable() {
+        if (this.textProxy) {
+            PluginInstances.proxysManager.unregisterProxy(this.textProxy);
+            this.textProxy = null;
+        }
+    }
 
     // ================== Change font family to match the interface font
 
@@ -186,7 +192,7 @@ export class ExtendedGraphText {
         const offset = this.instances.settings.nameVerticalOffset;
         const renderer = this.instances.renderer;
 
-        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+        this.textProxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
             this.coreElement,
             "text",
             {
@@ -205,27 +211,27 @@ export class ExtendedGraphText {
                         if (offset < -5 && offset > -105) {
                             const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
                             const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
-                            target.y = value + newOffset;
+                            value = value + newOffset;
                         }
                         else if (offset <= -105) {
                             const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
                             const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
-                            target.y = value + newOffset;
+                            value = value + newOffset;
                         }
                         else {
-                            target.y = value + offset * renderer.nodeScale;
+                            value = value + offset * renderer.nodeScale;
                         }
                     }
-                    else {
-                        // @ts-ignore
-                        target[prop] = value;
-                    }
-                    return true;
+
+                    return Reflect.set(target, prop, value, receiver);
                 }
             }
         );
 
-        this.coreElement.text.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
+        this.coreElement.text.addListener('destroyed', () => {
+            PluginInstances.proxysManager.unregisterProxy(this.textProxy);
+            this.textProxy = null;
+        });
     }
 
 }

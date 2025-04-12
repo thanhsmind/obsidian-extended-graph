@@ -227,6 +227,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         return this.coreElement.id;
     }
 
+    // ================================ TOGGLE =================================
+
+    override disable() {
+        super.disable();
+        this.extendedText.disable();
+    }
+
     // =============================== PIN NODES ===============================
 
     pin(): void {
