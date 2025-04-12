@@ -1,4 +1,4 @@
-import { MarkdownRenderer, Platform } from "obsidian";
+import { arrayBufferToBase64, MarkdownRenderer, Platform } from "obsidian";
 import { getFile, getLinkDestination, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -11,7 +11,7 @@ export class Media {
         if (!frontmatter) return null;
 
         const values = frontmatter[keyProperty];
-        
+
         if (typeof values === "string") {
             const uri = await Media.getImageUriFromLink(getLinkDestination(values));
             if (uri) return uri;
@@ -50,12 +50,12 @@ export class Media {
             const videos = Array.from(div.querySelectorAll("video")).map(vid => vid.src);
             embeds = embeds.concat(images.concat(videos));
         }
-        
+
         for (const link of embeds) {
             const uri = await Media.getImageUriFromLink(link);
             if (uri) return uri;
         }
-        
+
         return null;
     }
 
@@ -78,13 +78,16 @@ export class Media {
             try {
                 const validationUrl = new URL(link);
                 if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
-                    return Media.getStaticImageUri(link);
+                    const response = await requestUrl(link);
+                    const type = response.headers['content-type'];
+                    if (!['image/avif', 'image/webp', 'image/png', 'image/svg+xml', 'image/jpeg'].includes(type)) return null;
+                    return "data:" + type + ";base64," + arrayBufferToBase64(response.arrayBuffer);
                 }
             } catch (err) {
                 return null;
             }
         }
-        
+
         if (PluginInstances.settings.allowExternalLocalImages) {
             try {
                 const validationUrl = new URL(link);
@@ -108,6 +111,8 @@ export class Media {
     private static async getStaticImageUri(src: string): Promise<string | null> {
         // https://www.iana.org/assignments/media-types/media-types.xhtml
         const type = await Media.getMediaType(src);
+
+
         if (!type) return null;
 
         if (['image/avif', 'image/webp', 'image/png', 'image/svg+xml', 'image/jpeg'].includes(type)) {
@@ -138,7 +143,7 @@ export class Media {
             image.src = src;
 
             let waitLoop = 0;
-            await (async() => {
+            await (async () => {
                 while (uri === undefined && waitLoop < 5) {
                     waitLoop += 1;
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -158,16 +163,16 @@ export class Media {
             const video = createEl('video');
 
             video.src = src;
-            video.addEventListener('seeked', function() {
+            video.addEventListener('seeked', function () {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 uri = canvas.toDataURL();
             });
-            video.onloadedmetadata = function() {
+            video.onloadedmetadata = function () {
                 if (video.duration) video.currentTime = video.duration / 2;
             };
 
             let waitLoop = 0;
-            await (async() => {
+            await (async () => {
                 while (uri === undefined && waitLoop < 5) {
                     waitLoop += 1;
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -180,17 +185,17 @@ export class Media {
 
     private static async getMediaType(url: string): Promise<string | null> {
         let type: string | null | undefined;
-        
+
         const request = new XMLHttpRequest();
         request.open('HEAD', url, false);
-        request.onload = function() {
+        request.onload = function () {
             type = request.getResponseHeader('Content-Type');
         };
-        request.onerror = function(e) {
+        request.onerror = function (e) {
             console.warn(e);
             type = null;
         }
-        request.onreadystatechange = function() {
+        request.onreadystatechange = function () {
             if (request.status === 401) {
                 console.warn(STRINGS.errors.uri401);
             }
@@ -206,7 +211,7 @@ export class Media {
 
 
         let waitLoop = 0;
-        await (async() => {
+        await (async () => {
             while (type === undefined && waitLoop < 5) {
                 waitLoop += 1;
                 await new Promise(resolve => setTimeout(resolve, 100));
