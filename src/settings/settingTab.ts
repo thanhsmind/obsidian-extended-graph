@@ -28,6 +28,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.containerEl.empty();
         this.containerEl.addClass("extended-graph-settings");
 
+        this.addNav();
         this.addAutoEnable();
         this.addDisableNodes();
         this.addBorderUnresolved();
@@ -36,6 +37,13 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         for (const section of this.sections) {
             section.display();
         }
+    }
+
+    private addNav(): void {
+        const nav = this.containerEl.createDiv({ cls: "extended-graph-nav-settings" });
+
+        const label = nav.createDiv({ cls: "nav-label" });
+        label.innerText = "Go to";
     }
 
     addAutoEnable(): void {

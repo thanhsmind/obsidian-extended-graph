@@ -541,6 +541,35 @@ body {
             display: none;
         }
     }
+
+    .extended-graph-nav-settings {
+        display: flex;
+        padding-bottom: 0.75em;
+        gap: 0.75em;
+        justify-content: flex-start;
+        align-items: center;
+        overflow-x: auto;
+
+        > .clickable-icon {
+            background-color: var(--background-secondary);
+            
+            &:hover {
+                background-color: var(--background-modifier-hover);
+            }
+        }
+
+        > *:first-child {
+            margin-left: auto;
+        }
+        > *:last-child {
+            margin-right: auto;
+        }
+
+        .nav-label {
+            color: var(--text-muted);
+            font-size: var(--font-ui-smaller);
+        }
+    }
 }
 
 .graph-modal-nodes-query {
