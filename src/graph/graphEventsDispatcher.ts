@@ -213,6 +213,7 @@ export class GraphEventsDispatcher extends Component {
         this.unbindStageEvents();
         this.removeProxys();
         this.observerOrphans?.disconnect();
+        this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
     }
 

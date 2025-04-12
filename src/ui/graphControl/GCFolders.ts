@@ -5,8 +5,8 @@ import STRINGS from "src/Strings";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;
-    settingsMap = new Map<string, {setting: Setting, toggle: ToggleComponent}>();
-    
+    settingsMap = new Map<string, { setting: Setting, toggle: ToggleComponent }>();
+
     constructor(view: GraphView | LocalGraphView, foldersManager: InteractiveManager) {
         super(view, "folders", STRINGS.features.folders);
 
@@ -15,6 +15,10 @@ export class GCFolders extends GCSection implements InteractiveUI {
         this.treeItemChildren = this.root.createDiv("tree-item-children");
 
         this.collapseGraphControlSection();
+    }
+
+    destroy() {
+        this.root.remove();
     }
 
     override display() {
@@ -46,7 +50,7 @@ export class GCFolders extends GCSection implements InteractiveUI {
                         this.toggle(key, path);
                     }
                 });
-                this.settingsMap.set(path, {setting: setting, toggle: cb});
+                this.settingsMap.set(path, { setting: setting, toggle: cb });
             });
         this.update(key, path, color);
     }
