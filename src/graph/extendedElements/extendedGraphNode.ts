@@ -1,3 +1,4 @@
+import { apply } from "mathjs";
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
@@ -44,6 +45,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
         this.initRadius();
         this.changeGetSize();
+        this.proxyClearGraphics();
         this.initGraphicsWrapper();
     }
 
@@ -54,6 +56,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             new Pinner(this.instances).unpinNode(this.id);
         }
         this.restoreGetSize();
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.clearGraphics);
         this.extendedText.unload();
         super.unload();
     }
@@ -221,17 +224,35 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         return true;
     }
 
+
+    public proxyClearGraphics(): void {
+        if (this.instances.settings.enableFeatures[this.instances.type]['names']
+            && this.instances.settings.nameVerticalOffset !== 0) {
+
+            const extendedText = this.extendedText;
+
+            const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.clearGraphics>(
+                this.coreElement,
+                "clearGraphics",
+                {
+                    apply(target, thisArg, argArray) {
+                        // Later, if we need to do different things before clearGraphics,
+                        // add "if" tests
+                        extendedText.disable();
+
+                        return Reflect.apply(target, thisArg, argArray);
+                    },
+                });
+            this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
+        }
+
+    }
+
+
     // ================================ GETTERS ================================
 
     getID(): string {
         return this.coreElement.id;
-    }
-
-    // ================================ TOGGLE =================================
-
-    override disable() {
-        super.disable();
-        this.extendedText.disable();
     }
 
     // =============================== PIN NODES ===============================
