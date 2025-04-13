@@ -53,7 +53,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     // ============================ UPDATE GRAPHICS ============================
 
     updateGraphics(): void {
-        this.pixiElement?.updateGraphics();
+        this.pixiElement?.updateValues();
     }
 
     // ========================== CONNECT/DISCONNECT ===========================

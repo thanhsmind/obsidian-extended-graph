@@ -279,6 +279,7 @@ export class GraphEventsDispatcher extends Component {
             if (node) {
                 const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
                 if (extendedNode) {
+                    extendedNode.extendedText.modifyCoreElement();
                     extendedNode.extendedText.initGraphics();
                 }
             }
@@ -344,7 +345,9 @@ export class GraphEventsDispatcher extends Component {
                 el.graphicsWrapper?.initGraphics();
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {
+                el.modifyCoreElement();
                 el.graphicsWrapper?.initGraphics();
+                el.extendedText.modifyCoreElement();
                 el.extendedText.initGraphics();
             })
             this.instances.foldersSet?.initGraphics();

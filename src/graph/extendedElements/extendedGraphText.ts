@@ -6,7 +6,6 @@ import { getBackgroundColor, getFile, getFileInteractives, GraphInstances, Plugi
 export class ExtendedGraphText {
     textBackground: Sprite | null = null;
     textClone: Text | null = null;
-    textProxy: Text | null = null;
     coreElement: GraphNode;
     instances: GraphInstances;
     hasChangedText: boolean = false;
@@ -19,14 +18,18 @@ export class ExtendedGraphText {
         this.coreGetTextStyle = this.coreElement.getTextStyle.bind(this.coreElement);
         this.restoreText = this.restoreText.bind(this);
         this.changeText = this.changeText.bind(this)
+        this.modifyCoreElement();
         this.initGraphics();
     }
 
-    initGraphics() {
+    modifyCoreElement() {
         this.updateFontFamily();
         this.updateText();
+        this.proxyText();
+    }
+
+    initGraphics() {
         this.addBackgroundToText();
-        this.verticalOffsetText();
     }
 
     unload(): void {
@@ -51,10 +54,7 @@ export class ExtendedGraphText {
     }
 
     disable() {
-        if (this.textProxy) {
-            PluginInstances.proxysManager.unregisterProxy(this.textProxy);
-            this.textProxy = null;
-        }
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
     }
 
     // ================== Change font family to match the interface font
@@ -77,7 +77,7 @@ export class ExtendedGraphText {
         }
     }
 
-    restoreFontFamily(): void {
+    private restoreFontFamily(): void {
         this.coreElement.getTextStyle = this.coreGetTextStyle;
         // @ts-ignore
         this.coreElement.fontDirty = true;
@@ -87,7 +87,7 @@ export class ExtendedGraphText {
 
     // ================== Change display text
 
-    updateText(): void {
+    private updateText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text) return;
 
         this.coreElement.circle?.addListener('mouseenter', this.restoreText);
@@ -183,7 +183,7 @@ export class ExtendedGraphText {
 
     // ================== Slightly move thex text to avoid overlapping the arrow
 
-    verticalOffsetText(): void {
+    private proxyText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || this.instances.settings.nameVerticalOffset === 0
             || !this.coreElement.text) return;
@@ -192,7 +192,7 @@ export class ExtendedGraphText {
         const offset = this.instances.settings.nameVerticalOffset;
         const renderer = this.instances.renderer;
 
-        this.textProxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
             this.coreElement,
             "text",
             {
@@ -229,8 +229,7 @@ export class ExtendedGraphText {
         );
 
         this.coreElement.text.addListener('destroyed', () => {
-            PluginInstances.proxysManager.unregisterProxy(this.textProxy);
-            this.textProxy = null;
+            PluginInstances.proxysManager.unregisterProxy(typeof this.coreElement.text);
         });
     }
 

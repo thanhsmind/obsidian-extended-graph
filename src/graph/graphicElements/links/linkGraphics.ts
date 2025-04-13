@@ -16,6 +16,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
         this.types = types;
         this.name = name;
         this.extendedLink = link;
+        this.updateValues();
     }
 
     clearGraphics(): void {
@@ -24,37 +25,20 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
         this.removeFromParent();
     }
 
-    initGraphics(): void {
+    updateValues(): void {
         const type = this.activeType();
         if (!type) return;
         const overrideColor = this.extendedLink.getStrokeColor();
         this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(type);
-    }
 
-    updateGraphics(): void {
-        const type = this.activeType();
-        if (!type) return;
-        const overrideColor = this.extendedLink.getStrokeColor();
-        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(type);
-        if (this.extendedLink.isActive) this.redrawType(type);
+        if (this.extendedLink.isActive) this.redraw();
     }
 
     protected activeType(): string | undefined {
         return Array.from(this.types.values()).find(t => this.manager.isActive(t));
     }
 
-    redrawType(type: string, color?: Uint8Array): void {
-        const overrideColor = this.extendedLink.getStrokeColor();
-        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : color ?? this.manager.getColor(type);
-    }
+    protected abstract redraw(): void;
 
     abstract updateFrame(): void;
-
-    toggleType(type: string, enable: boolean): void {
-        this.clear();
-        const newType = this.activeType();
-        if (newType) {
-            this.redrawType(newType);
-        }
-    }
 }

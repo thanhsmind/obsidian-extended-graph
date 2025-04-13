@@ -26,6 +26,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         }
 
         this.modifyCoreElement();
+        this.initGraphicsWrapper();
     }
 
     protected initGraphicsWrapper() {
@@ -149,11 +150,11 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     // ================================ TOGGLE =================================
 
     disableType(key: string, type: string) {
-        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.toggleType(type, false);
+        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
     }
 
     enableType(key: string, type: string) {
-        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.toggleType(type, true);
+        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
     }
 
     disable() {

@@ -253,6 +253,14 @@ export class Graph extends Component {
             linksToKeepDisabled = linksToKeepDisabled.concat([...cascade.links]);
         }
 
+        // If a node can't be added (because engine options have changed since it was disabled)
+        // don't enable the links connected to it
+        for (const id of ids) {
+            const extendedLink = this.instances.linksSet.extendedElementsMap.get(id);
+            if (extendedLink?.canBeAddedWithEngineOptions()) continue;
+            linksToKeepDisabled.push(id);
+        }
+
         // Get the links to enable directly from the user input
         const linksToEnable = [...ids.values()].filter(id => !linksToKeepDisabled.includes(id));
 

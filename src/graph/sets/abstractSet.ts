@@ -307,7 +307,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             const extendedElement = this.extendedElementsMap.get(id);
             if (!extendedElement) return;
             extendedElement.types.get(key)?.add(type);
-            extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.redrawType(type, color);
+            extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
         }
     }
 }

@@ -78,7 +78,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
-
     private proxyClearGraphics(): void {
         if (this.instances.settings.enableFeatures[this.instances.type]['names']
             && this.instances.settings.nameVerticalOffset !== 0) {
@@ -271,6 +270,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     override canBeAddedWithEngineOptions(): boolean {
         if (this.coreElement.type === "tag" && !this.instances.engine.getOptions().showTags) return false;
         if (this.coreElement.type === "attachment" && !this.instances.engine.getOptions().showAttachments) return false;
+        if (this.coreElement.type === "unresolved" && this.instances.engine.getOptions().hideUnresolved) return false;
 
         return true;
     }

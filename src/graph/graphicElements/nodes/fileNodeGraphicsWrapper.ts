@@ -84,8 +84,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         else {
             arcCicle.clearGraphics();
             arcCicle.setTypes(types);
-            arcCicle.initGraphics();
-            arcCicle.updateGraphics();
+            arcCicle.updateValues();
         }
     }
 

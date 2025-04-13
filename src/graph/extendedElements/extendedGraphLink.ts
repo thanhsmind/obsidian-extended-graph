@@ -8,13 +8,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
     hasChangedArrowShape: boolean = false;
 
-    // ============================== CONSTRUCTOR ==============================
-
-    constructor(instances: GraphInstances, link: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
-        super(instances, link, types, managers);
-        this.initGraphicsWrapper();
-    }
-
 
     // ======================== MODIFYING CORE ELEMENT =========================
 

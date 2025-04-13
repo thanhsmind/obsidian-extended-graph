@@ -6,10 +6,7 @@ export class LinkCurveGraphics extends LinkGraphics {
     arrow: Graphics | null;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
-        super(manager, types, name, link);
-        this.name = "curve:" + this.name;
-
-        this.updateGraphics();
+        super(manager, types, "curve:" + name, link);
     }
 
     private initArrow() {
@@ -32,21 +29,12 @@ export class LinkCurveGraphics extends LinkGraphics {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
-    override toggleType(type: string, enable: boolean): void {
-        if (this.destroyed) return;
-
-        if (!enable && this.arrow) {
+    protected override redraw(): void {
+        if (!this.activeType() && this.arrow) {
             this.arrow.clear();
             this.arrow.destroy();
             this.arrow = null;
         }
-        super.toggleType(type, enable);
-    }
-
-    redrawType(type: string, color?: Uint8Array): void {
-        if (this.destroyed) return;
-
-        super.redrawType(type, color);
         this.updateFrame();
     }
 
