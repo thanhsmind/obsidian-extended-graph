@@ -24,6 +24,8 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             const key = manager.name;
             this.managers.set(key, manager);
         }
+
+        this.modifyCoreElement();
     }
 
     protected initGraphicsWrapper() {
@@ -38,6 +40,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     // ================================= UNLOAD ================================
 
     unload() {
+        this.restoreCoreElement();
         this.graphicsWrapper?.disconnect();
         this.graphicsWrapper?.clearGraphics();
         this.graphicsWrapper?.destroyGraphics();
@@ -51,6 +54,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     setCoreElement(coreElement: T | undefined): void {
         if (!coreElement) return;
+
         if (!this.getCoreCollection().includes(coreElement)) {
             coreElement.clearGraphics();
             return;
@@ -64,6 +68,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             this.coreElement.clearGraphics();
             this.graphicsWrapper?.disconnect();
         }
+
         this.coreElement = coreElement;
         this.graphicsWrapper?.connect();
     }
@@ -76,8 +81,12 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         return this.coreElement;
     }
 
+    abstract modifyCoreElement(): void;
+    abstract restoreCoreElement(): void;
+
     protected abstract isCoreElementUptodate(): boolean;
     abstract isSameCoreElement(coreElement: T): boolean;
+    protected abstract isSameCoreGraphics(coreElement: T): boolean;
     abstract getCoreCollection(): T[];
     abstract canBeAddedWithEngineOptions(): boolean;
     protected abstract getCoreParentGraphics(coreElement: T): Container | null;
@@ -155,5 +164,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     enable() {
         this.isActive = true;
         this.graphicsWrapper?.connect();
+        this.modifyCoreElement();
     }
 }

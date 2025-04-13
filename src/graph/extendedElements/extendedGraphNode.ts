@@ -40,13 +40,88 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
-
         this.extendedText = new ExtendedGraphText(instances, node);
+    }
 
+    protected override initGraphicsWrapper(): void {
+        super.initGraphicsWrapper();
         this.initRadius();
-        this.changeGetSize();
+    }
+
+
+    // ======================== MODIFYING CORE ELEMENT =========================
+
+    override modifyCoreElement(): void {
+        this.proxyGetSize();
         this.proxyClearGraphics();
-        this.initGraphicsWrapper();
+        this.proxyGetFillColor();
+
+        this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
+    }
+
+    private proxyGetSize() {
+        if (!(this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
+            && !(this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
+                && PluginInstances.settings.nodesSizeFunction !== "default")) {
+            return;
+        }
+
+        const getSize = this.getSize.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
+            this.coreElement,
+            "getSize",
+            {
+                apply(target, thisArg, args) {
+                    return getSize.call(this, ...args)
+                }
+            }
+        );
+    }
+
+
+    private proxyClearGraphics(): void {
+        if (this.instances.settings.enableFeatures[this.instances.type]['names']
+            && this.instances.settings.nameVerticalOffset !== 0) {
+
+            const extendedText = this.extendedText;
+
+            const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.clearGraphics>(
+                this.coreElement,
+                "clearGraphics",
+                {
+                    apply(target, thisArg, argArray) {
+                        // Later, if we need to do different things before clearGraphics,
+                        // add "if" tests
+                        extendedText.disable();
+
+                        return Reflect.apply(target, thisArg, argArray);
+                    },
+                });
+            this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
+        }
+
+    }
+
+    protected needToChangeColor(): boolean { return false; }
+    protected proxyGetFillColor(): void {
+        if (!this.needToChangeColor()) return;
+
+        const getFillColor = this.getFillColor.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+            this.coreElement,
+            "getFillColor",
+            {
+                apply(target, thisArg, args) {
+                    return getFillColor.call(this, ...args) ?? Reflect.apply(target, thisArg, args);
+                }
+            }
+        );
+    }
+
+    override restoreCoreElement(): void {
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.clearGraphics);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
     }
 
     // ================================ UNLOAD =================================
@@ -55,8 +130,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (this.isPinned) {
             new Pinner(this.instances).unpinNode(this.id);
         }
-        this.restoreGetSize();
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.clearGraphics);
         this.extendedText.unload();
         super.unload();
     }
@@ -144,31 +217,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
     }
 
-    changeGetSize() {
-        if (!(this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
-            && !(this.instances.settings.enableFeatures[this.instances.type]["elements-stats"] && PluginInstances.settings.nodesSizeFunction !== "default")) {
-            this.restoreGetSize();
-            return;
-        }
-
-        const getSize = this.getSize.bind(this);
-        const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
-            this.coreElement,
-            "getSize",
-            {
-                apply(target, thisArg, args) {
-                    return getSize.call(this, ...args)
-                }
-            }
-        );
-        this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
-    }
-
-    private restoreGetSize() {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
-    }
-
-    getSize(): number {
+    private getSize(): number {
         return this.getSizeWithoutScaling() * this.graphicsWrapperScale;
     }
 
@@ -188,8 +237,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== NODE COLOR ===============================
 
-    changeGetFillColor(): void { }
-    restoreGetFillColor(): void { }
     protected getFillColor(): GraphColorAttributes | undefined { return; };
 
     // ============================== CORE ELEMENT =============================
@@ -200,6 +247,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     override isSameCoreElement(node: GraphNode): boolean {
         return node.id === this.id;
+    }
+
+    protected override isSameCoreGraphics(coreElement: GraphNode): boolean {
+        return coreElement.circle === this.coreElement.circle;
     }
 
     override getCoreCollection(): GraphNode[] {
@@ -222,30 +273,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (this.coreElement.type === "attachment" && !this.instances.engine.getOptions().showAttachments) return false;
 
         return true;
-    }
-
-
-    public proxyClearGraphics(): void {
-        if (this.instances.settings.enableFeatures[this.instances.type]['names']
-            && this.instances.settings.nameVerticalOffset !== 0) {
-
-            const extendedText = this.extendedText;
-
-            const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.clearGraphics>(
-                this.coreElement,
-                "clearGraphics",
-                {
-                    apply(target, thisArg, argArray) {
-                        // Later, if we need to do different things before clearGraphics,
-                        // add "if" tests
-                        extendedText.disable();
-
-                        return Reflect.apply(target, thisArg, argArray);
-                    },
-                });
-            this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
-        }
-
     }
 
 

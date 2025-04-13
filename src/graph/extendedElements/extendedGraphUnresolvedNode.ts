@@ -1,19 +1,11 @@
 import { GraphNode } from "obsidian-typings";
-import { ExtendedGraphNode, UnresolvedNodeGraphicsWrapper, GraphInstances, InteractiveManager, NodeShape, PluginInstances } from "src/internal";
+import { ExtendedGraphNode, UnresolvedNodeGraphicsWrapper, NodeShape, GraphInstances } from "src/internal";
 
 export class ExtendedGraphUnresolvedNode extends ExtendedGraphNode {
     graphicsWrapper: UnresolvedNodeGraphicsWrapper;
 
     constructor(instances: GraphInstances, node: GraphNode) {
         super(instances, node, new Map(), []);
-        this.changeGetFillColor();
-    }
-
-    // ================================ UNLOAD =================================
-
-    override unload(): void {
-        this.restoreGetFillColor();
-        super.unload();
     }
 
     // =============================== GRAPHICS ================================

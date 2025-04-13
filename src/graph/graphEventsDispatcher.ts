@@ -333,14 +333,14 @@ export class GraphEventsDispatcher extends Component {
             PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
         })
         this.instances.linksSet.extendedElementsMap.forEach(el => {
-            el.revertCoreGraphicsChanges();
+            el.restoreCoreElement();
         })
     }
 
     private afterInitGraphics() {
         setTimeout(() => {
             this.instances.linksSet.extendedElementsMap.forEach(el => {
-                el.makeCoreGraphicsChanges();
+                el.modifyCoreElement();
                 el.graphicsWrapper?.initGraphics();
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {

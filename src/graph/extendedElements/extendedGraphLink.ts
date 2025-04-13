@@ -15,15 +15,91 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.initGraphicsWrapper();
     }
 
+
+    // ======================== MODIFYING CORE ELEMENT =========================
+
+    override modifyCoreElement(): void {
+        this.invertArrowDirection();
+        this.createFlatArrow();
+    }
+
+    private invertArrowDirection(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
+        const link = this.coreElement;
+        if (link.arrow) {
+            const proxy = PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
+                this.coreElement,
+                "arrow",
+                {
+                    set(target, prop, value, receiver) {
+                        if (prop === "x" || prop === "y") {
+                            var c2c_x = link.target.x - link.source.x
+                                , c2c_y = link.target.y - link.source.y
+                                , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
+                                , source_r = link.source.getSize() * link.renderer.nodeScale;
+
+                            if (prop === "x") {
+                                target.x = link.source.x + c2c_x * source_r / diag;
+                            }
+                            else {
+                                target.y = link.source.y + c2c_y * source_r / diag;
+                            }
+                        }
+                        else if (prop === "rotation") {
+                            target.rotation = value + Math.PI;
+                        }
+                        else {
+                            // @ts-ignore
+                            target[prop] = value;
+                        }
+                        return true;
+                    }
+                }
+            );
+
+            this.coreElement.arrow?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
+        }
+    }
+
+    private createFlatArrow(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.flatArrows) return;
+        const arrow = this.coreElement.arrow;
+        if (!arrow) return;
+        arrow.clear();
+        arrow.beginFill(16777215);
+        arrow.moveTo(0, 0);
+        arrow.lineTo(-4, -2);
+        arrow.lineTo(-4, 2);
+        arrow.lineTo(0, 0);
+        arrow.endFill();
+        this.hasChangedArrowShape = true;
+    }
+
+    override restoreCoreElement(): void {
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
+        this.resetArrowShape();
+    }
+
+    private resetArrowShape(): void {
+        if (!this.hasChangedArrowShape) return;
+        const arrow = this.coreElement.arrow;
+        if (!arrow) return;
+        arrow.clear();
+        arrow.beginFill(16777215);
+        arrow.moveTo(0, 0);
+        arrow.lineTo(-4, -2);
+        arrow.lineTo(-3, 0);
+        arrow.lineTo(-4, 2);
+        arrow.lineTo(0, 0);
+        arrow.endFill();
+    }
+
+    // =============================== GRAPHICS ================================
+
     protected override initGraphicsWrapper(): void {
         super.initGraphicsWrapper();
         this.changeCoreLinkThickness();
-        this.makeCoreGraphicsChanges();
-    }
-
-    makeCoreGraphicsChanges(): void {
-        this.invertArrowDirection();
-        this.createFlatArrow();
+        this.modifyCoreElement();
     }
 
     protected override needGraphicsWrapper(): boolean {
@@ -57,13 +133,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override unload(): void {
         this.restoreCoreLinkThickness();
-        this.revertCoreGraphicsChanges();
         super.unload();
-    }
-
-    revertCoreGraphicsChanges(): void {
-        this.resetArrowDirection();
-        this.resetArrowShape();
     }
 
     // ========================= LINK SIZE (THICKNESS) =========================
@@ -108,78 +178,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             : undefined;
     }
 
-    // ================================ ARROWS =================================
-
-    private invertArrowDirection(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
-        const link = this.coreElement;
-        if (link.arrow) {
-            const proxy = PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
-                this.coreElement,
-                "arrow",
-                {
-                    set(target, prop, value, receiver) {
-                        if (prop === "x" || prop === "y") {
-                            var c2c_x = link.target.x - link.source.x
-                                , c2c_y = link.target.y - link.source.y
-                                , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
-                                , source_r = link.source.getSize() * link.renderer.nodeScale;
-
-                            if (prop === "x") {
-                                target.x = link.source.x + c2c_x * source_r / diag;
-                            }
-                            else {
-                                target.y = link.source.y + c2c_y * source_r / diag;
-                            }
-                        }
-                        else if (prop === "rotation") {
-                            target.rotation = value + Math.PI;
-                        }
-                        else {
-                            // @ts-ignore
-                            target[prop] = value;
-                        }
-                        return true;
-                    }
-                }
-            );
-
-            this.coreElement.arrow?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
-        }
-    }
-
-    private resetArrowDirection(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
-    }
-
-    private createFlatArrow(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.flatArrows) return;
-        const arrow = this.coreElement.arrow;
-        if (!arrow) return;
-        arrow.clear();
-        arrow.beginFill(16777215);
-        arrow.moveTo(0, 0);
-        arrow.lineTo(-4, -2);
-        arrow.lineTo(-4, 2);
-        arrow.lineTo(0, 0);
-        arrow.endFill();
-        this.hasChangedArrowShape = true;
-    }
-
-    private resetArrowShape(): void {
-        if (!this.hasChangedArrowShape) return;
-        const arrow = this.coreElement.arrow;
-        if (!arrow) return;
-        arrow.clear();
-        arrow.beginFill(16777215);
-        arrow.moveTo(0, 0);
-        arrow.lineTo(-4, -2);
-        arrow.lineTo(-3, 0);
-        arrow.lineTo(-4, 2);
-        arrow.lineTo(0, 0);
-        arrow.endFill();
-    }
-
     // ============================== CORE ELEMENT =============================
 
     protected override isCoreElementUptodate(): boolean {
@@ -188,6 +186,10 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override isSameCoreElement(link: GraphLink): boolean {
         return link.source.id === this.coreElement.source.id && link.target.id === this.coreElement.target.id;
+    }
+
+    protected override isSameCoreGraphics(coreElement: GraphLink): boolean {
+        return coreElement.line === this.coreElement.line;
     }
 
     override getCoreCollection(): GraphLink[] {

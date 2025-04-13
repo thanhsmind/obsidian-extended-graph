@@ -597,18 +597,14 @@ export class GraphsManager extends Component {
 
     updateSizeFunctionForNodesStat(): void {
         for (const [leafID, instances] of this.allInstances) {
-            for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
-                extendedNode.changeGetSize();
-            }
+            instances.settings.nodesSizeFunction = PluginInstances.settings.nodesSizeFunction;
             instances.renderer.changed();
         }
     }
 
     updatePaletteForNodesStat(): void {
         for (const [leafID, instances] of this.allInstances) {
-            for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
-                extendedNode.changeGetFillColor();
-            }
+            instances.settings.nodesColorFunction = PluginInstances.settings.nodesColorFunction;
             instances.renderer.changed();
         }
     }
