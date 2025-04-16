@@ -10,13 +10,13 @@ export class Pinner {
     }
 
     // =============================== PIN/UNPIN ===============================
-    
+
     setPinnedNodesFromState() {
         if (!this.instances.statePinnedNodes) return;
 
         const notYetHandled = Object.fromEntries(Object.entries(this.instances.statePinnedNodes).filter(([id, value]) => !value.handled));
         const N = Object.keys(notYetHandled).length;
-        
+
         for (const [id, extendedNode] of this.instances.nodesSet.extendedElementsMap) {
             const shouldBePinned = notYetHandled.hasOwnProperty(id);
 
@@ -110,7 +110,7 @@ export class Pinner {
             case 'grid':
                 pinShape = new PinShapeGrid(this.instances, shapeData);
                 break;
-        
+
             default:
                 return;
         }

@@ -19,11 +19,11 @@ export class InteractivesSelectionModal extends Modal {
         for (const type of this.types) {
             const isActive = !PluginInstances.settings.interactiveSettings[this.key].unselected.includes(type);
             const label = this.contentEl.createEl("label");
-            const text = label.createSpan({text: type});
-            const toggle = label.createEl("input", {type: "checkbox"});
-            isActive ? this.selectInteractive(label, toggle): this.deselectInteractive(label, toggle);
+            const text = label.createSpan({ text: type });
+            const toggle = label.createEl("input", { type: "checkbox" });
+            isActive ? this.selectInteractive(label, toggle) : this.deselectInteractive(label, toggle);
             toggle.addEventListener("change", e => {
-                toggle.checked ? this.selectInteractive(label, toggle): this.deselectInteractive(label, toggle);
+                toggle.checked ? this.selectInteractive(label, toggle) : this.deselectInteractive(label, toggle);
             })
         }
     }
@@ -45,8 +45,8 @@ export class InteractivesSelectionModal extends Modal {
             PluginInstances.plugin.saveSettings();
         }
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
-	}
+
+    onClose(): void {
+        this.contentEl.empty();
+    }
 }

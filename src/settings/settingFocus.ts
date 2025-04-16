@@ -4,7 +4,7 @@ import STRINGS from "src/Strings";
 
 export class SettingFocus extends SettingsSectionCollapsible {
     allTopElements: HTMLElement[] = [];
-    
+
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'focus', '', STRINGS.features.focus, 'telescope', STRINGS.features.focusDesc);
     }
@@ -27,7 +27,7 @@ export class SettingFocus extends SettingsSectionCollapsible {
                             PluginInstances.settings.focusScaleFactor = n;
                             await PluginInstances.plugin.saveSettings();
                         }
-                })).settingEl
+                    })).settingEl
         );
     }
 }

@@ -23,7 +23,7 @@ export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
             ctx.clearRect(0, 0, 1, 1);
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, 1, 1);
-            const RGBA = [ ... ctx.getImageData(0, 0, 1, 1).data ];
+            const RGBA = [...ctx.getImageData(0, 0, 1, 1).data];
             if (RGBA[3] > 0) {
                 return new Uint8Array([RGBA[0], RGBA[1], RGBA[2]]);
             }

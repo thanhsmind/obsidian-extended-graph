@@ -12,7 +12,7 @@ export abstract class ExportGraphToSVG {
     groupNodes: SVGElement;
     groupText?: SVGElement;
     groupFolders?: SVGElement;
-    
+
     left: number;
     right: number;
     top: number;
@@ -26,29 +26,29 @@ export abstract class ExportGraphToSVG {
 
     protected createSVG() {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        
+
         this.svg.setAttributeNS(null, 'viewBox', this.getViewBox());
 
         // Folders
         if (this.options.showFolders) {
-            this.groupFolders = getSVGNode('g', {id: 'folders'});
+            this.groupFolders = getSVGNode('g', { id: 'folders' });
             this.addFolders();
             this.svg.appendChild(this.groupFolders);
         }
 
         // Links
-        this.groupLinks = getSVGNode('g', {id: 'links'});
+        this.groupLinks = getSVGNode('g', { id: 'links' });
         this.addLinks();
-        this.svg.appendChild(this.groupLinks); 
+        this.svg.appendChild(this.groupLinks);
 
         // Nodes
-        this.groupNodes = getSVGNode('g', {id: 'nodes'});
+        this.groupNodes = getSVGNode('g', { id: 'nodes' });
         this.addNodes();
         this.svg.appendChild(this.groupNodes);
 
         // Text
         if (this.options.showNodeNames) {
-            this.groupText    = getSVGNode('g', {id: 'texts'});
+            this.groupText = getSVGNode('g', { id: 'texts' });
             this.addNodeNames();
             this.svg.appendChild(this.groupText);
         }
@@ -81,7 +81,7 @@ export abstract class ExportGraphToSVG {
         }
     }
 
-    protected addFolders(): void {};
+    protected addFolders(): void { };
 
     protected isNodeInVisibleArea(node: GraphNode): boolean {
         if (!this.options.onlyVisibleArea) return true;
@@ -125,9 +125,9 @@ export abstract class ExportGraphToSVG {
 
         if (this.options.onlyVisibleArea) {
             const viewport = this.renderer.viewport;
-            this.left   = viewport.left;
-            this.right  = viewport.right;
-            this.top    = viewport.top;
+            this.left = viewport.left;
+            this.right = viewport.right;
+            this.top = viewport.top;
             this.bottom = viewport.bottom;
         }
         else {
@@ -135,15 +135,15 @@ export abstract class ExportGraphToSVG {
             for (const node of visibleNodes) {
                 const coreNode = this.getCoreNode(node);
                 const size = coreNode.getSize();
-                if (coreNode.x - size < this.left)   this.left   = coreNode.x - size;
-                if (coreNode.x + size > this.right)  this.right  = coreNode.x + size;
-                if (coreNode.y - size < this.top)    this.top    = coreNode.y - size;
+                if (coreNode.x - size < this.left) this.left = coreNode.x - size;
+                if (coreNode.x + size > this.right) this.right = coreNode.x + size;
+                if (coreNode.y - size < this.top) this.top = coreNode.y - size;
                 if (coreNode.y + size > this.bottom) this.bottom = coreNode.y + size;
             }
             if (visibleNodes.length === 0) {
-                this.left   = 0;
-                this.right  = 0;
-                this.top    = 0;
+                this.left = 0;
+                this.right = 0;
+                this.top = 0;
                 this.bottom = 0;
             }
         }
@@ -159,32 +159,32 @@ export abstract class ExportGraphToSVG {
         try {
             const modal: ExportSVGOptionModal = this.getModal();
 
-                modal.onClose = (async function() {
-                    if (modal.isCanceled) return;
-                    this.options = this.plugin.settings.exportSVGOptions;
+            modal.onClose = (async function () {
+                if (modal.isCanceled) return;
+                this.options = this.plugin.settings.exportSVGOptions;
 
-                    // Create SVG
-                    this.createSVG();
-                    const svgString = this.toString();
-                    
-                    // Copy SVG as Image
-                    if (this.options.asImage) {
-                        const blob = new Blob([svgString], {type: "image/svg+xml"});
-                        await navigator.clipboard.write([
-                            new ClipboardItem({
-                                "image/svg+xml": blob
-                            }),
-                        ]);
-                    }
-                    // Copy SVG as text
-                    else {
-                        await navigator.clipboard.writeText(svgString);
-                    }
+                // Create SVG
+                this.createSVG();
+                const svgString = this.toString();
 
-                    new Notice(STRINGS.notices.svgCopied);
-                }).bind(this);
-                
-                modal.open();
+                // Copy SVG as Image
+                if (this.options.asImage) {
+                    const blob = new Blob([svgString], { type: "image/svg+xml" });
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            "image/svg+xml": blob
+                        }),
+                    ]);
+                }
+                // Copy SVG as text
+                else {
+                    await navigator.clipboard.writeText(svgString);
+                }
+
+                new Notice(STRINGS.notices.svgCopied);
+            }).bind(this);
+
+            modal.open();
         } catch (err) {
             console.error(err.name, err.message);
         }
@@ -282,16 +282,16 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             const circleGroup = getSVGNode('g', {
                 class: 'arcs-circle'
             });
-            
+
             for (const [type, arc] of arcs.graphics) {
                 const color: HexString = rgb2hex(manager.getColor(type));
-                
-                const alpha      = arc.graphic.alpha;
-                const radius     = size * (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * arcs.circleLayer) * 2 * NodeShape.getSizeFactor(arcs.shape);
+
+                const alpha = arc.graphic.alpha;
+                const radius = size * (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * arcs.circleLayer) * 2 * NodeShape.getSizeFactor(arcs.shape);
                 const startAngle = arcs.arcSize * arc.index + ArcsCircle.gap * 0.5;
-                const endAngle   = arcs.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
-                const thickness  = size * ArcsCircle.thickness * 2 * NodeShape.getSizeFactor(arcs.shape);
-                
+                const endAngle = arcs.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
+                const thickness = size * ArcsCircle.thickness * 2 * NodeShape.getSizeFactor(arcs.shape);
+
                 const start = polar2Cartesian(cx, cy, radius, endAngle);
                 const end = polar2Cartesian(cx, cy, radius, startAngle);
                 const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
@@ -356,8 +356,8 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         if (this.options.useCurvedLinks) {
             const P0 = { x: link.source.x, y: link.source.y };
             const P2 = { x: link.target.x, y: link.target.y };
-            const N = {x: -(P2.y - P0.y), y: (P2.x - P0.x)};
-            const M = {x: (P2.x + P0.x) * 0.5, y: (P2.y + P0.y) * 0.5};
+            const N = { x: -(P2.y - P0.y), y: (P2.x - P0.x) };
+            const M = { x: (P2.x + P0.x) * 0.5, y: (P2.y + P0.y) * 0.5 };
             const P1 = { x: M.x + 0.25 * N.x, y: M.y + 0.25 * N.y };
 
             path = `M ${P0.x} ${P0.y} C ${P1.x} ${P1.y}, ${P2.x} ${P2.y}, ${P2.x} ${P2.y}`;

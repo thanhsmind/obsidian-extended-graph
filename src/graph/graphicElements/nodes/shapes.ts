@@ -47,8 +47,8 @@ export class NodeShape extends Graphics {
     drawFill(color: ColorSource): NodeShape {
         this.clear();
         return this.beginFill(color)
-                   .drawUniqueShape()
-                   .endFill();
+            .drawUniqueShape()
+            .endFill();
     }
 
     getDrawingResolution(): number {
@@ -179,7 +179,7 @@ export class NodeShape extends Graphics {
         const P: number[] = [];
         for (let k = 0; k < n; ++k) {
             const theta = 2 * Math.PI * k / n;
-            P.push(r *  Math.sin(theta + shift));
+            P.push(r * Math.sin(theta + shift));
             P.push(r * -Math.cos(theta + shift));
         }
         return P;
@@ -204,10 +204,10 @@ export class NodeShape extends Graphics {
         const Po = NodeShape.getPolygonOutside(shape, 0, r);
         const P: number[] = [];
         for (let k = 0; k < n; ++k) {
-            P.push(Po[k*2]);
-            P.push(Po[k*2+1]);
-            P.push(Pi[k*2]);
-            P.push(Pi[k*2+1]);
+            P.push(Po[k * 2]);
+            P.push(Po[k * 2 + 1]);
+            P.push(Pi[k * 2]);
+            P.push(Pi[k * 2 + 1]);
         }
         return P;
     }
@@ -216,14 +216,14 @@ export class NodeShape extends Graphics {
         const rOutside = r / Math.cos(Math.PI / n);
         return rOutside;
     }
-    
+
     private static getStarburstRadius(n: number, r: number): number {
         return NodeShape.getPolygonRadius(n, r) + 30;
     }
 
     static getSVG(shape: ShapeEnum): SVGElement {
         const type = NodeShape.getType(shape);
-        
+
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttributeNS(null, 'fill', 'currentColor');
         svg.setAttributeNS(null, 'stroke-width', '0');
@@ -245,7 +245,7 @@ export class NodeShape extends Graphics {
                 }
                 const max = Math.max.apply(null, V);
                 const min = Math.min.apply(null, V);
-                svg.setAttributeNS(null, 'viewBox', `${min} ${min} ${max-min} ${max-min}`);
+                svg.setAttributeNS(null, 'viewBox', `${min} ${min} ${max - min} ${max - min}`);
             default:
                 break;
         }
@@ -258,7 +258,7 @@ export class NodeShape extends Graphics {
 
         switch (type) {
             case ShapeType.SQUARE:
-                return getSVGNode('rect', {width: 200, height: 200});
+                return getSVGNode('rect', { width: 200, height: 200 });
             case ShapeType.POLYGON:
             case ShapeType.STARBURST:
                 const V = NodeShape.getVertices(shape);
@@ -267,13 +267,13 @@ export class NodeShape extends Graphics {
                 }
                 let pathStr = `M ${V[0]} ${V[1]} `;
                 for (let k = 2; k < V.length; k += 2) {
-                    pathStr += `L ${V[k]} ${V[k+1]} `
+                    pathStr += `L ${V[k]} ${V[k + 1]} `
                 }
-                return getSVGNode('path', {d: pathStr});
+                return getSVGNode('path', { d: pathStr });
             case ShapeType.CIRCLE:
             case ShapeType.UNKNOWN:
             default:
-                return getSVGNode('circle', {cx: 100, cy: 100, r: 100});
+                return getSVGNode('circle', { cx: 100, cy: 100, r: 100 });
         }
     }
 }

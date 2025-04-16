@@ -14,7 +14,7 @@ export class GraphState {
     saveGraph(instances: GraphInstances) {
         // Disable types
         this.data.toggleTypes = {};
-        
+
         const linksManager = instances.linksSet.managers.get(LINK_KEY);
         this.data.toggleTypes[LINK_KEY] = linksManager?.getTypes()
             .filter(type => PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
@@ -32,7 +32,7 @@ export class GraphState {
         this.data.pinNodes = {};
         for (const [id, extendedNode] of instances.nodesSet.extendedElementsMap) {
             if (extendedNode.isPinned) {
-                this.data.pinNodes[id] = {x: extendedNode.coreElement.x, y: extendedNode.coreElement.y};
+                this.data.pinNodes[id] = { x: extendedNode.coreElement.x, y: extendedNode.coreElement.y };
             }
         }
 

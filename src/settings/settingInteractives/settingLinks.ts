@@ -12,7 +12,7 @@ export class SettingLinks extends SettingInteractives {
 
     protected override addBody(): void {
         super.addBody();
-        
+
         // Remove sources
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.removeSources)
@@ -54,7 +54,7 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
-        
+
         // Show on graph
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.interactives.colorLinks)

@@ -9,7 +9,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'properties', '', STRINGS.features.interactives.properties, 'archive', STRINGS.features.interactives.propertiesDesc);
-        
+
         for (const [key, enabled] of Object.entries(PluginInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
         }
@@ -112,7 +112,7 @@ export class SettingProperty extends SettingInteractives {
 
     protected override addBody(): void {
         super.addBody();
-        
+
         // Show on graph
         this.elementsBody.push(new Setting(this.array.propertiesContainer)
             .setName(STRINGS.features.interactives.arcsAdd)

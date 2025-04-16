@@ -36,7 +36,7 @@ export function quadratic(t: number, p0: Point, p1: Point, p2: Point): Point {
 }
 
 // https://math.stackexchange.com/questions/2149009/find-a-tangent-to-two-quadratic-bezier-curves
-export function tangentQuadratic(t: number, p0: Point, p1: Point, p2: Point): {m: number, c: number} {
+export function tangentQuadratic(t: number, p0: Point, p1: Point, p2: Point): { m: number, c: number } {
     // The tangent line at point x=t passes through the points A = [(1 - t) * p0 + t * p1] and B = [(1 - t) * p1 + t * p2]
     const A: Point = {
         x: (1 - t) * p0.x + t * p1.x,
@@ -61,7 +61,7 @@ export function lengthQuadratic(t: number, p0: Point, p1: Point, p2: Point): num
     const by = p1.y + p1.y - p0.y - p0.y;
     const A = 4.0 * ((ax * ax) + (ay * ay));
     const B = 4.0 * ((ax * bx) + (ay * by));
-    const C =        (bx * bx) + (by * by) ;
+    const C = (bx * bx) + (by * by);
     const b = B / (2.0 * A);
     const c = C / A;
     const u = t + b;
@@ -69,7 +69,7 @@ export function lengthQuadratic(t: number, p0: Point, p1: Point, p2: Point): num
     const b2k = Math.sqrt(b * b + k);
     const u2k = Math.sqrt(u * u + k);
     const L = 0.5 * Math.sqrt(A) * (
-          (u * u2k)
+        (u * u2k)
         - (b * b2k)
         + (k * Math.log(Math.abs((u + u2k) / (b + b2k))))
     );

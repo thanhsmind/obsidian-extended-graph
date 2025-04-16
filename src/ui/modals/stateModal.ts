@@ -266,7 +266,7 @@ export class GraphStateModal extends Modal {
             }
             let ext = createEl("code");
             ext.setText(file.extension);
-            
+
             let span = createEl("span");
             span.appendChild(link);
             span.insertAdjacentText("beforeend", " ");
@@ -318,7 +318,7 @@ export class GraphStateModal extends Modal {
         if (this.sortableTables[key].page > nShow) {
             paginationInner.createSpan().setText("...");
         }
-        
+
         // Previous pages
         for (let i = Math.max(0, this.sortableTables[key].page - nShow); i < this.sortableTables[key].page; ++i) {
             new ButtonComponent(paginationInner)
@@ -334,7 +334,7 @@ export class GraphStateModal extends Modal {
             .setButtonText(this.sortableTables[key].page.toString())
             .setCta()
             .setTooltip(STRINGS.controls.pageCurrent);
-        
+
         // Following pages
         for (let i = this.sortableTables[key].page + 1; i < Math.min(this.sortableTables[key].page + nShow + 1, this.numberOfPages(key)); ++i) {
             new ButtonComponent(paginationInner)
@@ -449,8 +449,8 @@ export class GraphStateModal extends Modal {
     private numberOfPages(key: string): number {
         return Math.ceil(this.sortableTables[key].rows.length / this.sortableTables[key].maxRows);
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
-	}
+
+    onClose(): void {
+        this.contentEl.empty();
+    }
 }

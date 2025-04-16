@@ -1,13 +1,12 @@
 import { Component, Menu, TFile } from "obsidian";
-import { LocalGraphView } from "obsidian-typings";
+import { GraphColorAttributes, GraphData, LocalGraphView } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
 
     instances: GraphInstances;
-    observerOrphans: MutationObserver;
 
     listenStage: boolean = true;
 
@@ -91,7 +90,6 @@ export class GraphEventsDispatcher extends Component {
     onGraphReady(): void {
         this.updateOpacityLayerColor();
         this.bindStageEvents();
-        this.observeOrphanSettings();
 
         try {
             this.createRenderCallbackProxy();
@@ -134,33 +132,6 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.px.stage.on('pointerup', this.onPointerUp);
     }
 
-    private observeOrphanSettings(): void {
-        this.toggleOrphans = this.toggleOrphans.bind(this);
-        const graphFilterControl = this.instances.view.contentEl.querySelector(".tree-item.graph-control-section.mod-filter");
-        if (graphFilterControl) {
-            // @ts-ignore
-            const orphanDesc = window.OBSIDIAN_DEFAULT_I18N.plugins.graphView.optionShowOrphansDescription;
-            const listenToOrphanChanges = (function (treeItemChildren: HTMLElement) {
-                const cb = treeItemChildren.querySelector(`.setting-item.mod-toggle:has([aria-label="${orphanDesc}"]) .checkbox-container`);
-                cb?.addEventListener("click", this.toggleOrphans)
-            }).bind(this);
-            this.observerOrphans = new MutationObserver((mutations) => {
-                if (mutations[0].addedNodes.length > 0) {
-                    const treeItemChildren = mutations[0].addedNodes[0];
-                    listenToOrphanChanges(treeItemChildren as HTMLElement);
-                }
-                else {
-                    const treeItemChildren = mutations[0].removedNodes[0];
-                    const cb = (treeItemChildren as HTMLElement).querySelector(`.setting-item.mod-toggle:has([aria-label="${orphanDesc}"]) .checkbox-container`);
-                    cb?.removeEventListener("click", this.toggleOrphans)
-                }
-            })
-            this.observerOrphans.observe(graphFilterControl, { childList: true });
-            const treeItemChildren = graphFilterControl.querySelector(".tree-item-children");
-            (treeItemChildren) && listenToOrphanChanges(treeItemChildren as HTMLElement);
-        }
-    }
-
     private createRenderCallbackProxy(): void {
         const onRendered = this.onRendered.bind(this);
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.renderCallback>(
@@ -173,6 +144,18 @@ export class GraphEventsDispatcher extends Component {
                 }
             }
         );
+
+        const updateData = this.updateData.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
+            this.instances.renderer,
+            "setData",
+            {
+                apply(target, thisArg, args) {
+                    args[0] = updateData(args[0]);
+                    return Reflect.apply(target, thisArg, args);
+                }
+            }
+        )
     }
 
     private createDestroyGraphicsProxy() {
@@ -212,7 +195,6 @@ export class GraphEventsDispatcher extends Component {
     onunload(): void {
         this.unbindStageEvents();
         this.removeProxys();
-        this.observerOrphans?.disconnect();
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
     }
@@ -310,19 +292,78 @@ export class GraphEventsDispatcher extends Component {
         this.pinDraggingPinnedNode();
     }
 
-    // ============================ SETTINGS EVENTS ============================
+    private updateData(data: GraphData): GraphData {
+        // Filter out nodes
+        let nodesToRemove: string[] = [];
+        if (!this.instances.settings.fadeOnDisable) {
+            for (const [id, node] of Object.entries(data.nodes)) {
+                // Remove file nodes
+                const file = getFile(id);
+                if (file) {
+                    for (const [key, manager] of this.instances.nodesSet.managers) {
+                        const interactives = getFileInteractives(key, file);
+                        if (interactives.size > 0 && ![...interactives].some(interactive => manager.isActive(interactive))) {
+                            nodesToRemove.push(id);
+                        }
+                        if (interactives.size === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType)) {
+                            nodesToRemove.push(id);
+                        }
+                    }
+                }
 
-    toggleOrphans(ev: Event) {
-        if (this.instances.engine.options.showOrphans) {
-            if (this.instances.graph.enableOrphans()) {
-                this.instances.graph.updateWorker();
+                // Remove tag nodes
+                else if (node.type === 'tag' && this.instances.settings.enableFeatures[this.instances.type]['tags']) {
+                    const manager = this.instances.interactiveManagers.get(TAG_KEY);
+                    if (manager && !manager.isActive(id.replace('#', ''))) {
+                        nodesToRemove.push(id);
+                    }
+                }
             }
         }
-        else {
-            if (this.instances.graph.disableOrphans()) {
-                this.instances.graph.updateWorker();
-            }
+
+        for (const id of nodesToRemove) {
+            delete data.nodes[id];
         }
+        nodesToRemove = [];
+
+        // Filter out links
+        for (const [source, node] of Object.entries(data.nodes)) {
+            const file = getFile(source);
+            if (file) {
+                for (const [key, manager] of this.instances.linksSet.managers) {
+                    const links = getOutlinkTypes(this.instances.settings, file); // id -> types
+
+                    for (const [target, types] of links) {
+                        if (!(target in node.links)) continue;
+                        const validTypes = [...types].filter(type => manager.getTypes().includes(type));
+                        if ((validTypes.length > 0 && ![...validTypes].some(type => manager.isActive(type)))
+                            || (validTypes.length === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType))) {
+
+                            // We can remove directly from the record since we are not iterating over the record
+                            console.log(`Deleting link from ${source} to ${target}.`);
+                            console.log(validTypes);
+                            delete node.links[target];
+
+                            // Remove source or target if settings enabled
+                            if (this.instances.settings.enableFeatures[this.instances.type]['source']) {
+                                nodesToRemove.push(source);
+                            }
+                            if (this.instances.settings.enableFeatures[this.instances.type]['target']) {
+                                nodesToRemove.push(target);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Actually remove source and targets
+            for (const id of nodesToRemove) {
+                delete data.nodes[id];
+            }
+            nodesToRemove = [];
+        }
+
+        return data;
     }
 
     // ============================== GRAPH CYCLE ==============================
@@ -357,16 +398,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onRendered() {
-        // If some elements must be added because of cascading effect, add them now and reset to null once it's done
-        if (this.instances.nodesSet.elementsToAddToCascade) {
-            this.instances.nodesSet.loadCascadesForMissingElements(this.instances.nodesSet.elementsToAddToCascade);
-            this.instances.nodesSet.elementsToAddToCascade = null;
-        }
-        if (this.instances.linksSet.elementsToAddToCascade) {
-            this.instances.linksSet.loadCascadesForMissingElements(this.instances.linksSet.elementsToAddToCascade);
-            this.instances.linksSet.elementsToAddToCascade = null;
-        }
-
         // If the color groups have changed, recolor the nodes and reset to false once it's done
         if (this.instances.colorGroupHaveChanged) {
             for (const [id, extendedElement] of this.instances.nodesSet.extendedElementsMap) {
@@ -447,12 +478,13 @@ export class GraphEventsDispatcher extends Component {
      */
     onInteractivesDisabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
-            this.disableLinkTypes(types);
+            this.instances.graph.disableLinkTypes(types);
         } else if (name === FOLDER_KEY) {
             this.disableFolders(types);
         } else {
-            this.disableNodeInteractiveTypes(name, types);
+            this.instances.graph.disableNodeInteractiveTypes(name, types);
         }
+        this.instances.engine.render();
     }
 
     /**
@@ -462,12 +494,13 @@ export class GraphEventsDispatcher extends Component {
      */
     onInteractivesEnabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
-            this.enableLinkTypes(types);
+            this.instances.graph.enableLinkTypes(types);
         } else if (name === FOLDER_KEY) {
             this.enableFolders(types);
         } else {
-            this.enableNodeInteractiveTypes(name, types);
+            this.instances.graph.enableNodeInteractiveTypes(name, types);
         }
+        this.instances.engine.render();
     }
 
     // ================================= TAGS ==================================
@@ -500,28 +533,6 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.changed();
     }
 
-    private disableNodeInteractiveTypes(key: string, types: string[]) {
-        this.listenStage = false;
-        if (this.instances.graph.disableNodeInteractiveTypes(key, types)) {
-            this.instances.graph.updateWorker();
-        }
-        else {
-            this.instances.renderer.changed();
-        }
-        this.listenStage = true;
-    }
-
-    private enableNodeInteractiveTypes(key: string, types: string[]) {
-        this.listenStage = false;
-        if (this.instances.graph.enableNodeInteractiveTypes(key, types)) {
-            this.instances.graph.updateWorker();
-        }
-        else {
-            this.instances.renderer.changed();
-        }
-        this.listenStage = true;
-    }
-
     // ================================= LINKS =================================
 
     private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
@@ -548,22 +559,6 @@ export class GraphEventsDispatcher extends Component {
         this.instances.linksSet.updateTypeColor(LINK_KEY, type, color);
         this.instances.legendUI?.update(LINK_KEY, type, color);
         this.instances.renderer.changed();
-    }
-
-    private disableLinkTypes(types: string[]) {
-        this.listenStage = false;
-        if (this.instances.graph.disableLinkTypes(types)) {
-            this.instances.graph.updateWorker();
-        }
-        this.listenStage = true;
-    }
-
-    private enableLinkTypes(types: string[]) {
-        this.listenStage = false;
-        if (this.instances.graph.enableLinkTypes(types)) {
-            this.instances.graph.updateWorker();
-        }
-        this.listenStage = true;
     }
 
     // ================================ FOLDERS ================================

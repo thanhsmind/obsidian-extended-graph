@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 
 export abstract class SettingInteractives extends SettingsSectionCollapsible {
     noneType: string = "";
-    
+
     settingInteractiveColor: Setting;
     settingInteractiveFilter: Setting;
     selectionContainer: HTMLElement;
@@ -42,7 +42,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
                     //INVALID_KEYS[this.interactiveKey].push(value);
                     this.noneType = value;
                     await PluginInstances.plugin.saveSettings();
-            }));
+                }));
         this.elementsBody.push(setting.settingEl);
     }
 
@@ -51,7 +51,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
             .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
 
         setting.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
-        
+
         setting.onPaletteChange((palette: string) => {
             PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = palette;
             PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
@@ -131,7 +131,7 @@ class SettingColor extends Setting {
         this.key = key;
         this.type = type;
         this.color = color;
-        
+
         this.addText(cb => {
             this.textComponent = cb;
             cb.setPlaceholder(key);
@@ -179,10 +179,10 @@ class SettingColor extends Setting {
         const newIndex = colors.findIndex(c => c.type === newType);
 
         if (newIndex === -1) {
-            colors.push({type: newType, color: newColor});
+            colors.push({ type: newType, color: newColor });
         }
         else {
-            colors[newIndex] = {type: newType, color: newColor};
+            colors[newIndex] = { type: newType, color: newColor };
         }
 
         this.plugin.saveSettings();

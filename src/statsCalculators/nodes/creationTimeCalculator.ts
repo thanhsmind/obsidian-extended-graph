@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class CreationTimeCalculator extends NodeStatCalculator {
 
     override async getStat(file: TFile): Promise<number> {
-        return  file.stat.ctime;
+        return file.stat.ctime;
     }
 
     override getWarning(): string {

@@ -26,7 +26,7 @@ export interface CoCitationRes {
 export interface CoCitationMap {
     [linkName: string]: CoCitationRes
 }
-  
+
 export interface ResultMap {
     [to: string]: { measure: number; extra: string[] }
 }

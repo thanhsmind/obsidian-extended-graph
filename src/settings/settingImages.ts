@@ -46,7 +46,7 @@ export class SettingImages extends SettingsSection {
                         PluginInstances.settings.imageProperty = key;
                         await PluginInstances.plugin.saveSettings();
                     }
-            })).settingEl);
+                })).settingEl);
     }
 
     private addImagesFromEmbeds() {

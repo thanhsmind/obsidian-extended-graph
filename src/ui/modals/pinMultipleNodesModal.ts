@@ -9,13 +9,13 @@ export class PinMultipleNodesModal extends NodesQueryModal {
 
     constructor(pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
         super(STRINGS.features.pinMultipleNodes,
-            PluginInstances.settings.multipleNodesData.queryData ?? {combinationLogic: 'AND', rules: []},
+            PluginInstances.settings.multipleNodesData.queryData ?? { combinationLogic: 'AND', rules: [] },
             (queryData) => { this.pinCallback(this.shapeData, queryData); }
         );
         this.pinCallback = pinCallback;
         this.shapeData = PluginInstances.settings.multipleNodesData.shapeData ?? {
             type: 'grid',
-            center: {x: 0, y: 0},
+            center: { x: 0, y: 0 },
             step: 100
         };
     }
@@ -31,7 +31,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
             .setIcon('check');
 
         if (this.rulesSettings.length === 0) {
-            this.addRule({source: 'all'});
+            this.addRule({ source: 'all' });
             this.onChange();
         }
     }

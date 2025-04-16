@@ -12,13 +12,13 @@ export class SettingColorPalette extends Setting {
         super(containerEl);
         this.setName(STRINGS.features.interactives.palette);
         this.controlEl.addClass("color-palette");
-    
+
         // Canvas
         this.canvasPalette = this.controlEl.createEl("canvas");
         this.canvasPalette.id = `canvas-palette-${uniqueKey}`;
         this.canvasPalette.width = 100;
         this.canvasPalette.height = 20;
-    
+
         // Picker icon
         this.addExtraButton(cb => {
             cb.setIcon("pipette");
@@ -32,7 +32,7 @@ export class SettingColorPalette extends Setting {
                 modal.open();
             });
         });
-    
+
         // Select
         this.addDropdown(cb => {
             this.dropdown = cb;

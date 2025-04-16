@@ -49,8 +49,8 @@ export class EngineOptions implements GraphPluginInstanceOptions {
 export class GraphStateData {
     id: string = "";
     name: string = "";
-    toggleTypes: { [interactive: string] : string[] };
-    pinNodes?: { [nodeID: string] : {x: number, y: number} };
+    toggleTypes: { [interactive: string]: string[] };
+    pinNodes?: { [nodeID: string]: { x: number, y: number } };
     engineOptions?: EngineOptions;
 
     constructor() {
