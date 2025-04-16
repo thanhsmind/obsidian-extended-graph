@@ -66,6 +66,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         }
         this.coreElement = coreElement;
         this.graphicsWrapper?.connect();
+        this.initGraphicsWrapper();
     }
 
     protected findCoreElement(): T | undefined {

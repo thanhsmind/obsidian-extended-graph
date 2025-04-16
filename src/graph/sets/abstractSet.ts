@@ -1,6 +1,6 @@
-import { TAbstractFile, TFile, TFolder } from "obsidian";
+import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { DisconnectionCause, ExtendedGraphElement, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
+import { ExtendedGraphElement, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
@@ -29,7 +29,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         this.instances = instances;
         this.initializeManagers(managers);
         this.initializeTypesMap();
-        this.initializeDisconnectedIDs();
     }
 
     private initializeManagers(managers: InteractiveManager[]) {
@@ -41,12 +40,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     private initializeTypesMap() {
         for (const key of this.managers.keys()) {
             this.typesMap[key] = {};
-        }
-    }
-
-    private initializeDisconnectedIDs(): void {
-        for (const value of Object.values(DisconnectionCause)) {
-            this.disconnectedIDs[value] = new Set<string>();
         }
     }
 
@@ -149,8 +142,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     protected handleMissingElements(ids: Set<string>): void { }
 
-    abstract loadCascadesForMissingElements(ids: Set<string>): void;
-
     // =============================== UNLOADING ===============================
 
     unload() {
@@ -167,9 +158,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     protected clearMaps() {
         this.extendedElementsMap.clear();
         this.connectedIDs.clear();
-        for (const value of Object.values(DisconnectionCause)) {
-            this.disconnectedIDs[value].clear();
-        }
         this.managers.clear();
     }
 

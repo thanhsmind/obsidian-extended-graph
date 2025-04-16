@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, DisconnectionCause, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -291,16 +291,6 @@ export class GraphsManager extends Component {
 
                 nodesSet.extendedElementsMap.delete(id);
                 nodesSet.connectedIDs.delete(id);
-                for (const cause of Object.values(DisconnectionCause)) {
-                    nodesSet.disconnectedIDs[cause].delete(id);
-                    for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
-                        linkCascade.nodes.delete(id);
-                    }
-                    for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
-                        nodeCascade.nodes.delete(id);
-                    }
-                    instances.graph.nodesDisconnectionCascade.delete(id);
-                }
                 extendedNode?.graphicsWrapper?.disconnect();
                 extendedNode?.graphicsWrapper?.destroyGraphics();
 
@@ -321,16 +311,6 @@ export class GraphsManager extends Component {
 
                     linksSet.extendedElementsMap.delete(linkID);
                     linksSet.connectedIDs.delete(linkID);
-                    for (const cause of Object.values(DisconnectionCause)) {
-                        linksSet.disconnectedIDs[cause].delete(linkID);
-                        for (const [nodeID, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
-                            nodeCascade.links.delete(linkID);
-                        }
-                        for (const [linkID, linkCascade] of instances.graph.linksDisconnectionCascade) {
-                            linkCascade.links.delete(linkID);
-                        }
-                        instances.graph.linksDisconnectionCascade.delete(linkID);
-                    }
                     extendedLink?.graphicsWrapper?.disconnect();
                     extendedLink?.graphicsWrapper?.destroyGraphics();
 
@@ -361,43 +341,6 @@ export class GraphsManager extends Component {
         }
 
         for (const [leafID, instances] of this.allInstances) {
-            // Nodes cascades
-            instances.graph.linksDisconnectionCascade = new Map(
-                [...instances.graph.linksDisconnectionCascade].filter(([linkID, cascade]) => {
-                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
-                    return extendedLink
-                        && !predicate(oldPath, extendedLink.coreElement.source.id)
-                        && !predicate(oldPath, extendedLink.coreElement.target.id);
-                })
-            );
-            for (const [id, linkCascade] of instances.graph.linksDisconnectionCascade) {
-                [...linkCascade.nodes].filter(currentPath => !predicate(oldPath, currentPath));
-            }
-            for (const [id, linkCascade] of instances.graph.linksDisconnectionCascade) {
-                [...linkCascade.links].filter(linkID => {
-                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
-                    return extendedLink
-                        && !predicate(oldPath, extendedLink.coreElement.source.id)
-                        && !predicate(oldPath, extendedLink.coreElement.target.id);
-                });
-            }
-            // Links cascades
-            instances.graph.nodesDisconnectionCascade = new Map(
-                [...instances.graph.nodesDisconnectionCascade].filter(([nodeID, cascade]) => {
-                    return !predicate(oldPath, nodeID);
-                })
-            );
-            for (const [id, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
-                [...nodeCascade.nodes].filter(currentPath => !predicate(oldPath, currentPath));
-            }
-            for (const [id, nodeCascade] of instances.graph.nodesDisconnectionCascade) {
-                [...nodeCascade.links].filter(linkID => {
-                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
-                    return extendedLink
-                        && !predicate(oldPath, extendedLink.coreElement.source.id)
-                        && !predicate(oldPath, extendedLink.coreElement.target.id);
-                });
-            }
             // Type maps
             for (const [key, manager] of instances.nodesSet.managers) {
                 instances.nodesSet.typesMap[key] = Object.fromEntries(
@@ -424,14 +367,6 @@ export class GraphsManager extends Component {
                     return !predicate(oldPath, id);
                 })
             );
-            // Disconnected nodes ids
-            for (const cause of Object.values(DisconnectionCause)) {
-                instances.nodesSet.disconnectedIDs[cause] = new Set<string>(
-                    [...instances.nodesSet.disconnectedIDs[cause]].filter(id => {
-                        return !predicate(oldPath, id);
-                    })
-                );
-            }
             // Connected links ids
             instances.linksSet.connectedIDs = new Set<string>(
                 [...instances.linksSet.connectedIDs].filter(linkID => {
@@ -441,17 +376,6 @@ export class GraphsManager extends Component {
                         && !predicate(oldPath, extendedLink.coreElement.target.id);
                 })
             );
-            // Disconnected links ids
-            for (const cause of Object.values(DisconnectionCause)) {
-                instances.linksSet.disconnectedIDs[cause] = new Set<string>(
-                    [...instances.linksSet.disconnectedIDs[cause]].filter(linkID => {
-                        const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
-                        return extendedLink
-                            && !predicate(oldPath, extendedLink.coreElement.source.id)
-                            && !predicate(oldPath, extendedLink.coreElement.target.id);
-                    })
-                );
-            }
             // Pinned nodes
             const pinner = new Pinner(instances);
             for (const [nodeID, extendedNode] of instances.nodesSet.extendedElementsMap) {

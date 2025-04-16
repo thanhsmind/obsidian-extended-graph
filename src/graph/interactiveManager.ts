@@ -1,6 +1,6 @@
 
 import { Component } from "obsidian";
-import { ExtendedGraphSettings, getColor, GraphEventsDispatcher, GraphInstances, hex2rgb, INVALID_KEYS, NONE_COLOR, PluginInstances } from "src/internal";
+import { getColor, GraphInstances, hex2rgb, INVALID_KEYS, NONE_COLOR, PluginInstances } from "src/internal";
 
 class Interactive {
     type: string;
@@ -22,7 +22,7 @@ export class InteractiveManager extends Component {
     interactives: Map<string, Interactive>;
     name: string;
     instances: GraphInstances;
-    
+
     constructor(instances: GraphInstances, name: string) {
         super();
         this.interactives = new Map<string, Interactive>();
@@ -127,7 +127,7 @@ export class InteractiveManager extends Component {
         types.remove(PluginInstances.settings.interactiveSettings[this.name].noneType);
         return types;
     }
-    
+
     update(types: Set<string>): void {
         this.interactives.clear();
         this.addTypes(types);
@@ -147,7 +147,7 @@ export class InteractiveManager extends Component {
         if (color) this.setColor(type, color);
     }
 
-    private tryComputeColorFromType(type: string): Uint8Array | null{
+    private tryComputeColorFromType(type: string): Uint8Array | null {
         let color: Uint8Array;
         const colorSettings = PluginInstances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
         if (colorSettings) {
