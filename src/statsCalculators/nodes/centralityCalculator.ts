@@ -69,7 +69,7 @@ export class BetweennessCentralityCalculator extends CentralityCalculator {
 
 export class HubsCalculator extends CentralityCalculator {
     override computeCentralityMap(g: Graphology) {
-        const {hubs, authorities} = hits(g);
+        const { hubs, authorities } = hits(g);
         this.cm = hubs;
     }
 
@@ -80,7 +80,7 @@ export class HubsCalculator extends CentralityCalculator {
 
 export class AuthoritiesCalculator extends CentralityCalculator {
     override computeCentralityMap(g: Graphology) {
-        const {hubs, authorities} = hits(g);
+        const { hubs, authorities } = hits(g);
         this.cm = authorities;
     }
 

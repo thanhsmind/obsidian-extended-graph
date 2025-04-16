@@ -10,7 +10,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
     }
 
     protected override addBody() {
-        const shapeQueries: {[k: string]: QueryData} = Object.fromEntries(Object.entries(PluginInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+        const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(PluginInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return (a[1].index ?? 0) - (b[1].index ?? 0);
         }));
         const values = Object.keys(shapeQueries);
@@ -29,7 +29,7 @@ export class SettingShapes extends SettingsSectionCollapsible {
         const index = this.settingsShape.indexOf(settingShape);
         if (index >= this.settingsShape.length - 1) return;
         [this.settingsShape[index], this.settingsShape[index + 1]] = [this.settingsShape[index + 1], this.settingsShape[index]];
-        
+
         const next = settingShape.settingEl.nextSibling;
         this.settingTab.containerEl?.insertAfter(settingShape.settingEl, next);
 
@@ -107,20 +107,20 @@ class SettingShape extends Setting {
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-up')
-			.setTooltip(STRINGS.controls.moveUp)
+            .setTooltip(STRINGS.controls.moveUp)
             .onClick(() => {
                 this.moveUp(this)
             });
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-down')
-			.setTooltip(STRINGS.controls.moveDown)
+            .setTooltip(STRINGS.controls.moveDown)
             .onClick(() => {
                 this.moveDown(this)
             });
-        
+
         this.settingEl.insertAdjacentElement('afterbegin', container);
-        
+
         return this;
     }
 

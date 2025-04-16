@@ -93,18 +93,18 @@ export class NodesQueryModal extends Modal {
         const container = this.modalEl.createDiv({ cls: 'buttons-container' });
 
         new ButtonComponent(container)
-			.setButtonText(STRINGS.controls.cancel)
-			.onClick(() => this.close());
+            .setButtonText(STRINGS.controls.cancel)
+            .onClick(() => this.close());
 
         this.viewMatchesButton = new ButtonComponent(container)
             .setButtonText(STRINGS.query.viewMatches)
             .onClick(() => this.viewMatches());
 
-		this.applyButton = new ButtonComponent(container)
+        this.applyButton = new ButtonComponent(container)
             .setButtonText(STRINGS.controls.save)
-			.setIcon('save')
-			.onClick(() => this.save())
-			.setCta();
+            .setIcon('save')
+            .onClick(() => this.save())
+            .setCta();
     }
 
     onChange(ruleQuery?: RuleQuery) {
@@ -118,10 +118,10 @@ export class NodesQueryModal extends Modal {
         const modal = new QueryMatchesModal(this.queryData);
         modal.open();
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
-	}
+
+    onClose(): void {
+        this.contentEl.empty();
+    }
 
     private save(): void {
         this.setQueryData();
@@ -217,7 +217,7 @@ class RuleSetting extends Setting {
                     if (!this.valueText) this.addValueText();
                 }
                 this.onChange();
-			});
+            });
         });
     }
 
@@ -226,7 +226,7 @@ class RuleSetting extends Setting {
             this.propertyDropdown = cb;
             this.controlEl.insertAfter(cb.selectEl, this.sourceDropdown.selectEl);
             const properties = PluginInstances.app.metadataTypeManager.properties;
-            cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {} ));
+            cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {}));
             cb.onChange(value => {
                 this.onChange();
             });
@@ -294,10 +294,10 @@ class RuleSetting extends Setting {
 
     getRuleQuery(): RuleQuery {
         return new RuleQuery({
-            source  : this.sourceDropdown.getValue(),
+            source: this.sourceDropdown.getValue(),
             property: this.propertyDropdown?.getValue() ?? '',
-            value   : this.valueText?.getValue() ?? '',
-            logic   : this.logicDropdown?.getValue() ?? '',
+            value: this.valueText?.getValue() ?? '',
+            logic: this.logicDropdown?.getValue() ?? '',
         });
     }
 }

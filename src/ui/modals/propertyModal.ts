@@ -22,7 +22,7 @@ export class PropertyModal extends Modal {
         new Setting(this.contentEl)
             .addSearch((cb) => {
                 this.input = cb;
-                new PropertiesSuggester(cb.inputEl, (value) => {});
+                new PropertiesSuggester(cb.inputEl, (value) => { });
             })
             .addButton((cb) => {
                 UIElements.setupButton(cb, 'add');
@@ -33,8 +33,8 @@ export class PropertyModal extends Modal {
                 })
             });
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
-	}
+
+    onClose(): void {
+        this.contentEl.empty();
+    }
 }

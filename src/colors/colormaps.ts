@@ -3,7 +3,7 @@
     From: https://github.com/timothygebhard/js-colormaps
     By: Timothy Gebhard
 */
-        
+
 export const cmOptions = {
     "Perceptually Uniform Sequential": [
         "viridis",

@@ -5,7 +5,7 @@ export function getGraphView(leaf: WorkspaceLeaf): GraphView | LocalGraphView | 
     if (leaf.view.getViewType() === "graph") {
         return leaf.view as GraphView;
     }
-    else if(leaf.view.getViewType() === "localgraph") {
+    else if (leaf.view.getViewType() === "localgraph") {
         return leaf.view as LocalGraphView;
     }
     else {

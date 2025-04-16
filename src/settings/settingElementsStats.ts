@@ -7,7 +7,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
     warningNodeColorSetting: Setting;
     linksSizeFunctionDropdown: DropdownComponent | undefined;
     linksColorFunctionDropdown: DropdownComponent | undefined;
-    
+
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'elements-stats', '', STRINGS.features.elementsStats, 'chart-pie', STRINGS.features.elementsStatsDesc);
     }
@@ -39,8 +39,8 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                         PluginInstances.settings.nodesSizeProperty = key;
                         await PluginInstances.plugin.saveSettings();
                     }
-            }));
-            
+                }));
+
         this.elementsBody.push(setting.settingEl);
     }
 
@@ -55,7 +55,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                     this.recomputeNodesSizes(value as NodeStatFunction);
                 });
             });
-            
+
         this.elementsBody.push(setting.settingEl);
     }
 
@@ -65,12 +65,12 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .then(cb => {
                 setIcon(cb.nameEl, 'triangle-alert');
             });
-            
+
         this.elementsBody.push(setting.settingEl);
         this.warningNodeSizeSetting = setting;
         this.setWarning(setting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
     }
-    
+
     private addNodeColorFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.nodeColorsFunction)
@@ -82,7 +82,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                     this.recomputeNodeColors(value as NodeStatFunction);
                 });
             });
-            
+
         this.elementsBody.push(setting.settingEl);
     }
 
@@ -92,7 +92,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             .then(cb => {
                 setIcon(cb.nameEl, 'triangle-alert');
             });
-            
+
         this.elementsBody.push(setting.settingEl);
         this.warningNodeColorSetting = setting;
         this.setWarning(setting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
@@ -132,10 +132,10 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                     this.recomputeLinksSizes(value as LinkStatFunction);
                 });
             });
-            
+
         this.elementsBody.push(setting.settingEl);
     }
-    
+
     private addLinkColorFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.linkColorsFunction)
@@ -153,7 +153,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                     this.recomputeLinksColors(value as LinkStatFunction);
                 });
             });
-            
+
         this.elementsBody.push(setting.settingEl);
     }
 
@@ -173,7 +173,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         // Push to body list
         this.elementsBody.push(setting.settingEl);
     }
-    
+
 
 
 
@@ -225,7 +225,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             functionKey = 'default';
             this.linksSizeFunctionDropdown?.setValue(functionKey);
         }
-    
+
         PluginInstances.settings.linksSizeFunction = functionKey;
         PluginInstances.plugin.saveSettings();
 
@@ -255,7 +255,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
             functionKey = 'default';
             this.linksColorFunctionDropdown?.setValue(functionKey);
         }
-    
+
         PluginInstances.settings.linksColorFunction = functionKey;
         PluginInstances.plugin.saveSettings();
 

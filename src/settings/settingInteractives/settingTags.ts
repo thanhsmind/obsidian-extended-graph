@@ -10,7 +10,7 @@ export class SettingTags extends SettingInteractives {
 
     protected override addBody(): void {
         super.addBody();
-        
+
         // Show on graph
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.interactives.arcsAdd)

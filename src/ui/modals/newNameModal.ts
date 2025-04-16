@@ -30,8 +30,8 @@ export class NewNameModal extends Modal {
                 })
             });
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
-	}
+
+    onClose(): void {
+        this.contentEl.empty();
+    }
 }

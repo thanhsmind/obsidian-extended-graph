@@ -10,7 +10,7 @@ export const PinShapeLabels: Record<PinShapeType, string> = {
 
 export type PinShapeData = {
     type: PinShapeType,
-    center: {x: number, y: number},
+    center: { x: number, y: number },
     step: number,
     columns?: number | string,
 };
@@ -42,7 +42,7 @@ export class PinShapeCircle extends PinShape {
     protected override pinShape(nodes: ExtendedGraphNode[]): void {
         const N = nodes.length;
         const r = Math.max(200, N * this.data.step / (2 * Math.PI));
-        
+
         for (let i = 0; i < N; ++i) {
             const theta = i * Math.PI * 2 / N;
             const x = r * Math.cos(theta) + this.data.center.x;

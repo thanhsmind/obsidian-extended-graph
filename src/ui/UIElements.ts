@@ -2,7 +2,7 @@ import { ButtonComponent, ExtraButtonComponent } from "obsidian";
 import STRINGS from "src/Strings";
 
 const BUTTON_DELETE_CLASS: string = "extended-graph-delete-button";
-const BUTTON_ADD_CLASS: string    = "extended-graph-add-button";
+const BUTTON_ADD_CLASS: string = "extended-graph-add-button";
 
 export type ButtonType = 'add' | 'delete' | 'save';
 
@@ -23,7 +23,7 @@ export class UIElements {
                 button.setIcon('save');
                 button.setTooltip(STRINGS.controls.save);
                 break;
-        
+
             default:
                 break;
         }
@@ -45,7 +45,7 @@ export class UIElements {
                 extraButton.setIcon('save');
                 extraButton.setTooltip(STRINGS.controls.save);
                 break;
-        
+
             default:
                 break;
         }

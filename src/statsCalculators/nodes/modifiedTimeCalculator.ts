@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class ModifiedTimeCalculator extends NodeStatCalculator {
 
     override async getStat(file: TFile): Promise<number> {
-        return  file.stat.mtime;
+        return file.stat.mtime;
     }
 
     override getWarning(): string {

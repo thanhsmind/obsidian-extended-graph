@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/i
 import STRINGS from "src/Strings";
 
 export class SettingZoom extends SettingsSection {
-    
+
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, STRINGS.features.zoomOnNode, 'scan-search', "");
     }

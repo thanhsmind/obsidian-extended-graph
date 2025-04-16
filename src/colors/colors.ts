@@ -7,7 +7,7 @@ export function getColor(palette: string, x: number): Uint8Array {
 }
 
 export function rgb2int(rgb: Uint8Array): number {
-    return rgb[0] * (256*256) + rgb[1] * 256 + rgb[2];
+    return rgb[0] * (256 * 256) + rgb[1] * 256 + rgb[2];
 }
 
 export function int2hex(n: number): HexString {
@@ -23,26 +23,26 @@ export function int2rgb(n: number): Uint8Array {
  * @param hsv h: 0-360, s: 0-100, v: 0-100
  * @returns RGB 8 bit array
  */
-export function hsv2rgb(hsv: {h: number, s: number, v: number}): Uint8Array {
+export function hsv2rgb(hsv: { h: number, s: number, v: number }): Uint8Array {
     hsv.h /= 360; hsv.s /= 100; hsv.v /= 100;
     let r, g, b;
-  
+
     const i = Math.floor(hsv.h * 6);
     const f = hsv.h * 6 - i;
     const p = hsv.v * (1 - hsv.s);
     const q = hsv.v * (1 - f * hsv.s);
     const t = hsv.v * (1 - (1 - f) * hsv.s);
-  
+
     switch (i % 6) {
-      case 0:  r = hsv.v, g = t, b = p; break;
-      case 1:  r = q, g = hsv.v, b = p; break;
-      case 2:  r = p, g = hsv.v, b = t; break;
-      case 3:  r = p, g = q, b = hsv.v; break;
-      case 4:  r = t, g = p, b = hsv.v; break;
-      default: r = hsv.v, g = p, b = q; break;
+        case 0: r = hsv.v, g = t, b = p; break;
+        case 1: r = q, g = hsv.v, b = p; break;
+        case 2: r = p, g = hsv.v, b = t; break;
+        case 3: r = p, g = q, b = hsv.v; break;
+        case 4: r = t, g = p, b = hsv.v; break;
+        default: r = hsv.v, g = p, b = q; break;
     }
-  
-    return new Uint8Array([ r * 255, g * 255, b * 255 ]);
+
+    return new Uint8Array([r * 255, g * 255, b * 255]);
 }
 
 export function hex2int(hex: string): number {
@@ -102,7 +102,7 @@ class GoldenColor {
     public static random(s: number = 50, v: number = 95): string {
         GoldenColor.h += GoldenColor.goldenRatioConjugate;
         GoldenColor.h %= 1;
-        const color = hsv2rgb({h: Math.floor(GoldenColor.h * 360), s: s, v: v});
+        const color = hsv2rgb({ h: Math.floor(GoldenColor.h * 360), s: s, v: v });
         return rgb2hex(color);
     }
 }

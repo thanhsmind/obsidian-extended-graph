@@ -159,7 +159,7 @@ export class ExportSVGOptionModal extends Modal {
                     this.applyAndClose();
                 })
             });
-            
+
         // @ts-ignore
         if (ClipboardItem.supports("image/svg+xml")) {
             setting.addButton(cb => {

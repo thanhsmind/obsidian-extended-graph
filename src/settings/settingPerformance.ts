@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/i
 import STRINGS from "src/Strings";
 
 export class SettingPerformance extends SettingsSection {
-    
+
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, STRINGS.features.performance, 'cpu', "");
     }
@@ -25,7 +25,7 @@ export class SettingPerformance extends SettingsSection {
                         PluginInstances.settings.maxNodes = intValue;
                         await PluginInstances.plugin.saveSettings();
                     }
-            }));
+                }));
 
         this.elementsBody.push(setting.settingEl);
     }
@@ -42,7 +42,7 @@ export class SettingPerformance extends SettingsSection {
                         PluginInstances.settings.delay = intValue;
                         await PluginInstances.plugin.saveSettings();
                     }
-            }));
+                }));
 
         this.elementsBody.push(setting.settingEl);
     }

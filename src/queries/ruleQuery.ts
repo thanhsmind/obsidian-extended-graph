@@ -36,10 +36,10 @@ export class RuleQuery {
     logic: string;
 
     constructor(rec: Record<string, string>) {
-        this.source   = rec['source'] ?? '';
+        this.source = rec['source'] ?? '';
         this.property = rec['property'] ?? '';
-        this.value    = rec['value'] ?? '';
-        this.logic    = rec['logic'] ?? '';
+        this.value = rec['value'] ?? '';
+        this.logic = rec['logic'] ?? '';
     }
 
     getRecord(): Record<string, string> {
@@ -64,7 +64,7 @@ export class RuleQuery {
             case 'tag':
                 const tags = getFileInteractives(TAG_KEY, file);
                 return this.checkLogic([...tags]);
-                
+
             case 'link':
                 const links = getFileInteractives(LINK_KEY, file);
                 return this.checkLogic([...links]);
@@ -73,7 +73,7 @@ export class RuleQuery {
                 if (!this.property) break;
                 const properties = getFileInteractives(this.property, file);
                 return this.checkLogic([...properties]);
-            
+
             case 'file':
                 return this.checkLogic(file.basename);
 
@@ -88,10 +88,10 @@ export class RuleQuery {
                     currentFolder = currentFolder.parent;
                 }
                 return this.checkLogic(folders);
-            
+
             case 'path':
                 return this.checkLogic(file.path);
-        
+
             default:
                 break;
         }
@@ -104,7 +104,7 @@ export class RuleQuery {
 
         let fullWordRegex = this.value;
         if (!fullWordRegex.startsWith("\\b")) fullWordRegex = "\\b" + fullWordRegex;
-        if (!fullWordRegex.endsWith("\\b"))   fullWordRegex = fullWordRegex + "\\b";
+        if (!fullWordRegex.endsWith("\\b")) fullWordRegex = fullWordRegex + "\\b";
 
         if (isArray) {
             let valuesToCheck = values;

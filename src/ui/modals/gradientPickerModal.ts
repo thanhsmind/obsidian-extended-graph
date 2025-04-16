@@ -62,11 +62,11 @@ export class GradientPickerModal extends Modal {
             })
 
     }
-    
-	onClose(): void {
-		this.contentEl.empty();
+
+    onClose(): void {
+        this.contentEl.empty();
         if (this.selectedPalette !== "") this.callback(this.selectedPalette);
-	}
+    }
 
     onSelected(callback: (palette: string) => void) {
         this.callback = callback;
