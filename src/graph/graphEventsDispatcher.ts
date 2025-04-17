@@ -486,12 +486,16 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesDisabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
             this.instances.graph.disableLinkTypes(types);
+            this.instances.engine.render();
         } else if (name === FOLDER_KEY) {
             this.disableFolders(types);
         } else {
             this.instances.graph.disableNodeInteractiveTypes(name, types);
+            if (!this.instances.settings.fadeOnDisable) {
+                this.instances.engine.render();
+            }
+            this.instances.renderer.changed();
         }
-        this.instances.engine.render();
     }
 
     /**
@@ -502,12 +506,16 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesEnabled(name: string, types: string[]) {
         if (name === LINK_KEY) {
             this.instances.graph.enableLinkTypes(types);
+            this.instances.engine.render();
         } else if (name === FOLDER_KEY) {
             this.enableFolders(types);
         } else {
             this.instances.graph.enableNodeInteractiveTypes(name, types);
+            if (!this.instances.settings.fadeOnDisable) {
+                this.instances.engine.render();
+            }
+            this.instances.renderer.changed();
         }
-        this.instances.engine.render();
     }
 
     // ================================= TAGS ==================================
