@@ -57,8 +57,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.pixiElement.name = this.name;
 
         this.placeNode();
-        if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         if (this.extendedElement.icon?.svg || this.extendedElement.icon?.emoji) this.initIcon();
+        if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
     }
 
     private placeNode() {
@@ -71,6 +71,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.opacityLayer.drawFill(0xFF0000);
         this.opacityLayer.scale.set(this.opacityLayer.getDrawingResolution());
         this.opacityLayer.alpha = 0;
+        this.opacityLayer.name = "opacity-layer";
         this.pixiElement.addChild(this.opacityLayer);
     }
 

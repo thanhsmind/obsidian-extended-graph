@@ -1,5 +1,4 @@
-import { GraphNode } from "obsidian-typings";
-import { AttachmentNodeGraphicsWrapper, ExtendedGraphNode, FileNodeGraphicsWrapper, GraphInstances, InteractiveManager, NodeShape } from "src/internal";
+import { AttachmentNodeGraphicsWrapper, ExtendedGraphNode, NodeShape } from "src/internal";
 
 export class ExtendedGraphAttachmentNode extends ExtendedGraphNode {
     graphicsWrapper: AttachmentNodeGraphicsWrapper;
