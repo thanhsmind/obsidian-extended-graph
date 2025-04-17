@@ -25,7 +25,14 @@ export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
         if (texture) {
             this.texture = texture;
             this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
-            this.pixiElement.addChildAt(this.nodeImage, this.pixiElement.children.length > 0 ? Math.max(1, this.pixiElement.children.length - 2) : 0);
+            const opacityLayer = this.pixiElement.getChildByName("opacity-layer");
+            if (opacityLayer) {
+                const opacityLayerIndex = this.pixiElement.getChildIndex(opacityLayer);
+                this.pixiElement.addChildAt(this.nodeImage, opacityLayerIndex);
+            }
+            else {
+                this.pixiElement.addChild(this.nodeImage);
+            }
         }
     }
 
