@@ -29,9 +29,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         for (const id of ids) {
             const extendedNode = this.extendedElementsMap.get(id);
             if (!extendedNode || !extendedNode.graphicsWrapper) continue;
-            if (extendedNode.coreElement.type !== "tag") {
-                extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
-            }
+            extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
         }
     }
 
