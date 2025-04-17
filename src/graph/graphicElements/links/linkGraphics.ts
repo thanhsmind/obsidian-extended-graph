@@ -30,8 +30,7 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
         if (!type) return;
         const overrideColor = this.extendedLink.getStrokeColor();
         this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(type);
-
-        if (this.extendedLink.isActive) this.redraw();
+        this.redraw();
     }
 
     protected activeType(): string | undefined {
