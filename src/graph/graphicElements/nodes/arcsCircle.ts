@@ -54,10 +54,19 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         for (const type of this.types) {
             if (type === this.manager.instances.settings.interactiveSettings[this.manager.name].noneType) continue;
             const index = allTypes.findIndex(t => t === type);
-            const arc = new Graphics();
-            arc.name = this.getArcName(type);
-            this.graphics.set(type, { index: index, graphic: arc });
-            this.addChild(arc);
+            let arc = this.graphics.get(type);
+            if (!arc) {
+                arc = {
+                    index: index,
+                    graphic: new Graphics()
+                }
+                arc.graphic.name = this.getArcName(type);
+                this.graphics.set(type, arc);
+                this.addChild(arc.graphic);
+            }
+            else {
+
+            }
 
             this.redrawType(type);
         }
@@ -69,7 +78,6 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
 
         if (!color) color = this.manager.getColor(type);
 
-        const alpha = arc.graphic.alpha;
         const radius = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
         const startAngle = this.arcSize * arc.index + ArcsCircle.gap * 0.5;
         const endAngle = this.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
@@ -79,7 +87,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
             .lineStyle(ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2, color)
             .arc(0, 0, radius, startAngle, endAngle)
             .endFill();
-        arc.graphic.alpha = alpha;
+        arc.graphic.alpha = this.manager.isActive(type) ? 1 : 0.1;
     }
 
     updateFrame(): void { }
