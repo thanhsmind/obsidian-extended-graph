@@ -203,16 +203,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    // ============================ TOGGLE ELEMENTS ============================
-
-    /**
-     * Connects all node wrappers in the set to their obsidian node.
-     */
-    connectNodes(): void {
-        for (const [id, extendedNode] of this.extendedElementsMap) {
-            extendedNode.updateCoreElement();
-        }
-    }
 
     // ================================== CSS ==================================
 

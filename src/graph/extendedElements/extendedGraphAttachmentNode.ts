@@ -17,7 +17,7 @@ export class ExtendedGraphAttachmentNode extends ExtendedGraphNode {
 
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new AttachmentNodeGraphicsWrapper(this);
-        this.graphicsWrapper.initGraphics();
+        this.graphicsWrapper.createGraphics();
         this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
     }
 }

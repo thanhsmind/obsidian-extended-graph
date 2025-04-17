@@ -41,4 +41,6 @@ export abstract class LinkGraphics extends Graphics implements ManagerGraphics {
     protected abstract redraw(): void;
 
     abstract updateFrame(): void;
+
+    toggleType(type: string, enable: boolean): void { }
 }

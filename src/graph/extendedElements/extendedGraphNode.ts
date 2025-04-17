@@ -1,4 +1,3 @@
-import { apply } from "mathjs";
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
@@ -41,11 +40,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
         super(instances, node, types, managers);
         this.extendedText = new ExtendedGraphText(instances, node);
-    }
-
-    protected override initGraphicsWrapper(): void {
-        super.initGraphicsWrapper();
-        this.initRadius();
+        this.computeRadius();
     }
 
 
@@ -197,7 +192,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // =============================== NODE SIZE ===============================
 
-    private initRadius() {
+    private computeRadius() {
         if (!this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) return;
 
         const property = this.instances.settings.nodesSizeProperty;

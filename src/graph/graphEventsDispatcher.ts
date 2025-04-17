@@ -1,5 +1,5 @@
 import { Component, Menu, TFile } from "obsidian";
-import { GraphColorAttributes, GraphData, LocalGraphView } from "obsidian-typings";
+import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
@@ -95,6 +95,7 @@ export class GraphEventsDispatcher extends Component {
             this.createRenderCallbackProxy();
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
+            this.createSetDataProxy();
         }
         catch (error) {
             this.listenStage = false;
@@ -144,7 +145,9 @@ export class GraphEventsDispatcher extends Component {
                 }
             }
         );
+    }
 
+    private createSetDataProxy() {
         const updateData = this.updateData.bind(this);
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
@@ -194,15 +197,9 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        this.removeProxys();
+        PluginInstances.proxysManager.unregisterAll();
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
-    }
-
-    private removeProxys() {
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
     }
 
     private unbindStageEvents(): void {
@@ -247,12 +244,24 @@ export class GraphEventsDispatcher extends Component {
 
         const linkPx = this.instances.renderer.links.find(l => l.px === child);
         if (linkPx) {
-            const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(linkPx));
-            if (!extendedLink) {
-                this.instances.linksSet.load();
+            const add = (l: GraphLink) => {
+                const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(l));
+                if (!extendedLink) {
+                    this.instances.linksSet.load();
+                }
+                else {
+                    extendedLink.setCoreElement(l);
+                }
+            }
+            if (linkPx.line) {
+                add(linkPx);
             }
             else {
-                extendedLink.setCoreElement(linkPx);
+                child.on('childAdded', (child2: DisplayObject, container2: Container<DisplayObject>, index2: number) => {
+                    if (linkPx.line) {
+                        add(linkPx);
+                    }
+                });
             }
         }
 
@@ -340,8 +349,6 @@ export class GraphEventsDispatcher extends Component {
                             || (validTypes.length === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType))) {
 
                             // We can remove directly from the record since we are not iterating over the record
-                            console.log(`Deleting link from ${source} to ${target}.`);
-                            console.log(validTypes);
                             delete node.links[target];
 
                             // Remove source or target if settings enabled
@@ -383,11 +390,11 @@ export class GraphEventsDispatcher extends Component {
         setTimeout(() => {
             this.instances.linksSet.extendedElementsMap.forEach(el => {
                 el.modifyCoreElement();
-                el.graphicsWrapper?.initGraphics();
+                el.graphicsWrapper?.createGraphics();
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {
                 el.modifyCoreElement();
-                el.graphicsWrapper?.initGraphics();
+                el.graphicsWrapper?.createGraphics();
                 el.extendedText.modifyCoreElement();
                 el.extendedText.initGraphics();
             })

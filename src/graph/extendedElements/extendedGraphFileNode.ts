@@ -38,7 +38,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
     protected createGraphicsWrapper(): void {
         this.graphicsWrapper = new FileNodeGraphicsWrapper(this);
-        this.graphicsWrapper.initGraphics();
+        this.graphicsWrapper.createGraphics();
         this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
     }
 

@@ -10,8 +10,8 @@ export class UnresolvedNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================= INITALIZATION =============================
 
-    override initGraphics(): void {
-        super.initGraphics();
+    override createGraphics(): void {
+        super.createGraphics();
         if (this.extendedElement.needInnerCircle()) this.initInnerCircle();
     }
 

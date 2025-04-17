@@ -12,6 +12,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     // ======================== MODIFYING CORE ELEMENT =========================
 
     override modifyCoreElement(): void {
+        this.changeCoreLinkThickness();
         this.invertArrowDirection();
         this.createFlatArrow();
     }
@@ -69,6 +70,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     override restoreCoreElement(): void {
+        this.restoreCoreLinkThickness();
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
         this.resetArrowShape();
     }
@@ -89,11 +91,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // =============================== GRAPHICS ================================
 
-    protected override initGraphicsWrapper(): void {
-        super.initGraphicsWrapper();
-        this.changeCoreLinkThickness();
-        this.modifyCoreElement();
-    }
 
     protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
@@ -119,14 +116,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         else {
             this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
         }
-        this.graphicsWrapper.initGraphics();
-    }
-
-    // ================================= UNLOAD ================================
-
-    override unload(): void {
-        this.restoreCoreLinkThickness();
-        super.unload();
+        this.graphicsWrapper.createGraphics();
     }
 
     // ========================= LINK SIZE (THICKNESS) =========================
@@ -212,14 +202,16 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         return getLinkID(this.coreElement);
     }
 
-    // ================================ TOGGLE =================================
-
-    override enable(): void {
-        super.enable();
-        this.changeCoreLinkThickness();
+    override disableType(key: string, type: string): void {
+        super.disableType(key, type);
+        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+            if (this.isAnyManagerDisabled()) {
+                this.disable();
+            }
+        }
     }
 
-    override disable() {
+    override disable(): void {
         super.disable();
         this.graphicsWrapper?.disconnect();
     }

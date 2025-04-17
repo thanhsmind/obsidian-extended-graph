@@ -47,7 +47,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
 
     // ============================= INITALIZATION =============================
 
-    initGraphics(): void {
+    createGraphics(): void {
         if (this.pixiElement) {
             if (this.pixiElement.parent) this.pixiElement.removeFromParent();
             if (!this.pixiElement.destroyed) this.pixiElement.destroy();
@@ -163,18 +163,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     }
 
     // ========================== CONNECT/DISCONNECT ===========================
-
-    updateCoreElement(): void {
-        const node = this.extendedElement.coreElement;
-        if (!node.circle) {
-            const newNode = node.renderer.nodes.find(n => n.id === this.name);
-            if (newNode && node !== newNode) {
-                node.clearGraphics();
-                this.disconnect();
-                this.extendedElement.coreElement = newNode;
-            }
-        }
-    }
 
     connect(): void {
         if (this.extendedElement.coreElement.circle && !this.extendedElement.coreElement.circle.getChildByName(this.name)) {

@@ -11,8 +11,8 @@ export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================= INITALIZATION =============================
 
-    override initGraphics(): void {
-        super.initGraphics();
+    override createGraphics(): void {
+        super.createGraphics();
         if (this.texture) this.initNodeImage(this.texture);
     }
 

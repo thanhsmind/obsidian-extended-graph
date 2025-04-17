@@ -51,12 +51,4 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
     // ============================ TOGGLE ELEMENTS ============================
 
-    /**
-     * Connects all link wrappers in the set to their Obsidian link
-     */
-    connectLinks(): void {
-        for (const [id, extendedLink] of this.extendedElementsMap) {
-            extendedLink.updateCoreElement();
-        }
-    }
 }

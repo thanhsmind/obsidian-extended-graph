@@ -139,6 +139,15 @@ export class Graph extends Component {
         if (this.instances.settings.fadeOnDisable && nodesToDisable.length > 0) {
             this.fadeOutNodes(nodesToDisable);
         }
+        else if (nodesToDisable.length > 0) {
+            const links = [...this.instances.linksSet.extendedElementsMap.values()]
+                .filter(link => nodesToDisable.includes(link.coreElement.source.id)
+                    || nodesToDisable.includes(link.coreElement.target.id)
+                );
+            for (const link of links) {
+                link.disable();
+            }
+        }
     }
 
     enableNodeInteractiveTypes(key: string, types: string[]): void {

@@ -13,8 +13,8 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================= INITALIZATION =============================
 
-    override initGraphics(): void {
-        super.initGraphics();
+    override createGraphics(): void {
+        super.createGraphics();
         if (this.extendedElement.needBackground()) this.initBackground();
         if (this.extendedElement.needArcs()) this.initArcsWrapper();
         if (this.texture) this.initNodeImage(this.texture);

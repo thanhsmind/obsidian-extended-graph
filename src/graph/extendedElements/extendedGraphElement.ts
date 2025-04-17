@@ -25,14 +25,14 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             this.managers.set(key, manager);
         }
 
-        this.modifyCoreElement();
-        this.initGraphicsWrapper();
-    }
-
-    protected initGraphicsWrapper() {
         if (this.needGraphicsWrapper()) {
             this.createGraphicsWrapper();
         }
+    }
+
+    init() {
+        this.graphicsWrapper?.connect();
+        this.modifyCoreElement();
     }
 
     protected abstract needGraphicsWrapper(): boolean;
@@ -48,10 +48,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     }
 
     // ============================== CORE ELEMENT =============================
-
-    updateCoreElement(): void {
-        this.setCoreElement(this.findCoreElement());
-    }
 
     setCoreElement(coreElement: T | undefined): void {
         if (!coreElement) return;
@@ -71,8 +67,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         }
 
         this.coreElement = coreElement;
-        this.graphicsWrapper?.connect();
-        this.initGraphicsWrapper();
+        this.init();
     }
 
     protected findCoreElement(): T | undefined {
@@ -151,16 +146,15 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     // ================================ TOGGLE =================================
 
     disableType(key: string, type: string) {
-        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
+        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.toggleType(type, false);
     }
 
     enableType(key: string, type: string) {
-        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
+        this.graphicsWrapper?.managerGraphicsMap?.get(key)?.toggleType(type, true);
     }
 
     disable() {
         this.isActive = false;
-        this.updateCoreElement();
     }
 
     enable() {

@@ -9,4 +9,5 @@ export interface ManagerGraphics {
     clearGraphics(): void;
     updateValues(): void;
     updateFrame(): void;
+    toggleType(type: string, enable: boolean): void;
 }

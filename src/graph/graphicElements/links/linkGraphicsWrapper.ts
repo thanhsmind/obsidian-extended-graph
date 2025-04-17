@@ -16,7 +16,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
 
     // ============================= INITALIZATION =============================
 
-    initGraphics(): void {
+    createGraphics(): void {
         let layer = 1;
         for (const [key, manager] of this.extendedElement.instances.linksSet.managers) {
             if (!this.extendedElement.instances.settings.interactiveSettings[key].showOnGraph) continue;
@@ -57,17 +57,6 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     }
 
     // ========================== CONNECT/DISCONNECT ===========================
-
-    updateCoreElement(): void {
-        const link = this.extendedElement.coreElement;
-        if (!link.line || !link.px) {
-            const newLink = link.renderer.links.find(l => l.source.id === link.source.id && l.target.id === link.target.id);
-            if (newLink && link !== newLink) {
-                this.disconnect();
-                this.extendedElement.coreElement = newLink;
-            }
-        }
-    }
 
     abstract connect(): void;
 
