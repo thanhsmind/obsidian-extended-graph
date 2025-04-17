@@ -34,7 +34,6 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
         }
         this.managerGraphicsMap.set(manager.name, linkGraphics);
         this.pixiElement = linkGraphics;
-        this.connect();
     }
 
     protected abstract createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number): void;

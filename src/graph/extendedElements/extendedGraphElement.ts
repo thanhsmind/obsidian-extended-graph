@@ -27,6 +27,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         if (this.needGraphicsWrapper()) {
             this.createGraphicsWrapper();
         }
+        this.init();
     }
 
     init() {
@@ -155,7 +156,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     disable() { }
 
     enable() {
-        this.graphicsWrapper?.connect();
-        this.modifyCoreElement();
+        this.init();
     }
 }

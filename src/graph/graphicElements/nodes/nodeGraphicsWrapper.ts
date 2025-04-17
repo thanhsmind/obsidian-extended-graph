@@ -59,7 +59,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.placeNode();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
         if (this.extendedElement.icon?.svg || this.extendedElement.icon?.emoji) this.initIcon();
-        this.connect();
     }
 
     private placeNode() {

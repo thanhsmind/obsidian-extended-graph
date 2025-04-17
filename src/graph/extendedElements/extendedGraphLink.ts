@@ -26,6 +26,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                 "arrow",
                 {
                     set(target, prop, value, receiver) {
+                        // Place the arrow at the source rather than the target
                         if (prop === "x" || prop === "y") {
                             var c2c_x = link.target.x - link.source.x
                                 , c2c_y = link.target.y - link.source.y
@@ -39,12 +40,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                                 target.y = link.source.y + c2c_y * source_r / diag;
                             }
                         }
+                        // Flip the arrow
                         else if (prop === "rotation") {
                             target.rotation = value + Math.PI;
                         }
                         else {
-                            // @ts-ignore
-                            target[prop] = value;
+                            return Reflect.set(target, prop, value, receiver);
                         }
                         return true;
                     }
