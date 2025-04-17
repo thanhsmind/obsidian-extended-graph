@@ -242,8 +242,8 @@ export class GraphEventsDispatcher extends Component {
             }
         }
 
-        const linkPx = this.instances.renderer.links.find(l => l.px === child);
-        if (linkPx) {
+        const link = this.instances.renderer.links.find(l => l.px === child || l.arrow === child);
+        if (link) {
             const add = (l: GraphLink) => {
                 const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(l));
                 if (!extendedLink) {
@@ -253,13 +253,16 @@ export class GraphEventsDispatcher extends Component {
                     extendedLink.setCoreElement(l);
                 }
             }
-            if (linkPx.line) {
-                add(linkPx);
+            const canAdd = (l: GraphLink) => {
+                return l.line && (!this.instances.renderer.fShowArrow || !!l.arrow);
+            }
+            if (canAdd(link)) {
+                add(link);
             }
             else {
                 child.on('childAdded', (child2: DisplayObject, container2: Container<DisplayObject>, index2: number) => {
-                    if (linkPx.line) {
-                        add(linkPx);
+                    if (canAdd(link)) {
+                        add(link);
                     }
                 });
             }

@@ -15,7 +15,7 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
     // =========================== EXTENDED ELEMENTS ===========================
 
-    protected override createExtendedElement(link: GraphLink) {
+    protected override createExtendedElement(link: GraphLink): ExtendedGraphLink {
         const id = getLinkID(link);
 
         const types = new Map<string, Set<string>>();
@@ -32,6 +32,8 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
         this.extendedElementsMap.set(id, extendedGraphLink);
         this.connectedIDs.add(id);
+
+        return extendedGraphLink;
     }
 
     // ================================ GETTERS ================================

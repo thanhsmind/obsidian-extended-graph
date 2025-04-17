@@ -252,10 +252,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     override setCoreElement(coreElement: GraphNode | undefined): void {
-        super.setCoreElement(coreElement);
         if (coreElement) {
             this.extendedText.coreElement = coreElement;
         }
+        super.setCoreElement(coreElement);
     }
 
     protected override getCoreParentGraphics(coreElement: GraphNode): Graphics | null {

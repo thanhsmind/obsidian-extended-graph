@@ -1,6 +1,6 @@
 import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphElement, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
+import { ExtendedGraphElement, ExtendedGraphLink, ExtendedGraphNode, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
@@ -134,7 +134,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             }
             else {
                 missingElements.add(id);
-                this.createExtendedElement(coreElement);
+                const extendedElement = this.createExtendedElement(coreElement);
+                extendedElement.init();
             }
         }
         return missingElements;
@@ -163,7 +164,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     // =========================== EXTENDED ELEMENTS ===========================
 
-    protected abstract createExtendedElement(coreElement: T): void;
+    protected abstract createExtendedElement(coreElement: T): ExtendedGraphNode | ExtendedGraphLink;
 
     // ================================ GETTERS ================================
 

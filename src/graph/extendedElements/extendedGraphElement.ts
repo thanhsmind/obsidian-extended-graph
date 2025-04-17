@@ -27,7 +27,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         if (this.needGraphicsWrapper()) {
             this.createGraphicsWrapper();
         }
-        this.init();
     }
 
     init() {

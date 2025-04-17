@@ -125,7 +125,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // =========================== EXTENDED ELEMENTS ===========================
 
-    protected override createExtendedElement(node: GraphNode): void {
+    protected override createExtendedElement(node: GraphNode): ExtendedGraphNode {
         const id = node.id;
 
         const types = new Map<string, Set<string>>();
@@ -167,7 +167,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         this.extendedElementsMap.set(id, extendedGraphNode);
         this.connectedIDs.add(id);
-
+        return extendedGraphNode;
     }
 
     // ================================ GETTERS ================================

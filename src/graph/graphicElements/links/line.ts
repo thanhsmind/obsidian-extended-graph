@@ -15,7 +15,5 @@ export class LinkLineGraphics extends LinkGraphics {
             .lineTo(16, 8);
     }
 
-    override updateFrame(): void {
-        this.extendedLink.coreElement.arrow?.position.set(100, 0);
-    }
+    override updateFrame(): void { }
 }
