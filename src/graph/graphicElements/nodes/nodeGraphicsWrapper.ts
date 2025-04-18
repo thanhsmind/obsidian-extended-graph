@@ -73,7 +73,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.opacityLayer.alpha = 0;
         this.opacityLayer.name = "opacity-layer";
         this.pixiElement.addChild(this.opacityLayer);
-        if (this.extendedElement.id === "#hero") console.log(this.opacityLayer);
     }
 
     initIcon() {
@@ -154,7 +153,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     }
 
     updateOpacityLayerColor(backgroundColor: ColorSource): void {
-        if (this.extendedElement.id === "#hero") console.log(this.opacityLayer, backgroundColor);
         if (!this.opacityLayer) return;
         this.opacityLayer.clear();
         this.opacityLayer.drawFill(backgroundColor);

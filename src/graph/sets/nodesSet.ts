@@ -234,16 +234,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
 
-        try {
-            if (emphasize) {
-                let color = this.instances.renderer.colors.fillFocused.rgb;
-                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(true);
-            } else {
-                (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(false);
-            }
-        }
-        catch {
-
+        if ('emphasize' in extendedNode.graphicsWrapper) {
+            (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(emphasize);
         }
     }
 

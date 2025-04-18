@@ -707,18 +707,21 @@ export class GraphsManager extends Component {
                     this.zoomOnNode(graphBannerViewTyped, view.file.path, graphBannerViewTyped.renderer.targetScale);
                 }
             }
-            this.activeFile = view.file;
         }
     }
 
     changeActiveFile(file: TFile | null): void {
         if (!PluginInstances.settings.enableFeatures['graph']['focus']) return;
+        if (!this.activeFile && !file) return;
 
-        this.allInstances.forEach(instances => {
-            if (instances.type !== "graph") return;
+        for (const instances of this.allInstances.values()) {
+            if (instances.type !== "graph") continue;
             this.deEmphasizePreviousActiveFile(instances);
             this.emphasizeActiveFile(instances, file);
-        })
+            instances.renderer.changed();
+        }
+
+        this.activeFile = file;
     }
 
     private deEmphasizePreviousActiveFile(instances: GraphInstances) {
