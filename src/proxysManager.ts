@@ -14,17 +14,17 @@ export class ProxysManager {
 
     registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): any {
         if (!(property in owner)) {
-            console.warn("Invalid property");
+            console.warn("Invalid property while creating proxy:", property);
             return;
         }
 
         const coreTarget = owner[property];
         if (!coreTarget) {
-            console.warn("Target undefined or null");
+            console.warn("Trying to create a proxy for a undefined or null property:", property);
             return;
         }
         if (this.isProxy(coreTarget)) {
-            console.warn("Already a proxy:", property, owner);
+            //console.warn("Already a proxy:", property, owner);
             return;
         }
 
