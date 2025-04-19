@@ -400,6 +400,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.bindStageEvents();
+            this.instances.renderer.changed();
         }, this.instances.settings.delay);
     }
 
