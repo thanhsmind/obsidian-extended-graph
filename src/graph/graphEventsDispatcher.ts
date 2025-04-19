@@ -355,10 +355,12 @@ export class GraphEventsDispatcher extends Component {
                     }, []));
 
                     for (const [target, types] of validTypedLinks) {
+                        // @ts-ignore
                         if (!(target in node.links)) continue;
 
                         if (types.size > 0 && ![...types].some(type => manager.isActive(type))) {
                             // We can remove directly from the record since we are not iterating over the record
+                            // @ts-ignore
                             delete node.links[target];
 
                             // Remove source or target if settings enabled
@@ -372,8 +374,10 @@ export class GraphEventsDispatcher extends Component {
                     }
 
                     if (!manager.isActive(this.instances.settings.interactiveSettings[manager.name].noneType)) {
+                        // @ts-ignore
                         const noneTargets = Object.keys(node.links).filter(target => !validTypedLinks.has(target));
                         for (const target of noneTargets) {
+                            // @ts-ignore
                             delete node.links[target];
                         }
                     }
