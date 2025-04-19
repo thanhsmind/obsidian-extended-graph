@@ -9,6 +9,7 @@ import {
     ExtendedGraphNode,
     FOLDER_KEY,
     FolderBlob,
+    getBackgroundColor,
     getLinkID,
     getSVGNode,
     GraphInstances,
@@ -258,7 +259,31 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
     private getSVGForNodeShape(extendedNode: ExtendedGraphNode): SVGElement {
         const node = extendedNode.coreElement;
         const size = node.getSize();
-        if (this.options.useNodesShapes && extendedNode.graphicsWrapper) {
+
+        if (extendedNode.icon?.svg && this.options.showIcons) {
+            const shape = extendedNode.icon.svg;
+            shape.style.stroke = int2hex(node.getFillColor().rgb);
+            shape.style.fill = 'white';
+            const g = getSVGNode('g', {
+                class: 'node-shape',
+                transform: `translate(${node.x - size} ${node.y - size}) scale(${size / shape.width.baseVal.value * 2})`,
+            });
+            g.appendChild(shape);
+            return g;
+        }
+        else if (extendedNode.icon?.emoji && this.options.showIcons) {
+            const text = getSVGNode('text', {
+                class: 'node-name',
+                id: 'text:' + node.id,
+                x: extendedNode.coreElement.x,
+                y: extendedNode.coreElement.y,
+                style: `font-size: 50px;`,
+                'text-anchor': "middle"
+            });
+            text.textContent = extendedNode.icon.emoji;
+            return text;
+        }
+        else if (this.options.useNodesShapes && extendedNode.graphicsWrapper) {
             const g = getSVGNode('g', {
                 class: 'node-shape',
                 transform: `translate(${node.x - size} ${node.y - size}) scale(${size / NodeShape.RADIUS})`,

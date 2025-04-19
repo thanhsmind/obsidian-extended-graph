@@ -56,9 +56,12 @@ export class ExportSVGOptionModal extends Modal {
         if (!this.instances) return;
 
         this.addUseCurvedLinks();
+        this.addUseModifiedArrows();
         this.addUseNodeShapes();
         this.addShowArcs();
         this.addShowFolders();
+        this.addShowModifiedNames();
+        this.addShowIcons();
     }
 
     private addUseCurvedLinks() {
@@ -80,6 +83,27 @@ export class ExportSVGOptionModal extends Modal {
     private canUseCurvedLinks() {
         if (!this.instances || !this.instances) return false;
         return this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'];
+    }
+
+    private addUseModifiedArrows() {
+        const canUseModifiedArrows = this.canUseModifiedArrows();
+        PluginInstances.settings.exportSVGOptions.useModifiedArrows = canUseModifiedArrows;
+        if (!canUseModifiedArrows) return;
+
+        new Setting(this.contentEl)
+            .setName("Show modified arrows")
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.exportSVGOptions.useModifiedArrows);
+                cb.onChange(value => {
+                    PluginInstances.settings.exportSVGOptions.useModifiedArrows = value;
+                    this.saveSettings();
+                })
+            });
+    }
+
+    private canUseModifiedArrows(): boolean {
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['arrows'];
     }
 
     private addUseNodeShapes() {
@@ -145,6 +169,48 @@ export class ExportSVGOptionModal extends Modal {
     private canShowFolders(): boolean {
         if (!this.instances || !this.instances) return false;
         return this.instances.settings.enableFeatures[this.instances.type]['folders'];
+    }
+
+    private addShowModifiedNames() {
+        const canShowModifiedNames = this.canShowModifiedNames();
+        PluginInstances.settings.exportSVGOptions.useModifiedNames = canShowModifiedNames;
+        if (!canShowModifiedNames) return;
+
+        new Setting(this.contentEl)
+            .setName("Show modified names")
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.exportSVGOptions.useModifiedNames);
+                cb.onChange(value => {
+                    PluginInstances.settings.exportSVGOptions.useModifiedNames = value;
+                    this.saveSettings();
+                })
+            });
+    }
+
+    private canShowModifiedNames(): boolean {
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['names'];
+    }
+
+    private addShowIcons() {
+        const canShowIcons = this.canShowIcons();
+        PluginInstances.settings.exportSVGOptions.showIcons = canShowIcons;
+        if (!canShowIcons) return;
+
+        new Setting(this.contentEl)
+            .setName("Show icons")
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.exportSVGOptions.showIcons);
+                cb.onChange(value => {
+                    PluginInstances.settings.exportSVGOptions.showIcons = value;
+                    this.saveSettings();
+                })
+            });
+    }
+
+    private canShowIcons(): boolean {
+        if (!this.instances || !this.instances) return false;
+        return this.instances.settings.enableFeatures[this.instances.type]['icons'];
     }
 
     // ============================ APPLY AND CLOSE ============================

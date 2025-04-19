@@ -26,21 +26,45 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // Size
     graphicsWrapperScale: number = 1;
-    radius: number = NodeShape.RADIUS;
+    radius: number;
 
     // icon
-    icon: {
+    _icon: {
         svg: SVGSVGElement | null,
         color: string | null,
         emoji: string | null
-    } | null = null;
+    } | null;
 
     // ============================== CONSTRUCTOR ==============================
 
     protected override additionalConstruct() {
         this.extendedText = new ExtendedGraphText(this.instances, this.coreElement);
         this.getIcon();
+        this.radius = NodeShape.RADIUS;
         this.computeRadius();
+    }
+
+
+    public set icon(v: {
+        svg: SVGSVGElement | null,
+        color: string | null,
+        emoji: string | null
+    } | null) {
+        if (this.id === "Jensen Cole.md") {
+            console.log("set", v);
+        }
+        this._icon = v;
+    }
+
+    public get icon(): {
+        svg: SVGSVGElement | null,
+        color: string | null,
+        emoji: string | null
+    } | null {
+        if (this.id === "Jensen Cole.md") {
+            console.log("get", this._icon);
+        }
+        return this._icon;
     }
 
 
@@ -153,6 +177,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (!this.needIcon()) return;
         // Recursively get icon for file, or if it doesn't exist, for parent folders
         const paths = this.instances.settings.useParentIcon ? getListOfSubpaths(this.id).reverse() : [this.id];
+        let icon: typeof this.icon | null = null;
 
         // try to find in properties
         if (this.instances.settings.iconProperty !== "") {
@@ -161,13 +186,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
                 const iconList = getFileInteractives(this.instances.settings.iconProperty, file);
                 for (const iconString of iconList) {
                     if (isEmoji(iconString)) {
-                        this.icon = { svg: null, color: null, emoji: iconString };
+                        icon = { svg: null, color: null, emoji: iconString };
                         break;
                     }
                     const svg = getIcon(iconString);
                     if (svg) {
                         svg.setAttribute("stroke", "white");
-                        this.icon = { svg: svg, color: null, emoji: null };
+                        icon = { svg: svg, color: null, emoji: null };
                         break;
                     }
                 }
@@ -175,23 +200,24 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
 
         // try to find with plugins
-        if (!this.icon && this.instances.settings.usePluginForIcon) {
+        if (!icon && this.instances.settings.usePluginForIcon) {
             for (const path of paths) {
-                this.icon = getSvgFromIconic(path);
-                if (!this.icon) {
-                    this.icon = getSvgFromIconize(path);
+                icon = getSvgFromIconic(path);
+                if (!icon) {
+                    icon = getSvgFromIconize(path);
                 }
-                if (this.icon) {
+                if (icon) {
                     break;
                 }
             }
-            this.icon?.svg?.setAttribute("stroke", "white");
+            icon?.svg?.setAttribute("stroke", "white");
         }
-        if (this.icon && !this.instances.settings.usePluginForIconColor) {
-            this.icon.color = null;
+        if (icon && !this.instances.settings.usePluginForIconColor) {
+            icon.color = null;
         }
 
         if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
+        else this.icon = icon;
     }
 
     // =============================== NODE SIZE ===============================
