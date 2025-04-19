@@ -14,9 +14,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     disconnectedIDs: { [cause: string]: Set<string> } = {};
     typesMap: { [key: string]: { [type: string]: Set<string> } } = {}; // [key][type].get(id)
 
-    // Temporary elements
-    elementsToAddToCascade: Set<string> | null = null;
-
     // Interactive managers specific to the set
     managers = new Map<string, InteractiveManager>();
 
@@ -52,7 +49,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         const addedElements = this.addMissingElements();
         if (addedElements.size > 0) {
             this.handleMissingElements(addedElements);
-            this.elementsToAddToCascade = new Set(([...this.elementsToAddToCascade ?? []]).concat([...addedElements]));
         }
         return addedElements;
     }
