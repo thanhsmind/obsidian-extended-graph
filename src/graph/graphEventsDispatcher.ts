@@ -1,6 +1,6 @@
 import { Component, Menu, TFile } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
-import { Container, DisplayObject, Text } from "pixi.js";
+import { Container, DisplayObject, Graphics, Text } from "pixi.js";
 import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -197,7 +197,10 @@ export class GraphEventsDispatcher extends Component {
      */
     onunload(): void {
         this.unbindStageEvents();
-        PluginInstances.proxysManager.unregisterAll();
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.setData);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
     }
@@ -390,14 +393,31 @@ export class GraphEventsDispatcher extends Component {
     // ============================== GRAPH CYCLE ==============================
 
     private beforeDestroyGraphics() {
+        console.log("beforeDestroyGraphics");
         this.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
-        this.instances.nodesSet.extendedElementsMap.forEach(el => {
+        for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
             PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
-        })
-        this.instances.linksSet.extendedElementsMap.forEach(el => {
+        }
+        for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();
-        })
+        }
+        console.log(this.instances.renderer.hanger.children);
+        console.log('--------');
+        this.findDestroyedChildren(this.instances.renderer.px.stage);
+    }
+
+    private findDestroyedChildren(d: Container) {
+        if ("children" in d) {
+            for (const child of d.children ?? []) {
+                if (child.destroyed) {
+                    console.log("Parent: ", d.children);
+                    console.log("Child: ", child.parent);
+                    console.log("-------");
+                }
+                this.findDestroyedChildren(child);
+            }
+        }
     }
 
     private afterInitGraphics() {

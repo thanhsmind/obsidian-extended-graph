@@ -7,10 +7,17 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
     graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
     hasChangedArrowShape: boolean = false;
-    extendedArrow: ExtendedGraphArrow;
+    extendedArrow?: ExtendedGraphArrow;
 
     protected override additionalConstruct() {
-        this.extendedArrow = new ExtendedGraphArrow(this.instances, this.coreElement);
+        if (this.needToModifyArrow()) {
+            this.extendedArrow = new ExtendedGraphArrow(this.instances, this.coreElement);
+        }
+    }
+
+    private needToModifyArrow(): boolean {
+        return this.instances.settings.enableFeatures[this.instances.type]['arrows']
+            && (this.instances.settings.invertArrows || this.instances.settings.flatArrows);
     }
 
 
@@ -18,12 +25,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override modifyCoreElement(): void {
         this.changeCoreLinkThickness();
-        this.extendedArrow.modifyCoreElement();
+        this.extendedArrow?.modifyCoreElement();
     }
 
     override restoreCoreElement(): void {
         this.restoreCoreLinkThickness();
-        this.extendedArrow.unload();
+        this.extendedArrow?.unload();
     }
 
     // =============================== GRAPHICS ================================
@@ -136,7 +143,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     override setCoreElement(coreElement: GraphLink | undefined): void {
-        if (coreElement) {
+        if (coreElement && this.extendedArrow) {
             this.extendedArrow.coreElement = coreElement;
         }
         super.setCoreElement(coreElement);
@@ -150,16 +157,17 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override disableType(key: string, type: string): void {
         super.disableType(key, type);
-        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
-            if (this.isAnyManagerDisabled()) {
-                this.disable();
-            }
+        if (this.isAnyManagerDisabled()) {
+            this.disable();
         }
     }
 
     override disable(): void {
         super.disable();
-        this.graphicsWrapper?.disconnect();
+        this.extendedArrow?.unload();
+        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+            this.graphicsWrapper?.disconnect();
+        }
     }
 }
 

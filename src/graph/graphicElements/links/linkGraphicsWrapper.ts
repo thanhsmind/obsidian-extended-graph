@@ -60,6 +60,8 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
     abstract connect(): void;
 
     disconnect(): void {
-        this.pixiElement?.removeFromParent();
+        for (const graphics of this.managerGraphicsMap.values()) {
+            graphics.removeFromParent();
+        }
     }
 }

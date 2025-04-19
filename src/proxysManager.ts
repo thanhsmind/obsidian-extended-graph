@@ -13,19 +13,23 @@ export class ProxysManager {
     coreTargets: Map<any, Target> = new Map(); // key: proxy, value: core target
 
     registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): any {
-        if (!(property in owner)) return;
+        if (!(property in owner)) {
+            console.warn("Invalid property");
+            return;
+        }
 
         const coreTarget = owner[property];
-        if (!coreTarget) return;
-        if (this.isProxy(coreTarget)) return;
+        if (!coreTarget) {
+            console.warn("Target undefined or null");
+            return;
+        }
+        if (this.isProxy(coreTarget)) {
+            console.warn("Already a proxy");
+            return;
+        }
 
         const proxy = new Proxy(owner[property], handler);
         owner[property] = proxy;
-
-        let id = randomUUID();
-        while (this.coreTargets.has(id)) {
-            id = randomUUID();
-        }
 
         this.coreTargets.set(proxy, {
             owner,

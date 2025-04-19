@@ -57,21 +57,9 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     setCoreElement(coreElement: T | undefined): void {
         if (!coreElement) return;
+        if (coreElement === this.coreElement) return;
 
-        if (!this.getCoreCollection().includes(coreElement)) {
-            coreElement.clearGraphics();
-            return;
-        }
-        else if (this.getCoreCollection().includes(this.coreElement) && this.coreElement !== coreElement) {
-            this.getCoreCollection().remove(this.coreElement);
-            this.coreElement.clearGraphics();
-            this.graphicsWrapper?.disconnect();
-        }
-        else if (this.getCoreParentGraphics(this.coreElement) !== this.getCoreParentGraphics(coreElement)) {
-            this.coreElement.clearGraphics();
-            this.graphicsWrapper?.disconnect();
-        }
-
+        this.graphicsWrapper?.disconnect();
         this.coreElement = coreElement;
         this.init();
     }

@@ -1,6 +1,6 @@
 
 import { GraphLink } from "obsidian-typings";
-import { GraphInstances, PluginInstances } from "src/internal";
+import { getLinkID, GraphInstances, PluginInstances } from "src/internal";
 
 export class ExtendedGraphArrow {
     coreElement: GraphLink;
@@ -23,13 +23,11 @@ export class ExtendedGraphArrow {
         this.resetArrowShape();
     }
 
-
-
     private invertArrowDirection(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
         const link = this.coreElement;
         if (link.arrow) {
-            const proxy = PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
+            PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
                 this.coreElement,
                 "arrow",
                 {
@@ -60,7 +58,10 @@ export class ExtendedGraphArrow {
                 }
             );
 
-            this.coreElement.arrow?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
+            this.coreElement.arrow?.addListener('destroyed', () => {
+                console.log("Destroyed");
+                //PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow)
+            });
         }
     }
 
