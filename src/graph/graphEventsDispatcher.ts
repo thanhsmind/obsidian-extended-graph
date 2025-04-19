@@ -305,21 +305,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private updateData(data: GraphData): GraphData {
-        // Handle focused node
-        const focusedNode = (Object.entries(data.nodes).find(([id, d]) => {
-            return d.type === "focused";
-        }) || [null])[0];
-        console.log(focusedNode);
-        if (this.instances.nodesSet.focusedNode && focusedNode !== this.instances.nodesSet.focusedNode) {
-            this.instances.nodesSet.emphasizeNode({ path: this.instances.nodesSet.focusedNode }, false);
-            if (focusedNode) {
-                this.instances.nodesSet.emphasizeNode({ path: focusedNode }, true);
-            }
-        }
-        else if (focusedNode && focusedNode !== this.instances.nodesSet.focusedNode) {
-            this.instances.nodesSet.emphasizeNode({ path: focusedNode }, true);
-        }
-
         // Filter out nodes
         let nodesToRemove: string[] = [];
         if (!this.instances.settings.fadeOnDisable) {

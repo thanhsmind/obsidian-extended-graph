@@ -17,7 +17,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     iconBackgroundLayer?: NodeShape;
     iconSprite?: Sprite;
     emojiText?: Text;
-    scaleFactor: number = 1;
 
     lastColor?: ColorSource;
 

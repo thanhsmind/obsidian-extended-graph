@@ -8,7 +8,6 @@ import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachme
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
-    focusedNode: string | null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -235,10 +234,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
 
-        if ('emphasize' in extendedNode.graphicsWrapper) {
-            (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(emphasize);
-        }
-        this.focusedNode = emphasize ? file.path : null;
+        extendedNode.graphicsWrapper.pixiElement.scale.set(emphasize ? PluginInstances.settings.focusScaleFactor : 1);
     }
 
     // =============================== PIN NODES ===============================

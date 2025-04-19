@@ -1,5 +1,13 @@
 import { ColorSource, Texture } from "pixi.js";
-import { ArcsCircle, ExtendedGraphFileNode, getFile, int2rgb, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape, PluginInstances } from "src/internal";
+import {
+    ArcsCircle,
+    ExtendedGraphFileNode,
+    getFile,
+    InteractiveManager,
+    NodeGraphicsWrapper,
+    NodeImage,
+    NodeShape
+} from "src/internal";
 
 export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
@@ -103,7 +111,6 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
                 this.background?.drawFill(this.getFillColor().rgb);
             }
             else {
-                console.log("color", this.extendedElement.id);
                 this.background?.drawFill(color);
             }
             return true;
@@ -122,23 +129,5 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
             }
         }
         super.clearGraphics();
-    }
-
-    // =============================== EMPHASIZE ===============================
-
-    emphasize(bigger: boolean) {
-        if (!this.background) return;
-
-        this.scaleFactor = bigger ? PluginInstances.settings.focusScaleFactor : 1;
-        if (bigger || this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
-            const color = bigger ? this.extendedElement.instances.renderer.colors.fillFocused.rgb : this.getFillColor().rgb;
-            console.log(int2rgb(color));
-            this.background.clear();
-            this.background.drawFill(color);
-        }
-        else {
-            this.background.clear();
-        }
-        this.pixiElement.scale.set(this.scaleFactor);
     }
 }
