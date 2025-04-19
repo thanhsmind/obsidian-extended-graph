@@ -7,7 +7,7 @@ const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
 
 
-export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> {
+export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     // Interface instance values
     name: string;
     extendedElement: ExtendedGraphNode;

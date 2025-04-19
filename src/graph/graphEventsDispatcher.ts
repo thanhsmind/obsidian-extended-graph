@@ -273,8 +273,7 @@ export class GraphEventsDispatcher extends Component {
             if (node) {
                 const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
                 if (extendedNode) {
-                    extendedNode.extendedText.modifyCoreElement();
-                    extendedNode.extendedText.initGraphics();
+                    extendedNode.extendedText.init();
                 }
             }
         }
@@ -390,16 +389,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private afterInitGraphics() {
+        console.log("afterInitGraphics");
         setTimeout(() => {
             this.instances.linksSet.extendedElementsMap.forEach(el => {
-                el.modifyCoreElement();
-                el.graphicsWrapper?.createGraphics();
+                el.init();
             })
             this.instances.nodesSet.extendedElementsMap.forEach(el => {
-                el.modifyCoreElement();
-                el.graphicsWrapper?.createGraphics();
-                el.extendedText.modifyCoreElement();
-                el.extendedText.initGraphics();
+                el.init();
             })
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();

@@ -1,7 +1,7 @@
 import { GraphLink } from "obsidian-typings";
 import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkGraphics } from "src/internal";
 
-export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper<GraphLink> {
+export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements GraphicsWrapper {
     // Interface instance values
     name: string;
     extendedElement: ExtendedGraphLink;

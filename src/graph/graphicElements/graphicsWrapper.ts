@@ -1,10 +1,9 @@
 import { Container, Graphics } from "pixi.js";
-import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphLink, ExtendedGraphNode, ManagerGraphics } from "src/internal";
+import { ExtendedGraphLink, ExtendedGraphNode, ExtendedGraphText, ManagerGraphics } from "src/internal";
 
-export interface GraphicsWrapper<T extends GraphNode | GraphLink> {
+export interface GraphicsWrapper {
     name: string;
-    extendedElement: ExtendedGraphNode | ExtendedGraphLink;
+    extendedElement: ExtendedGraphNode | ExtendedGraphLink | ExtendedGraphText;
     managerGraphicsMap?: Map<string, ManagerGraphics>;
     pixiElement: Graphics | Container;
 

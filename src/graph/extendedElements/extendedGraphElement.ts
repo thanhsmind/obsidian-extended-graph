@@ -7,7 +7,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     types: Map<string, Set<string>>;
     managers: Map<string, InteractiveManager>;
     coreElement: T;
-    graphicsWrapper?: GraphicsWrapper<T>;
+    graphicsWrapper?: GraphicsWrapper;
     id: string;
 
     // ============================== CONSTRUCTOR ==============================

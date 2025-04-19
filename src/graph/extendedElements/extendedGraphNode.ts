@@ -46,10 +46,16 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ======================== MODIFYING CORE ELEMENT =========================
 
+    override init(): void {
+        super.init();
+        this.extendedText.init();
+    }
+
     override modifyCoreElement(): void {
         this.proxyGetSize();
         this.proxyClearGraphics();
         this.proxyGetFillColor();
+        this.extendedText.modifyCoreElement();
 
         this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
     }
@@ -191,8 +197,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
         return this.icon;
     }
-
-    protected abstract createGraphicsWrapper(): void;
 
     // =============================== NODE SIZE ===============================
 
