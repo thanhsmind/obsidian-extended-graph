@@ -213,6 +213,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     onCSSChange(): void {
         const color = getBackgroundColor(this.instances.renderer);
+        console.log(color);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);

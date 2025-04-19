@@ -35,7 +35,6 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
     connect(): void {
         const coreElement = this.extendedElement.coreElement;
         if (coreElement.text) {
-            this.updateTextBackgroundColor(getBackgroundColor(coreElement.renderer));
             coreElement.text.addChild(this.pixiElement);
             coreElement.text.addChild(this.textClone);
         }

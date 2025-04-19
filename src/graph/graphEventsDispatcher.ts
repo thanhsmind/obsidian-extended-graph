@@ -411,6 +411,7 @@ export class GraphEventsDispatcher extends Component {
             for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
                 el.init();
             }
+            this.instances.nodesSet.onCSSChange();
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.bindStageEvents();

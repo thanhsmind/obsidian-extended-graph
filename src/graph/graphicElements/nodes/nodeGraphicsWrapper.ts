@@ -123,10 +123,11 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         // Hide circle
         this.iconBackgroundLayer = new NodeShape(this.shape);
         this.iconBackgroundLayer.name = "icon-background";
-        this.iconBackgroundLayer.drawFill(getBackgroundColor(this.extendedElement.coreElement.renderer));
+        this.iconBackgroundLayer.drawFill('white');
         this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
         this.iconBackgroundLayer.alpha = 10;
         this.iconBackgroundLayer.zIndex = -1;
+        this.updateIconBackgroundLayerColor(getBackgroundColor(this.extendedElement.instances.renderer));
         this.pixiElement.addChildAt(this.iconBackgroundLayer, 0);
     }
 
