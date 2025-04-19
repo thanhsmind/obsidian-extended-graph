@@ -1,7 +1,23 @@
-import { HexString, moment } from "obsidian";
+import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
-import { ArcsCircle, ExportSVGOptionModal, ExportSVGOptions, ExtendedGraphFileNode, ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, getLinkID, getSVGNode, Graph, GraphInstances, int2hex, NodeShape, PluginInstances, polar2Cartesian, rgb2hex } from "src/internal";
-import ExtendedGraphPlugin from "src/main";
+import {
+    ArcsCircle,
+    ExportSVGOptionModal,
+    ExportSVGOptions,
+    ExtendedGraphFileNode,
+    ExtendedGraphLink,
+    ExtendedGraphNode,
+    FOLDER_KEY,
+    FolderBlob,
+    getLinkID,
+    getSVGNode,
+    GraphInstances,
+    int2hex,
+    NodeShape,
+    PluginInstances,
+    polar2Cartesian,
+    rgb2hex
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 export abstract class ExportGraphToSVG {
@@ -161,7 +177,7 @@ export abstract class ExportGraphToSVG {
 
             modal.onClose = (async function () {
                 if (modal.isCanceled) return;
-                this.options = this.plugin.settings.exportSVGOptions;
+                this.options = PluginInstances.settings.exportSVGOptions;
 
                 // Create SVG
                 this.createSVG();
