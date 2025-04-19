@@ -13,6 +13,10 @@ export class ExtendedGraphArrow {
         this.coreElement = coreElement;
     }
 
+    init() {
+        this.modifyCoreElement();
+    }
+
     modifyCoreElement() {
         this.invertArrowDirection();
         this.createFlatArrow();
@@ -57,11 +61,6 @@ export class ExtendedGraphArrow {
                     }
                 }
             );
-
-            this.coreElement.arrow?.addListener('destroyed', () => {
-                console.log("Destroyed");
-                //PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow)
-            });
         }
     }
 

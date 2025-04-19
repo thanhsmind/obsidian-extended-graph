@@ -23,6 +23,11 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ======================== MODIFYING CORE ELEMENT =========================
 
+    override init(): void {
+        super.init();
+        this.extendedArrow?.init();
+    }
+
     override modifyCoreElement(): void {
         this.changeCoreLinkThickness();
     }

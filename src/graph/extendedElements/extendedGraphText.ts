@@ -26,7 +26,6 @@ export class ExtendedGraphText {
     }
 
     modifyCoreElement() {
-        console.log(this.coreElement.id);
         this.updateFontFamily();
         this.updateText();
         this.proxyText();

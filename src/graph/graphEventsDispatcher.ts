@@ -393,7 +393,6 @@ export class GraphEventsDispatcher extends Component {
     // ============================== GRAPH CYCLE ==============================
 
     private beforeDestroyGraphics() {
-        console.log("beforeDestroyGraphics");
         this.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
@@ -402,26 +401,9 @@ export class GraphEventsDispatcher extends Component {
         for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();
         }
-        console.log(this.instances.renderer.hanger.children);
-        console.log('--------');
-        this.findDestroyedChildren(this.instances.renderer.px.stage);
-    }
-
-    private findDestroyedChildren(d: Container) {
-        if ("children" in d) {
-            for (const child of d.children ?? []) {
-                if (child.destroyed) {
-                    console.log("Parent: ", d.children);
-                    console.log("Child: ", child.parent);
-                    console.log("-------");
-                }
-                this.findDestroyedChildren(child);
-            }
-        }
     }
 
     private afterInitGraphics() {
-        console.log("afterInitGraphics");
         setTimeout(() => {
             for (const el of this.instances.linksSet.extendedElementsMap.values()) {
                 el.init();
