@@ -16,9 +16,6 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         this.instances = instances;
         this.coreElement = coreElement;
         this.id = this.getID();
-        if (this.id === "Jensen Cole.md") {
-            console.log("Constructing", this.id);
-        }
         this.managers = new Map<string, InteractiveManager>();
         this.types = types;
 

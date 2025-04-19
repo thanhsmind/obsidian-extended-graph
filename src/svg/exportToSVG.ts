@@ -2,6 +2,7 @@ import { HexString } from "obsidian";
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import {
     ArcsCircle,
+    CurveLinkGraphicsWrapper,
     ExportSVGOptionModal,
     ExportSVGOptions,
     ExtendedGraphFileNode,
@@ -13,38 +14,37 @@ import {
     getLinkID,
     getSVGNode,
     GraphInstances,
+    hex2rgb,
     int2hex,
     NodeShape,
     PluginInstances,
     polar2Cartesian,
-    rgb2hex
+    rgb2hex,
+    textColor
 } from "src/internal";
 import STRINGS from "src/Strings";
 
 export abstract class ExportGraphToSVG {
     svg: SVGSVGElement;
     renderer: GraphRenderer;
+    backgroundColor: string;
 
     groupLinks: SVGElement;
     groupNodes: SVGElement;
     groupText?: SVGElement;
     groupFolders?: SVGElement;
 
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
+    fontSize: number = 20;
 
     options: ExportSVGOptions;
 
     constructor(renderer: GraphRenderer) {
         this.renderer = renderer;
+        this.backgroundColor = rgb2hex(getBackgroundColor(this.renderer));
     }
 
     protected createSVG() {
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-        this.svg.setAttributeNS(null, 'viewBox', this.getViewBox());
 
         // Folders
         if (this.options.showFolders) {
@@ -69,6 +69,27 @@ export abstract class ExportGraphToSVG {
             this.addNodeNames();
             this.svg.appendChild(this.groupText);
         }
+
+        this.svg.setAttribute('viewBox', this.getViewBox());
+
+        // Background
+        this.svg.prepend(getSVGNode('rect', {
+            width: '120%',
+            height: '120%',
+            x: '-60%',
+            y: '-60%',
+            fill: this.backgroundColor
+        }));
+
+        // Defs
+        const defs = this.getDefs();
+        if (defs) {
+            this.svg.prepend(defs);
+        }
+    }
+
+    protected getDefs(): SVGElement | undefined {
+        return;
     }
 
     private addNodes(): void {
@@ -94,7 +115,9 @@ export abstract class ExportGraphToSVG {
         const visibleNodes = this.getVisibleNodes();
         for (const node of visibleNodes) {
             const text = this.getSVGForText(node);
-            if (text) this.groupText.appendChild(text);
+            if (text) {
+                this.groupText.appendChild(text);
+            }
         }
     }
 
@@ -115,57 +138,40 @@ export abstract class ExportGraphToSVG {
         return this.isNodeInVisibleArea(link.source) && this.isNodeInVisibleArea(link.target);
     }
 
-    private getSVGForText(node: ExtendedGraphNode | GraphNode): SVGElement | null {
+    protected getSVGForText(node: ExtendedGraphNode | GraphNode): SVGElement | null {
         if (!this.options.showNodeNames) return null;
 
         const coreNode = this.getCoreNode(node);
-        const fontSize = 20;
 
         const text = getSVGNode('text', {
             class: 'node-name',
             id: 'text:' + node.id,
             x: coreNode.x,
-            y: coreNode.y + coreNode.getSize() + fontSize + 4,
-            style: `font-size: ${fontSize}px;`,
+            y: coreNode.y + coreNode.getSize() + this.fontSize + 4,
+            style: `font-size: ${this.fontSize}px; fill: ${coreNode.text?.style.fill ?? textColor(hex2rgb(this.backgroundColor))};`,
             'text-anchor': "middle"
         });
-        text.textContent = coreNode.getDisplayText();
+        text.textContent = this.getText(coreNode);
 
         return text;
     }
 
+    protected getText(node: GraphNode): string {
+        return node.getDisplayText();
+    }
+
     private getViewBox(): string {
-        this.left = Infinity;
-        this.right = -Infinity;
-        this.top = Infinity;
-        this.bottom = -Infinity;
-
-        if (this.options.onlyVisibleArea) {
-            const viewport = this.renderer.viewport;
-            this.left = viewport.left;
-            this.right = viewport.right;
-            this.top = viewport.top;
-            this.bottom = viewport.bottom;
-        }
-        else {
-            const visibleNodes = this.getVisibleNodes();
-            for (const node of visibleNodes) {
-                const coreNode = this.getCoreNode(node);
-                const size = coreNode.getSize();
-                if (coreNode.x - size < this.left) this.left = coreNode.x - size;
-                if (coreNode.x + size > this.right) this.right = coreNode.x + size;
-                if (coreNode.y - size < this.top) this.top = coreNode.y - size;
-                if (coreNode.y + size > this.bottom) this.bottom = coreNode.y + size;
-            }
-            if (visibleNodes.length === 0) {
-                this.left = 0;
-                this.right = 0;
-                this.top = 0;
-                this.bottom = 0;
-            }
-        }
-
-        return `${this.left} ${this.top} ${this.right - this.left} ${this.bottom - this.top}`;
+        document.body.appendChild(this.svg);
+        const { xMin, xMax, yMin, yMax } = Array.from(this.svg.children).reduce((acc: any, el) => {
+            const { x, y, width, height } = (el as SVGGraphicsElement).getBBox();
+            if (!acc.xMin || x < acc.xMin) acc.xMin = x;
+            if (!acc.xMax || x + width > acc.xMax) acc.xMax = x + width;
+            if (!acc.yMin || y < acc.yMin) acc.yMin = y;
+            if (!acc.yMax || y + height > acc.yMax) acc.yMax = y + height;
+            return acc;
+        }, {});
+        document.body.removeChild(this.svg);
+        return `${xMin} ${yMin} ${xMax - xMin} ${yMax - yMin}`;
     }
 
     private getCoreNode(node: ExtendedGraphNode | GraphNode): GraphNode {
@@ -182,6 +188,8 @@ export abstract class ExportGraphToSVG {
 
                 // Create SVG
                 this.createSVG();
+
+                //this.renderer.zoomTo(scale, center);
                 const svgString = this.toString();
 
                 // Copy SVG as Image
@@ -227,6 +235,73 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         this.instances = instances;
     }
 
+    protected override getDefs(): SVGElement | undefined {
+        if (this.options.useModifiedNames && this.instances.settings.addBackgroundToName) {
+            const defs = getSVGNode('defs');
+            const filter = getSVGNode('filter', {
+                'x': '0',
+                'y': '0',
+                'width': '1',
+                'height': '1',
+                'id': 'textBackground'
+            });
+            const feFlood = getSVGNode('feFlood', {
+                'flood-color': this.backgroundColor,
+                'result': "bg"
+            });
+            const feMerge = getSVGNode('feMerge');
+            const feMergeNode1 = getSVGNode('feMergeNode', { in: 'bg' });
+            const feMergeNode2 = getSVGNode('feMergeNode', { in: 'SourceGraphic' });
+            feMerge.appendChild(feMergeNode1);
+            feMerge.appendChild(feMergeNode2);
+            filter.appendChild(feFlood);
+            filter.appendChild(feMerge);
+            defs.appendChild(filter);
+            return defs;
+        }
+    }
+
+    protected override getText(node: GraphNode): string {
+        if (this.options.useModifiedNames && node.text) {
+            return node.text.text;
+        }
+        return super.getText(node);
+    }
+
+    protected override getSVGForText(node: ExtendedGraphNode): SVGElement | null {
+        const text = super.getSVGForText(node);
+        const coreText = node.coreElement.text;
+        const size = node.coreElement.getSize();
+        if (text && this.options.useModifiedNames) {
+            if (this.instances.settings.addBackgroundToName) {
+                text.setAttribute('filter', "url(#textBackground)");
+            }
+            if (this.instances.settings.useInterfaceFont && coreText) {
+                const fontFamily = (typeof coreText.style.fontFamily === "string")
+                    ? coreText.style.fontFamily.split(',')[0].trim()
+                    : coreText.style.fontFamily[0].split(',')[0].trim();
+                text.style.setProperty('font-family', fontFamily);
+            }
+            if (this.instances.settings.nameVerticalOffset !== 0 && coreText) {
+                const offset = this.instances.settings.nameVerticalOffset;
+                let y = parseInt(text.getAttribute('y') ?? node.coreElement.y.toString());
+                if (offset < -5 && offset > -105) {
+                    const newOffset = -5 + ((5 + offset) * size / 50);
+                    y = y + newOffset;
+                }
+                else if (offset <= -105) {
+                    const newOffset = (100 + offset) + (-2 * size);
+                    y = y + newOffset;
+                }
+                else {
+                    y = y + offset;
+                }
+                text.setAttribute('y', (y - this.fontSize * 1.5).toString());
+            }
+        }
+        return text;
+    }
+
     protected override addFolders(): void {
         if (!this.groupFolders) return;
         const folderBlobs = this.instances.foldersSet;
@@ -263,7 +338,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         if (extendedNode.icon?.svg && this.options.showIcons) {
             const shape = extendedNode.icon.svg;
             shape.style.stroke = int2hex(node.getFillColor().rgb);
-            shape.style.fill = 'white';
+            shape.style.fill = this.backgroundColor;
             const g = getSVGNode('g', {
                 class: 'node-shape',
                 transform: `translate(${node.x - size} ${node.y - size}) scale(${size / shape.width.baseVal.value * 2})`,
@@ -272,12 +347,13 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             return g;
         }
         else if (extendedNode.icon?.emoji && this.options.showIcons) {
+            const fontSize = size * 2;
             const text = getSVGNode('text', {
                 class: 'node-name',
                 id: 'text:' + node.id,
                 x: extendedNode.coreElement.x,
-                y: extendedNode.coreElement.y,
-                style: `font-size: 50px;`,
+                y: extendedNode.coreElement.y + fontSize * 0.5,
+                style: `font-size: ${fontSize}px;`,
                 'text-anchor': "middle"
             });
             text.textContent = extendedNode.icon.emoji;
@@ -407,7 +483,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
         const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : link.line ? int2hex(Number(link.line.tint)) : "#000000";
-        const width: number = (this.instances.engine.options.lineSizeMultiplier ?? 1) * 4;
+        const width: number = this.instances.renderer.fLineSizeMult * 2;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
@@ -419,26 +495,55 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             fill: 'none',
         });
 
+        let arrow: SVGElement | undefined;
+        if (this.instances.renderer.fShowArrow) {
+            const xOffset = 1;
+            const path = this.options.useModifiedArrows && this.instances.settings.flatArrows
+                ? `M ${0 + xOffset} 0 L ${-4 + xOffset} -2 L ${-4 + xOffset} 2 Z`
+                : `M ${0 + xOffset} 0 L ${-4 + xOffset} -2 L ${-3 + xOffset} 0 L ${-4 + xOffset} 2 Z`;
+            const arrowGraphics = this.options.useCurvedLinks ? (extendedLink.graphicsWrapper as CurveLinkGraphicsWrapper)?.pixiElement.arrow : extendedLink.coreElement.arrow;
+            if (arrowGraphics) {
+                arrow = getSVGNode('path', {
+                    id: `arrow:${extendedLink.id}`,
+                    d: path,
+                    fill: color,
+                    transform: `translate(${arrowGraphics.x}, ${arrowGraphics.y}) rotate(${arrowGraphics.rotation * 180 / Math.PI}) scale(${this.instances.engine.renderer.fLineSizeMult * 2})`,
+                });
+            }
+        }
+
+        if (arrow) {
+            const g = getSVGNode('g');
+            g.appendChild(line);
+            g.appendChild(arrow);
+            return g;
+        }
+
         return line;
     }
 
     protected override getVisibleNodes(): ExtendedGraphNode[] {
-        return [...this.instances.nodesSet.extendedElementsMap.values()].filter(n =>
-            this.instances.nodesSet.connectedIDs.has(n.id)
-            && n.coreElement.rendered
-            && this.isNodeInVisibleArea(n.coreElement)
-        );
+        return this.instances.renderer.nodes.reduce((acc: ExtendedGraphNode[], n) => {
+            if (n.rendered && this.isNodeInVisibleArea(n)) {
+                const en = this.instances.nodesSet.extendedElementsMap.get(n.id);
+                if (en) {
+                    acc.push(en);
+                }
+            }
+            return acc;
+        }, []);
     }
 
     protected override getVisibleLinks(): ExtendedGraphLink[] {
-        return [...this.instances.linksSet.extendedElementsMap.values()]
-            .filter(l =>
-                this.instances.linksSet.connectedIDs.has(l.id)
-                && l.coreElement.rendered
-                && l.coreElement.line?.visible
-                && this.isLinkInVisibleArea(l.coreElement)
-            )
-            .map(l => l as ExtendedGraphLink);
+        return this.instances.renderer.links.reduce((acc: ExtendedGraphLink[], link) => {
+            if (link.rendered && this.isLinkInVisibleArea(link)) {
+                const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(link));
+                if (extendedLink) {
+                    acc.push(extendedLink);
+                }
+            }
+            return acc;
+        }, []);
     }
 
     protected getVisibleFolders(): FolderBlob[] {

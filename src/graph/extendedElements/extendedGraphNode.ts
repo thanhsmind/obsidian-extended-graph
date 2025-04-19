@@ -29,7 +29,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     radius: number;
 
     // icon
-    _icon: {
+    icon: {
         svg: SVGSVGElement | null,
         color: string | null,
         emoji: string | null
@@ -42,29 +42,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.getIcon();
         this.radius = NodeShape.RADIUS;
         this.computeRadius();
-    }
-
-
-    public set icon(v: {
-        svg: SVGSVGElement | null,
-        color: string | null,
-        emoji: string | null
-    } | null) {
-        if (this.id === "Jensen Cole.md") {
-            console.log("set", v);
-        }
-        this._icon = v;
-    }
-
-    public get icon(): {
-        svg: SVGSVGElement | null,
-        color: string | null,
-        emoji: string | null
-    } | null {
-        if (this.id === "Jensen Cole.md") {
-            console.log("get", this._icon);
-        }
-        return this._icon;
     }
 
 
