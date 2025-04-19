@@ -342,14 +342,19 @@ export class GraphEventsDispatcher extends Component {
             const file = getFile(source);
             if (file) {
                 for (const [key, manager] of this.instances.linksSet.managers) {
-                    const links = getOutlinkTypes(this.instances.settings, file); // id -> types
+                    const typedLinks = getOutlinkTypes(this.instances.settings, file); // id -> types
+                    const validTypedLinks = new Map([...typedLinks.entries()].reduce((acc: [string, Set<string>][], curr: [string, Set<string>]) => {
+                        curr[1] = new Set([...curr[1]].filter(type => manager.getTypes().includes(type)));
+                        if (curr[1].size > 0) {
+                            acc.push(curr);
+                        }
+                        return acc;
+                    }, []));
 
-                    for (const [target, types] of links) {
+                    for (const [target, types] of validTypedLinks) {
                         if (!(target in node.links)) continue;
-                        const validTypes = [...types].filter(type => manager.getTypes().includes(type));
-                        if ((validTypes.length > 0 && ![...validTypes].some(type => manager.isActive(type)))
-                            || (validTypes.length === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType))) {
 
+                        if (types.size > 0 && ![...types].some(type => manager.isActive(type))) {
                             // We can remove directly from the record since we are not iterating over the record
                             delete node.links[target];
 
@@ -360,6 +365,13 @@ export class GraphEventsDispatcher extends Component {
                             if (this.instances.settings.enableFeatures[this.instances.type]['target']) {
                                 nodesToRemove.push(target);
                             }
+                        }
+                    }
+
+                    if (!manager.isActive(this.instances.settings.interactiveSettings[manager.name].noneType)) {
+                        const noneTargets = Object.keys(node.links).filter(target => !validTypedLinks.has(target));
+                        for (const target of noneTargets) {
+                            delete node.links[target];
                         }
                     }
                 }
