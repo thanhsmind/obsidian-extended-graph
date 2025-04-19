@@ -19,6 +19,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
     emojiText?: Text;
     scaleFactor: number = 1;
 
+    lastColor?: ColorSource;
+
     // Shape specific
     shape: ShapeEnum = ShapeEnum.CIRCLE;
 
@@ -158,8 +160,14 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper<GraphNode> 
         this.opacityLayer.drawFill(backgroundColor);
     }
 
-    updateFillColor(): void {
-
+    updateFillColor(color?: ColorSource): boolean {
+        if (this.lastColor === color) {
+            return false;
+        }
+        else {
+            this.lastColor = color;
+            return true;
+        }
     }
 
     // ========================== CONNECT/DISCONNECT ===========================

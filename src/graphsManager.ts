@@ -716,8 +716,8 @@ export class GraphsManager extends Component {
 
         for (const instances of this.allInstances.values()) {
             if (instances.type !== "graph") continue;
-            this.deEmphasizePreviousActiveFile(instances);
-            this.emphasizeActiveFile(instances, file);
+            //this.deEmphasizePreviousActiveFile(instances);
+            //this.emphasizeActiveFile(instances, file);
             instances.renderer.changed();
         }
 

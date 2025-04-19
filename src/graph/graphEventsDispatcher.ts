@@ -305,6 +305,21 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private updateData(data: GraphData): GraphData {
+        // Handle focused node
+        const focusedNode = (Object.entries(data.nodes).find(([id, d]) => {
+            return d.type === "focused";
+        }) || [null])[0];
+        console.log(focusedNode);
+        if (this.instances.nodesSet.focusedNode && focusedNode !== this.instances.nodesSet.focusedNode) {
+            this.instances.nodesSet.emphasizeNode({ path: this.instances.nodesSet.focusedNode }, false);
+            if (focusedNode) {
+                this.instances.nodesSet.emphasizeNode({ path: focusedNode }, true);
+            }
+        }
+        else if (focusedNode && focusedNode !== this.instances.nodesSet.focusedNode) {
+            this.instances.nodesSet.emphasizeNode({ path: focusedNode }, true);
+        }
+
         // Filter out nodes
         let nodesToRemove: string[] = [];
         if (!this.instances.settings.fadeOnDisable) {
@@ -409,12 +424,12 @@ export class GraphEventsDispatcher extends Component {
 
     private onRendered() {
         // If the color groups have changed, recolor the nodes and reset to false once it's done
-        if (this.instances.colorGroupHaveChanged) {
+        /*if (this.instances.colorGroupHaveChanged) {
             for (const [id, extendedElement] of this.instances.nodesSet.extendedElementsMap) {
                 extendedElement.graphicsWrapper?.updateFillColor();
             }
             this.instances.colorGroupHaveChanged = false;
-        }
+        }*/
 
         // If nodes need to be pinned because we just changed the state and new nodes were added
         if (this.instances.statePinnedNodes) {

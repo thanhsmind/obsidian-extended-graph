@@ -1,4 +1,4 @@
-import { Texture } from "pixi.js";
+import { ColorSource, Texture } from "pixi.js";
 import { ArcsCircle, ExtendedGraphFileNode, getFile, int2rgb, InteractiveManager, NodeGraphicsWrapper, NodeImage, NodeShape, PluginInstances } from "src/internal";
 
 export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
@@ -97,9 +97,18 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================ UPDATE GRAPHICS ============================
 
-    override updateFillColor() {
-        super.updateFillColor();
-        this.background?.drawFill(this.getFillColor().rgb);
+    override updateFillColor(color?: ColorSource): boolean {
+        if (super.updateFillColor(color)) {
+            if (color === undefined) {
+                this.background?.drawFill(this.getFillColor().rgb);
+            }
+            else {
+                console.log("color", this.extendedElement.id);
+                this.background?.drawFill(color);
+            }
+            return true;
+        }
+        return false;
     }
 
     // ============================ CLEAR GRAPHICS =============================
@@ -123,6 +132,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         this.scaleFactor = bigger ? PluginInstances.settings.focusScaleFactor : 1;
         if (bigger || this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
             const color = bigger ? this.extendedElement.instances.renderer.colors.fillFocused.rgb : this.getFillColor().rgb;
+            console.log(int2rgb(color));
             this.background.clear();
             this.background.drawFill(color);
         }

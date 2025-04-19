@@ -97,16 +97,19 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     protected needToChangeColor(): boolean { return false; }
+    protected needToUpdateGraphicsColor(): boolean { return false; }
     protected proxyGetFillColor(): void {
-        if (!this.needToChangeColor()) return;
+        const needToUpdateGraphicsColor = this.needToUpdateGraphicsColor();
+        const needToChangeColor = this.needToChangeColor();
+        if (!(needToUpdateGraphicsColor || needToChangeColor)) return;
 
-        const getFillColor = this.getFillColor.bind(this);
+        const onGetFillColorCalled = this.onGetFillColorCalled.bind(this);
         PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
             this.coreElement,
             "getFillColor",
             {
                 apply(target, thisArg, args) {
-                    return getFillColor.call(this, ...args) ?? Reflect.apply(target, thisArg, args);
+                    return onGetFillColorCalled(needToUpdateGraphicsColor, needToChangeColor, target, thisArg, args);
                 }
             }
         );
@@ -230,6 +233,21 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     // ============================== NODE COLOR ===============================
+
+    private onGetFillColorCalled(needToUpdateGraphicsColor: boolean, needToChangeColor: boolean, target: () => GraphColorAttributes, thisArg: any, args: any[]): GraphColorAttributes | undefined {
+
+        // Get the original color and the override color
+        const isHighlighted = this.coreElement.renderer.getHighlightNode() === this.coreElement;
+        const isFocused = this.coreElement.type === "focused";
+        const originalColor: GraphColorAttributes = Reflect.apply(target, thisArg, args);
+        const overrideColor: GraphColorAttributes = (needToChangeColor && !(isFocused || isHighlighted)) ? (this.getFillColor.call(this, ...args) ?? originalColor) : originalColor;
+
+        if (needToUpdateGraphicsColor) {
+            this.graphicsWrapper?.updateFillColor(overrideColor.rgb);
+        }
+
+        return overrideColor;
+    }
 
     protected getFillColor(): GraphColorAttributes | undefined { return; };
 

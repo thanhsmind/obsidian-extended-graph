@@ -8,6 +8,7 @@ import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachme
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
+    focusedNode: string | null;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -228,7 +229,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
      * @param file - The file corresponding to the node.
      * @param emphasize - Whether to highlight or unhighlight the node.
      */
-    emphasizeNode(file: TFile, emphasize: boolean): void {
+    emphasizeNode(file: { path: string }, emphasize: boolean): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['focus']) return;
 
         const extendedNode = this.extendedElementsMap.get(file.path);
@@ -237,6 +238,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         if ('emphasize' in extendedNode.graphicsWrapper) {
             (extendedNode.graphicsWrapper as FileNodeGraphicsWrapper).emphasize(emphasize);
         }
+        this.focusedNode = emphasize ? file.path : null;
     }
 
     // =============================== PIN NODES ===============================

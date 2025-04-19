@@ -49,6 +49,10 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
             && PluginInstances.settings.nodesColorFunction !== "default";
     }
 
+    protected override needToUpdateGraphicsColor(): boolean {
+        return !!this.graphicsWrapper.background;
+    }
+
     protected override getFillColor(): GraphColorAttributes | undefined {
         const rgb = PluginInstances.graphsManager.nodesColorCalculator?.filesStats.get(this.id);
         if (!rgb) return undefined;
