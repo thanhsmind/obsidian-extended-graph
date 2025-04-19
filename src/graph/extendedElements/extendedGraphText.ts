@@ -130,12 +130,17 @@ export class ExtendedGraphText {
 
         if (text !== this.coreElement.text.text) {
             this.coreElement.text.text = text;
+            this.updateBackgroundAfterTextChange();
         }
     }
 
     private restoreText() {
         if (!this.coreElement.text) return;
-        this.coreElement.text.text = this.coreElement.getDisplayText();
+        const newText = this.coreElement.getDisplayText();
+        if (this.coreElement.text.text !== newText) {
+            this.coreElement.text.text = this.coreElement.getDisplayText();
+            this.updateBackgroundAfterTextChange();
+        }
     }
 
 
@@ -157,7 +162,7 @@ export class ExtendedGraphText {
         this.textBackground.anchor.set(0.5, 0);
         this.textClone.anchor.set(0.5, 0);
         // Change the color
-        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
+        this.textBackground.tint = 'red'; //getBackgroundColor(this.coreElement.renderer);
         // Use a higher alpha than 1 in order to have a better opacity (which changes when hovering or zooming in/out)
         this.textBackground.alpha = 2;
         // Add the background and the cloned text to the scene
@@ -170,9 +175,19 @@ export class ExtendedGraphText {
         // Which is why we need to clone it and add the second text as a child too
     }
 
+    updateBackgroundAfterTextChange() {
+        if (!this.coreElement.text) return;
+
+        if (this.textClone && this.textBackground) {
+            this.textClone.text = this.coreElement.text.text;
+            this.textBackground.width = (this.textClone.getBounds().width + this.textClone.width) / 2;
+            this.textBackground.height = (this.textClone.getBounds().height + this.textClone.height) / 2;
+        }
+    }
+
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
         if (!this.textBackground) return;
-        this.textBackground.tint = backgroundColor;
+        this.textBackground.tint = 'red';// backgroundColor;
         if (this.textClone && this.coreElement.text) {
             // @ts-ignore
             this.textClone.style.fill = this.coreElement.getTextStyle().fill;
