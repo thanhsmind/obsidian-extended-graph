@@ -24,7 +24,7 @@ export class ProxysManager {
             return;
         }
         if (this.isProxy(coreTarget)) {
-            console.warn("Already a proxy");
+            console.warn("Already a proxy:", property, owner);
             return;
         }
 

@@ -22,6 +22,7 @@ import {
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
     isPinned: boolean = false;
+    pinnedPosition?: { x: number, y: number };
     extendedText: ExtendedGraphText;
 
     // Size
@@ -49,6 +50,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     override init(): void {
         super.init();
+        if (this.isPinned && this.pinnedPosition) {
+            const pinner = new Pinner(this.instances);
+            pinner.pinNode(this.id, this.pinnedPosition.x, this.pinnedPosition.y);
+        }
         this.extendedText.init();
     }
 
@@ -278,11 +283,13 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     pin(): void {
         this.isPinned = true;
+        this.pinnedPosition = { x: this.coreElement.x, y: this.coreElement.y };
         this.graphicsWrapper?.pin();
     }
 
     unpin(): void {
         this.isPinned = false;
+        this.pinnedPosition = undefined;
         this.graphicsWrapper?.unpin();
     }
 }

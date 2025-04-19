@@ -45,7 +45,6 @@ export class StatesManager {
                     node.fontDirty = true;
                 }
             }
-            //instances.graph.updateWorker();
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
         });

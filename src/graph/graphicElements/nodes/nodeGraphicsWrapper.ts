@@ -198,30 +198,20 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     pin(): void {
         const icon = this.pixiElement.getChildByName("pin");
         if (icon) return;
-        const svg = getIcon("pin");
-        if (svg) {
-            const bodyStyle = getComputedStyle(document.body);
-            const stroke = bodyStyle.getPropertyValue("--color-base-00");
 
-            const tail = svg.getElementsByTagName("path")[0];
-            const head = svg.getElementsByTagName("path")[1];
-            head.setAttribute("fill", PluginInstances.app.getAccentColor());
-            head.setAttribute("stroke", stroke);
-            tail.setAttribute("stroke", PluginInstances.app.getAccentColor());
+        Assets.load(PluginInstances.pinSVGDataUrl).then(texture => {
+            const icon = new Sprite(texture);
+            icon.name = "pin";
+            icon.anchor.set(1, 0);
+            icon.height = 80;
+            icon.width = 80;
+            icon.position.set(100, -100);
 
-            const s = new XMLSerializer();
-            const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
-            Assets.load(svgDataUrl).then(texture => {
-                const icon = new Sprite(texture);
-                icon.name = "pin";
-                icon.anchor.set(1, 0);
-                icon.height = 80;
-                icon.width = 80;
-                icon.position.set(100, -100);
-
-                this.pixiElement.addChild(icon);
-            })
-        }
+            this.pixiElement.addChild(icon);
+            if (!this.pixiElement.parent) {
+                this.connect();
+            }
+        });
     }
 
     unpin(): void {

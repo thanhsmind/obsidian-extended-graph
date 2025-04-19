@@ -14,7 +14,7 @@ export class Pinner {
     setPinnedNodesFromState() {
         if (!this.instances.statePinnedNodes) return;
 
-        const notYetHandled = Object.fromEntries(Object.entries(this.instances.statePinnedNodes).filter(([id, value]) => !value.handled));
+        const notYetHandled = Object.fromEntries(Object.entries(this.instances.statePinnedNodes).filter(([id, value]) => !value.handled && this.instances.nodesSet.extendedElementsMap.has(id)));
         const N = Object.keys(notYetHandled).length;
 
         for (const [id, extendedNode] of this.instances.nodesSet.extendedElementsMap) {
@@ -27,11 +27,11 @@ export class Pinner {
                 this.unpinNode(id);
             }
 
-            if (shouldBePinned) this.instances.statePinnedNodes[id].handled = true;
+            if (this.instances.statePinnedNodes.hasOwnProperty(id)) this.instances.statePinnedNodes[id].handled = true;
         }
 
         // If all the nodes of the state have been handled (might take a few onRendered calls), set reset it to null
-        if (this.instances.statePinnedNodes && Object.values(this.instances.statePinnedNodes).filter(p => !p.handled).length === 0) {
+        if (Object.keys(notYetHandled).length === 0) {
             this.instances.statePinnedNodes = null;
         }
     }
