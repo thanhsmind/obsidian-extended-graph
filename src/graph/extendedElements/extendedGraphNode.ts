@@ -54,7 +54,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     override modifyCoreElement(): void {
         this.proxyGetSize();
-        this.proxyClearGraphics();
         this.proxyGetFillColor();
 
         this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
@@ -80,29 +79,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
-    private proxyClearGraphics(): void {
-        if (this.instances.settings.enableFeatures[this.instances.type]['names']
-            && this.instances.settings.nameVerticalOffset !== 0) {
-
-            const extendedText = this.extendedText;
-
-            const proxy = PluginInstances.proxysManager.registerProxy<typeof this.coreElement.clearGraphics>(
-                this.coreElement,
-                "clearGraphics",
-                {
-                    apply(target, thisArg, argArray) {
-                        // Later, if we need to do different things before clearGraphics,
-                        // add "if" tests
-                        extendedText.disable();
-
-                        return Reflect.apply(target, thisArg, argArray);
-                    },
-                });
-            this.coreElement.circle?.addListener('destroyed', () => PluginInstances.proxysManager.unregisterProxy(proxy));
-        }
-
-    }
-
     protected needToChangeColor(): boolean { return false; }
     protected needToUpdateGraphicsColor(): boolean { return false; }
     protected proxyGetFillColor(): void {
@@ -124,7 +100,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     override restoreCoreElement(): void {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.clearGraphics);
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
     }
 
