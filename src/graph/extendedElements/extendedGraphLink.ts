@@ -9,8 +9,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     hasChangedArrowShape: boolean = false;
     extendedArrow: ExtendedGraphArrow;
 
-    constructor(instances: GraphInstances, coreElement: GraphLink, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
-        super(instances, coreElement, types, managers);
+    protected override additionalConstruct() {
         this.extendedArrow = new ExtendedGraphArrow(this.instances, this.coreElement);
     }
 
@@ -48,11 +47,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected override createGraphicsWrapper(): void {
-        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
-            this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
-        }
-        else {
-            this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
+        if (!this.graphicsWrapper) {
+            if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+                this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
+            }
+            else {
+                this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
+            }
         }
         this.graphicsWrapper.createGraphics();
     }

@@ -49,10 +49,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     // ============================= INITALIZATION =============================
 
     createGraphics(): void {
-        if (this.pixiElement) {
-            if (this.pixiElement.parent) this.pixiElement.removeFromParent();
-            if (!this.pixiElement.destroyed) this.pixiElement.destroy();
-        }
+        if (this.pixiElement && !this.pixiElement.destroyed) return;
+        if (this.pixiElement && this.pixiElement.parent) this.pixiElement.removeFromParent();
 
         this.pixiElement = new Container();
         this.pixiElement.name = this.name;

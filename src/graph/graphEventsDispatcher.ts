@@ -403,12 +403,12 @@ export class GraphEventsDispatcher extends Component {
     private afterInitGraphics() {
         console.log("afterInitGraphics");
         setTimeout(() => {
-            this.instances.linksSet.extendedElementsMap.forEach(el => {
+            for (const el of this.instances.linksSet.extendedElementsMap.values()) {
                 el.init();
-            })
-            this.instances.nodesSet.extendedElementsMap.forEach(el => {
+            }
+            for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
                 el.init();
-            })
+            }
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.bindStageEvents();

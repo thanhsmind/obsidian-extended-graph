@@ -37,9 +37,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ============================== CONSTRUCTOR ==============================
 
-    constructor(instances: GraphInstances, node: GraphNode, types: Map<string, Set<string>>, managers: InteractiveManager[]) {
-        super(instances, node, types, managers);
-        this.extendedText = new ExtendedGraphText(instances, node);
+    protected override additionalConstruct() {
+        this.extendedText = new ExtendedGraphText(this.instances, this.coreElement);
         this.computeRadius();
     }
 

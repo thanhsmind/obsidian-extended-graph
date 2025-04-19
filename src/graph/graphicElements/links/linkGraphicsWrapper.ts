@@ -28,7 +28,7 @@ export abstract class LinkGraphicsWrapper<T extends LinkGraphics> implements Gra
 
     protected setManagerGraphics(manager: InteractiveManager, linkGraphics: T) {
         const existingLinkGraphics = this.managerGraphicsMap.get(manager.name);
-        if (existingLinkGraphics) {
+        if (existingLinkGraphics && existingLinkGraphics !== linkGraphics) {
             if (existingLinkGraphics.parent) existingLinkGraphics.removeFromParent();
             if (!existingLinkGraphics.destroyed) existingLinkGraphics.destroy({ children: true });
         }

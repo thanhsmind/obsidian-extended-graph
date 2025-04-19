@@ -1,7 +1,6 @@
 
 import { GraphLink } from "obsidian-typings";
-import { Sprite, Texture, Text, ColorSource, TextStyle } from "pixi.js";
-import { getBackgroundColor, getFile, getFileInteractives, getLinkID, GraphInstances, PluginInstances } from "src/internal";
+import { GraphInstances, PluginInstances } from "src/internal";
 
 export class ExtendedGraphArrow {
     coreElement: GraphLink;
@@ -82,7 +81,7 @@ export class ExtendedGraphArrow {
     private resetArrowShape(): void {
         if (!this.hasChangedArrowShape) return;
         const arrow = this.coreElement.arrow;
-        if (!arrow) return;
+        if (!arrow || arrow.destroyed) return;
         arrow.clear();
         arrow.beginFill(16777215);
         arrow.moveTo(0, 0);

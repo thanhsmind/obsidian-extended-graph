@@ -24,12 +24,19 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
             this.managers.set(key, manager);
         }
 
+        this.additionalConstruct();
+
         if (this.needGraphicsWrapper()) {
             this.createGraphicsWrapper();
         }
     }
 
+    protected additionalConstruct(): void { }
+
     init() {
+        if (this.graphicsWrapper?.pixiElement.destroyed) {
+            this.graphicsWrapper.createGraphics();
+        }
         this.graphicsWrapper?.connect();
         this.modifyCoreElement();
     }

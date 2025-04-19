@@ -143,7 +143,9 @@ export class ExtendedGraphText {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || !this.instances.settings.addBackgroundToName) return;
 
-        this.graphicsWrapper = new TextGraphicsWrapper(this);
+        if (!this.graphicsWrapper) {
+            this.graphicsWrapper = new TextGraphicsWrapper(this);
+        }
         this.graphicsWrapper.createGraphics();
     }
 

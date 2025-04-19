@@ -8,7 +8,9 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
     // =============================== GRAPHICS ================================
 
     protected createGraphicsWrapper(): void {
-        this.graphicsWrapper = new TagNodeGraphicsWrapper(this);
+        if (!this.graphicsWrapper) {
+            this.graphicsWrapper = new TagNodeGraphicsWrapper(this);
+        }
         this.graphicsWrapper.createGraphics();
         this.graphicsWrapperScale = NodeShape.nodeScaleFactor(this.graphicsWrapper.shape);
     }
