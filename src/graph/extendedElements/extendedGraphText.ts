@@ -17,16 +17,16 @@ export class ExtendedGraphText {
         this.coreGetTextStyle = this.coreElement.getTextStyle.bind(this.coreElement);
         this.restoreText = this.restoreText.bind(this);
         this.changeText = this.changeText.bind(this);
-        this.modifyCoreElement();
-        this.createGraphicsWrapper();
     }
 
     init() {
-        this.graphicsWrapper?.connect();
         this.modifyCoreElement();
+        this.createGraphicsWrapper();
+        this.graphicsWrapper?.connect();
     }
 
     modifyCoreElement() {
+        console.log(this.coreElement.id);
         this.updateFontFamily();
         this.updateText();
         this.proxyText();

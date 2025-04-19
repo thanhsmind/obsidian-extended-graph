@@ -54,7 +54,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.proxyGetSize();
         this.proxyClearGraphics();
         this.proxyGetFillColor();
-        this.extendedText.modifyCoreElement();
 
         this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
     }

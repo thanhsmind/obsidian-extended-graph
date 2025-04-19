@@ -25,7 +25,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override modifyCoreElement(): void {
         this.changeCoreLinkThickness();
-        this.extendedArrow?.modifyCoreElement();
     }
 
     override restoreCoreElement(): void {
