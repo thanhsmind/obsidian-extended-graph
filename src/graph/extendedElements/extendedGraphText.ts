@@ -162,7 +162,7 @@ export class ExtendedGraphText {
         this.textBackground.anchor.set(0.5, 0);
         this.textClone.anchor.set(0.5, 0);
         // Change the color
-        this.textBackground.tint = 'red'; //getBackgroundColor(this.coreElement.renderer);
+        this.textBackground.tint = getBackgroundColor(this.coreElement.renderer);
         // Use a higher alpha than 1 in order to have a better opacity (which changes when hovering or zooming in/out)
         this.textBackground.alpha = 2;
         // Add the background and the cloned text to the scene
@@ -187,7 +187,7 @@ export class ExtendedGraphText {
 
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
         if (!this.textBackground) return;
-        this.textBackground.tint = 'red';// backgroundColor;
+        this.textBackground.tint = backgroundColor;
         if (this.textClone && this.coreElement.text) {
             // @ts-ignore
             this.textClone.style.fill = this.coreElement.getTextStyle().fill;
