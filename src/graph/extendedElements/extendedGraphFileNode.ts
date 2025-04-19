@@ -19,8 +19,8 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     public needBackground(): boolean {
-        return this.instances.settings.enableFeatures[this.instances.type]['focus']
-            || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE;
+        return !this.icon && (this.instances.settings.enableFeatures[this.instances.type]['focus']
+            || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE);
     }
 
     public needArcs(): boolean {
@@ -52,7 +52,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     protected override needToUpdateGraphicsColor(): boolean {
-        return !!this.graphicsWrapper.background;
+        return !!this.graphicsWrapper.background || !!this.graphicsWrapper?.iconSprite;
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {

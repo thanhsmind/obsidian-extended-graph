@@ -90,7 +90,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
         // Then, icons (or emojis)
         if (this.instances.settings.enableFeatures[this.instances.type]['icons']) {
-            const icon = extendedNode.getIcon();
+            const icon = extendedNode.icon;
             if (icon?.svg || icon?.emoji) return { uri: "", type: "icon" }
         }
 

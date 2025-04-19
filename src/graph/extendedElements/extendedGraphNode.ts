@@ -39,6 +39,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected override additionalConstruct() {
         this.extendedText = new ExtendedGraphText(this.instances, this.coreElement);
+        this.getIcon();
         this.computeRadius();
     }
 
@@ -139,7 +140,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== GRAPHICS ================================
 
     protected needGraphicsWrapper(): boolean {
-        this.getIcon();
         return this.needPin() || this.needOpacityLayer() || !!this.icon;
     }
 
@@ -149,7 +149,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     public needIcon(): boolean { return this.instances.settings.enableFeatures[this.instances.type]['icons']; }
 
-    public getIcon() {
+    public getIcon(): void {
         if (!this.needIcon()) return;
         // Recursively get icon for file, or if it doesn't exist, for parent folders
         const paths = this.instances.settings.useParentIcon ? getListOfSubpaths(this.id).reverse() : [this.id];
@@ -192,8 +192,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
 
         if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
-
-        return this.icon;
     }
 
     // =============================== NODE SIZE ===============================

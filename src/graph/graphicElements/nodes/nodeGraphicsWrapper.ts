@@ -163,6 +163,9 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         }
         else {
             this.lastColor = color;
+            if (this.iconSprite) {
+                this.iconSprite.tint = color ?? this.extendedElement.icon?.color ?? this.getFillColor().rgb;
+            }
             return true;
         }
     }
