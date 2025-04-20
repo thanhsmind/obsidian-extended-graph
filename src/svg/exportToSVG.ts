@@ -1,4 +1,5 @@
 import { HexString } from "obsidian";
+import { Color, ColorSource } from 'pixi.js';
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import {
     ArcsCircle,
@@ -482,14 +483,15 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         else {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
-        const color: HexString = extendedLink.graphicsWrapper ? rgb2hex(extendedLink.graphicsWrapper.pixiElement.color) : link.line ? int2hex(Number(link.line.tint)) : "#000000";
+        const color: ColorSource = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.color : link.line ? int2hex(Number(link.line.tint)) : "#000000";
+        const colorStr = new Color(color).toHex();
         const width: number = this.instances.renderer.fLineSizeMult * 2;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
             d: path,
-            stroke: color,
+            stroke: colorStr,
             'stroke-width': width,
             opacity: opacity,
             fill: 'none',
