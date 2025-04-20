@@ -1,16 +1,16 @@
 import { Graphics } from "pixi.js"
 import { GraphLink } from "obsidian-typings";
-import { GraphInstances, PluginInstances, SettingQuery } from "src/internal";
+import { ExtendedGraphLink, GraphInstances, PluginInstances, SettingQuery } from "src/internal";
 
 export class ExtendedGraphArrow {
-    coreElement: GraphLink;
+    extendedLink: ExtendedGraphLink;
     instances: GraphInstances;
 
     hasChangedArrowShape: boolean = false;
 
-    constructor(instances: GraphInstances, coreElement: GraphLink) {
+    constructor(instances: GraphInstances, extendedElement: ExtendedGraphLink) {
         this.instances = instances;
-        this.coreElement = coreElement;
+        this.extendedLink = extendedElement;
     }
 
     init() {
@@ -23,7 +23,7 @@ export class ExtendedGraphArrow {
     }
 
     unload(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
+        PluginInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
         this.resetArrowShape();
     }
 
@@ -35,13 +35,13 @@ export class ExtendedGraphArrow {
             )) return;
 
 
-        const link = this.coreElement;
+        const link = this.extendedLink.coreElement;
         if (link.arrow) {
 
             let modifyArrow: (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => boolean;
             if (needToColorArrows && this.instances.settings.invertArrows) {
                 modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
-                    return this.invertArrow(link, target, prop, value) || this.colorArrow(link, target, prop, value);
+                    return this.invertArrow(link, target, prop, value) || this.colorArrow(target, prop, value);
                 };
             }
             else if (this.instances.settings.invertArrows) {
@@ -51,13 +51,13 @@ export class ExtendedGraphArrow {
             }
             else {
                 modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
-                    return this.colorArrow(link, target, prop, value);
+                    return this.colorArrow(target, prop, value);
                 };
             }
             modifyArrow = modifyArrow.bind(this);
 
             PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
-                this.coreElement,
+                this.extendedLink.coreElement,
                 "arrow",
                 {
                     set(target, prop, value, receiver) {
@@ -69,9 +69,17 @@ export class ExtendedGraphArrow {
         }
     }
 
-    private colorArrow(link: GraphLink, target: Graphics, prop: string | symbol, value: any): boolean {
+    private colorArrow(target: Graphics, prop: string | symbol, value: any): boolean {
         if (prop === "tint") {
-            target.tint = link.line?.tint ?? value;
+            if (this.extendedLink.coreElement.line?.worldVisible) {
+                target.tint = this.extendedLink.getStrokeColor() ?? value;
+            }
+            else if (this.extendedLink.siblingLink?.coreElement.line?.worldVisible) {
+                target.tint = this.extendedLink.siblingLink.getStrokeColor() ?? value;
+            }
+            else {
+                target.tint = value;
+            }
             return true;
         }
         return false;
@@ -103,7 +111,7 @@ export class ExtendedGraphArrow {
 
     private createFlatArrow(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.flatArrows) return;
-        const arrow = this.coreElement.arrow;
+        const arrow = this.extendedLink.coreElement.arrow;
         if (!arrow) return;
         arrow.clear();
         arrow.beginFill(16777215);
@@ -117,7 +125,7 @@ export class ExtendedGraphArrow {
 
     private resetArrowShape(): void {
         if (!this.hasChangedArrowShape) return;
-        const arrow = this.coreElement.arrow;
+        const arrow = this.extendedLink.coreElement.arrow;
         if (!arrow || arrow.destroyed) return;
         arrow.clear();
         arrow.beginFill(16777215);

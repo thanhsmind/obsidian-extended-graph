@@ -12,7 +12,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override additionalConstruct() {
         if (this.needToModifyArrow()) {
-            this.extendedArrow = new ExtendedGraphArrow(this.instances, this.coreElement);
+            this.extendedArrow = new ExtendedGraphArrow(this.instances, this);
         }
     }
 
@@ -203,13 +203,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (!extendedSource || !extendedTarget) return false;
 
         return extendedSource.canBeAddedWithEngineOptions() && extendedTarget.canBeAddedWithEngineOptions();
-    }
-
-    override setCoreElement(coreElement: GraphLink | undefined): void {
-        if (coreElement && this.extendedArrow) {
-            this.extendedArrow.coreElement = coreElement;
-        }
-        super.setCoreElement(coreElement);
     }
 
     // ================================ GETTERS ================================
