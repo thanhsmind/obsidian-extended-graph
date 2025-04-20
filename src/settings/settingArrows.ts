@@ -10,6 +10,8 @@ export class SettingArrows extends SettingsSectionCollapsible {
     protected override addBody() {
         this.addInvertArrows();
         this.addFlatArrows();
+        this.addColoredArrows();
+        this.addOpaqueArrows();
     }
 
     private addInvertArrows() {
@@ -33,6 +35,32 @@ export class SettingArrows extends SettingsSectionCollapsible {
                 cb.setValue(PluginInstances.settings.flatArrows);
                 cb.onChange(value => {
                     PluginInstances.settings.flatArrows = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addColoredArrows() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.arrowsColored)
+            .setDesc(STRINGS.features.arrowsColoredDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.colorArrows);
+                cb.onChange(value => {
+                    PluginInstances.settings.colorArrows = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addOpaqueArrows() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.arrowsOpaque)
+            .setDesc(STRINGS.features.arrowsOpaqueDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.opaqueArrows);
+                cb.onChange(value => {
+                    PluginInstances.settings.opaqueArrows = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

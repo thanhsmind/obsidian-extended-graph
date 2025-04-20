@@ -1,6 +1,6 @@
-
+import { Graphics } from "pixi.js"
 import { GraphLink } from "obsidian-typings";
-import { getLinkID, GraphInstances, PluginInstances } from "src/internal";
+import { GraphInstances, PluginInstances } from "src/internal";
 
 export class ExtendedGraphArrow {
     coreElement: GraphLink;
@@ -18,7 +18,7 @@ export class ExtendedGraphArrow {
     }
 
     modifyCoreElement() {
-        this.invertArrowDirection();
+        this.proxyArrow();
         this.createFlatArrow();
     }
 
@@ -27,41 +27,77 @@ export class ExtendedGraphArrow {
         this.resetArrowShape();
     }
 
-    private invertArrowDirection(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows'] || !this.instances.settings.invertArrows) return;
+    private proxyArrow(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
+            || (!this.instances.settings.invertArrows
+                && !this.instances.settings.colorArrows
+            )) return;
+
+
         const link = this.coreElement;
         if (link.arrow) {
+
+            let modifyArrow: (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => boolean;
+            if (this.instances.settings.invertArrows && this.instances.settings.colorArrows) {
+                modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
+                    return this.invertArrow(link, target, prop, value) || this.colorArrow(link, target, prop, value);
+                };
+            }
+            else if (this.instances.settings.invertArrows) {
+                modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
+                    return this.invertArrow(link, target, prop, value);
+                };
+            }
+            else {
+                modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
+                    return this.colorArrow(link, target, prop, value);
+                };
+            }
+            modifyArrow = modifyArrow.bind(this);
+
             PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
                 this.coreElement,
                 "arrow",
                 {
                     set(target, prop, value, receiver) {
-                        // Place the arrow at the source rather than the target
-                        if (prop === "x" || prop === "y") {
-                            var c2c_x = link.target.x - link.source.x
-                                , c2c_y = link.target.y - link.source.y
-                                , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
-                                , source_r = link.source.getSize() * link.renderer.nodeScale;
-
-                            if (prop === "x") {
-                                target.x = link.source.x + c2c_x * source_r / diag;
-                            }
-                            else {
-                                target.y = link.source.y + c2c_y * source_r / diag;
-                            }
-                        }
-                        // Flip the arrow
-                        else if (prop === "rotation") {
-                            target.rotation = value + Math.PI;
-                        }
-                        else {
-                            return Reflect.set(target, prop, value, receiver);
-                        }
-                        return true;
+                        const modified = modifyArrow(link, target, prop, value);
+                        return modified ? true : Reflect.set(target, prop, value, receiver);
                     }
                 }
             );
         }
+    }
+
+    private colorArrow(link: GraphLink, target: Graphics, prop: string | symbol, value: any): boolean {
+        if (prop === "tint") {
+            target.tint = link.line?.tint ?? value;
+            return true;
+        }
+        return false;
+    }
+
+    private invertArrow(link: GraphLink, target: Graphics, prop: string | symbol, value: any): boolean {
+        // Place the arrow at the source rather than the target
+        if (prop === "x" || prop === "y") {
+            var c2c_x = link.target.x - link.source.x
+                , c2c_y = link.target.y - link.source.y
+                , diag = Math.sqrt(c2c_x * c2c_x + c2c_y * c2c_y)
+                , source_r = link.source.getSize() * link.renderer.nodeScale;
+
+            if (prop === "x") {
+                target.x = link.source.x + c2c_x * source_r / diag;
+            }
+            else {
+                target.y = link.source.y + c2c_y * source_r / diag;
+            }
+            return true;
+        }
+        // Flip the arrow
+        else if (prop === "rotation") {
+            target.rotation = value + Math.PI;
+            return true;
+        }
+        return false
     }
 
     private createFlatArrow(): void {

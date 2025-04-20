@@ -6,7 +6,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
-    targetAlpha: number = 0.6;
+    targetAlpha: number;
     color: ColorSource;
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
@@ -18,6 +18,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.types = types;
         this.name = "curve:" + name;
         this.extendedLink = link;
+        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrows ? 1 : 0.6;
         this.updateValues();
     }
 

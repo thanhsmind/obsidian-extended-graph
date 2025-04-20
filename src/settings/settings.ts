@@ -86,6 +86,8 @@ export interface ExtendedGraphSettings {
     // Arrows
     invertArrows: boolean;
     flatArrows: boolean;
+    colorArrows: boolean;
+    opaqueArrows: boolean;
 
     // Names
     numberOfCharacters: number | null;
@@ -242,6 +244,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Arrows
     invertArrows: false,
     flatArrows: false,
+    colorArrows: true,
+    opaqueArrows: false,
 
     // Names
     numberOfCharacters: null,

@@ -18,7 +18,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     private needToModifyArrow(): boolean {
         return this.instances.settings.enableFeatures[this.instances.type]['arrows']
-            && (this.instances.settings.invertArrows || this.instances.settings.flatArrows);
+            && (this.instances.settings.invertArrows || this.instances.settings.flatArrows
+                || this.instances.settings.colorArrows || this.instances.settings.opaqueArrows);
     }
 
 

@@ -9,6 +9,7 @@ export class GraphEventsDispatcher extends Component {
     instances: GraphInstances;
 
     listenStage: boolean = true;
+    coreArrowAlpha?: number;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -96,6 +97,7 @@ export class GraphEventsDispatcher extends Component {
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
             this.createSetDataProxy();
+            this.changeArrowAlpha();
         }
         catch (error) {
             this.listenStage = false;
@@ -190,6 +192,18 @@ export class GraphEventsDispatcher extends Component {
         );
     }
 
+    private changeArrowAlpha(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
+            || !this.instances.settings.opaqueArrows
+        ) return;
+        if (this.instances.settings.enableFeatures[this.instances.type]['links']
+            && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']
+        ) return;
+
+        this.coreArrowAlpha = this.instances.renderer.colors.arrow.a;
+        this.instances.renderer.colors.arrow.a = 1;
+    }
+
     // =============================== UNLOADING ===============================
 
     /**
@@ -203,6 +217,7 @@ export class GraphEventsDispatcher extends Component {
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
+        this.restoreArrowAlpha();
     }
 
     private unbindStageEvents(): void {
@@ -210,6 +225,13 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.hanger.off('childRemoved', this.onChildRemovedFromStage);
         this.instances.renderer.px.stage.off('pointerdown', this.onPointerDown);
         this.instances.renderer.px.stage.off('pointerup', this.onPointerUp);
+    }
+
+    private restoreArrowAlpha(): void {
+        if (this.coreArrowAlpha !== undefined) {
+            this.instances.renderer.colors.arrow.a = this.coreArrowAlpha;
+            this.coreArrowAlpha = undefined;
+        }
     }
 
     // ============================= STAGE EVENTS ==============================
