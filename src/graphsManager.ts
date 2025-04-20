@@ -1,4 +1,4 @@
-import { CachedMetadata, Component, FileView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, FileView, MarkdownView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
 import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass } from "./internal";
 import STRINGS from "./Strings";
@@ -63,13 +63,22 @@ export class GraphsManager extends Component {
 
         this.registerEvent(PluginInstances.app.workspace.on('layout-change', () => {
             if (!this.isCoreGraphLoaded()) return;
+            console.log("LAYOUT CHANGE");
             PluginInstances.plugin.onLayoutChange();
         }));
 
         this.onActiveLeafChange = this.onActiveLeafChange.bind(this);
         this.registerEvent(PluginInstances.app.workspace.on('active-leaf-change', (leaf) => {
             if (!this.isCoreGraphLoaded()) return;
+            console.log("ACTIVE LEAF CHANGE", leaf?.id);
             this.onActiveLeafChange(leaf);
+        }));
+
+        this.onFileOpen = this.onFileOpen.bind(this);
+        this.registerEvent(PluginInstances.app.workspace.on('file-open', (file) => {
+            if (!this.isCoreGraphLoaded()) return;
+            console.log("FILE OPEN", file?.path);
+            this.onFileOpen(file);
         }));
 
         this.updatePaletteForInteractive = this.updatePaletteForInteractive.bind(this);
@@ -678,8 +687,8 @@ export class GraphsManager extends Component {
 
     onActiveLeafChange(leaf: WorkspaceLeaf | null) {
         if (!leaf) return;
-        if (this.isMarkdownLeaf(leaf)) {
-            this.handleMarkdownViewChange(leaf.view as FileView);
+        if (!this.isMarkdownLeaf(leaf)) {
+            this.changeActiveFile((leaf.view as FileView).file);
         }
         else {
             this.changeActiveFile(null);
@@ -690,24 +699,38 @@ export class GraphsManager extends Component {
         return (leaf.view.getViewType() === "markdown") && (leaf.view instanceof FileView);
     }
 
-    private handleMarkdownViewChange(view: FileView): void {
-        if (this.activeFile !== view.file) {
-            this.changeActiveFile(view.file);
+    isHandlingMarkdownViewChange: boolean = false;
+
+    private onFileOpen(file: TFile | null): void {
+        if (this.isHandlingMarkdownViewChange) return;
+        this.isHandlingMarkdownViewChange = true;
+        if (this.activeFile !== file) {
+            this.changeActiveFile(file);
             if (this.localGraphID) {
-                const localDispatcher = this.allInstances.get(this.localGraphID);
-                if (localDispatcher) this.resetPlugin(localDispatcher.view);
+                const localInstances = this.allInstances.get(this.localGraphID);
+                console.log("Reset local graph for", localInstances ? file?.path : undefined);
+                if (localInstances) this.resetPlugin(localInstances.view);
             }
-            if (view.file) {
-                // If there is a Graph Banner plugin graph, center it on the correct node.
-                // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
-                // which means that nodes get a new position after the zooming.
-                const graphBannerView = getGraphBannerPlugin()?.graphViews.find(el => el.node === view.contentEl.querySelector(`.${getGraphBannerClass()}`))?.leaf.view;
-                if (graphBannerView && this.allInstances.get(graphBannerView.leaf.id)) {
-                    const graphBannerViewTyped = graphBannerView as LocalGraphView;
-                    this.zoomOnNode(graphBannerViewTyped, view.file.path, graphBannerViewTyped.renderer.targetScale);
+            if (file) {
+                const graphBannerPlugin = getGraphBannerPlugin();
+                if (graphBannerPlugin) {
+                    // If there is a Graph Banner plugin graph, center it on the correct node.
+                    // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
+                    // which means that nodes get a new position after the zooming.
+                    const leaves = PluginInstances.app.workspace.getLeavesOfType('markdown').filter(leaf => leaf.view instanceof MarkdownView && (leaf.view as MarkdownView).file === file);
+                    for (const leaf of leaves) {
+                        if (!(leaf.view instanceof MarkdownView)) continue;
+                        const view = leaf.view as MarkdownView;
+                        const graphBannerView = getGraphBannerPlugin()?.graphViews.find(el => el.node === view.contentEl.querySelector(`.${getGraphBannerClass()}`))?.leaf.view;
+                        if (graphBannerView && this.allInstances.get(graphBannerView.leaf.id)) {
+                            const graphBannerViewTyped = graphBannerView as LocalGraphView;
+                            this.zoomOnNode(graphBannerViewTyped, file.path, graphBannerViewTyped.renderer.targetScale);
+                        }
+                    }
                 }
             }
         }
+        this.isHandlingMarkdownViewChange = false;
     }
 
     changeActiveFile(file: TFile | null): void {

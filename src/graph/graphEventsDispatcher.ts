@@ -409,6 +409,7 @@ export class GraphEventsDispatcher extends Component {
 
     private afterInitGraphics() {
         setTimeout(() => {
+            console.log("afterInitGraphics");
             for (const el of this.instances.linksSet.extendedElementsMap.values()) {
                 el.init();
             }
