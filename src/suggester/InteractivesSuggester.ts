@@ -1,17 +1,16 @@
-import { AbstractInputSuggest } from "obsidian";
-import { FOLDER_KEY, getFileInteractives, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
 
-export class InteractivesSuggester extends AbstractInputSuggest<HTMLElement> {
+export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;
     propertyKey: string | undefined;
     callback: (value: string) => void;
 
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, callback: (value: string) => void) {
-        super(PluginInstances.app, textInputEl);
+        super(textInputEl);
         this.callback = callback;
     }
 
-    protected getSuggestions(query: string): HTMLElement[] {
+    protected override getStringSuggestions(query: string): string[] {
         if (!this.key) return [];
         const files = PluginInstances.app.vault.getMarkdownFiles();
         let values: string[] = [];
@@ -51,22 +50,7 @@ export class InteractivesSuggester extends AbstractInputSuggest<HTMLElement> {
 
         let filteredValues = values.filter(value => value.contains(query));
         let sortedValues = new Set(filteredValues.sort());
-        return [...sortedValues].map(value => {
-            const split = value.split(query);
-            const el = createDiv();
-            if (query === "") {
-                el.setText(value);
-                return el;
-            }
-            for (let i = 0; i < split.length - 1; ++i) {
-                el.appendText(split[i]);
-                const strong = createEl("strong");
-                strong.setText(query);
-                el.appendChild(strong);
-            }
-            el.appendText(split.last() ?? '');
-            return el;
-        });
+        return [...sortedValues];
     }
 
     setKey(key?: SourceKey, propertyKey?: string): void {
@@ -74,13 +58,7 @@ export class InteractivesSuggester extends AbstractInputSuggest<HTMLElement> {
         this.propertyKey = propertyKey;
     }
 
-    renderSuggestion(value: HTMLElement, el: HTMLElement): void {
-        value.childNodes.forEach((childNode) => {
-            el.appendChild(childNode.cloneNode(true));
-        });
-    }
-
-    selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {
+    override selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {
         this.setValue(value.innerText);
         this.callback(value.innerText);
         this.close();

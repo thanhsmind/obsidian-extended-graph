@@ -89,6 +89,7 @@ export * from "./settings/settingInteractives/settingLinks";
 export * from "./settings/settingInteractives/settingFolders";
 export * from "./settings/components/settingColorPalette";
 
+export * from "./suggester/AbstractFormattingSuggester";
 export * from "./suggester/FoldersSuggester";
 export * from "./suggester/InteractivesSuggester";
 export * from "./suggester/NodeNamesSuggester";
