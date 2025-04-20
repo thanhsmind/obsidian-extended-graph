@@ -80,6 +80,9 @@ export interface ExtendedGraphSettings {
     focusScaleFactor: number;
     borderUnresolved: number | string;
 
+    // Links
+    linksSameColorAsNode: boolean,
+
     // Arrows
     invertArrows: boolean;
     flatArrows: boolean;
@@ -231,6 +234,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
     borderUnresolved: '',
+
+    // Links
+    linksSameColorAsNode: false,
 
     // Arrows
     invertArrows: false,

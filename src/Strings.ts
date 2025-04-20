@@ -119,6 +119,8 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
+		linksSameColorAsNode: "Color link based on source",
+		linksSameColorAsNodeDesc: "Use the color of the source node to color links",
 		linksFeatureRequired: "The Links feature needs to be enabled.",
 		pinnedNodes: "Pinned nodes",
 		pinNode: "Pin node",

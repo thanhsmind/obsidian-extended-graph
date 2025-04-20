@@ -32,6 +32,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addAutoEnable();
         this.addDisableNodes();
         this.addBorderUnresolved();
+        this.addLinkSameColorAsNodes();
 
         // FEATURES
         for (const section of this.sections) {
@@ -46,7 +47,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         label.innerText = "Go to";
     }
 
-    addAutoEnable(): void {
+    private addAutoEnable(): void {
         new Setting(this.containerEl)
             .setName(STRINGS.features.autoEnable)
             .setDesc(STRINGS.features.autoEnableDesc)
@@ -82,7 +83,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             })
     }
 
-    addDisableNodes() {
+    private addDisableNodes() {
         new Setting(this.containerEl)
             .setName(STRINGS.features.disableNodes)
             .setDesc(STRINGS.features.disableNodesDesc)
@@ -95,7 +96,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             });
     }
 
-    addBorderUnresolved() {
+    private addBorderUnresolved() {
         new Setting(this.containerEl)
             .setName(STRINGS.features.borderUnresolved)
             .setDesc(STRINGS.features.borderUnresolvedDesc)
@@ -112,5 +113,18 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                         await PluginInstances.plugin.saveSettings();
                     }
                 }));
+    }
+
+    private addLinkSameColorAsNodes() {
+        new Setting(this.containerEl)
+            .setName(STRINGS.features.linksSameColorAsNode)
+            .setDesc(STRINGS.features.linksSameColorAsNodeDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.linksSameColorAsNode);
+                cb.onChange(value => {
+                    PluginInstances.settings.linksSameColorAsNode = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            });
     }
 }

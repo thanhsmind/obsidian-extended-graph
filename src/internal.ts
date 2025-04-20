@@ -27,12 +27,8 @@ export * from "./graph/extendedElements/extendedGraphText";
 export * from "./graph/extendedElements/extendedGraphArrow";
 
 export * from "./graph/graphicElements/graphicsWrapper";
-export * from "./graph/graphicElements/links/linkGraphics";
-export * from "./graph/graphicElements/links/line";
 export * from "./graph/graphicElements/links/curve";
-export * from "./graph/graphicElements/links/linkGraphicsWrapper";
 export * from "./graph/graphicElements/links/curveLinkGraphicsWrapper";
-export * from "./graph/graphicElements/links/lineLinkGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/nodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/attachmentNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/fileNodeGraphicsWrapper";

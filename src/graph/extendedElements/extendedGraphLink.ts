@@ -1,13 +1,14 @@
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, GraphInstances, InteractiveManager, LineLinkGraphicsWrapper, LinkGraphics, LinkGraphicsWrapper, PluginInstances } from "src/internal";
+import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, LINK_KEY, PluginInstances, rgb2int } from "src/internal";
 
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
-    graphicsWrapper?: LinkGraphicsWrapper<LinkGraphics>;
+    graphicsWrapper?: CurveLinkGraphicsWrapper;
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
+    siblingLink?: ExtendedGraphLink;
 
     protected override additionalConstruct() {
         if (this.needToModifyArrow()) {
@@ -25,15 +26,26 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override init(): void {
         super.init();
+        this.findSiblingLink();
         this.extendedArrow?.init();
+    }
+
+    private findSiblingLink(): void {
+        const siblingID = getLinkID({ source: { id: this.coreElement.target.id }, target: { id: this.coreElement.source.id } })
+        this.siblingLink = this.instances.linksSet.extendedElementsMap.get(siblingID);
+        if (this.siblingLink) {
+            this.siblingLink.siblingLink = this;
+        }
     }
 
     override modifyCoreElement(): void {
         this.changeCoreLinkThickness();
+        this.proxyLine();
     }
 
     override restoreCoreElement(): void {
         this.restoreCoreLinkThickness();
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
     }
 
@@ -44,29 +56,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
             return true; // Always for curved links
         }
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.getStrokeColor()) {
-            return true; // Always if the colos has to be overriden by the stat
-        }
-        for (const [key, manager] of this.managers) {
-            const types = this.types.get(key);
-            if (!types || types.size === 0) continue;
-            if (this.instances.settings.interactiveSettings[key].showOnGraph && !types.has(this.instances.settings.interactiveSettings[key].noneType)) {
-                return true; // If an active type must be shown and is not "none"
-            }
-        }
         return false;
     }
 
     protected override createGraphicsWrapper(): void {
         if (!this.graphicsWrapper) {
-            if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
-                this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
-            }
-            else {
-                this.graphicsWrapper = new LineLinkGraphicsWrapper(this);
-            }
+            this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
+            this.graphicsWrapper.createGraphics();
         }
-        this.graphicsWrapper.createGraphics();
     }
 
     // ========================= LINK SIZE (THICKNESS) =========================
@@ -86,7 +83,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
     }
 
-    restoreCoreLinkThickness(): void {
+    private restoreCoreLinkThickness(): void {
         if (this.coreElement.px) {
             this.coreElement.px.scale.y = 1;
         }
@@ -103,12 +100,71 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== LINK COLOR ===============================
 
+    private proxyLine(): void {
+        const link = this.coreElement
+        if (link.line) {
+            const getStrokeColor = this.getStrokeColor.bind(this);
+            PluginInstances.proxysManager.registerProxy<typeof link.line>(
+                this.coreElement,
+                'line',
+                {
+                    set(target, p, newValue, receiver) {
+                        if (p === 'tint') {
+                            newValue = getStrokeColor() ?? newValue;
+                        }
+                        return Reflect.set(target, p, newValue, receiver);
+                    },
+                }
+            );
+            link.line.on('destroyed', () => PluginInstances.proxysManager.unregisterProxy(this.coreElement.line));
+        }
+    }
+
+    isHighlighted(): boolean {
+        return this.coreElement.source === this.coreElement.renderer.getHighlightNode() || this.coreElement.target === this.coreElement.renderer.getHighlightNode();
+    }
+
     getStrokeColor(): number | undefined {
-        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            && PluginInstances.settings.linksColorFunction !== "default" ?
-            PluginInstances.graphsManager.linksColorCalculator
-                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
-            : undefined;
+        if (this.isHighlighted()) {
+            return;
+        }
+
+        let color: number | undefined;
+
+        // From type
+        if (PluginInstances.settings.enableFeatures[this.instances.type]['links']
+            && PluginInstances.settings.interactiveSettings[LINK_KEY].showOnGraph
+        ) {
+            const manager = this.managers.get(LINK_KEY);
+            const type = this.getActiveType(LINK_KEY);
+            if (manager && type) {
+                color = rgb2int(manager.getColor(type));
+                return color
+            }
+        }
+
+        // From color stats
+        if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && PluginInstances.settings.linksColorFunction !== "default"
+        ) {
+            color = PluginInstances.graphsManager.linksColorCalculator
+                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value;
+
+            if (color) return color;
+        }
+
+        // From source node
+        if (PluginInstances.settings.linksSameColorAsNode) {
+            if (PluginInstances.settings.enableFeatures[this.instances.type]['arrows']
+                && PluginInstances.settings.invertArrows
+            ) {
+                color = this.coreElement.target.getFillColor().rgb;
+            }
+            else {
+                color = this.coreElement.source.getFillColor().rgb;
+            }
+            return color;
+        }
     }
 
     // ============================== CORE ELEMENT =============================

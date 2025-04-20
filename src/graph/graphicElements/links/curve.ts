@@ -1,12 +1,32 @@
 import { IDestroyOptions, Graphics } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkGraphics, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
+import { ExtendedGraphLink, int2rgb, InteractiveManager, lengthQuadratic, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
 
 
-export class LinkCurveGraphics extends LinkGraphics {
+export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
+    manager: InteractiveManager;
+    types: Set<string>;
+    name: string;
+    targetAlpha: number = 0.6;
+    color: Uint8Array;
+    extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
+    activeType: string | undefined;
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
-        super(manager, types, "curve:" + name, link);
+        super();
+        this.manager = manager;
+        this.types = types;
+        this.name = "curve:" + name;
+        this.extendedLink = link;
+        this.updateValues();
+    }
+
+    updateValues(): void {
+        this.activeType = this.extendedLink.getActiveType(this.manager.name);
+        if (!this.activeType) return;
+        const overrideColor = this.extendedLink.getStrokeColor();
+        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(this.activeType);
+        this.redraw();
     }
 
     private initArrow() {
@@ -29,8 +49,8 @@ export class LinkCurveGraphics extends LinkGraphics {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
-    protected override redraw(): void {
-        if (!this.activeType() && this.arrow) {
+    protected redraw(): void {
+        if (!this.activeType && this.arrow) {
             this.arrow.clear();
             this.arrow.destroy();
             this.arrow = null;
@@ -38,7 +58,7 @@ export class LinkCurveGraphics extends LinkGraphics {
         this.updateFrame();
     }
 
-    override updateFrame(): void {
+    updateFrame(): void {
         if (this.destroyed) return;
 
         this.clear();
@@ -66,10 +86,12 @@ export class LinkCurveGraphics extends LinkGraphics {
 
         this.lineStyle({ width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white" });
         this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
-        if (link.line && link.line.tint !== renderer.colors.line.rgb) {
-            this.tint = link.line.tint;
+        if (this.extendedLink.isHighlighted()) {
+            this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
         }
-        this.tint = this.color;
+        else {
+            this.tint = this.color;
+        }
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;
@@ -106,15 +128,19 @@ export class LinkCurveGraphics extends LinkGraphics {
         super.destroy(options);
     }
 
-    override clearGraphics(): void {
+    clearGraphics(): void {
         if (this.destroyed) return;
 
         this.arrow?.clear();
-        super.clearGraphics();
+        this.clear();
+        this.destroy({ children: true });
+        this.removeFromParent();
     }
 
     override clear(): this {
         if (this.destroyed) return this;
         return super.clear();
     }
+
+    toggleType(type: string, enable: boolean): void { }
 }
