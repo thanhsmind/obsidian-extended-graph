@@ -154,48 +154,70 @@ export class ExtendedGraphText {
 
     private proxyText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
-            || this.instances.settings.nameVerticalOffset === 0
-            || !this.coreElement.text) return;
-        const node = this.coreElement;
-        if (!node.circle) return;
-        const offset = this.instances.settings.nameVerticalOffset;
+            || (this.instances.settings.nameVerticalOffset === 0 && !this.instances.settings.dynamicVerticalOffset)) return;
+        if (!this.coreElement.text) return;
+
         const renderer = this.instances.renderer;
 
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
-            this.coreElement,
-            "text",
-            {
-                set(target, prop, value, receiver) {
-                    if (prop === "y") {
-                        const size = node.getSize();
-                        // if the offset places the text above the center of the node
-                        // we need to inverse the value when hovered (text moving)
-                        if (offset < -55) {
-                            const origin = node.y + (size + 5) * renderer.nodeScale;
-                            const move = value - origin;
-                            value = origin - move;
+        if (this.instances.settings.dynamicVerticalOffset) {
+            PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+                this.coreElement,
+                "text",
+                {
+                    set(target, prop, value, receiver) {
+                        if (prop === "y") {
+                            const arrowScale = 2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale;
+                            // 5 is the original offset of the core plugin
+                            // 4 is the size/height of the arrow
+                            value = value - 5 + 4 * arrowScale;
                         }
-                        // if the offset is negative, we need to modify the offset
-                        // to take in account the node size
-                        if (offset < -5 && offset > -105) {
-                            const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
-                            const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
-                            value = value + newOffset;
-                        }
-                        else if (offset <= -105) {
-                            const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
-                            const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
-                            value = value + newOffset;
-                        }
-                        else {
-                            value = value + offset * renderer.nodeScale;
-                        }
-                    }
 
-                    return Reflect.set(target, prop, value, receiver);
+                        return Reflect.set(target, prop, value, receiver);
+                    }
                 }
-            }
-        );
+            );
+        }
+        else {
+            const node = this.coreElement;
+            if (!node.circle) return;
+            const offset = this.instances.settings.nameVerticalOffset;
+            PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
+                this.coreElement,
+                "text",
+                {
+                    set(target, prop, value, receiver) {
+                        if (prop === "y") {
+                            const size = node.getSize();
+                            // if the offset places the text above the center of the node
+                            // we need to inverse the value when hovered (text moving)
+                            if (offset < -55) {
+                                const origin = node.y + (size + 5) * renderer.nodeScale;
+                                const move = value - origin;
+                                value = origin - move;
+                            }
+                            // if the offset is negative, we need to modify the offset
+                            // to take in account the node size
+                            if (offset < -5 && offset > -105) {
+                                const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
+                                const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
+                                value = value + newOffset;
+                            }
+                            else if (offset <= -105) {
+                                const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
+                                const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
+                                value = value + newOffset;
+                            }
+                            else {
+                                value = value + offset * renderer.nodeScale;
+                            }
+                        }
+
+                        return Reflect.set(target, prop, value, receiver);
+                    }
+                }
+            );
+        }
+
 
         this.coreElement.text.addListener('destroyed', () => {
             PluginInstances.proxysManager.unregisterProxy(typeof this.coreElement.text);

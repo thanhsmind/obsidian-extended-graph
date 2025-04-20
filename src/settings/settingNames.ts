@@ -3,6 +3,8 @@ import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsS
 import STRINGS from "src/Strings";
 
 export class SettingNames extends SettingsSectionCollapsible {
+    verticalOffset: Setting;
+
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'names', '', STRINGS.features.names, 'case-sensitive', STRINGS.features.namesDesc);
     }
@@ -14,6 +16,7 @@ export class SettingNames extends SettingsSectionCollapsible {
         this.addNoExtension();
         this.addUseProperty();
         this.addBackground();
+        this.addDynamicVerticalOffset();
         this.addVerticalOffset();
     }
 
@@ -91,8 +94,22 @@ export class SettingNames extends SettingsSectionCollapsible {
             }).settingEl);
     }
 
-    private addVerticalOffset() {
+    private addDynamicVerticalOffset() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesDynamicVerticalOffset)
+            .setDesc(STRINGS.features.namesDynamicVerticalOffsetDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.dynamicVerticalOffset);
+                cb.onChange(value => {
+                    this.verticalOffset.setDisabled(value);
+                    PluginInstances.settings.dynamicVerticalOffset = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addVerticalOffset() {
+        this.verticalOffset = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.namesVerticalOffset)
             .setDesc(STRINGS.features.namesVerticalOffsetDesc)
             .addText(cb => {
@@ -102,7 +119,10 @@ export class SettingNames extends SettingsSectionCollapsible {
                     PluginInstances.settings.nameVerticalOffset = isNaN(intValue) ? 0 : intValue;
                     PluginInstances.plugin.saveSettings();
                 });
-            }).settingEl);
+            });
+        this.verticalOffset.setDisabled(PluginInstances.settings.dynamicVerticalOffset);
+
+        this.elementsBody.push(this.verticalOffset.settingEl);
     }
 
     private addInterfaceFont() {
