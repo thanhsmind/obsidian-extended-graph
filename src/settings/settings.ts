@@ -81,7 +81,9 @@ export interface ExtendedGraphSettings {
     borderUnresolved: number | string;
 
     // Links
-    linksSameColorAsNode: boolean,
+    linksSameColorAsNode: boolean;
+    excludedSourcesFolder: string[];
+    excludedTargetsFolder: string[];
 
     // Arrows
     invertArrows: boolean;
@@ -239,6 +241,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Links
     linksSameColorAsNode: false,
+    excludedSourcesFolder: [],
+    excludedTargetsFolder: [],
 
     // Arrows
     invertArrows: false,

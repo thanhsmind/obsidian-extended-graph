@@ -1,6 +1,6 @@
-import { Setting } from "obsidian";
+import { ButtonComponent, Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { canonicalizeVarName, ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
+import { canonicalizeVarName, ExcludeFoldersModal, ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -13,7 +13,44 @@ export class SettingLinks extends SettingInteractives {
     protected override addBody(): void {
         super.addBody();
 
-        // Remove sources
+        this.addExcludeFolders();
+        this.addDisableSources();
+        this.addDisableTargets();
+        this.addShowOnGraph();
+        this.addCurvedLinks();
+    }
+
+    private addExcludeFolders() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.excludeSourceFolders)
+            .setDesc(STRINGS.features.excludeSourceFoldersDesc)
+            .addButton(cb => {
+                this.setManageNumber(cb, PluginInstances.settings.excludedSourcesFolder.length);
+                cb.onClick(() => {
+                    const modal = new ExcludeFoldersModal(PluginInstances.settings.excludedSourcesFolder);
+                    modal.open();
+                    modal.onClose = () => this.setManageNumber(cb, PluginInstances.settings.excludedSourcesFolder.length);
+                });
+            }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.excludeTargetFolders)
+            .setDesc(STRINGS.features.excludeTargetFoldersDesc)
+            .addButton(cb => {
+                this.setManageNumber(cb, PluginInstances.settings.excludedTargetsFolder.length);
+                cb.onClick(() => {
+                    const modal = new ExcludeFoldersModal(PluginInstances.settings.excludedTargetsFolder);
+                    modal.open();
+                    modal.onClose = () => this.setManageNumber(cb, PluginInstances.settings.excludedTargetsFolder.length);
+                });
+            }).settingEl);
+    }
+
+    private setManageNumber(cb: ButtonComponent, n: number): void {
+        cb.setButtonText(`${STRINGS.controls.manage} (${n})`);
+    }
+
+    private addDisableSources() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.removeSources)
             .setDesc(STRINGS.features.removeSourcesDesc)
@@ -33,8 +70,9 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+    }
 
-        // Add sources
+    private addDisableTargets() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.removeTargets)
             .setDesc(STRINGS.features.removeTargetsDesc)
@@ -54,8 +92,9 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+    }
 
-        // Show on graph
+    private addShowOnGraph() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.interactives.colorLinks)
             .setDesc(STRINGS.features.interactives.colorLinksDesc)
@@ -66,8 +105,9 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+    }
 
-        // Curved links
+    private addCurvedLinks() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.interactives.curvedLinks)
             .setDesc(STRINGS.features.interactives.curvedLinksDesc)

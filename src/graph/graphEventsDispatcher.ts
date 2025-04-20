@@ -1,8 +1,9 @@
 import { Component, Menu, TFile } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Graphics, Text } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, StatesUI, TAG_KEY } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, regExpFromString, StatesUI, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
+import { isRegExp } from "util/types";
 
 export class GraphEventsDispatcher extends Component {
 
@@ -363,9 +364,30 @@ export class GraphEventsDispatcher extends Component {
         nodesToRemove = [];
 
         // Filter out links
+        const matchFolder = (file: string, folder: string): boolean => {
+            return regExpFromString(folder)?.test(file) ?? file.startsWith(folder);
+        };
+
         for (const [source, node] of Object.entries(data.nodes)) {
+            if (Object.keys(node.links).length === 0) continue;
+
             const file = getFile(source);
             if (file) {
+                // Filter out based on source folders
+                if (this.instances.settings.excludedSourcesFolder.find(folder => matchFolder(source, folder))) {
+                    node.links = {};
+                    continue;
+                }
+                // Filter out based on target folders
+                const targets = Object.keys(node.links);
+                for (const target of targets) {
+                    if (this.instances.settings.excludedTargetsFolder.find(folder => matchFolder(target, folder))) {
+                        delete node.links[target];
+                    }
+                }
+                if (Object.keys(node.links).length) continue;
+
+                // Filter out based on types
                 for (const [key, manager] of this.instances.linksSet.managers) {
                     const typedLinks = getOutlinkTypes(this.instances.settings, file); // id -> types
                     const validTypedLinks = new Map([...typedLinks.entries()].reduce((acc: [string, Set<string>][], curr: [string, Set<string>]) => {
@@ -446,14 +468,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onRendered() {
-        // If the color groups have changed, recolor the nodes and reset to false once it's done
-        /*if (this.instances.colorGroupHaveChanged) {
-            for (const [id, extendedElement] of this.instances.nodesSet.extendedElementsMap) {
-                extendedElement.graphicsWrapper?.updateFillColor();
-            }
-            this.instances.colorGroupHaveChanged = false;
-        }*/
-
         // If nodes need to be pinned because we just changed the state and new nodes were added
         if (this.instances.statePinnedNodes) {
             const pinner = new Pinner(this.instances);

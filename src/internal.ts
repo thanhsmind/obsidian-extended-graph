@@ -89,6 +89,7 @@ export * from "./settings/settingInteractives/settingLinks";
 export * from "./settings/settingInteractives/settingFolders";
 export * from "./settings/components/settingColorPalette";
 
+export * from "./suggester/FoldersSuggester";
 export * from "./suggester/InteractivesSuggester";
 export * from "./suggester/NodeNamesSuggester";
 export * from "./suggester/PropertiesSuggester";
@@ -109,6 +110,7 @@ export * from "./ui/graphControl/GCSection";
 export * from "./ui/graphControl/GCOptions";
 export * from "./ui/graphControl/GCFolders";
 
+export * from "./ui/modals/excludeFoldersModal";
 export * from "./ui/modals/exportSVGOptionsModal";
 export * from "./ui/modals/gradientPickerModal";
 export * from "./ui/modals/interactivesSelectionModal";

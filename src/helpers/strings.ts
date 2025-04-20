@@ -6,8 +6,17 @@ export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
 
-export function isNumber(value: string) {
+export function isNumber(value: string): boolean {
     return /^\d+(\.\d+)?$/.test(value);
+}
+
+export function isRegex(value: string): boolean {
+    return value.length > 2 && value.startsWith("/") && value.endsWith("/");
+}
+
+export function regExpFromString(value: string): RegExp | undefined {
+    if (!isRegex(value)) return;
+    return new RegExp(value.slice(1, value.length - 1));
 }
 
 export function isPropertyKeyValid(key: string): boolean {

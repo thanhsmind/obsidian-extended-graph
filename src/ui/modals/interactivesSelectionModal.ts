@@ -1,5 +1,5 @@
 import { Modal, TextComponent } from "obsidian";
-import { getFileInteractives, PluginInstances } from "src/internal";
+import { PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class InteractivesSelectionModal extends Modal {
