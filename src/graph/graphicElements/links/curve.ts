@@ -1,4 +1,4 @@
-import { IDestroyOptions, Graphics } from "pixi.js";
+import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
 import { ExtendedGraphLink, int2rgb, InteractiveManager, lengthQuadratic, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
 
 
@@ -7,7 +7,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
     types: Set<string>;
     name: string;
     targetAlpha: number = 0.6;
-    color: Uint8Array;
+    color: ColorSource;
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
     activeType: string | undefined;
@@ -25,7 +25,18 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.activeType = this.extendedLink.getActiveType(this.manager.name);
         if (!this.activeType) return;
         const overrideColor = this.extendedLink.getStrokeColor();
-        this.color = overrideColor !== undefined ? int2rgb(overrideColor) : this.manager.getColor(this.activeType);
+        if (overrideColor !== undefined) {
+            this.color = overrideColor;
+        }
+        else if (this.extendedLink.instances.settings.interactiveSettings[this.manager.name].showOnGraph) {
+            this.color = this.manager.getColor(this.activeType);
+        }
+        else if (this.extendedLink.coreElement.line) {
+            this.color = this.extendedLink.coreElement.line.tint
+        }
+        else {
+            this.color = this.extendedLink.coreElement.renderer.colors.line.rgb;
+        }
         this.redraw();
     }
 

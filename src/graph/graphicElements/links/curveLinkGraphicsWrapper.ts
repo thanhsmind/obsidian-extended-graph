@@ -17,8 +17,11 @@ export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
 
     createGraphics(): void {
         let layer = 1;
-        for (const [key, manager] of this.extendedElement.instances.linksSet.managers) {
-            if (!this.extendedElement.instances.settings.interactiveSettings[key].showOnGraph) continue;
+        const instances = this.extendedElement.instances;
+        for (const [key, manager] of instances.linksSet.managers) {
+            if (!instances.settings.interactiveSettings[key].showOnGraph
+                && !instances.settings.enableFeatures[instances.type]['curvedLinks']
+            ) continue;
             const validTypes = this.extendedElement.getTypes(key);
             this.createManagerGraphics(manager, validTypes, layer);
             layer++;

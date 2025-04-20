@@ -442,7 +442,11 @@ export class GraphEventsDispatcher extends Component {
         if (this.instances.foldersSet) this.instances.foldersSet.updateGraphics();
 
         // Update the graphics of the links
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links']
+            && (this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph
+                || this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']
+            )
+        ) {
             for (const id of this.instances.linksSet.connectedIDs) {
                 this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.pixiElement.updateFrame();
             }

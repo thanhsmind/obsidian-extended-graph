@@ -54,6 +54,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+            (this.id, "Needs graphics wrapper");
             return true; // Always for curved links
         }
         return false;
@@ -100,7 +101,22 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== LINK COLOR ===============================
 
+    private needToChangeColor(): boolean {
+        if (PluginInstances.settings.enableFeatures[this.instances.type]['links']
+            && PluginInstances.settings.interactiveSettings[LINK_KEY].showOnGraph
+        ) return true;
+
+        if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && PluginInstances.settings.linksColorFunction !== "default"
+        ) return true;
+
+        if (PluginInstances.settings.linksSameColorAsNode) return true;
+
+        return false;
+    }
+
     private proxyLine(): void {
+        if (!this.needToChangeColor()) return;
         const link = this.coreElement
         if (link.line) {
             const getStrokeColor = this.getStrokeColor.bind(this);
