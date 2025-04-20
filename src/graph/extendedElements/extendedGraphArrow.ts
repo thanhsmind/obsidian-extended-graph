@@ -39,7 +39,7 @@ export class ExtendedGraphArrow {
         if (link.arrow) {
 
             let modifyArrow: (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => boolean;
-            if (needToColorArrows) {
+            if (needToColorArrows && this.instances.settings.invertArrows) {
                 modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
                     return this.invertArrow(link, target, prop, value) || this.colorArrow(link, target, prop, value);
                 };
