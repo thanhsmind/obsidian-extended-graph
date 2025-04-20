@@ -89,9 +89,9 @@ export class InteractiveManager extends Component {
         const colorsMaps = new Map<string, Uint8Array>();
         const allTypes = new Set<string>([...this.interactives.keys(), ...types].sort());
         const allTypesWithoutNone = new Set<string>(allTypes);
-        allTypesWithoutNone.delete(PluginInstances.settings.interactiveSettings[this.name].noneType);
+        allTypesWithoutNone.delete(this.instances.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
-            if (INVALID_KEYS[this.name]?.includes(type) || PluginInstances.settings.interactiveSettings[this.name].unselected.includes(type)) {
+            if (INVALID_KEYS[this.name]?.includes(type) || this.instances.settings.interactiveSettings[this.name].unselected.includes(type)) {
                 return;
             }
             if (this.interactives.has(type)) return;
@@ -124,7 +124,7 @@ export class InteractiveManager extends Component {
 
     getTypesWithoutNone(): string[] {
         const types = this.getTypes();
-        types.remove(PluginInstances.settings.interactiveSettings[this.name].noneType);
+        types.remove(this.instances.settings.interactiveSettings[this.name].noneType);
         return types;
     }
 
@@ -149,16 +149,16 @@ export class InteractiveManager extends Component {
 
     private tryComputeColorFromType(type: string): Uint8Array | null {
         let color: Uint8Array;
-        const colorSettings = PluginInstances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
+        const colorSettings = this.instances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
         if (colorSettings) {
             color = hex2rgb(colorSettings);
         }
-        else if (type === PluginInstances.settings.interactiveSettings[this.name].noneType) {
+        else if (type === this.instances.settings.interactiveSettings[this.name].noneType) {
             color = NONE_COLOR;
         }
         else {
             const allTypesWithoutNone = [...this.interactives.keys()];
-            allTypesWithoutNone.remove(PluginInstances.settings.interactiveSettings[this.name].noneType);
+            allTypesWithoutNone.remove(this.instances.settings.interactiveSettings[this.name].noneType);
             const nColors = allTypesWithoutNone.length;
             const i = allTypesWithoutNone.indexOf(type);
             if (i < 0) {
@@ -172,6 +172,6 @@ export class InteractiveManager extends Component {
 
     private computeColorFromIndex(index: number, nColors: number) {
         const x = index / nColors;
-        return getColor(PluginInstances.settings.interactiveSettings[this.name].colormap, x);
+        return getColor(this.instances.settings.interactiveSettings[this.name].colormap, x);
     }
 }

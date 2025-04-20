@@ -603,7 +603,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault) {
+        if (this.instances.settings.interactiveSettings[LINK_KEY].enableByDefault) {
             colorMaps.forEach((color, type) => {
                 this.instances.linksSet.updateTypeColor(LINK_KEY, type, color);
             });
@@ -631,7 +631,7 @@ export class GraphEventsDispatcher extends Component {
             }
         }
         // Update Graph is needed
-        if (PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault && this.instances.foldersSet) {
+        if (this.instances.settings.interactiveSettings[FOLDER_KEY].enableByDefault && this.instances.foldersSet) {
             for (const [path, color] of colorMaps) {
                 this.instances.foldersSet.loadFolder(FOLDER_KEY, path);
             }

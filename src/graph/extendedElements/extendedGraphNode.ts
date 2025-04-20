@@ -68,7 +68,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (!(this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
             && (this.radius === NodeShape.RADIUS)
             && !(this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
-                && PluginInstances.settings.nodesSizeFunction !== "default")) {
+                && this.instances.settings.nodesSizeFunction !== "default")) {
             return;
         }
 

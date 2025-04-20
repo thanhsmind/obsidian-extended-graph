@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js"
 import { GraphLink } from "obsidian-typings";
-import { GraphInstances, PluginInstances } from "src/internal";
+import { GraphInstances, PluginInstances, SettingQuery } from "src/internal";
 
 export class ExtendedGraphArrow {
     coreElement: GraphLink;
@@ -28,9 +28,10 @@ export class ExtendedGraphArrow {
     }
 
     private proxyArrow(): void {
+        const needToColorArrows = SettingQuery.needToChangeLinkColor(this.instances);
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
             || (!this.instances.settings.invertArrows
-                && !this.instances.settings.colorArrows
+                && !needToColorArrows
             )) return;
 
 
@@ -38,7 +39,7 @@ export class ExtendedGraphArrow {
         if (link.arrow) {
 
             let modifyArrow: (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => boolean;
-            if (this.instances.settings.invertArrows && this.instances.settings.colorArrows) {
+            if (needToColorArrows) {
                 modifyArrow = (link: GraphLink, target: Graphics, prop: string | symbol, value: any) => {
                     return this.invertArrow(link, target, prop, value) || this.colorArrow(link, target, prop, value);
                 };

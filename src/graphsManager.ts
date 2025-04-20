@@ -730,10 +730,10 @@ export class GraphsManager extends Component {
     }
 
     changeActiveFile(file: TFile | null): void {
-        if (!PluginInstances.settings.enableFeatures['graph']['focus']) return;
         if (!this.activeFile && !file) return;
 
         for (const instances of this.allInstances.values()) {
+            if (!instances.settings.enableFeatures['graph']['focus']) return;
             if (instances.type !== "graph") continue;
             this.deEmphasizePreviousActiveFile(instances);
             this.emphasizeActiveFile(instances, file);

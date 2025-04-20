@@ -1,6 +1,6 @@
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, LINK_KEY, PluginInstances, rgb2int } from "src/internal";
+import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, LINK_KEY, PluginInstances, rgb2int, SettingQuery } from "src/internal";
 
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
@@ -19,7 +19,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     private needToModifyArrow(): boolean {
         return this.instances.settings.enableFeatures[this.instances.type]['arrows']
             && (this.instances.settings.invertArrows || this.instances.settings.flatArrows
-                || this.instances.settings.colorArrows || this.instances.settings.opaqueArrows);
+                || this.instances.settings.opaqueArrows);
     }
 
 
@@ -102,22 +102,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================== LINK COLOR ===============================
 
-    private needToChangeColor(): boolean {
-        if (PluginInstances.settings.enableFeatures[this.instances.type]['links']
-            && PluginInstances.settings.interactiveSettings[LINK_KEY].showOnGraph
-        ) return true;
-
-        if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            && PluginInstances.settings.linksColorFunction !== "default"
-        ) return true;
-
-        if (PluginInstances.settings.linksSameColorAsNode) return true;
-
-        return false;
-    }
-
     private proxyLine(): void {
-        if (!this.needToChangeColor()) return;
+        if (!SettingQuery.needToChangeLinkColor(this.instances)) return;
         const link = this.coreElement
         if (link.line) {
             const getStrokeColor = this.getStrokeColor.bind(this);
@@ -149,8 +135,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         let color: number | undefined;
 
         // From type
-        if (PluginInstances.settings.enableFeatures[this.instances.type]['links']
-            && PluginInstances.settings.interactiveSettings[LINK_KEY].showOnGraph
+        if (this.instances.settings.enableFeatures[this.instances.type]['links']
+            && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph
         ) {
             const manager = this.managers.get(LINK_KEY);
             const type = this.getActiveType(LINK_KEY);
@@ -171,9 +157,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
 
         // From source node
-        if (PluginInstances.settings.linksSameColorAsNode) {
-            if (PluginInstances.settings.enableFeatures[this.instances.type]['arrows']
-                && PluginInstances.settings.invertArrows
+        if (this.instances.settings.linksSameColorAsNode) {
+            if (this.instances.settings.enableFeatures[this.instances.type]['arrows']
+                && this.instances.settings.invertArrows
             ) {
                 color = this.coreElement.target.getFillColor().rgb;
             }

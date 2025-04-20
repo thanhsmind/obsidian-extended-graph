@@ -1,4 +1,4 @@
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphStateData, GraphType, LinkStatFunction, NodeStatFunction, PinShapeData, QueryData } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphInstances, GraphStateData, GraphType, LINK_KEY, LinkStatFunction, NodeStatFunction, PinShapeData, PluginInstances, QueryData } from "src/internal";
 
 
 type InteractiveSettings = {
@@ -86,7 +86,6 @@ export interface ExtendedGraphSettings {
     // Arrows
     invertArrows: boolean;
     flatArrows: boolean;
-    colorArrows: boolean;
     opaqueArrows: boolean;
 
     // Names
@@ -244,7 +243,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Arrows
     invertArrows: false,
     flatArrows: false,
-    colorArrows: true,
     opaqueArrows: false,
 
     // Names
@@ -268,3 +266,18 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     collapseLegend: true,
 };
 
+export class SettingQuery {
+    static needToChangeLinkColor(instances: GraphInstances): boolean {
+        if (instances.settings.enableFeatures[instances.type]['links']
+            && instances.settings.interactiveSettings[LINK_KEY].showOnGraph
+        ) return true;
+
+        if (instances.settings.enableFeatures[instances.type]['elements-stats']
+            && instances.settings.linksColorFunction !== "default"
+        ) return true;
+
+        if (instances.settings.linksSameColorAsNode) return true;
+
+        return false;
+    }
+}
