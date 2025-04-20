@@ -10,7 +10,12 @@ export class FoldersSuggester extends AbstractFormattingSuggester {
 
     protected override getStringSuggestions(query: string): string[] {
         return PluginInstances.app.vault.getAllFolders()
-            .map(folder => folder.path);
+            .reduce((acc: string[], folder) => {
+                if (folder.path.toLowerCase().includes(query.toLowerCase())) {
+                    acc.push(folder.path);
+                }
+                return acc;
+            }, []);
     }
 
     override selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {

@@ -8,19 +8,20 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
 
     protected getSuggestions(query: string): HTMLElement[] {
         return this.getStringSuggestions(query).sort().map(value => {
-            const split = value.split(query);
+            const match = new RegExp(query, "i").exec(value);
             const el = createDiv();
-            if (query === "") {
+            if (match && match[0].length > 0) {
+                if (match.index > 0) {
+                    el.appendText(value.substring(0, match.index));
+                }
+                el.createEl("strong", { cls: "suggestion-highlight" }, strong => strong.setText(match[0]));
+                if (match.index + match[0].length < value.length) {
+                    el.appendText(value.substring(match.index + match[0].length));
+                }
+            }
+            else {
                 el.setText(value);
-                return el;
             }
-            for (let i = 0; i < split.length - 1; ++i) {
-                el.appendText(split[i]);
-                const strong = createEl("strong");
-                strong.setText(query);
-                el.appendChild(strong);
-            }
-            el.appendText(split.last() ?? '');
             return el;
         });
     }
@@ -28,8 +29,8 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
     protected abstract getStringSuggestions(query: string): string[];
 
     renderSuggestion(value: HTMLElement, el: HTMLElement): void {
-        value.childNodes.forEach((childNode) => {
-            el.appendChild(childNode.cloneNode(true));
-        });
+        for (const suggestionNode of Array.from(value.childNodes)) {
+            el.appendChild(suggestionNode);
+        }
     }
 }
