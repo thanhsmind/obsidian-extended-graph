@@ -63,21 +63,18 @@ export class GraphsManager extends Component {
 
         this.registerEvent(PluginInstances.app.workspace.on('layout-change', () => {
             if (!this.isCoreGraphLoaded()) return;
-            console.log("LAYOUT CHANGE");
             PluginInstances.plugin.onLayoutChange();
         }));
 
         this.onActiveLeafChange = this.onActiveLeafChange.bind(this);
         this.registerEvent(PluginInstances.app.workspace.on('active-leaf-change', (leaf) => {
             if (!this.isCoreGraphLoaded()) return;
-            console.log("ACTIVE LEAF CHANGE", leaf?.id);
             this.onActiveLeafChange(leaf);
         }));
 
         this.onFileOpen = this.onFileOpen.bind(this);
         this.registerEvent(PluginInstances.app.workspace.on('file-open', (file) => {
             if (!this.isCoreGraphLoaded()) return;
-            console.log("FILE OPEN", file?.path);
             this.onFileOpen(file);
         }));
 
@@ -708,7 +705,6 @@ export class GraphsManager extends Component {
             this.changeActiveFile(file);
             if (this.localGraphID) {
                 const localInstances = this.allInstances.get(this.localGraphID);
-                console.log("Reset local graph for", localInstances ? file?.path : undefined);
                 if (localInstances) this.resetPlugin(localInstances.view);
             }
             if (file) {
