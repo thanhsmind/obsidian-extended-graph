@@ -37,7 +37,7 @@ body:
       label: Does the bug disappear if you disable other plugins?
       description: |
         Please, try disabling other plugins and see if the bug is still there.
-        If yes, provide the list of plugins (or attach the file `./obsidian/community-plugin.json`).
+        If it's gone, provide the list of plugins you had (or attach the file `./obsidian/community-plugin.json`).
         If you can narrow done the conflicting plugin(s), it will be easier for me to assist.
     validations:
       required: true
@@ -50,6 +50,15 @@ body:
         - label: Linux
         - label: macOS
         - label: Windows
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Extended Graph Version
+      description: Which Extended Graph version are you using? If you are on a beta version with BRAT, the displayed version in `Community plugins` might not be the correct one. Please check in BRAT which version is installed.
+      placeholder: 2.2.1
+    validations:
+      required: true
 
   - type: input
     id: obsidian-version
