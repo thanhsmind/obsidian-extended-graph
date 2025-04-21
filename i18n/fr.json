@@ -30,6 +30,7 @@
 		"pageCurrent": "Page actuelle",
 		"pageFirst": "Première page",
 		"pageLast": "Dernière page",
+		"pathRegexPlaceholder": "Entrer un chemin ou un \"/regex/\"...",
 		"resetGraph": "Réinitialiser le graphe",
 		"save": "Sauvegarder",
 		"show": "Montrer",

@@ -10,15 +10,6 @@ export function isNumber(value: string): boolean {
     return /^\d+(\.\d+)?$/.test(value);
 }
 
-export function isRegex(value: string): boolean {
-    return value.length > 2 && value.startsWith("/") && value.endsWith("/");
-}
-
-export function regExpFromString(value: string): RegExp | undefined {
-    if (!isRegex(value)) return;
-    return new RegExp(value.slice(1, value.length - 1));
-}
-
 export function isPropertyKeyValid(key: string): boolean {
     if (key.contains(":")) {
         new Notice(STRINGS.notices.invalidCharacter + " ':'");
@@ -52,6 +43,72 @@ export function getListOfSubpaths(fullpath: string): string[] {
 export function isEmoji(str: string): boolean {
     return emojiRegex().test(str);
     //return /^[\p{Extended_Pictographic}\p{Emoji_Component}]+$/gu.test(str);
+}
+
+function regexpToValidateRegexp(): RegExp {
+    return /(\/)(.+)\1([a-z]*)/i;
+}
+
+export function isRegex(value: string): boolean {
+    return regexpToValidateRegexp().test(value);
+}
+
+export function regExpFromString(value: string): RegExp | null {
+    const match = value.match(regexpToValidateRegexp());
+    if (match === null) {
+        return null;
+    }
+    return new RegExp(match[2], match[3]);
+}
+
+export function testRegexRegex(): void {
+    const obj: Record<string, RegExp | null> = {
+        "without flags": null,
+        "/something/gi": new RegExp("something", "gi"),
+        "/with\/slashes\//gi": new RegExp("with\/slashes\/", "gi"),
+        "/with \/some\/(.*)regex/gi": new RegExp("with \/some\/(.*)regex", "gi"),
+        "/^dummy.*[a-z]$/gmi": new RegExp("^dummy.*[a-z]$", "gmi"),
+        "raw input": null,
+        "/singlehash": null,
+        "single/hash": null
+    };
+
+    const re = /(\/)(.+)\1([a-z]*)/i;
+
+    for (const s in obj) {
+        try {
+            const c = obj[s];
+            const m = s.match(re);
+            if (m === null && c === null) {
+                console.debug("> Input: " + s);
+                console.info("Not a regex");
+                continue;
+            }
+            if (m === null) {
+                console.error("null result for " + s);
+                continue;
+            }
+            if (c === null) {
+                console.debug("> Input: " + s);
+                console.debug("  Pattern: " + m[2]);
+                console.debug("  Flags: " + m[3]);
+                console.error("But should be null");
+                continue;
+            }
+            console.debug("> Input: " + s);
+            console.debug("  Pattern: " + m[2]);
+            console.debug("  Flags: " + m[3]);
+            console.debug("  Match array: ", m);
+            const r = new RegExp(m[2], m[3]);
+            if (r.toString() !== c.toString()) {
+                console.error("Incorrect parsing for: " + s + ". Expected " + c.toString() + " but got " + r.toString());
+            } else {
+                console.info("Correct parsing for: " + s);
+            }
+        } catch (e) {
+            console.error("!!!! Failed to parse: " + s + "\n" + e.stack);
+        }
+    }
 }
 
 

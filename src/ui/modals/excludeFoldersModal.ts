@@ -66,6 +66,7 @@ export class ExcludeFoldersModal extends Modal {
             .then(setting => {
                 setting.setDesc(STRINGS.plugin.filter)
                     .addSearch(search => {
+                        search.setPlaceholder(STRINGS.controls.pathRegexPlaceholder);
                         new FoldersSuggester(search.inputEl, (value: string) => {
                             this.add(search);
                         });

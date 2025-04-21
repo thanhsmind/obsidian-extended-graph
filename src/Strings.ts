@@ -31,6 +31,7 @@ export default class STRINGS {
 		pageCurrent: "Current page",
 		pageFirst: "First page",
 		pageLast: "Last page",
+		pathRegexPlaceholder: "Enter path or \"/regex/\"...",
 		resetGraph: "Reset graph",
 		save: "Save",
 		show: "Show",
