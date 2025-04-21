@@ -369,22 +369,27 @@ export class GraphEventsDispatcher extends Component {
         };
 
         for (const [source, node] of Object.entries(data.nodes)) {
+            // @ts-ignore
             if (Object.keys(node.links).length === 0) continue;
 
             const file = getFile(source);
             if (file) {
                 // Filter out based on source folders
                 if (this.instances.settings.excludedSourcesFolder.find(folder => matchFolder(source, folder))) {
+                    // @ts-ignore
                     node.links = {};
                     continue;
                 }
                 // Filter out based on target folders
+                // @ts-ignore
                 const targets = Object.keys(node.links);
                 for (const target of targets) {
                     if (this.instances.settings.excludedTargetsFolder.find(folder => matchFolder(target, folder))) {
+                        // @ts-ignore
                         delete node.links[target];
                     }
                 }
+                // @ts-ignore
                 if (Object.keys(node.links).length) continue;
 
                 // Filter out based on types
