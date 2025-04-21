@@ -1,4 +1,21 @@
-import { DEFAULT_STATE_ID, EngineOptions, Feature, GraphInstances, GraphStateData, GraphType, LINK_KEY, LinkStatFunction, NodeStatFunction, PinShapeData, PluginInstances, QueryData } from "src/internal";
+
+import { features } from "process";
+import {
+    DEFAULT_STATE_ID,
+    EngineOptions,
+    Feature,
+    FOLDER_KEY,
+    GraphInstances,
+    GraphStateData,
+    GraphType,
+    LINK_KEY,
+    LinkStatFunction,
+    NodeStatFunction,
+    PinShapeData,
+    PluginInstances,
+    QueryData,
+    TAG_KEY
+} from "src/internal";
 
 
 type InteractiveSettings = {
@@ -26,6 +43,9 @@ export type ExportSVGOptions = {
 }
 
 export interface ExtendedGraphSettings {
+    // Feature toggles
+    enableFeatures: Record<GraphType, Record<Feature, boolean>>;
+
     // Interactive settings
     interactiveSettings: { [interactive: string]: InteractiveSettings };
     additionalProperties: { [interactive: string]: { graph: boolean, localgraph: boolean } };
@@ -60,17 +80,8 @@ export interface ExtendedGraphSettings {
     maxNodes: number;
     delay: number;
 
-    // Feature toggles
-    enableFeatures: Record<GraphType, Record<Feature, boolean>>;
-
     // Shapes
     shapeQueries: Record<string, QueryData>;
-
-    // Last multiple nodes data
-    multipleNodesData: {
-        shapeData?: PinShapeData,
-        queryData?: QueryData
-    };
 
     // Export SVG
     exportSVGOptions: ExportSVGOptions;
@@ -81,9 +92,11 @@ export interface ExtendedGraphSettings {
     borderUnresolved: number | string;
 
     // Links
-    linksSameColorAsNode: boolean;
+    disableSource: boolean;
+    disableTarget: boolean;
     excludedSourcesFolder: string[];
     excludedTargetsFolder: string[];
+    curvedLinks: boolean;
 
     // Arrows
     invertArrows: boolean;
@@ -109,6 +122,13 @@ export interface ExtendedGraphSettings {
     // Internal settings (not set by the user)
     collapseState: boolean;
     collapseLegend: boolean;
+    resetAfterChanges: boolean;
+
+    // Last multiple nodes data
+    multipleNodesData: {
+        shapeData?: PinShapeData,
+        queryData?: QueryData
+    };
 }
 
 export const DEFAULT_STATE_SETTINGS = {
@@ -120,6 +140,46 @@ export const DEFAULT_STATE_SETTINGS = {
 
 let shapeQueriesIndex = 0;
 export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
+    // Feature toggles
+    enableFeatures: {
+        'graph': {
+            'auto-enabled': false,
+            'tags': false,
+            'properties': false,
+            'property-key': true,
+            'links': false,
+            'linksSameColorAsNode': false,
+            'folders': false,
+            'imagesFromProperty': false,
+            'imagesFromEmbeds': false,
+            'imagesForAttachments': false,
+            'focus': true,
+            'shapes': false,
+            'elements-stats': true,
+            'names': false,
+            'icons': false,
+            'arrows': false,
+        },
+        'localgraph': {
+            'auto-enabled': false,
+            'tags': false,
+            'properties': false,
+            'property-key': false,
+            'links': false,
+            'linksSameColorAsNode': false,
+            'folders': false,
+            'imagesFromProperty': false,
+            'imagesFromEmbeds': false,
+            'imagesForAttachments': false,
+            'focus': false,
+            'shapes': false,
+            'elements-stats': false,
+            'names': false,
+            'icons': false,
+            'arrows': false,
+        }
+    },
+
     // Interactive settings
     interactiveSettings: {},
     additionalProperties: {},
@@ -154,50 +214,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     maxNodes: 20,
     delay: 500,
 
-    // Feature toggles
-    enableFeatures: {
-        'graph': {
-            'auto-enabled': false,
-            'tags': false,
-            'properties': false,
-            'property-key': true,
-            'links': false,
-            'curvedLinks': false,
-            'folders': false,
-            'imagesFromProperty': false,
-            'imagesFromEmbeds': false,
-            'imagesForAttachments': false,
-            'focus': true,
-            'shapes': false,
-            'source': false,
-            'target': false,
-            'elements-stats': true,
-            'names': false,
-            'icons': false,
-            'arrows': false,
-        },
-        'localgraph': {
-            'auto-enabled': false,
-            'tags': true,
-            'properties': false,
-            'property-key': true,
-            'links': true,
-            'curvedLinks': false,
-            'folders': false,
-            'imagesFromProperty': true,
-            'imagesFromEmbeds': false,
-            'imagesForAttachments': false,
-            'focus': false,
-            'shapes': true,
-            'source': false,
-            'target': false,
-            'elements-stats': true,
-            'names': false,
-            'icons': false,
-            'arrows': false,
-        }
-    },
-
     // Shapes
     shapeQueries: {
         'circle': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
@@ -215,34 +231,17 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'star10': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
     },
 
-    // Last multiple nodes data
-    multipleNodesData: {},
-
-    // Export SVG
-    exportSVGOptions: {
-        asImage: true,
-        // Core options
-        onlyVisibleArea: false,
-        showNodeNames: true,
-        // Extended options
-        useCurvedLinks: false,
-        useModifiedArrows: true,
-        useNodesShapes: false,
-        showArcs: false,
-        showFolders: true,
-        useModifiedNames: true,
-        showIcons: false,
-    },
-
     // Display settings
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
     borderUnresolved: '',
 
     // Links
-    linksSameColorAsNode: false,
+    disableSource: false,
+    disableTarget: false,
     excludedSourcesFolder: [],
     excludedTargetsFolder: [],
+    curvedLinks: false,
 
     // Arrows
     invertArrows: false,
@@ -268,6 +267,26 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Internal settings (not set by the user)
     collapseState: true,
     collapseLegend: true,
+    resetAfterChanges: false,
+
+    // Export SVG
+    exportSVGOptions: {
+        asImage: true,
+        // Core options
+        onlyVisibleArea: false,
+        showNodeNames: true,
+        // Extended options
+        useCurvedLinks: false,
+        useModifiedArrows: true,
+        useNodesShapes: false,
+        showArcs: false,
+        showFolders: true,
+        useModifiedNames: true,
+        showIcons: false,
+    },
+
+    // Last multiple nodes data
+    multipleNodesData: {},
 };
 
 export class SettingQuery {
@@ -280,8 +299,121 @@ export class SettingQuery {
             && instances.settings.linksColorFunction !== "default"
         ) return true;
 
-        if (instances.settings.linksSameColorAsNode) return true;
+        if (instances.settings.enableFeatures[instances.type]['linksSameColorAsNode'])
+            return true;
 
         return false;
     }
+
+    static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
+        const newSettings = PluginInstances.settings;
+        const oldFeatures = oldSettings.enableFeatures[graphtype];
+        const newFeatures = newSettings.enableFeatures[graphtype];
+
+        const equals = (key: any): boolean => {
+            return JSON.stringify(oldSettings[key as keyof ExtendedGraphSettings])
+                === JSON.stringify(newSettings[key as keyof ExtendedGraphSettings]);
+        }
+
+        // Check if interactive setting are the same
+        if (oldFeatures['tags'] !== newFeatures['tags']) return true;
+        if (newFeatures['tags'] && !deepEquals(oldSettings.interactiveSettings[TAG_KEY], newSettings.interactiveSettings[TAG_KEY]))
+            return true;
+        if (oldFeatures['links'] !== newFeatures['links']) return true;
+        if (newFeatures['links'] && !deepEquals(oldSettings.interactiveSettings[LINK_KEY], newSettings.interactiveSettings[LINK_KEY]))
+            return true;
+        if (oldFeatures['folders'] !== newFeatures['folders']) return true;
+        if (newFeatures['folders'] && !deepEquals(oldSettings.interactiveSettings[FOLDER_KEY], newSettings.interactiveSettings[FOLDER_KEY]))
+            return true;
+
+        if (oldFeatures['properties'] !== newFeatures['properties']) return true;
+        const oldProperties = Object.keys(Object.fromEntries(Object.entries(oldSettings.additionalProperties).filter(p => p[1][graphtype])));
+        const newProperties = Object.keys(Object.fromEntries(Object.entries(newSettings.additionalProperties).filter(p => p[1][graphtype])));
+        if (!deepEquals(oldProperties, newProperties)) return true;
+        const oldPropertiesSettings = oldProperties.map(p => oldSettings.interactiveSettings[p]);
+        const newPropertiesSettings = newProperties.map(p => newSettings.interactiveSettings[p]);
+        if (!deepEquals(oldPropertiesSettings, newPropertiesSettings)) return true;
+
+        // Links
+        if (newFeatures['links']) {
+            if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks', 'disableSource', 'disableTarget'].some(key => !equals(key)))
+                return true;
+        }
+
+
+        // Image settings
+        const imageFeatures: Feature[] = ['imagesForAttachments', 'imagesFromEmbeds', 'imagesFromProperty'];
+        if (imageFeatures.some(f => oldFeatures[f] !== newFeatures[f]))
+            return true;
+        if (newFeatures['imagesFromProperty'] && !equals('imageProperty'))
+            return true;
+        if (imageFeatures.some(feature => newFeatures[feature])) {
+            if (['borderFactor', 'allowExternalImages', 'allowExternalLocalImages'].some(key => !equals(key)))
+                return true;
+        }
+
+        // Stats
+        if (newFeatures['elements-stats'] !== oldFeatures['elements-stats'])
+            return true;
+        if (newFeatures['elements-stats']) {
+            if (['nodesSizeProperty', 'nodesSizeFunction', 'linksSizeFunction'].some(key => !equals(key)))
+                return true;
+        }
+
+        // Shapes
+        if (newFeatures['shapes'] !== oldFeatures['shapes'])
+            return true;
+        if (newFeatures['shapes']) {
+            if (!equals('shapeQueries'))
+                return true;
+        }
+
+        // Arrows
+        if (newFeatures['arrows'] !== oldFeatures['arrows'])
+            return true;
+        if (newFeatures['arrows']) {
+            if (['invertArrows', 'flatArrows', 'opaqueArrows'].some(k => !equals(k)))
+                return true;
+        }
+
+        // Names
+        if (newFeatures['names'] !== oldFeatures['names'])
+            return true;
+        if (newFeatures['names']) {
+            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertyForName', 'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont'].some(k => !equals(k)))
+                return true;
+            if (!oldSettings.dynamicVerticalOffset && !newSettings.dynamicVerticalOffset) {
+                if (!equals('nameVerticalOffset'))
+                    return true;
+            }
+        }
+
+        // Icons
+        if (newFeatures['icons'] !== oldFeatures['icons'])
+            return true;
+        if (newFeatures['arrows']) {
+            if (['iconProperty', 'usePluginForIcon'].some(k => !equals(k)))
+                return true;
+            if (oldSettings.usePluginForIcon && newSettings.usePluginForIcon) {
+                if (['usePluginForIconColor', 'useParentIcon'].some(k => !equals(k)))
+                    return true;
+            }
+        }
+
+        // Display settings
+        if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])
+            return true;
+        if (['fadeOnDisable', 'borderUnresolved'].some(key => !equals(key)))
+            return true;
+
+        return false;
+    }
+}
+
+function deepEquals(x: any, y: any): boolean {
+    const ok = Object.keys, tx = typeof x, ty = typeof y;
+    return x && y && tx === 'object' && tx === ty ? (
+        ok(x).length === ok(y).length &&
+        ok(x).every(key => deepEquals(x[key], y[key]))
+    ) : (x === y);
 }

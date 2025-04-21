@@ -198,7 +198,7 @@ export class GraphEventsDispatcher extends Component {
             || !this.instances.settings.opaqueArrows
         ) return;
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
-            && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']
+            && this.instances.settings.curvedLinks
         ) return;
 
         this.coreArrowAlpha = this.instances.renderer.colors.arrow.a;
@@ -413,10 +413,10 @@ export class GraphEventsDispatcher extends Component {
                             delete node.links[target];
 
                             // Remove source or target if settings enabled
-                            if (this.instances.settings.enableFeatures[this.instances.type]['source']) {
+                            if (this.instances.settings.disableSource) {
                                 nodesToRemove.push(source);
                             }
-                            if (this.instances.settings.enableFeatures[this.instances.type]['target']) {
+                            if (this.instances.settings.disableTarget) {
                                 nodesToRemove.push(target);
                             }
                         }
@@ -485,7 +485,7 @@ export class GraphEventsDispatcher extends Component {
         // Update the graphics of the links
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
             && (this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph
-                || this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']
+                || this.instances.settings.curvedLinks
             )
         ) {
             for (const id of this.instances.linksSet.connectedIDs) {

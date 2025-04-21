@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, MarkdownView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -573,7 +573,7 @@ export class GraphsManager extends Component {
 
     updateSizeFunctionForLinksStat(): void {
         for (const [leafID, instances] of this.allInstances) {
-            if (!instances.settings.enableFeatures[instances.type]['curvedLinks']) {
+            if (!instances.settings.curvedLinks) {
                 for (const [id, extendedLink] of instances.linksSet.extendedElementsMap) {
                     extendedLink.changeCoreLinkThickness();
                 }
@@ -699,6 +699,13 @@ export class GraphsManager extends Component {
     }
 
     // ============================= RESET PLUGIN ==============================
+
+    resetAllPlugins(graphtype: GraphType) {
+        const views = [...this.allInstances.values()].filter(i => i.type === graphtype).map(i => i.view);
+        for (const view of views) {
+            this.resetPlugin(view);
+        }
+    }
 
     resetPlugin(view: GraphView | LocalGraphView): void {
         const instances = this.allInstances.get(view.leaf.id);

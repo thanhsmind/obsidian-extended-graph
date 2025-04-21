@@ -101,7 +101,6 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     protected override onCollapse(): void {
-        console.log(this.addButton);
         this.addButton?.buttonEl.hide();
     }
 

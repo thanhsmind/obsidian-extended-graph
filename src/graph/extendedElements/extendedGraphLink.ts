@@ -54,7 +54,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
 
     protected override needGraphicsWrapper(): boolean {
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks) {
             (this.id, "Needs graphics wrapper");
             return true; // Always for curved links
         }
@@ -76,7 +76,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             && PluginInstances.settings.linksSizeFunction !== "default"
             && (
                 (PluginInstances.settings.enableFeatures[this.instances.type]['links']
-                    && !this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'])
+                    && !this.instances.settings.curvedLinks)
                 || (!PluginInstances.settings.enableFeatures[this.instances.type]['links']))) {
             this.coreElement.px.scale.y = this.getThicknessScale();
         }
@@ -157,7 +157,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
 
         // From source node
-        if (this.instances.settings.linksSameColorAsNode) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['linksSameColorAsNode']) {
             if (this.instances.settings.enableFeatures[this.instances.type]['arrows']
                 && this.instances.settings.invertArrows
             ) {
@@ -189,7 +189,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     protected override getCoreParentGraphics(coreElement: GraphLink): Container | null {
-        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+        if (this.instances.settings.curvedLinks) {
             return coreElement.px;
         }
         else {
@@ -221,7 +221,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     override disable(): void {
         super.disable();
         this.extendedArrow?.unload();
-        if (this.instances.settings.enableFeatures[this.instances.type]['curvedLinks']) {
+        if (this.instances.settings.curvedLinks) {
             this.graphicsWrapper?.disconnect();
         }
     }

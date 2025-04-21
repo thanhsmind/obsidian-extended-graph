@@ -1,14 +1,38 @@
-import { PluginSettingTab, Setting } from "obsidian";
-import { SettingFocus, SettingFolders, SettingImages, SettingLinks, SettingElementsStats, SettingPerformance, SettingPropertiesArray, SettingShapes, SettingsSection, SettingTags, SettingZoom, PluginInstances, graphTypeLabels, SettingNames, SettingIcons, SettingArrows } from "src/internal";
+import { PluginSettingTab, Setting, ToggleComponent } from "obsidian";
+import {
+    SettingFocus,
+    SettingFolders,
+    SettingImages,
+    SettingLinks,
+    SettingElementsStats,
+    SettingPerformance,
+    SettingPropertiesArray,
+    SettingShapes,
+    SettingsSection,
+    SettingTags,
+    SettingZoom,
+    PluginInstances,
+    SettingNames,
+    SettingIcons,
+    SettingArrows,
+    ExtendedGraphSettings,
+    SettingQuery,
+    SettingAutomation,
+    Feature,
+    FeatureSetting
+} from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     sections: SettingsSection[] = [];
+    originalSettings: ExtendedGraphSettings;
+    showResetModalToggle: ToggleComponent;
 
     constructor(plugin: ExtendedGraphPlugin) {
         super(PluginInstances.app, plugin);
 
+        this.sections.push(new SettingAutomation(this));
         this.sections.push(new SettingTags(this));
         this.sections.push(new SettingPropertiesArray(this));
         this.sections.push(new SettingLinks(this));
@@ -25,11 +49,11 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     display(): void {
+        this.originalSettings = structuredClone(PluginInstances.settings);
         this.containerEl.empty();
         this.containerEl.addClass("extended-graph-settings");
 
         this.addNav();
-        this.addAutoEnable();
         this.addDisableNodes();
         this.addBorderUnresolved();
         this.addLinkSameColorAsNodes();
@@ -47,41 +71,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         label.innerText = "Go to";
     }
 
-    private addAutoEnable(): void {
-        new Setting(this.containerEl)
-            .setName(STRINGS.features.autoEnable)
-            .setDesc(STRINGS.features.autoEnableDesc)
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['auto-enabled']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['auto-enabled'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['auto-enabled']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['auto-enabled'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            });
-
-        new Setting(this.containerEl)
-            .setName(STRINGS.states.startingState)
-            .setDesc(STRINGS.states.startingStateDesc)
-            .addDropdown(cb => {
-                cb.addOptions(Object.fromEntries(Object.values(PluginInstances.settings.states).map(data => {
-                    return [data.id, data.name]
-                })));
-                cb.setValue(PluginInstances.settings.startingStateID);
-                cb.onChange(id => {
-                    PluginInstances.settings.startingStateID = id;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-    }
 
     private addDisableNodes() {
         new Setting(this.containerEl)
@@ -116,15 +105,24 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     private addLinkSameColorAsNodes() {
-        new Setting(this.containerEl)
-            .setName(STRINGS.features.linksSameColorAsNode)
-            .setDesc(STRINGS.features.linksSameColorAsNodeDesc)
-            .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.linksSameColorAsNode);
-                cb.onChange(value => {
-                    PluginInstances.settings.linksSameColorAsNode = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            });
+        new FeatureSetting(
+            this.containerEl,
+            STRINGS.features.linksSameColorAsNode,
+            STRINGS.features.linksSameColorAsNodeDesc,
+            'linksSameColorAsNode'
+        );
     }
+
+    hide(): void {
+        if (PluginInstances.graphsManager && PluginInstances.settings.resetAfterChanges) {
+            if (SettingQuery.needReload(this.originalSettings, 'graph')) {
+                PluginInstances.graphsManager.resetAllPlugins('graph');
+            }
+            if (SettingQuery.needReload(this.originalSettings, 'localgraph')) {
+                PluginInstances.graphsManager.resetAllPlugins('localgraph');
+            }
+        }
+        super.hide();
+    }
+
 }

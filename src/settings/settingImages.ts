@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, graphTypeLabels, isPropertyKeyValid, PluginInstances, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, graphTypeLabels, isPropertyKeyValid, PluginInstances, SettingsSection } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingImages extends SettingsSection {
@@ -16,25 +16,12 @@ export class SettingImages extends SettingsSection {
     }
 
     private addImagesFromProperty() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imagesFromProperty)
-            .setDesc(STRINGS.features.imagesFromPropertyDesc)
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesFromProperty']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['imagesFromProperty'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesFromProperty']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['imagesFromProperty'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            }).settingEl);
+        this.elementsBody.push(new FeatureSetting(
+            this.settingTab.containerEl,
+            STRINGS.features.imagesFromProperty,
+            STRINGS.features.imagesFromPropertyDesc,
+            'imagesFromProperty'
+        ).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.imageProperty)
@@ -50,47 +37,21 @@ export class SettingImages extends SettingsSection {
     }
 
     private addImagesFromEmbeds() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imagesFromEmbeds)
-            .setDesc(STRINGS.features.imagesFromEmbedsDesc)
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesFromEmbeds']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['imagesFromEmbeds'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesFromEmbeds']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['imagesFromEmbeds'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            }).settingEl);
+        this.elementsBody.push(new FeatureSetting(
+            this.settingTab.containerEl,
+            STRINGS.features.imagesFromEmbeds,
+            STRINGS.features.imagesFromEmbedsDesc,
+            'imagesFromEmbeds'
+        ).settingEl);
     }
 
     private addImagesForAttachments() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imagesForAttachments)
-            .setDesc(STRINGS.features.imagesForAttachmentsDesc)
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['imagesForAttachments']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['imagesForAttachments'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['imagesForAttachments']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['imagesForAttachments'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            }).settingEl);
+        this.elementsBody.push(new FeatureSetting(
+            this.settingTab.containerEl,
+            STRINGS.features.imagesForAttachments,
+            STRINGS.features.imagesForAttachmentsDesc,
+            'imagesForAttachments'
+        ).settingEl);
     }
 
     private addBorderFactor() {

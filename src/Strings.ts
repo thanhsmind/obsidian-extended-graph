@@ -26,6 +26,7 @@ export default class STRINGS {
 		manage: "Manage",
 		moveUp: "Move up",
 		moveDown: "Move down",
+		no: "No",
 		openLegend: "Open legend (tags, links, properties)",
 		page: "Page",
 		pageCurrent: "Current page",
@@ -35,7 +36,8 @@ export default class STRINGS {
 		resetGraph: "Reset graph",
 		save: "Save",
 		show: "Show",
-		rows: "rows"
+		rows: "rows",
+		yes: "Yes",
 	};
 
 	static errors = {
@@ -54,8 +56,11 @@ export default class STRINGS {
 		arrowsFlatDesc: "Use triangle arrows instead of the default curved ones",
 		arrowsOpaque: "Opaque arrows",
 		arrowsOpaqueDesc: "Remove any transparency from the arrow so they are fully opaque",
+		automation: "Automation",
 		autoEnable: "Auto enable",
 		autoEnableDesc: "Auto enable the plugin in graph views",
+		autoReset: "Reset graph views after changes",
+		autoResetDesc: "Reset the plugin in the graph views where it is enabled, if settings have changed after closing this tab",
 		borderUnresolved: "Border of unresolved nodes",
 		borderUnresolvedDesc: "If between 0 and 1 (excluded), unresolved nodes will only show an outside circle border instead of a full disk",
 		disableNodes: "Disable nodes",

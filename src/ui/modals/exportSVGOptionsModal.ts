@@ -82,7 +82,7 @@ export class ExportSVGOptionModal extends Modal {
 
     private canUseCurvedLinks() {
         if (!this.instances || !this.instances) return false;
-        return this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.enableFeatures[this.instances.type]['curvedLinks'];
+        return this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks;
     }
 
     private addUseModifiedArrows() {

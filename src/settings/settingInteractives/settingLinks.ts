@@ -55,18 +55,9 @@ export class SettingLinks extends SettingInteractives {
             .setName(STRINGS.features.removeSources)
             .setDesc(STRINGS.features.removeSourcesDesc)
             .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['source']);
+                cb.setValue(PluginInstances.settings.disableSource);
                 cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['source'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['source']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['source'] = value;
+                    PluginInstances.settings.disableSource = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
@@ -77,18 +68,9 @@ export class SettingLinks extends SettingInteractives {
             .setName(STRINGS.features.removeTargets)
             .setDesc(STRINGS.features.removeTargetsDesc)
             .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['target']);
+                cb.setValue(PluginInstances.settings.disableTarget);
                 cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['target'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['target']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['target'] = value;
+                    PluginInstances.settings.disableTarget = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
@@ -112,18 +94,9 @@ export class SettingLinks extends SettingInteractives {
             .setName(STRINGS.features.interactives.curvedLinks)
             .setDesc(STRINGS.features.interactives.curvedLinksDesc)
             .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['graph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['graph']['curvedLinks']);
+                cb.setValue(PluginInstances.settings.curvedLinks);
                 cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['graph']['curvedLinks'] = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            })
-            .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', graphTypeLabels['localgraph']);
-                cb.setValue(PluginInstances.settings.enableFeatures['localgraph']['curvedLinks']);
-                cb.onChange(value => {
-                    PluginInstances.settings.enableFeatures['localgraph']['curvedLinks'] = value;
+                    PluginInstances.settings.curvedLinks = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

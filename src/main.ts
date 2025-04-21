@@ -113,6 +113,31 @@ export default class ExtendedGraphPlugin extends Plugin {
             }
         }
 
+        if ("linksSameColorAsNode" in settings) {
+            settings['enableFeatures']['graph']["linksSameColorAsNode"] = settings['linksSameColorAsNode'];
+            settings['enableFeatures']['localgraph']["linksSameColorAsNode"] = settings['linksSameColorAsNode'];
+            delete settings['linksSameColorAsNode'];
+        }
+
+        if ("enableFeatures" in settings) {
+            if ("curvedLinks" in settings['enableFeatures']['graph']) {
+                settings["curvedLinks"] = settings['enableFeatures']['graph']["curvedLinks"];
+            }
+            delete settings['enableFeatures']['graph']["curvedLinks"];
+            delete settings['enableFeatures']['localgraph']["curvedLinks"];
+        }
+
+        if ("source" in settings['enableFeatures']['graph']) {
+            settings["disableSource"] = settings['enableFeatures']['graph']["source"];
+            delete settings['enableFeatures']['graph']["source"];
+            delete settings['enableFeatures']['localgraph']["source"];
+        }
+        if ("target" in settings['enableFeatures']['graph']) {
+            settings["disableTarget"] = settings['enableFeatures']['graph']["target"];
+            delete settings['enableFeatures']['graph']["target"];
+            delete settings['enableFeatures']['localgraph']["target"];
+        }
+
         return settings;
     }
 
