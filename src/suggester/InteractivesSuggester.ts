@@ -1,4 +1,4 @@
-import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, getOutlinkTypes, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;
@@ -29,7 +29,9 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
                 break;
             case 'link':
                 for (const file of files) {
-                    values = values.concat([...getFileInteractives(LINK_KEY, file)]);
+                    const types = [...getOutlinkTypes(PluginInstances.settings, file).values()].flat();
+                    values = values.concat(types.reduce((a: string[], c: Set<string>) => a.concat([...c]), []));
+                    values = [... new Set(values)];
                 }
                 break;
             case 'folder':
@@ -48,7 +50,7 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
                 break;
         }
 
-        let filteredValues = values.filter(value => value.contains(query));
+        let filteredValues = values.filter(value => value.toLowerCase().contains(query.toLowerCase()));
         let sortedValues = new Set(filteredValues.sort());
         return [...sortedValues];
     }

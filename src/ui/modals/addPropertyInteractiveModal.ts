@@ -1,7 +1,7 @@
 import { Modal, SearchComponent, Setting } from "obsidian";
-import { PluginInstances, PropertiesSuggester, UIElements } from "src/internal";
+import { PluginInstances, PropertiesUnusedSuggester, UIElements } from "src/internal";
 
-export class PropertyModal extends Modal {
+export class AddPropertyInteractiveModal extends Modal {
     callback: (name: string) => boolean;
     input: SearchComponent;
 
@@ -22,7 +22,7 @@ export class PropertyModal extends Modal {
         new Setting(this.contentEl)
             .addSearch((cb) => {
                 this.input = cb;
-                new PropertiesSuggester(cb.inputEl, (value) => { });
+                new PropertiesUnusedSuggester(cb.inputEl, (value) => { });
             })
             .addButton((cb) => {
                 UIElements.setupButton(cb, 'add');

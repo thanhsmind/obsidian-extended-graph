@@ -28,7 +28,7 @@ export type ExportSVGOptions = {
 export interface ExtendedGraphSettings {
     // Interactive settings
     interactiveSettings: { [interactive: string]: InteractiveSettings };
-    additionalProperties: { [interactive: string]: boolean };
+    additionalProperties: { [interactive: string]: { graph: boolean, localgraph: boolean } };
 
     // Graph settings
     backupGraphOptions: EngineOptions;

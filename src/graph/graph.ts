@@ -43,7 +43,7 @@ export class Graph extends Component {
         const keys: string[] = [];
         if (this.instances.settings.enableFeatures[this.instances.type]['properties']) {
             for (const property in this.instances.settings.additionalProperties) {
-                if (this.instances.settings.additionalProperties[property]) keys.push(property);
+                if (this.instances.settings.additionalProperties[property][this.instances.type]) keys.push(property);
             }
         }
         if (this.instances.settings.enableFeatures[this.instances.type]['tags']) keys.push(TAG_KEY);

@@ -92,8 +92,10 @@ export * from "./settings/components/settingColorPalette";
 export * from "./suggester/AbstractFormattingSuggester";
 export * from "./suggester/FoldersSuggester";
 export * from "./suggester/InteractivesSuggester";
+export * from "./suggester/InteractivesColorSuggester";
 export * from "./suggester/NodeNamesSuggester";
 export * from "./suggester/PropertiesSuggester";
+export * from "./suggester/PropertiesUnusedSuggester";
 
 export * from "./svg/exportToSVG";
 
@@ -116,7 +118,7 @@ export * from "./ui/modals/exportSVGOptionsModal";
 export * from "./ui/modals/gradientPickerModal";
 export * from "./ui/modals/interactivesSelectionModal";
 export * from "./ui/modals/newNameModal";
-export * from "./ui/modals/propertyModal";
+export * from "./ui/modals/addPropertyInteractiveModal";
 export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/nodesQueryModal";
 export * from "./ui/modals/pinMultipleNodesModal";

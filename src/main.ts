@@ -84,6 +84,7 @@ export default class ExtendedGraphPlugin extends Plugin {
 
     async loadSettings() {
         let data = await this.loadData();
+        data = this.migrateSettings(data);
         // Comlete default settings
         this.completeDefaultSettings();
         if (!data) data = DEFAULT_SETTINGS;
@@ -96,6 +97,23 @@ export default class ExtendedGraphPlugin extends Plugin {
         // Deep load default settings
         this.loadSettingsRec(DEFAULT_SETTINGS, data);
         PluginInstances.settings = data;
+    }
+
+    private migrateSettings(settings: any): any {
+        // 2.2.3 --> 2.2.4
+        if ("additionalProperties" in settings && typeof settings["additionalProperties"] === "object") {
+            for (const key of Object.keys(settings["additionalProperties"])) {
+                if (typeof settings["additionalProperties"][key] === "boolean") {
+                    const enable = settings["additionalProperties"][key];
+                    settings["additionalProperties"][key] = {
+                        'graph': enable,
+                        'localgraph': enable,
+                    }
+                }
+            }
+        }
+
+        return settings;
     }
 
     private completeDefaultSettings() {

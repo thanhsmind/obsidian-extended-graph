@@ -30,7 +30,7 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
 
     renderSuggestion(value: HTMLElement, el: HTMLElement): void {
         for (const suggestionNode of Array.from(value.childNodes)) {
-            el.appendChild(suggestionNode);
+            el.appendChild(suggestionNode.cloneNode(true));
         }
     }
 }

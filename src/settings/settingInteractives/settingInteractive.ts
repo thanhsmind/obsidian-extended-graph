@@ -1,5 +1,19 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, Feature, getFileInteractives, GradientPickerModal, InteractivesSelectionModal, INVALID_KEYS, plot_colormap, PluginInstances, randomColor, SettingColorPalette, SettingsSectionCollapsible, UIElements } from "src/internal";
+import {
+    ExtendedGraphSettingTab,
+    Feature,
+    FOLDER_KEY,
+    getFileInteractives,
+    InteractivesColorSuggester,
+    InteractivesSelectionModal,
+    LINK_KEY,
+    PluginInstances,
+    randomColor,
+    SettingColorPalette,
+    SettingsSectionCollapsible,
+    TAG_KEY,
+    UIElements
+} from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
@@ -102,6 +116,7 @@ export abstract class SettingInteractives extends SettingsSectionCollapsible {
         const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this));
         this.elementsBody.push(setting.settingEl);
 
+        this.colors = this.colors.filter(setting => setting.settingEl.parentElement);
         let previous = this.colors.last() ?? this.settingInteractiveColor;
         this.containerEl.insertAfter(setting.settingEl, previous.settingEl);
         this.colors.push(setting);
@@ -132,8 +147,26 @@ class SettingColor extends Setting {
         this.type = type;
         this.color = color;
 
-        this.addText(cb => {
+        this.addSearch(cb => {
             this.textComponent = cb;
+            const suggester = new InteractivesColorSuggester(cb.inputEl, (value) => {
+                cb.setValue(value);
+                this.save()
+            });
+            switch (key) {
+                case LINK_KEY:
+                    suggester.setKey('link');
+                    break;
+                case TAG_KEY:
+                    suggester.setKey('tag');
+                    break;
+                case FOLDER_KEY:
+                    suggester.setKey('folder');
+                    break;
+                default:
+                    suggester.setKey('property', key);
+                    break;
+            }
             cb.setPlaceholder(key);
             cb.setValue(type);
             cb.onChange((name: string) => {

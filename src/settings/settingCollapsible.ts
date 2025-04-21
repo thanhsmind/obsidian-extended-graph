@@ -35,7 +35,7 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
     protected addToggle(graphType: GraphType) {
         let enable = PluginInstances.settings.enableFeatures[graphType][this.feature];
         if (this.feature === 'property-key') {
-            enable = PluginInstances.settings.additionalProperties[this.interactiveKey];
+            enable = PluginInstances.settings.additionalProperties[this.interactiveKey][graphType];
         }
         const toggle = this.settingHeader.controlEl.createDiv();
         toggle.addClass("toggle-labelled");
@@ -51,7 +51,7 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
 
     private toggle(graphType: GraphType, enable: boolean) {
         if (this.feature === 'property-key') {
-            PluginInstances.settings.additionalProperties[this.interactiveKey] = enable;
+            PluginInstances.settings.additionalProperties[this.interactiveKey][graphType] = enable;
         }
         else {
             PluginInstances.settings.enableFeatures[graphType][this.feature] = enable;
@@ -62,9 +62,14 @@ export abstract class SettingsSectionCollapsible extends SettingsSection {
             || PluginInstances.settings.enableFeatures['localgraph'][this.feature])
             || (this.feature === 'property-key' && enable)) {
             this.settingHeader.settingEl.removeClass('is-collapsed');
+            this.onExpand();
         }
         else {
             this.settingHeader.settingEl.addClass('is-collapsed');
+            this.onCollapse();
         }
     }
+
+    protected onCollapse(): void { }
+    protected onExpand(): void { }
 }

@@ -63,7 +63,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
-        return settings.enableFeatures[this.instances.type]['properties'] && Object.values(settings.additionalProperties).some(p => p);
+        return settings.enableFeatures[this.instances.type]['properties'] && Object.values(settings.additionalProperties).some(p => p[this.instances.type]);
     }
 
     // ================================ LOADING ================================

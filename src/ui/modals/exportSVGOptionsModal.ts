@@ -145,9 +145,10 @@ export class ExportSVGOptionModal extends Modal {
 
     private canShowArcs(): boolean {
         if (!this.instances || !this.instances) return false;
-        if (this.instances.settings.enableFeatures[this.instances.type]['tags']) return true;
-        if (!this.instances.settings.enableFeatures[this.instances.type]['properties']) return false;
-        return Object.values(this.instances.settings.additionalProperties).some(b => b);
+        const graphType = this.instances.type;
+        if (this.instances.settings.enableFeatures[graphType]['tags']) return true;
+        if (!this.instances.settings.enableFeatures[graphType]['properties']) return false;
+        return Object.values(this.instances.settings.additionalProperties).some(b => b[graphType]);
     }
 
     private addShowFolders() {

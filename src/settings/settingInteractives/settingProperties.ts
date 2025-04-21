@@ -1,16 +1,17 @@
-import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, PropertyModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
+import { ButtonComponent, ExtraButtonComponent, Setting } from "obsidian";
+import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, AddPropertyInteractiveModal, SettingInteractives, SettingsSectionCollapsible, TAG_KEY, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionCollapsible {
     settingInteractives: SettingInteractives[] = [];
     interactiveName: string;
     propertiesContainer: HTMLElement;
+    addButton?: ButtonComponent;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'properties', '', STRINGS.features.interactives.properties, 'archive', STRINGS.features.interactives.propertiesDesc);
 
-        for (const [key, enabled] of Object.entries(PluginInstances.settings.additionalProperties)) {
+        for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
         }
     }
@@ -19,6 +20,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
         super.addHeader();
 
         this.settingHeader.addButton(cb => {
+            this.addButton = cb;
             UIElements.setupButton(cb, 'add');
             this.elementsBody.push(cb.buttonEl);
             cb.onClick((e) => {
@@ -27,6 +29,14 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             });
             this.settingHeader.controlEl.insertAdjacentElement("afterbegin", cb.buttonEl);
         });
+
+        if ((PluginInstances.settings.enableFeatures['graph'][this.feature]
+            || PluginInstances.settings.enableFeatures['localgraph'][this.feature])) {
+            this.onExpand();
+        }
+        else {
+            this.onCollapse();
+        }
     }
 
     protected override addBody() {
@@ -40,7 +50,7 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     }
 
     protected openModalToAddInteractive() {
-        const modal = new PropertyModal(
+        const modal = new AddPropertyInteractiveModal(
             "Property key",
             this.addProperty.bind(this)
         );
@@ -70,7 +80,8 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
     protected addProperty(key: string): boolean {
         if (!this.isKeyValid(key)) return false;
 
-        PluginInstances.settings.additionalProperties[key] = true;
+        PluginInstances.settings.additionalProperties[key]['graph'] = true;
+        PluginInstances.settings.additionalProperties[key]['localgraph'] = true;
         PluginInstances.settings.interactiveSettings[key] = {
             colormap: "rainbow",
             colors: [],
@@ -87,6 +98,15 @@ export class SettingPropertiesArray extends SettingsSectionCollapsible {
             //INVALID_KEYS[key] = [PluginInstances.settings.interactiveSettings[key].noneType];
         });
         return true;
+    }
+
+    protected override onCollapse(): void {
+        console.log(this.addButton);
+        this.addButton?.buttonEl.hide();
+    }
+
+    protected override onExpand(): void {
+        this.addButton?.buttonEl.show();
     }
 }
 
