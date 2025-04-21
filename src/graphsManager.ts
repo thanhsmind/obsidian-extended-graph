@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, FileView, MarkdownView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -102,55 +102,87 @@ export class GraphsManager extends Component {
     }
 
     private initiliazesNodeSizeCalculator(): void {
-        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
+        try {
+            this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
+        } catch (error) {
+            console.error(error);
+            PluginInstances.settings.nodesSizeFunction = 'default';
+            PluginInstances.plugin.saveSettings();
+            new Notice(`${STRINGS.notices.nodeStatSizeFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${STRINGS.notices.functionToDefault}`);
+            this.nodesSizeCalculator = undefined;
+        }
         this.nodesSizeCalculator?.computeStats();
     }
 
     private initializeNodesColorCalculator(): void {
-        this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
+        try {
+            this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
+        } catch (error) {
+            console.error(error);
+            PluginInstances.settings.nodesColorFunction = 'default';
+            PluginInstances.plugin.saveSettings();
+            new Notice(`${STRINGS.notices.nodeStatColorFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${STRINGS.notices.functionToDefault}`);
+            this.nodesColorCalculator = undefined;
+        }
         this.nodesColorCalculator?.computeStats();
     }
 
     private initializeLinksSizeCalculator(): void {
-        const ga = this.getGraphAnalysis();
-        const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
+        try {
+            const ga = this.getGraphAnalysis();
+            const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
 
-        if (!g) {
-            this.linksSizeCalculator = undefined;
-            return;
-        }
+            if (!g) {
+                this.linksSizeCalculator = undefined;
+                return;
+            }
 
-        if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksSizeFunction]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksSizeFunction})`);
-            this.linksSizeCalculator = undefined;
+            if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksSizeFunction]) {
+                new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksSizeFunction})`);
+                this.linksSizeCalculator = undefined;
+                PluginInstances.settings.linksSizeFunction = 'default';
+                PluginInstances.plugin.saveSettings();
+                return;
+            }
+
+            this.linksSizeCalculator = new LinkStatCalculator('size', g);
+        } catch (error) {
+            console.error(error);
             PluginInstances.settings.linksSizeFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            return;
+            new Notice(`${STRINGS.notices.linkStatSizeFailed} (${linkStatFunctionLabels[PluginInstances.settings.linksSizeFunction]}). ${STRINGS.notices.functionToDefault}`);
+            this.linksSizeCalculator = undefined;
         }
-
-        this.linksSizeCalculator = new LinkStatCalculator('size', g);
-        this.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction);
+        this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
     }
 
     private initializeLinksColorCalculator(): void {
-        const ga = this.getGraphAnalysis();
-        const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
+        try {
+            const ga = this.getGraphAnalysis();
+            const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
 
-        if (!g) {
-            this.linksColorCalculator = undefined;
-            return;
-        }
+            if (!g) {
+                this.linksColorCalculator = undefined;
+                return;
+            }
 
-        if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksColorFunction]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksColorFunction})`);
-            this.linksColorCalculator = undefined;
+            if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksColorFunction]) {
+                new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksColorFunction})`);
+                this.linksColorCalculator = undefined;
+                PluginInstances.settings.linksColorFunction = 'default';
+                PluginInstances.plugin.saveSettings();
+                return;
+            }
+
+            this.linksColorCalculator = new LinkStatCalculator('color', g);
+        } catch (error) {
+            console.error(error);
             PluginInstances.settings.linksColorFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            return;
+            new Notice(`${STRINGS.notices.linkStatColorFailed} (${linkStatFunctionLabels[PluginInstances.settings.linksColorFunction]}). ${STRINGS.notices.functionToDefault}`);
+            this.linksColorCalculator = undefined;
         }
-
-        this.linksColorCalculator = new LinkStatCalculator('color', g);
-        this.linksColorCalculator.computeStats(PluginInstances.settings.linksColorFunction);
+        this.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction);
     }
 
     // =============================== UNLOADING ===============================

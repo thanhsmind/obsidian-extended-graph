@@ -213,6 +213,11 @@
 		"nlpPluginRequired": "Le module communautaire NLP doit être activé pour utiliser cette fonction",
 		"nodeLimiteExceeded": "Tentative de gérer trop de noeuds",
 		"nodeLimiteIs": "La limite est",
+		"nodeStatSizeFailed": "Echec lors du calcul des statistiques pour les tailles des noeuds",
+		"nodeStatColorFailed": "Echec lors du calcul des statistiques pour les couleurs des noeuds",
+		"linkStatSizeFailed": "Echec lors du calcul des statistiques pour les épaisseurs des liens",
+		"linkStatColorFailed": "Echec lors du calcul des statistiques pour les couleurs des liens",
+		"functionToDefault": "La fonction par défaut est utilisée à la place.",
 		"stateDeleted": "L'état a été supprimé",
 		"stateSaved": "L'état a été sauvegardé",
 		"svgCopied": "SVG copié dans le presse-papier"
