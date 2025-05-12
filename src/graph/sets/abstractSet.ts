@@ -15,6 +15,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     typesMap: { [key: string]: { [type: string]: Set<string> } } = {}; // [key][type].get(id)
 
     // Interactive managers specific to the set
+    #managersArray: InteractiveManager[];
     managers = new Map<string, InteractiveManager>();
 
     /**
@@ -24,8 +25,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
      */
     constructor(instances: GraphInstances, managers: InteractiveManager[]) {
         this.instances = instances;
-        this.initializeManagers(managers);
-        this.initializeTypesMap();
+        this.#managersArray = managers;
     }
 
     private initializeManagers(managers: InteractiveManager[]) {
@@ -42,11 +42,13 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     // ================================ LOADING ================================
 
-    load(): Set<string> {
+    load(id?: string): Set<string> {
+        this.initializeManagers(this.#managersArray);
+        this.initializeTypesMap();
         for (const key of this.managers.keys()) {
             this.addMissingInteractiveTypes(key);
         }
-        const addedElements = this.addMissingElements();
+        const addedElements = this.addMissingElements(id);
         if (addedElements.size > 0) {
             this.handleMissingElements(addedElements);
         }
@@ -120,10 +122,11 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         }
     }
 
-    private addMissingElements(): Set<string> {
+    private addMissingElements(unique_id?: string): Set<string> {
         const missingElements = new Set<string>();
         for (const coreElement of this.coreCollection) {
             const id = this.getID(coreElement);
+            if (unique_id && unique_id !== id) continue;
             const extendedElement = this.extendedElementsMap.get(id);
             if (extendedElement) {
                 extendedElement.setCoreElement(coreElement);

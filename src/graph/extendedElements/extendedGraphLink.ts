@@ -1,6 +1,7 @@
+import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, LINK_KEY, PluginInstances, rgb2int, SettingQuery } from "src/internal";
+import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, getPrimaryColor, hex2int, LINK_KEY, PluginInstances, rgb2int, SettingQuery } from "src/internal";
 
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
@@ -9,25 +10,20 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
     siblingLink?: ExtendedGraphLink;
+    container?: Container;
 
     protected override additionalConstruct() {
-        if (this.needToModifyArrow()) {
+        if (SettingQuery.needToChangeArrow(this.instances)) {
             this.extendedArrow = new ExtendedGraphArrow(this.instances, this);
         }
-    }
-
-    private needToModifyArrow(): boolean {
-        return this.instances.settings.enableFeatures[this.instances.type]['arrows']
-            && (this.instances.settings.invertArrows || this.instances.settings.flatArrows
-                || this.instances.settings.opaqueArrows);
     }
 
 
     // ======================== MODIFYING CORE ELEMENT =========================
 
     override init(): void {
-        super.init();
         this.findSiblingLink();
+        super.init();
         this.extendedArrow?.init();
     }
 
@@ -42,12 +38,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     override modifyCoreElement(): void {
         this.changeCoreLinkThickness();
         this.proxyLine();
+        this.createContainer();
     }
 
     override restoreCoreElement(): void {
         this.restoreCoreLinkThickness();
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
+        this.removeContainer();
     }
 
     // =============================== GRAPHICS ================================
@@ -98,6 +96,56 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                 ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
             ?? 1
             : 1;
+    }
+
+    // ============================= LINK CONTAINER =============================
+
+    private createContainer(): void {
+        if (!this.instances.settings.enableFeatures[this.instances.type]['links']
+            || !this.instances.settings.outlineLinks
+        ) return;
+
+        let container: Container;
+        if (this.siblingLink?.container) {
+            container = this.siblingLink.container;
+        }
+        else {
+            this.container = new Container();
+            container = this.container;
+        }
+        if (this.coreElement.px) {
+            this.coreElement.px.removeFromParent();
+            container.addChild(this.coreElement.px);
+            this.coreElement.px.addListener('destroyed', this.removeContainer);
+        }
+        if (this.coreElement.arrow) {
+            this.coreElement.arrow.removeFromParent();
+            container.addChild(this.coreElement.arrow);
+            this.coreElement.arrow.addListener('destroyed', this.removeContainer);
+        }
+        container.filters = [new OutlineFilter(
+            1, rgb2int(getPrimaryColor(this.coreElement.renderer)), 0.1, 1, false
+        )];
+        this.coreElement.renderer.hanger.addChild(container);
+    }
+
+    private removeContainer(): void {
+        if (!this.coreElement) return;
+
+        if (this.coreElement.px) {
+            this.coreElement.px.removeEventListener('destroyed', this.removeContainer);
+        }
+        if (this.coreElement.arrow) {
+            this.coreElement.arrow.removeEventListener('destroyed', this.removeContainer);
+        }
+
+        if (!this.container) return;
+
+        for (const child of this.container.children.filter(c => !c.destroyed)) {
+            this.coreElement.renderer.hanger.addChild(child);
+        }
+        this.container.destroy();
+        this.container = undefined;
     }
 
     // ============================== LINK COLOR ===============================

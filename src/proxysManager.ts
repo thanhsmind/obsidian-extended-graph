@@ -48,15 +48,32 @@ export class ProxysManager {
         return [...this.coreTargets.values()].find(el => el.owner === owner && property === property);
     }
 
-    unregisterProxy(proxy: any) {
-        if (proxy === null || proxy === undefined) return;
+    unregisterProxy(proxy: Object | null | undefined) {
+        if (proxy === null || proxy === undefined) {
+            console.warn("Proxy", proxy);
+            return;
+        }
+        if (!this.isProxy(proxy)) {
+            console.warn("Trying to unregister an non-proxy object.", proxy.constructor.name);
+            return;
+        }
 
         const found = this.coreTargets.get(proxy);
         if (found) {
             const { owner, property, coreTarget } = found;
             this.coreTargets.delete(proxy);
 
-            owner[property] = coreTarget;
+            if (owner[property] === proxy) {
+                console.log("unregister", property);
+                owner[property] = coreTarget;
+            }
+            else {
+                console.warn("The core reference is no longer pointing to the proxy. Instead :");
+                console.warn(owner[property]);
+            }
+        }
+        else {
+            console.warn("Proxy not found");
         }
     }
 
@@ -64,7 +81,9 @@ export class ProxysManager {
         for (const [proxy, element] of this.coreTargets) {
             const { owner, property, coreTarget } = element;
             this.coreTargets.delete(proxy);
-            owner[property] = coreTarget;
+            if (owner[property] === proxy) {
+                owner[property] = coreTarget;
+            }
         }
     }
 }

@@ -1,9 +1,8 @@
 import { Component, Menu, TFile } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Graphics, Text } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, regExpFromString, StatesUI, TAG_KEY } from "src/internal";
+import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, getPrimaryColor, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, regExpFromString, rgb2int, StatesUI, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
-import { isRegExp } from "util/types";
 
 export class GraphEventsDispatcher extends Component {
 
@@ -72,6 +71,7 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is loaded.
      */
     onload(): void {
+        this.createSetDataProxy();
         this.loadCurrentState();
     }
 
@@ -97,7 +97,6 @@ export class GraphEventsDispatcher extends Component {
             this.createRenderCallbackProxy();
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
-            this.createSetDataProxy();
             this.changeArrowAlpha();
         }
         catch (error) {
@@ -195,7 +194,7 @@ export class GraphEventsDispatcher extends Component {
 
     private changeArrowAlpha(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
-            || !this.instances.settings.opaqueArrows
+            || !this.instances.settings.opaqueArrowsButKeepFading
         ) return;
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
             && this.instances.settings.curvedLinks
@@ -273,7 +272,7 @@ export class GraphEventsDispatcher extends Component {
             const add = (l: GraphLink) => {
                 const extendedLink = this.instances.linksSet.extendedElementsMap.get(getLinkID(l));
                 if (!extendedLink) {
-                    this.instances.linksSet.load();
+                    this.instances.linksSet.load(getLinkID(l));
                 }
                 else {
                     extendedLink.setCoreElement(l);
@@ -375,7 +374,8 @@ export class GraphEventsDispatcher extends Component {
             const file = getFile(source);
             if (file) {
                 // Filter out based on source folders
-                if (this.instances.settings.excludedSourcesFolder.find(folder => matchFolder(source, folder))) {
+                if (this.instances.settings.enableFeatures[this.instances.type]['links']
+                    && this.instances.settings.excludedSourcesFolder.find(folder => matchFolder(source, folder))) {
                     // @ts-ignore
                     node.links = {};
                     continue;
@@ -384,7 +384,8 @@ export class GraphEventsDispatcher extends Component {
                 // @ts-ignore
                 const targets = Object.keys(node.links);
                 for (const target of targets) {
-                    if (this.instances.settings.excludedTargetsFolder.find(folder => matchFolder(target, folder))) {
+                    if (this.instances.settings.enableFeatures[this.instances.type]['links']
+                        && this.instances.settings.excludedTargetsFolder.find(folder => matchFolder(target, folder))) {
                         // @ts-ignore
                         delete node.links[target];
                     }
@@ -453,6 +454,18 @@ export class GraphEventsDispatcher extends Component {
         }
         for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();
+        }
+    }
+
+    private showDestroyed(el: any) {
+        if (!("children" in el)) return;
+        for (const child of el.children) {
+            if (child.destroyed) {
+                console.debug(child);
+            }
+            else {
+                this.showDestroyed(child);
+            }
         }
     }
 

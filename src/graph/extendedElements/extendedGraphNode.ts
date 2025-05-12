@@ -114,7 +114,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (this.isPinned) {
             new Pinner(this.instances).unpinNode(this.id);
         }
-        this.extendedText.unload();
+        //this.extendedText.unload();
         super.unload();
     }
 

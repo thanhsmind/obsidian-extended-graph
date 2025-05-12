@@ -17,7 +17,7 @@
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
-		"esbuild": "^0.21.0",
+		"esbuild": "^0.25.0",
 		"obsidian": "latest",
 		"obsidian-dataview": "^0.5.64",
 		"obsidian-typings": "^2.42.0",
@@ -25,6 +25,7 @@
 		"typescript": "^5.7.3"
 	},
 	"dependencies": {
+		"@pixi/filter-outline": "^5.2.0",
 		"emoji-regex": "^10.4.0",
 		"graphology": "^0.25.4",
 		"graphology-components": "^1.5.4",

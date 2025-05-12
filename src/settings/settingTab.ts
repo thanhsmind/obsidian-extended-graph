@@ -71,7 +71,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         label.innerText = "Go to";
     }
 
-
     private addDisableNodes() {
         new Setting(this.containerEl)
             .setName(STRINGS.features.disableNodes)

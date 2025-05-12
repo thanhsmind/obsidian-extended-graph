@@ -23,6 +23,9 @@ export class ExtendedGraphText {
         this.modifyCoreElement();
         this.createGraphicsWrapper();
         this.graphicsWrapper?.connect();
+        this.coreElement.text?.addListener('destroyed', () => {
+            this.unload();
+        });
     }
 
     modifyCoreElement() {
@@ -32,6 +35,7 @@ export class ExtendedGraphText {
     }
 
     unload(): void {
+        console.log("Unloading text for", this.coreElement.id);
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
         if (this.coreElement.text && this.hasChangedText) {
             this.restoreText();
@@ -39,8 +43,8 @@ export class ExtendedGraphText {
             this.coreElement.circle?.removeListener('mouseleave', this.changeText);
             this.hasChangedText = false;
         }
-        this.graphicsWrapper?.destroyGraphics();
-        this.restoreFontFamily();
+        //this.graphicsWrapper?.destroyGraphics();
+        //this.restoreFontFamily();
     }
 
     disable() {
@@ -150,7 +154,7 @@ export class ExtendedGraphText {
 
 
 
-    // ================== Slightly move thex text to avoid overlapping the arrow
+    // ================== Slightly move the text to avoid overlapping the arrow
 
     private proxyText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
@@ -158,6 +162,8 @@ export class ExtendedGraphText {
         if (!this.coreElement.text) return;
 
         const renderer = this.instances.renderer;
+        const arrowFixedSize = this.instances.settings.enableFeatures[this.instances.type]['arrows'] && this.instances.settings.arrowFixedSize;
+        const arrowCustomScale = this.instances.settings.enableFeatures[this.instances.type]['arrows'] ? this.instances.settings.arrowScale : 1;
 
         if (this.instances.settings.dynamicVerticalOffset) {
             PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
@@ -166,10 +172,12 @@ export class ExtendedGraphText {
                 {
                     set(target, prop, value, receiver) {
                         if (prop === "y") {
-                            const arrowScale = 2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale;
+                            const scale = 2 * Math.sqrt(renderer.fLineSizeMult)
+                                * (arrowFixedSize ? renderer.nodeScale : 1 / renderer.scale)
+                                * arrowCustomScale;
                             // 5 is the original offset of the core plugin
                             // 4 is the size/height of the arrow
-                            value = value - 5 + 4 * arrowScale;
+                            value = value - 5 + 4 * arrowCustomScale * scale;
                         }
 
                         return Reflect.set(target, prop, value, receiver);
@@ -217,11 +225,6 @@ export class ExtendedGraphText {
                 }
             );
         }
-
-
-        this.coreElement.text.addListener('destroyed', () => {
-            PluginInstances.proxysManager.unregisterProxy(typeof this.coreElement.text);
-        });
     }
 
 }

@@ -97,11 +97,17 @@ export interface ExtendedGraphSettings {
     excludedSourcesFolder: string[];
     excludedTargetsFolder: string[];
     curvedLinks: boolean;
+    outlineLinks: boolean;
 
     // Arrows
     invertArrows: boolean;
     flatArrows: boolean;
-    opaqueArrows: boolean;
+    opaqueArrowsButKeepFading: boolean;
+    alwaysOpaqueArrows: boolean,
+    arrowScale: number;
+    arrowFixedSize: boolean;
+    arrowColorBool: boolean;
+    arrowColor: string;
 
     // Names
     numberOfCharacters: number | null;
@@ -242,11 +248,17 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     excludedSourcesFolder: [],
     excludedTargetsFolder: [],
     curvedLinks: false,
+    outlineLinks: false,
 
     // Arrows
     invertArrows: false,
     flatArrows: false,
-    opaqueArrows: false,
+    opaqueArrowsButKeepFading: false,
+    alwaysOpaqueArrows: false,
+    arrowScale: 1,
+    arrowFixedSize: false,
+    arrowColorBool: false,
+    arrowColor: "",
 
     // Names
     numberOfCharacters: null,
@@ -305,6 +317,42 @@ export class SettingQuery {
         return false;
     }
 
+    static needToChangeArrowColor(instances: GraphInstances): boolean {
+        return SettingQuery.needToChangeLinkColor(instances)
+            || (instances.settings.enableFeatures[instances.type]['arrows']
+                && instances.settings.arrowColorBool
+                && instances.settings.arrowColor != ""
+            );
+    }
+
+    static needToChangeArrowScale(instances: GraphInstances): boolean {
+        if (instances.settings.enableFeatures[instances.type]['arrows']
+            && (instances.settings.arrowScale !== 1 || instances.settings.arrowFixedSize)
+        ) return true;
+
+        return false;
+    }
+
+    static needToChangeArrowAlpha(instances: GraphInstances): boolean {
+        if (instances.settings.enableFeatures[instances.type]['arrows']
+            && instances.settings.alwaysOpaqueArrows
+        ) return true;
+
+        return false;
+    }
+
+    static needToChangeArrowRotation(instances: GraphInstances): boolean {
+        if (instances.settings.enableFeatures[instances.type]['arrows']
+            && instances.settings.invertArrows
+        ) return true;
+
+        return false;
+    }
+
+    static needToChangeArrow(instances: GraphInstances): boolean {
+        return SettingQuery.needToChangeArrowRotation(instances) || SettingQuery.needToChangeArrowScale(instances) || SettingQuery.needToChangeArrowColor(instances);
+    }
+
     static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
         const newSettings = PluginInstances.settings;
         const oldFeatures = oldSettings.enableFeatures[graphtype];
@@ -336,7 +384,8 @@ export class SettingQuery {
 
         // Links
         if (newFeatures['links']) {
-            if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks', 'disableSource', 'disableTarget'].some(key => !equals(key)))
+            if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks',
+                'disableSource', 'disableTarget', 'outlineLinks'].some(key => !equals(key)))
                 return true;
         }
 
@@ -372,7 +421,8 @@ export class SettingQuery {
         if (newFeatures['arrows'] !== oldFeatures['arrows'])
             return true;
         if (newFeatures['arrows']) {
-            if (['invertArrows', 'flatArrows', 'opaqueArrows'].some(k => !equals(k)))
+            if (['invertArrows', 'flatArrows', 'opaqueArrowsButKeepFading', 'alwaysOpaqueArrows', 'arrowScale',
+                'arrowColorBool', 'arrowColor', 'arrowFixedSize'].some(k => !equals(k)))
                 return true;
         }
 
@@ -380,7 +430,8 @@ export class SettingQuery {
         if (newFeatures['names'] !== oldFeatures['names'])
             return true;
         if (newFeatures['names']) {
-            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertyForName', 'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont'].some(k => !equals(k)))
+            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertyForName',
+                'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont'].some(k => !equals(k)))
                 return true;
             if (!oldSettings.dynamicVerticalOffset && !newSettings.dynamicVerticalOffset) {
                 if (!equals('nameVerticalOffset'))

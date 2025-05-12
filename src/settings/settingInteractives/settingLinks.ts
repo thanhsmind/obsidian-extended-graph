@@ -18,6 +18,7 @@ export class SettingLinks extends SettingInteractives {
         this.addDisableTargets();
         this.addShowOnGraph();
         this.addCurvedLinks();
+        this.addOutlineLinks();
     }
 
     private addExcludeFolders() {
@@ -97,6 +98,19 @@ export class SettingLinks extends SettingInteractives {
                 cb.setValue(PluginInstances.settings.curvedLinks);
                 cb.onChange(value => {
                     PluginInstances.settings.curvedLinks = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addOutlineLinks() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.linksOutline)
+            .setDesc(STRINGS.features.linksOutlineDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.outlineLinks);
+                cb.onChange(value => {
+                    PluginInstances.settings.outlineLinks = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

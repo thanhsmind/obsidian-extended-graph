@@ -18,7 +18,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.types = types;
         this.name = "curve:" + name;
         this.extendedLink = link;
-        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrows ? 1 : 0.6;
+        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading ? 1 : 0.6;
         this.updateValues();
     }
 
