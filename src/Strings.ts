@@ -147,7 +147,7 @@ export default class STRINGS {
 			tagsDesc: "Display and filter by tags",
 		},
 		linksOutline: "Outline links",
-		linksOutlineDesc: "Add a thin outline to the links and the arrows",
+		linksOutlineDesc: "Add a thin outline to the links and the arrows (when opaque)",
 		linksSameColorAsNode: "Color link based on source",
 		linksSameColorAsNodeDesc: "Use the color of the source node to color links",
 		linksFeatureRequired: "The Links feature needs to be enabled.",
