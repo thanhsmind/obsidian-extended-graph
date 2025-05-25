@@ -36,7 +36,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     private initializeTypesMap() {
         for (const key of this.managers.keys()) {
-            this.typesMap[key] = {};
+            if (!this.typesMap.hasOwnProperty(key)) this.typesMap[key] = {};
         }
     }
 

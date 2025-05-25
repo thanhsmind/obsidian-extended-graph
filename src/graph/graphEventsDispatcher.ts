@@ -503,7 +503,6 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onRendered() {
-        console.log(this.instances.renderer.idleFrames);
         // If nodes need to be pinned because we just changed the state and new nodes were added
         if (this.instances.statePinnedNodes) {
             const pinner = new Pinner(this.instances);
