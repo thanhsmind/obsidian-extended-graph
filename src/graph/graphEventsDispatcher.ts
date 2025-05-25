@@ -1,7 +1,24 @@
 import { Component, Menu, TFile } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
-import { Container, DisplayObject, Graphics, Text } from "pixi.js";
-import { ExtendedGraphSettings, FOLDER_KEY, GCFolders, getFile, getFileInteractives, getLinkID, getOutlinkTypes, getPrimaryColor, Graph, GraphInstances, isGraphBannerView, LegendUI, LINK_KEY, Pinner, PluginInstances, regExpFromString, rgb2int, StatesUI, TAG_KEY } from "src/internal";
+import { Container, DisplayObject, Text } from "pixi.js";
+import {
+    ExtendedGraphSettings,
+    FOLDER_KEY,
+    GCFolders,
+    getFile,
+    getFileInteractives,
+    getLinkID,
+    getOutlinkTypes,
+    Graph,
+    GraphInstances,
+    LegendUI,
+    LINK_KEY,
+    Pinner,
+    PluginInstances,
+    regExpFromString,
+    StatesUI,
+    TAG_KEY
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GraphEventsDispatcher extends Component {
@@ -486,6 +503,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private onRendered() {
+        console.log(this.instances.renderer.idleFrames);
         // If nodes need to be pinned because we just changed the state and new nodes were added
         if (this.instances.statePinnedNodes) {
             const pinner = new Pinner(this.instances);

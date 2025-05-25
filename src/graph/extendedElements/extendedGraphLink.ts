@@ -1,7 +1,16 @@
 import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import { CurveLinkGraphicsWrapper, ExtendedGraphArrow, ExtendedGraphElement, getPrimaryColor, hex2int, LINK_KEY, PluginInstances, rgb2int, SettingQuery } from "src/internal";
+import {
+    CurveLinkGraphicsWrapper,
+    ExtendedGraphArrow,
+    ExtendedGraphElement,
+    getPrimaryColor,
+    LINK_KEY,
+    PluginInstances,
+    rgb2int,
+    SettingQuery
+} from "src/internal";
 
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {

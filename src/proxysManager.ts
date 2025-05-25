@@ -54,7 +54,7 @@ export class ProxysManager {
             return;
         }
         if (!this.isProxy(proxy)) {
-            console.warn("Trying to unregister an non-proxy object.", proxy.constructor.name);
+            //console.warn("Trying to unregister an non-proxy object.", proxy.constructor.name);
             return;
         }
 
@@ -64,7 +64,6 @@ export class ProxysManager {
             this.coreTargets.delete(proxy);
 
             if (owner[property] === proxy) {
-                console.log("unregister", property);
                 owner[property] = coreTarget;
             }
             else {

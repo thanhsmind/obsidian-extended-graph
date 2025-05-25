@@ -8,6 +8,7 @@ export class ExtendedGraphText {
     instances: GraphInstances;
     hasChangedText: boolean = false;
     graphicsWrapper?: TextGraphicsWrapper;
+    coreTextPositionCallback: (() => void) | undefined;
 
     coreGetTextStyle: () => TextStyle;
 
@@ -31,24 +32,23 @@ export class ExtendedGraphText {
     modifyCoreElement() {
         this.updateFontFamily();
         this.updateText();
-        this.proxyText();
+        this.createTextPositionCallback();
     }
 
     unload(): void {
-        console.log("Unloading text for", this.coreElement.id);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
+        this.restoreTextPositionCallback();
         if (this.coreElement.text && this.hasChangedText) {
             this.restoreText();
             this.coreElement.circle?.removeListener('mouseenter', this.restoreText);
             this.coreElement.circle?.removeListener('mouseleave', this.changeText);
             this.hasChangedText = false;
         }
-        //this.graphicsWrapper?.destroyGraphics();
-        //this.restoreFontFamily();
+        this.graphicsWrapper?.destroyGraphics();
+        this.restoreFontFamily();
     }
 
     disable() {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.text);
+        this.restoreTextPositionCallback();
     }
 
     // ================== Change font family to match the interface font
@@ -156,75 +156,80 @@ export class ExtendedGraphText {
 
     // ================== Slightly move the text to avoid overlapping the arrow
 
-    private proxyText(): void {
+    private createTextPositionCallback(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names']
             || (this.instances.settings.nameVerticalOffset === 0 && !this.instances.settings.dynamicVerticalOffset)) return;
         if (!this.coreElement.text) return;
 
+        const position = this.coreElement.text.position;
+        const applyOffset = this.instances.settings.dynamicVerticalOffset ? this.applyDynamicOffset.bind(this) : this.applyStaticOffset.bind(this);
+        this.coreTextPositionCallback = position.cb;
+        const coreTextPositionCallback = position.cb;
+        position.cb = () => {
+            applyOffset();
+            coreTextPositionCallback.call(position.scope);
+        }
+        // @ts-ignore
+        this.coreElement.moveText = true;
+    }
+
+    private restoreTextPositionCallback(): void {
+        if (!this.coreTextPositionCallback) return;
+
+        const position = this.coreElement.text?.position;
+        if (position) {
+            position.cb = this.coreTextPositionCallback;
+            this.coreTextPositionCallback = undefined;
+        }
+    }
+
+    private applyDynamicOffset(): void {
+        const node = this.coreElement;
+        if (!node.text || !node.circle) return;
         const renderer = this.instances.renderer;
+        let value = node.text.y;
         const arrowFixedSize = this.instances.settings.enableFeatures[this.instances.type]['arrows'] && this.instances.settings.arrowFixedSize;
         const arrowCustomScale = this.instances.settings.enableFeatures[this.instances.type]['arrows'] ? this.instances.settings.arrowScale : 1;
 
-        if (this.instances.settings.dynamicVerticalOffset) {
-            PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
-                this.coreElement,
-                "text",
-                {
-                    set(target, prop, value, receiver) {
-                        if (prop === "y") {
-                            const scale = 2 * Math.sqrt(renderer.fLineSizeMult)
-                                * (arrowFixedSize ? renderer.nodeScale : 1 / renderer.scale)
-                                * arrowCustomScale;
-                            // 5 is the original offset of the core plugin
-                            // 4 is the size/height of the arrow
-                            value = value - 5 + 4 * arrowCustomScale * scale;
-                        }
+        const scale = 2 * Math.sqrt(renderer.fLineSizeMult)
+            * (arrowFixedSize ? renderer.nodeScale : 1 / renderer.scale)
+            * arrowCustomScale;
+        // 5 is the original offset of the core plugin
+        // 4 is the size/height of the arrow
+        value = value - 5 + 4 * arrowCustomScale * scale;
+        node.text.position._y = value;
+    }
 
-                        return Reflect.set(target, prop, value, receiver);
-                    }
-                }
-            );
+    private applyStaticOffset(): void {
+        const node = this.coreElement;
+        if (!node.text || !node.circle) return;
+        const offset = this.instances.settings.nameVerticalOffset;
+        const renderer = this.instances.renderer;
+        let value = node.text.y;
+        const size = node.getSize();
+        // if the offset places the text above the center of the node
+        // we need to inverse the value when hovered (text moving)
+        if (offset < -55) {
+            const origin = node.y + (size + 5) * renderer.nodeScale;
+            const move = value - origin;
+            value = origin - move;
+        }
+        // if the offset is negative, we need to modify the offset
+        // to take in account the node size
+        if (offset < -5 && offset > -105) {
+            const nodeFactor = size * renderer.nodeScale / 50 + node.text.height / 100;
+            const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
+            value = value + newOffset;
+        }
+        else if (offset <= -105) {
+            const nodeFactor = size * renderer.nodeScale / 50 + node.text.height / 100;
+            const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
+            value = value + newOffset;
         }
         else {
-            const node = this.coreElement;
-            if (!node.circle) return;
-            const offset = this.instances.settings.nameVerticalOffset;
-            PluginInstances.proxysManager.registerProxy<typeof this.coreElement.text>(
-                this.coreElement,
-                "text",
-                {
-                    set(target, prop, value, receiver) {
-                        if (prop === "y") {
-                            const size = node.getSize();
-                            // if the offset places the text above the center of the node
-                            // we need to inverse the value when hovered (text moving)
-                            if (offset < -55) {
-                                const origin = node.y + (size + 5) * renderer.nodeScale;
-                                const move = value - origin;
-                                value = origin - move;
-                            }
-                            // if the offset is negative, we need to modify the offset
-                            // to take in account the node size
-                            if (offset < -5 && offset > -105) {
-                                const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
-                                const newOffset = -5 * renderer.nodeScale + ((5 + offset) * nodeFactor);
-                                value = value + newOffset;
-                            }
-                            else if (offset <= -105) {
-                                const nodeFactor = size * renderer.nodeScale / 50 + target.height / 100;
-                                const newOffset = (100 + offset) * renderer.nodeScale + (-100 * nodeFactor);
-                                value = value + newOffset;
-                            }
-                            else {
-                                value = value + offset * renderer.nodeScale;
-                            }
-                        }
-
-                        return Reflect.set(target, prop, value, receiver);
-                    }
-                }
-            );
+            value = value + offset * renderer.nodeScale;
         }
+        node.text.position._y = value;
     }
 
 }
