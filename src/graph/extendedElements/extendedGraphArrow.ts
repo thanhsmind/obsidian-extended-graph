@@ -35,11 +35,10 @@ export class ExtendedGraphArrow {
     private proxyArrow(): void {
         const needToColorArrows = SettingQuery.needToChangeArrowColor(this.instances);
         const needToChangeArrowAlpha = SettingQuery.needToChangeArrowAlpha(this.instances);
-        if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
-            || (!this.instances.settings.invertArrows
-                && !needToColorArrows
-                && !needToChangeArrowAlpha
-            )) return;
+        if (!this.instances.settings.invertArrows
+            && !needToColorArrows
+            && !needToChangeArrowAlpha
+        ) return;
 
 
         const link = this.extendedLink.coreElement;

@@ -350,7 +350,9 @@ export class SettingQuery {
     }
 
     static needToChangeArrow(instances: GraphInstances): boolean {
-        return SettingQuery.needToChangeArrowRotation(instances) || SettingQuery.needToChangeArrowScale(instances) || SettingQuery.needToChangeArrowColor(instances);
+        return SettingQuery.needToChangeArrowRotation(instances)
+            || SettingQuery.needToChangeArrowScale(instances)
+            || SettingQuery.needToChangeArrowColor(instances);
     }
 
     static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
