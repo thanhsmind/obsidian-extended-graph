@@ -30,7 +30,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     private initializeManagers(managers: InteractiveManager[]) {
         for (const manager of managers) {
-            this.managers.set(manager.name, manager);
+            if (!this.managers.has(manager.name)) this.managers.set(manager.name, manager);
         }
     }
 

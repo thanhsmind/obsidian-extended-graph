@@ -1,9 +1,8 @@
-import { TFile } from "obsidian";
-import { NodeStatCalculator } from "src/internal";
+import { getFile, NodeStatCalculator } from "src/internal";
 
 export class FilenameLengthCalculator extends NodeStatCalculator {
 
-    override async getStat(file: TFile): Promise<number> {
-        return file.basename.length;
+    override async getStat(id: string, invert: boolean): Promise<number> {
+        return getFile(id)?.basename.length || id.length;
     }
 }

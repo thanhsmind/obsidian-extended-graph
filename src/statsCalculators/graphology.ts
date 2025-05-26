@@ -2,6 +2,7 @@ import Graphology from 'graphology';
 import { TFile } from "obsidian";
 import { dfsFromNode } from "graphology-traversal/dfs";
 import { getFile, PluginInstances } from 'src/internal';
+import { reverse } from 'graphology-operators';
 
 export class GraphologySingleton {
     static _instance: GraphologySingleton;
@@ -12,26 +13,28 @@ export class GraphologySingleton {
     private constructor() {
         this.graphologyGraph = new Graphology();
 
-        const files = PluginInstances.app.vault.getFiles().filter(file => this.shouldAddFile(file));
+        // Add existing files
+        const files = PluginInstances.app.vault.getFiles();
         for (const file of files) {
             this.graphologyGraph.addNode(file.path);
         }
 
         const links = PluginInstances.app.metadataCache.resolvedLinks;
         for (const [source, references] of Object.entries(links)) {
-            const validLinks = Object.keys(references).filter(target => this.shouldAddLink(source, target))
+            const validLinks = Object.keys(references)
             for (const target of validLinks) {
                 this.graphologyGraph.addEdge(source, target);
             }
         }
-    }
 
-    private shouldAddFile(file: TFile | null): boolean {
-        return !!file && file.extension === "md";
-    }
-
-    private shouldAddLink(source: string, target: string) {
-        return this.shouldAddFile(getFile(source)) && this.shouldAddFile(getFile(target));
+        // Add unresolved files
+        const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
+        for (const [source, references] of Object.entries(unresolvedLinks)) {
+            for (const [target, count] of Object.entries(references)) {
+                if (!this.graphologyGraph.hasNode(target)) this.graphologyGraph.addNode(target);
+                this.graphologyGraph.addEdge(source, target);
+            }
+        }
     }
 
     static getInstance(): GraphologySingleton {
@@ -43,12 +46,8 @@ export class GraphologySingleton {
         return GraphologySingleton.getInstance().graphologyGraph;
     }
 
-    static getConnectedGraphology(node: string) {
+    static getConnectedGraphology(node: string, invert: boolean) {
         const instance = GraphologySingleton.getInstance();
-        let graph = instance.graphologyConnectedGraphs.get(node);
-        if (graph) {
-            return graph;
-        }
 
         const addNeighbors = function (originalGraph: Graphology, subGraph: Graphology, node: string) {
             const neighbors = originalGraph.neighbors(node);
@@ -59,10 +58,14 @@ export class GraphologySingleton {
             }
         }
 
-        graph = new Graphology();
+        const graph = new Graphology();
         dfsFromNode(instance.graphologyGraph, node, (function (node: string, attr: string, depth: number) {
             if (graph) addNeighbors(instance.graphologyGraph, graph, node);
         }).bind(this));
+
+        if (invert) {
+            return reverse(graph);
+        }
 
         return graph;
     }

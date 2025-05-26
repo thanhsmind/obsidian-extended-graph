@@ -67,6 +67,8 @@ export interface ExtendedGraphSettings {
     // Nodes colors
     nodesColorColormap: string;
     nodesColorFunction: NodeStatFunction;
+    // Node stats orientation
+    invertNodeStats: boolean;
     // Links sizes
     linksSizeFunction: LinkStatFunction;
     // Links colors
@@ -207,6 +209,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Nodes colors
     nodesColorColormap: 'YlOrRd',
     nodesColorFunction: 'default',
+    // Node stats orientation
+    invertNodeStats: false,
     // Links sizes
     linksSizeFunction: 'default',
     // Links colors

@@ -1,11 +1,11 @@
-import { TFile } from "obsidian";
 import Graphology from 'graphology';
 import { degreeCentrality } from "graphology-metrics/centrality/degree";
 import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { NodeStat, NodeStatCalculator } from "src/internal";
+import { GraphologySingleton, NodeStat, NodeStatCalculator } from "src/internal";
+import { reverse } from "graphology-operators";
 
 type CentralityMapping = Record<string, number>;
 
@@ -13,14 +13,18 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
-    constructor(stat: NodeStat, g: Graphology, link: string = "") {
+    constructor(stat: NodeStat, link: string = "") {
         super(stat);
         this.link = link;
-        this.computeCentralityMap(g);
     }
 
-    override async getStat(file: TFile): Promise<number> {
-        return this.cm[file.path];
+    override async computeStats(invert: boolean): Promise<void> {
+        this.computeCentralityMap(invert ? reverse(GraphologySingleton.getGraphology()) : GraphologySingleton.getGraphology());
+        return super.computeStats(invert);
+    }
+
+    override async getStat(id: string): Promise<number> {
+        return this.cm[id];
     }
 
     protected abstract computeCentralityMap(g: Graphology): void;

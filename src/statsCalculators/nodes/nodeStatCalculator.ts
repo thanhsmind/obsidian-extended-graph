@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { getColor, PluginInstances, rgb2int } from "src/internal";
+import { getColor, GraphologySingleton, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
@@ -34,16 +34,16 @@ export abstract class NodeStatCalculator {
         this.stat = stat;
     }
 
-    async computeStats(): Promise<void> {
-        await this.getStats();
+    async computeStats(invert: boolean): Promise<void> {
+        await this.getStats(invert);
         this.mapStat();
     }
 
-    private async getStats(): Promise<void> {
+    protected async getStats(invert: boolean): Promise<void> {
         this.filesStats = new Map<string, { measure: number, value: number }>();
-        const files = PluginInstances.app.vault.getMarkdownFiles();
-        for (const file of files) {
-            this.getStat(file).then(size => this.filesStats.set(file.path, { measure: size, value: 0 }));
+        const ids = GraphologySingleton.getInstance().graphologyGraph.nodes();
+        for (const id of ids) {
+            this.getStat(id, invert).then(size => this.filesStats.set(id, { measure: size, value: 0 }));
         }
     }
 
@@ -88,7 +88,7 @@ export abstract class NodeStatCalculator {
         });
     }
 
-    abstract getStat(file: TFile): Promise<number>;
+    abstract getStat(id: string, invert: boolean): Promise<number>;
 
     getWarning(): string { return ""; }
     getLink(): string { return ""; }

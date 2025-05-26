@@ -31,6 +31,7 @@
 		"graphology-components": "^1.5.4",
 		"graphology-dag": "^0.4.1",
 		"graphology-metrics": "^2.3.1",
+		"graphology-operators": "^1.6.1",
 		"graphology-traversal": "^0.3.1",
 		"graphology-types": "^0.24.8",
 		"markdown-link-extractor": "^3.1.0",

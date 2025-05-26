@@ -21,6 +21,8 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         this.addNodeColorWarning();
         this.addColorPaletteSettingForNodes();
 
+        this.addInvertNodeStats();
+
         if (PluginInstances.graphsManager?.getGraphAnalysis()["graph-analysis"]) {
             this.addLinkSizeFunction();
             this.addLinkColorFunction();
@@ -52,7 +54,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(PluginInstances.settings.nodesSizeFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodesSizes(value as NodeStatFunction);
+                    this.recomputeNodesSizes(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
                 });
             });
 
@@ -79,7 +81,7 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(PluginInstances.settings.nodesColorFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodeColors(value as NodeStatFunction);
+                    this.recomputeNodeColors(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
                 });
             });
 
@@ -96,6 +98,21 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         this.elementsBody.push(setting.settingEl);
         this.warningNodeColorSetting = setting;
         this.setWarning(setting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
+    }
+
+    private addInvertNodeStats(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.nodeStatsInvert)
+            .setDesc(STRINGS.features.nodeStatsInvertDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.invertNodeStats);
+                cb.onChange((value) => {
+                    this.recomputeNodesSizes(PluginInstances.settings.nodesSizeFunction, value);
+                    this.recomputeNodeColors(PluginInstances.settings.nodesColorFunction, value);
+                });
+            });
+
+        this.elementsBody.push(setting.settingEl);
     }
 
     private addColorPaletteSettingForNodes(): void {
@@ -194,21 +211,23 @@ export class SettingElementsStats extends SettingsSectionCollapsible {
         }
     }
 
-    private recomputeNodesSizes(functionKey: NodeStatFunction): void {
+    private recomputeNodesSizes(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
         PluginInstances.settings.nodesSizeFunction = functionKey;
+        PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.plugin.saveSettings();
 
         PluginInstances.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-        PluginInstances.graphsManager.nodesSizeCalculator?.computeStats().then(() => {
+        PluginInstances.graphsManager.nodesSizeCalculator?.computeStats(invertNodeStats).then(() => {
             PluginInstances.graphsManager.updateSizeFunctionForNodesStat();
         });
         this.setWarning(this.warningNodeSizeSetting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
     }
 
-    private recomputeNodeColors(functionKey: NodeStatFunction): void {
+    private recomputeNodeColors(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
         PluginInstances.settings.nodesColorFunction = functionKey;
+        PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.graphsManager.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-        PluginInstances.graphsManager.nodesColorCalculator?.computeStats().then(() => {
+        PluginInstances.graphsManager.nodesColorCalculator?.computeStats(invertNodeStats).then(() => {
             PluginInstances.graphsManager.updatePaletteForNodesStat();
         });
         this.setWarning(this.warningNodeColorSetting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());

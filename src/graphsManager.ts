@@ -111,7 +111,7 @@ export class GraphsManager extends Component {
             new Notice(`${STRINGS.notices.nodeStatSizeFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${STRINGS.notices.functionToDefault}`);
             this.nodesSizeCalculator = undefined;
         }
-        this.nodesSizeCalculator?.computeStats();
+        this.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
     }
 
     private initializeNodesColorCalculator(): void {
@@ -124,7 +124,7 @@ export class GraphsManager extends Component {
             new Notice(`${STRINGS.notices.nodeStatColorFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${STRINGS.notices.functionToDefault}`);
             this.nodesColorCalculator = undefined;
         }
-        this.nodesColorCalculator?.computeStats();
+        this.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
     }
 
     private initializeLinksSizeCalculator(): void {

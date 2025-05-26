@@ -1,17 +1,16 @@
 import { TFile } from "obsidian";
 import { GraphologySingleton } from "../graphology";
-import { NodeStat, NodeStatCalculator } from "src/internal";
+import { NodeStatCalculator } from "src/internal";
 import { stronglyConnectedComponents } from "graphology-components";
 import { DirectedGraph } from "graphology";
 import { topologicalSort } from "graphology-dag";
+import { reverse } from "graphology-operators";
 
 export class TopologicalSortCalculator extends NodeStatCalculator {
     topologicalWeights: Map<string, number> = new Map<string, number>();
 
-    constructor(stat: NodeStat) {
-        super(stat);
-
-        const g = GraphologySingleton.getInstance().graphologyGraph;
+    override async getStats(invert: boolean): Promise<void> {
+        const g = invert ? reverse(GraphologySingleton.getInstance().graphologyGraph) : GraphologySingleton.getInstance().graphologyGraph;
         const components = stronglyConnectedComponents(g);
         const condensedGraph = new DirectedGraph();
         for (const [i, component] of components.entries()) {
@@ -47,10 +46,12 @@ export class TopologicalSortCalculator extends NodeStatCalculator {
                 this.topologicalWeights.set(node, weight);
             }
         }
+
+        return super.getStats(invert);
     }
 
-    override async getStat(file: TFile): Promise<number> {
-        return this.topologicalWeights.get(file.path) || 1;
+    override async getStat(id: string, invert: boolean): Promise<number> {
+        return this.topologicalWeights.get(id) || 1;
     }
 
     override getLink(): string {

@@ -1,13 +1,12 @@
-import { TFile } from "obsidian";
 import eccentricity from "graphology-metrics/node/eccentricity";
 import { GraphologySingleton } from "../graphology";
 import { NodeStatCalculator } from "src/internal";
 
 export class EccentricityCalculator extends NodeStatCalculator {
 
-    override async getStat(file: TFile): Promise<number> {
-        const connectedGraph = GraphologySingleton.getConnectedGraphology(file.path);
-        return eccentricity(connectedGraph, file.path);
+    override async getStat(id: string, invert: boolean): Promise<number> {
+        const connectedGraph = GraphologySingleton.getConnectedGraphology(id, invert);
+        return eccentricity(connectedGraph, id);
     }
 
     override getLink(): string {

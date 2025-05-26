@@ -194,6 +194,8 @@ export default class STRINGS {
 		nodeColorsFunction: "Node color function",
 		nodeColorsFunctionDesc: "Select how the graph engine should compute the color of the nodes",
 		nodeColorsPaletteDesc: "Choose the color palette for the nodes",
+		nodeStatsInvert: "Reverse graph to compute node statistics",
+		nodeStatsInvertDesc: "When computing the node statistics, reverse the graph so that the source nodes become targets and vice versa",
 		performance: "Performances",
 		performanceDelay: "Initialization delay (milliseconds)",
 		performanceDelayDesc: "Because of asynchronous mechanics, it can be needed to wait a time before starting initializing the extended features",
