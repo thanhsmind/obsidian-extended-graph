@@ -408,7 +408,7 @@ export class GraphEventsDispatcher extends Component {
                     }
                 }
                 // @ts-ignore
-                if (Object.keys(node.links).length) continue;
+                if (Object.keys(node.links).length === 0) continue;
 
                 // Filter out based on types
                 for (const [key, manager] of this.instances.linksSet.managers) {
