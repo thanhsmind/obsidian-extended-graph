@@ -581,6 +581,7 @@ export class GraphEventsDispatcher extends Component {
         if (name === LINK_KEY) {
             this.instances.graph.disableLinkTypes(types);
             this.instances.engine.render();
+            this.instances.renderer.changed();
         } else if (name === FOLDER_KEY) {
             this.disableFolders(types);
         } else {
@@ -601,6 +602,7 @@ export class GraphEventsDispatcher extends Component {
         if (name === LINK_KEY) {
             this.instances.graph.enableLinkTypes(types);
             this.instances.engine.render();
+            this.instances.renderer.changed();
         } else if (name === FOLDER_KEY) {
             this.enableFolders(types);
         } else {

@@ -154,5 +154,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         return super.clear();
     }
 
-    toggleType(type: string, enable: boolean): void { }
+    toggleType(type: string, enable: boolean): void {
+        this.updateValues();
+    }
 }
