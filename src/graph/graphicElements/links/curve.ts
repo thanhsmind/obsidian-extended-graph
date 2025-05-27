@@ -81,6 +81,13 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         const target = inverted ? link.source : link.target;
         const source = inverted ? link.target : link.source;
 
+        if (!target.circle || !source.circle) {
+            console.log(this.extendedLink.id);
+            this.destroy();
+            this.extendedLink.disable();
+            return;
+        }
+
         const f = renderer.nodeScale;
         const dx = target.x - source.x;
         const dy = target.y - source.y;
