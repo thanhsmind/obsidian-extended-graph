@@ -17,7 +17,8 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, col
         || !(typeof iconic.getFileItem === "function")) return null;
 
     // Check for an icon ruling
-    const data = iconic.ruleManager.checkRuling('file', path) ?? iconic.getFileItem(path);
+    const page = PluginInstances.app.vault.getFolderByPath(path) ? 'folder' : 'file';
+    const data = iconic.ruleManager.checkRuling(page, path) ?? iconic.getFileItem(path);
 
     // SVG icon
     if (data.icon?.startsWith("lucide-")) {
