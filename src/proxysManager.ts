@@ -50,11 +50,9 @@ export class ProxysManager {
 
     unregisterProxy(proxy: Object | null | undefined) {
         if (proxy === null || proxy === undefined) {
-            console.warn("Proxy", proxy);
             return;
         }
         if (!this.isProxy(proxy)) {
-            //console.warn("Trying to unregister an non-proxy object.", proxy.constructor.name);
             return;
         }
 
