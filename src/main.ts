@@ -1,5 +1,5 @@
 import { addIcon, getIcon, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, getGraphBannerClass, getGraphBannerPlugin, GraphsManager, hasEngine, INVALID_KEYS, isGraphBannerLoaded, LINK_KEY, PluginInstances, ProxysManager, StatesManager, TAG_KEY } from './internal';
+import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, getGraphBannerClass, getGraphBannerPlugin, getIconicPlugin, GraphsManager, hasEngine, INVALID_KEYS, isGraphBannerLoaded, LINK_KEY, PluginInstances, ProxysManager, StatesManager, TAG_KEY } from './internal';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -42,7 +42,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             this.app.workspace.on('layout-change', async () => {
                 //this.onLayoutChange();
             })
-        )
+        );
     }
 
     private initializeInvalidKeys(): void {

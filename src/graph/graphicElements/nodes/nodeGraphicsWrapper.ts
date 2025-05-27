@@ -1,7 +1,16 @@
-import { getIcon } from 'obsidian';
 import { Assets, ColorSource, Container, Sprite, Text, Texture } from 'pixi.js';
-import { GraphColorAttributes, GraphNode } from 'obsidian-typings';
-import { ExtendedGraphNode, getBackgroundColor, getFile, getListOfSubpaths, getSvgFromIconic, getSvgFromIconize, GraphicsWrapper, IconicPlugin, IconizePlugin, int2hex, NodeShape, PluginInstances, QueryData, QueryMatcher, ShapeEnum } from 'src/internal';
+import { GraphColorAttributes } from 'obsidian-typings';
+import {
+    ExtendedGraphNode,
+    getBackgroundColor,
+    getFile,
+    GraphicsWrapper,
+    NodeShape,
+    PluginInstances,
+    QueryData,
+    QueryMatcher,
+    ShapeEnum
+} from 'src/internal';
 
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
@@ -158,14 +167,14 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         this.opacityLayer.drawFill(backgroundColor);
     }
 
-    updateFillColor(color?: ColorSource): boolean {
+    updateFillColor(color: ColorSource, highlighted: boolean): boolean {
         if (this.lastColor === color) {
             return false;
         }
         else {
             this.lastColor = color;
             if (this.iconSprite) {
-                this.iconSprite.tint = color ?? this.extendedElement.icon?.color ?? this.getFillColor().rgb;
+                this.iconSprite.tint = (highlighted ? (color ?? this.extendedElement.icon?.color) : (this.extendedElement.icon?.color ?? color)) ?? this.getFillColor().rgb;
             }
             return true;
         }

@@ -5,30 +5,36 @@ import { GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, PluginInstance
 
 // ======================== Iconic
 
-export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
-    const iconic: IconicPlugin | null = PluginInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
-    if (!iconic
-        || !iconic.hasOwnProperty("settings")
-        || !iconic.settings.hasOwnProperty("fileIcons")
-        || !iconic.settings.fileIcons.hasOwnProperty(path)) return null;
+export function getIconicPlugin(): IconicPlugin | null {
+    return PluginInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
+}
 
-    const data = iconic.settings.fileIcons[path];
+export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
+    const iconic = getIconicPlugin();
+    if (!iconic
+        || !iconic.hasOwnProperty("ruleManager")
+        || !(typeof iconic.ruleManager.checkRuling === "function")
+        || !(typeof iconic.getFileItem === "function")) return null;
+
+    // Check for an icon ruling
+    const data = iconic.ruleManager.checkRuling('file', path) ?? iconic.getFileItem(path);
 
     // SVG icon
-    if (data.icon.startsWith("lucide-")) {
+    if (data.icon?.startsWith("lucide-")) {
         const svg = getIcon(data.icon);
         if (svg) {
             const bodyStyle = getComputedStyle(document.body);
             let color: string | null = null;
             if (data.hasOwnProperty("color")) {
                 color = bodyStyle.getPropertyValue(`--color-${data.color}`) || null;
+                //console.log(path, data.color, color);
             }
 
             return { svg, color, emoji: null };
         }
     }
 
-    else if (isEmoji(data.icon)) {
+    else if (data.icon && isEmoji(data.icon)) {
         return { svg: null, color: null, emoji: data.icon };
     }
 

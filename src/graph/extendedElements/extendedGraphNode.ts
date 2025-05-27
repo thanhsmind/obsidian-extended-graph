@@ -225,7 +225,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         const overrideColor: GraphColorAttributes = (needToChangeColor && !(isFocused || isHighlighted)) ? (this.getFillColor.call(this, ...args) ?? originalColor) : originalColor;
 
         if (needToUpdateGraphicsColor) {
-            this.graphicsWrapper?.updateFillColor(overrideColor.rgb);
+            this.graphicsWrapper?.updateFillColor(overrideColor.rgb, isFocused || isHighlighted);
         }
 
         return overrideColor;

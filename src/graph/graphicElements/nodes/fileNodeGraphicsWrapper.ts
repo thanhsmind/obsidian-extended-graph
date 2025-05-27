@@ -105,8 +105,8 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================ UPDATE GRAPHICS ============================
 
-    override updateFillColor(color?: ColorSource): boolean {
-        if (super.updateFillColor(color)) {
+    override updateFillColor(color: ColorSource, highlighted: boolean): boolean {
+        if (super.updateFillColor(color, highlighted)) {
             if (color === undefined) {
                 this.background?.drawFill(this.getFillColor().rgb);
             }
