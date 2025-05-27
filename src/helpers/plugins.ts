@@ -28,7 +28,6 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, col
             let color: string | null = null;
             if (data.hasOwnProperty("color")) {
                 color = bodyStyle.getPropertyValue(`--color-${data.color}`) || null;
-                //console.log(path, data.color, color);
             }
 
             return { svg, color, emoji: null };

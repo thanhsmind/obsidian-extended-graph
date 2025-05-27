@@ -7,9 +7,6 @@ export class BacklinkCountCalculator extends NodeStatCalculator {
         if (file) {
             if (!invert) {
                 const backlinks = PluginInstances.app.metadataCache.getBacklinksForFile(file);
-                if (file.path.contains("Carl.md")) {
-                    console.log(backlinks);
-                }
                 return backlinks.count();
             }
             else {
