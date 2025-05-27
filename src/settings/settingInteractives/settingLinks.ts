@@ -140,7 +140,7 @@ export class SettingLinks extends SettingInteractives {
 
                     if (Array.isArray(value)) {
                         for (const link of value) {
-                            if ((typeof link === "object") && ("path" in link)) {
+                            if (link && (typeof link === "object") && ("path" in link)) {
                                 allTypes.add(canonicalizeVarName(key));
                             }
                         }

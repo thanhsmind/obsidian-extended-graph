@@ -167,19 +167,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     // ================================ GETTERS ================================
 
-    getAllTypes(key: string): Set<string> | null {
-        const types = new Set<string>();
-
-        this.extendedElementsMap.forEach(extendedElement => {
-            const wrapperTypes = this.getTypes(key, extendedElement.coreElement);
-            if (wrapperTypes) {
-                wrapperTypes.forEach(type => types.add(type));
-            }
-        });
-
-        return new Set([...types].sort());
-    }
-
     protected getTypes(key: string, coreElement: T): Set<string> {
         const allTypes = [...Object.getOwnPropertyNames(this.typesMap[key])];
         const types = allTypes.filter(type => this.typesMap[key][type]?.has(this.getID(coreElement)));

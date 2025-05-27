@@ -48,7 +48,7 @@ function getProperty(key: string, file: TFile): Set<string> {
                 }
             }
         }
-        else if ((typeof values === "object") && ("path" in values)) {
+        else if (values && (typeof values === "object") && ("path" in values)) {
             const targetFile = getFile(values.path);
             types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
         }
@@ -69,7 +69,7 @@ function getProperty(key: string, file: TFile): Set<string> {
                     }
                 }
             }
-            else if ((typeof values === "object") && ("path" in values)) {
+            else if (values && (typeof values === "object") && ("path" in values)) {
                 const targetFile = getFile(values.path);
                 types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
             }
@@ -97,14 +97,14 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
         if (key === "file" || key === settings.imageProperty) continue;
         if (value === null || value === undefined || value === '') continue;
 
-        if ((typeof value === "object") && ("path" in value)) {
+        if (value && (typeof value === "object") && ("path" in value)) {
             const targetID = (value as { path: string }).path;
             if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
             linkTypes.get(targetID)?.add(canonicalizeVarName(key));
         }
         else if (Array.isArray(value)) {
             for (const l of value) {
-                if ((typeof l === "object") && ("path" in l)) {
+                if (l && (typeof l === "object") && ("path" in l)) {
                     const targetID = (l as { path: string }).path;
                     if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
                     linkTypes.get(targetID)?.add(canonicalizeVarName(key));
