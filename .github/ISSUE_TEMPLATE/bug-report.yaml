@@ -30,6 +30,15 @@ body:
         If you don't know what is relevant, you can attach `./obsidian/graph.json` (settings for the core plugin) and `.obsidian/plugins/extended-graph/data.json` (settings for this plugin) files.
     validations:
       required: true
+
+  - type: input
+    id: number-of-nodes
+    attributes:
+      label: Number of nodes
+      description: How many nodes did you have in your graph when the bug occured? No needs to be precise, you can give an approximation.
+      placeholder: 100
+    validations:
+      required: false
         
   - type: textarea
     id: other-plugins
