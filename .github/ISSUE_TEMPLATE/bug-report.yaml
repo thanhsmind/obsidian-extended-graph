@@ -36,7 +36,7 @@ body:
     attributes:
       label: Number of nodes
       description: How many nodes did you have in your graph when the bug occured? No needs to be precise, you can give an approximation.
-      placeholder: 100
+      placeholder: "100"
     validations:
       required: false
         
