@@ -29,14 +29,6 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
             });
             this.settingHeader.controlEl.insertAdjacentElement("afterbegin", cb.buttonEl);
         });
-
-        if ((PluginInstances.settings.enableFeatures['graph'][this.feature]
-            || PluginInstances.settings.enableFeatures['localgraph'][this.feature])) {
-            this.onExpand();
-        }
-        else {
-            this.onCollapse();
-        }
     }
 
     protected override addBody() {
@@ -80,8 +72,10 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     protected addProperty(key: string): boolean {
         if (!this.isKeyValid(key)) return false;
 
-        PluginInstances.settings.additionalProperties[key]['graph'] = true;
-        PluginInstances.settings.additionalProperties[key]['localgraph'] = true;
+        PluginInstances.settings.additionalProperties[key] = {
+            'graph': true,
+            'localgraph': true
+        };
         PluginInstances.settings.interactiveSettings[key] = {
             colormap: "rainbow",
             colors: [],
@@ -127,6 +121,8 @@ export class SettingProperty extends SettingInteractives {
             this.settingHeader.controlEl.insertAdjacentElement("afterbegin", cb.extraSettingsEl);
         });
         this.settingHeader.settingEl.addClass('setting-property-header');
+
+        this.foldIcon.extraSettingsEl.remove();
     }
 
     protected override addBody(): void {

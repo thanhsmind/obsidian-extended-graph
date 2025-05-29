@@ -5,6 +5,7 @@ export abstract class SettingsSection {
     settingTab: ExtendedGraphSettingTab;
     containerEl: HTMLElement;
     settingHeader: Setting;
+    foldIcon: ExtraButtonComponent;
     elementsBody: HTMLElement[] = [];
     itemClasses: string[] = [];
     id: string;
@@ -53,7 +54,7 @@ export abstract class SettingsSection {
             });
         }
 
-        const foldIcon = new ExtraButtonComponent(this.settingHeader.nameEl)
+        this.foldIcon = new ExtraButtonComponent(this.settingHeader.nameEl)
             .setIcon("chevron-right")
             .onClick(() => {
                 if (this.isCollapsed) this.expand();
