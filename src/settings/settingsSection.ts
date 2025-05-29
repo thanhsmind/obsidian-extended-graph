@@ -30,7 +30,7 @@ export abstract class SettingsSection {
         this.addBody();
         this.addToNav();
 
-        if (!(this.id in PluginInstances.settings.collapsedSettings) || PluginInstances.settings.collapsedSettings[this.id]) {
+        if (this.id != 'property-key' && (!(this.id in PluginInstances.settings.collapsedSettings) || PluginInstances.settings.collapsedSettings[this.id])) {
             this.collapse();
         }
 
