@@ -276,10 +276,13 @@ export class GraphEventsDispatcher extends Component {
                 extendedNode.setCoreElement(node);
             }
             const file = getFile(node.id);
-            if (file) {
+            const folderManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);
+            if (file && folderManager) {
                 const paths = getFileInteractives(FOLDER_KEY, file);
                 for (const path of paths) {
-                    this.instances.foldersSet?.loadFolder(FOLDER_KEY, path);
+                    if (folderManager.isActive(path)) {
+                        this.instances.foldersSet?.loadFolder(FOLDER_KEY, path);
+                    }
                 }
             }
         }
