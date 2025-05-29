@@ -154,6 +154,11 @@ export default class ExtendedGraphPlugin extends Plugin {
             delete settings['enableFeatures']['localgraph']["target"];
         }
 
+        // 2.2.5 --> 2.2.6
+        if ("property-key" in settings['collapsedSettings']) {
+            delete settings['collapsedSettings']["property-key"];
+        }
+
         return settings;
     }
 
