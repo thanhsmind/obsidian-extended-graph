@@ -1,5 +1,6 @@
 import { addIcon, getIcon, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
 import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, getGraphBannerClass, getGraphBannerPlugin, getIconicPlugin, GraphsManager, hasEngine, INVALID_KEYS, isGraphBannerLoaded, LINK_KEY, PluginInstances, ProxysManager, StatesManager, TAG_KEY } from './internal';
+import { re } from 'mathjs';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -84,10 +85,15 @@ export default class ExtendedGraphPlugin extends Plugin {
 
     async loadSettings() {
         let data = await this.loadData();
-        data = this.migrateSettings(data);
         // Comlete default settings
         this.completeDefaultSettings();
-        if (!data) data = DEFAULT_SETTINGS;
+        // Migrate
+        if (data) {
+            data = this.migrateSettings(data);
+        }
+        else {
+            data = DEFAULT_SETTINGS;
+        }
         // Remove invalid shallow keys
         for (const key in data) {
             if (!DEFAULT_SETTINGS.hasOwnProperty(key)) {
@@ -100,6 +106,9 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private migrateSettings(settings: any): any {
+        if (!settings) return DEFAULT_SETTINGS;
+        if (typeof settings !== "object") return DEFAULT_SETTINGS;
+
         // 2.2.3 --> 2.2.4
         if ("additionalProperties" in settings && typeof settings["additionalProperties"] === "object") {
             for (const key of Object.keys(settings["additionalProperties"])) {
@@ -111,6 +120,13 @@ export default class ExtendedGraphPlugin extends Plugin {
                     }
                 }
             }
+        }
+
+        if (!("enableFeatures" in settings)) {
+            settings['enableFeatures'] = {
+                'graph': {},
+                'localgraph': {},
+            };
         }
 
         if ("linksSameColorAsNode" in settings) {
