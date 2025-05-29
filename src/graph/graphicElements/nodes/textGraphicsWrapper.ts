@@ -1,5 +1,5 @@
 import { Sprite, Texture, Text, ColorSource } from "pixi.js";
-import { ExtendedGraphNode, ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics } from "src/internal";
+import { ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics } from "src/internal";
 
 export class TextGraphicsWrapper implements GraphicsWrapper {
     extendedElement: ExtendedGraphText;

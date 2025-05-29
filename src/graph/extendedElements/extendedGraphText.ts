@@ -16,6 +16,8 @@ export class ExtendedGraphText {
         this.instances = instances;
         this.coreElement = coreElement;
         this.coreGetTextStyle = this.coreElement.getTextStyle.bind(this.coreElement);
+        this.onMouseEnter = this.onMouseEnter.bind(this);
+        this.onMouseLeave = this.onMouseLeave.bind(this);
         this.restoreText = this.restoreText.bind(this);
         this.changeText = this.changeText.bind(this);
     }
@@ -39,8 +41,8 @@ export class ExtendedGraphText {
         this.restoreTextPositionCallback();
         if (this.coreElement.text && this.hasChangedText) {
             this.restoreText();
-            this.coreElement.circle?.removeListener('mouseenter', this.restoreText);
-            this.coreElement.circle?.removeListener('mouseleave', this.changeText);
+            this.coreElement.circle?.removeListener('mouseenter', this.onMouseEnter);
+            this.coreElement.circle?.removeListener('mouseleave', this.onMouseLeave);
             this.hasChangedText = false;
         }
         this.graphicsWrapper?.destroyGraphics();
@@ -84,12 +86,24 @@ export class ExtendedGraphText {
     private updateText(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.coreElement.text) return;
 
-        this.coreElement.circle?.addListener('mouseenter', this.restoreText);
-        this.coreElement.circle?.addListener('mouseleave', this.changeText);
+        this.coreElement.circle?.addListener('mouseenter', this.onMouseEnter);
+        this.coreElement.circle?.addListener('mouseleave', this.onMouseLeave);
 
         this.hasChangedText = true;
 
         this.changeText();
+    }
+
+    private onMouseEnter(): void {
+        if (!this.coreElement.text) return;
+        this.restoreText();
+        this.coreElement.text.zIndex = 10;
+    }
+
+    private onMouseLeave(): void {
+        if (!this.coreElement.text) return;
+        this.changeText();
+        this.coreElement.text.zIndex = 2; // 2 seems to be the default zIndex for text in obsidian
     }
 
     private changeText() {
