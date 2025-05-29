@@ -10,14 +10,14 @@ import {
     PluginInstances,
     randomColor,
     SettingColorPalette,
-    SettingsSectionCollapsible,
+    SettingsSectionPerGraphType,
     TAG_KEY,
     UIElements
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
 
-export abstract class SettingInteractives extends SettingsSectionCollapsible {
+export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     noneType: string = "";
 
     settingInteractiveColor: Setting;

@@ -4,7 +4,7 @@ import STRINGS from "src/Strings";
 
 export class SettingImages extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, STRINGS.features.image, 'image', STRINGS.features.imageDesc);
+        super(settingTab, 'images', STRINGS.features.image, 'image', STRINGS.features.imageDesc);
     }
 
     protected override addBody() {

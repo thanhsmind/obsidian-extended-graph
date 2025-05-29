@@ -1,5 +1,4 @@
 
-import { features } from "process";
 import {
     DEFAULT_STATE_ID,
     EngineOptions,
@@ -131,6 +130,7 @@ export interface ExtendedGraphSettings {
     collapseState: boolean;
     collapseLegend: boolean;
     resetAfterChanges: boolean;
+    collapsedSettings: Record<string, boolean>;
 
     // Last multiple nodes data
     multipleNodesData: {
@@ -284,6 +284,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     collapseState: true,
     collapseLegend: true,
     resetAfterChanges: false,
+    collapsedSettings: {},
 
     // Export SVG
     exportSVGOptions: {

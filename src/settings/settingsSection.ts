@@ -1,27 +1,41 @@
-import { ExtraButtonComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab } from "src/internal";
+import { ExtraButtonComponent, Plugin, setIcon, Setting } from "obsidian";
+import { ExtendedGraphSettingTab, PluginInstances } from "src/internal";
 
 export abstract class SettingsSection {
     settingTab: ExtendedGraphSettingTab;
     containerEl: HTMLElement;
     settingHeader: Setting;
     elementsBody: HTMLElement[] = [];
+    itemClasses: string[] = [];
+    id: string;
     title: string;
     icon: string;
     description: string;
+    isCollapsed: boolean = false;
 
-    constructor(settingTab: ExtendedGraphSettingTab, title: string, icon: string, description: string) {
+    constructor(settingTab: ExtendedGraphSettingTab, id: string, title: string, icon: string, description: string) {
         this.settingTab = settingTab;
         this.containerEl = settingTab.containerEl;
+        this.id = id;
         this.title = title;
         this.icon = icon;
         this.description = description;
+
+        this.itemClasses.push(`setting-${this.id}`);
     }
 
     display() {
         this.addHeader();
         this.addBody();
         this.addToNav();
+
+        if (!(this.id in PluginInstances.settings.collapsedSettings) || PluginInstances.settings.collapsedSettings[this.id]) {
+            this.collapse();
+        }
+
+        this.elementsBody.forEach(el => {
+            el.addClasses(this.itemClasses);
+        });
     }
 
     protected addHeader(): void {
@@ -39,7 +53,19 @@ export abstract class SettingsSection {
             });
         }
 
+        const foldIcon = new ExtraButtonComponent(this.settingHeader.nameEl)
+            .setIcon("chevron-right")
+            .onClick(() => {
+                if (this.isCollapsed) this.expand();
+                else this.collapse();
+            })
+            .then((btn) => {
+                btn.extraSettingsEl.addClass("setting-header-fold-icon");
+            });
+
         this.settingHeader.setDesc(this.description);
+
+        this.settingHeader.settingEl.addClasses(this.itemClasses);
     }
 
     protected abstract addBody(): void;
@@ -56,4 +82,23 @@ export abstract class SettingsSection {
             })
             .setTooltip(this.title);
     }
+
+    protected collapse(): void {
+        this.isCollapsed = true;
+        this.settingHeader.settingEl.addClass('is-collapsed');
+        PluginInstances.settings.collapsedSettings[this.id] = true;
+        PluginInstances.plugin.saveSettings();
+        this.onCollapse();
+    }
+
+    protected expand(): void {
+        this.isCollapsed = false;
+        this.settingHeader.settingEl.removeClass('is-collapsed');
+        PluginInstances.settings.collapsedSettings[this.id] = false;
+        PluginInstances.plugin.saveSettings();
+        this.onExpand();
+    }
+
+    protected onCollapse(): void { }
+    protected onExpand(): void { }
 }

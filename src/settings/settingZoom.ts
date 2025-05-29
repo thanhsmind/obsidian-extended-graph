@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class SettingZoom extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, STRINGS.features.zoomOnNode, 'scan-search', "");
+        super(settingTab, 'zoom', STRINGS.features.zoomOnNode, 'scan-search', "");
     }
 
     protected override addBody() {

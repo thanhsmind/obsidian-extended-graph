@@ -1,8 +1,8 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingFocus extends SettingsSectionCollapsible {
+export class SettingFocus extends SettingsSectionPerGraphType {
     allTopElements: HTMLElement[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab) {

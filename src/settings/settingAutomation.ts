@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class SettingAutomation extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, STRINGS.features.automation, 'workflow', "");
+        super(settingTab, 'automation', STRINGS.features.automation, 'workflow', "");
     }
 
     protected override addBody() {
@@ -15,16 +15,16 @@ export class SettingAutomation extends SettingsSection {
     }
 
     private addAutoEnable(): void {
-        new FeatureSetting(
+        this.elementsBody.push(new FeatureSetting(
             this.containerEl,
             STRINGS.features.autoEnable,
             STRINGS.features.autoEnableDesc,
             'auto-enabled'
-        );
+        ).settingEl);
     }
 
     private addStartingState() {
-        new Setting(this.containerEl)
+        this.elementsBody.push(new Setting(this.containerEl)
             .setName(STRINGS.states.startingState)
             .setDesc(STRINGS.states.startingStateDesc)
             .addDropdown(cb => {
@@ -36,11 +36,12 @@ export class SettingAutomation extends SettingsSection {
                     PluginInstances.settings.startingStateID = id;
                     PluginInstances.plugin.saveSettings();
                 })
-            });
+            }
+            ).settingEl);
     }
 
     private addResetAfterChanges() {
-        new Setting(this.containerEl)
+        this.elementsBody.push(new Setting(this.containerEl)
             .setName(STRINGS.features.autoReset)
             .setDesc(STRINGS.features.autoResetDesc)
             .addToggle(cb => {
@@ -49,7 +50,8 @@ export class SettingAutomation extends SettingsSection {
                     PluginInstances.settings.resetAfterChanges = value;
                     PluginInstances.plugin.saveSettings();
                 })
-            });
+            }
+            ).settingEl);
     }
 
 }

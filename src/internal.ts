@@ -72,7 +72,7 @@ export * from "./queries/ruleQuery";
 export * from "./settings/settings";
 export * from "./settings/settingTab";
 export * from "./settings/settingsSection";
-export * from "./settings/settingCollapsible";
+export * from "./settings/settingSectionPerGraphType";
 export * from "./settings/settingArrows";
 export * from "./settings/settingAutomation";
 export * from "./settings/settingElementsStats";

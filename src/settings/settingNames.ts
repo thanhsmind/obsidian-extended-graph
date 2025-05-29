@@ -1,8 +1,8 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingNames extends SettingsSectionCollapsible {
+export class SettingNames extends SettingsSectionPerGraphType {
     verticalOffset: Setting;
 
     constructor(settingTab: ExtendedGraphSettingTab) {

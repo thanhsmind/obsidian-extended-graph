@@ -1,8 +1,8 @@
 import { DropdownComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingElementsStats extends SettingsSectionCollapsible {
+export class SettingElementsStats extends SettingsSectionPerGraphType {
     warningNodeSizeSetting: Setting;
     warningNodeColorSetting: Setting;
     linksSizeFunctionDropdown: DropdownComponent | undefined;

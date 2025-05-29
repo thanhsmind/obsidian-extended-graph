@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class SettingPerformance extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, STRINGS.features.performance, 'cpu', "");
+        super(settingTab, 'performances', STRINGS.features.performance, 'cpu', "");
     }
 
     protected override addBody() {

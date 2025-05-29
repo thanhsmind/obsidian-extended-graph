@@ -1,8 +1,8 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingArrows extends SettingsSectionCollapsible {
+export class SettingArrows extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'arrows', '', STRINGS.features.arrows, 'mouse-pointer-2', STRINGS.features.arrowsDesc);
     }

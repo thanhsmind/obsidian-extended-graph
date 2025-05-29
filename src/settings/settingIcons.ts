@@ -1,8 +1,8 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, PropertiesSuggester, SettingsSectionCollapsible } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, PropertiesSuggester, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingIcons extends SettingsSectionCollapsible {
+export class SettingIcons extends SettingsSectionPerGraphType {
     colorSetting: Setting | undefined;
     parentSetting: Setting | undefined;
 

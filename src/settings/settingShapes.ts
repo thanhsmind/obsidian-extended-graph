@@ -1,8 +1,8 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionCollapsible, ShapeEnum, ShapeQueryModal } from "src/internal";
+import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionPerGraphType, ShapeEnum, ShapeQueryModal } from "src/internal";
 import STRINGS from "src/Strings";
 
-export class SettingShapes extends SettingsSectionCollapsible {
+export class SettingShapes extends SettingsSectionPerGraphType {
     settingsShape: SettingShape[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab) {
