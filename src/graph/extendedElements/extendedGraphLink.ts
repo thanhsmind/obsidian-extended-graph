@@ -6,6 +6,7 @@ import {
     ExtendedGraphArrow,
     ExtendedGraphElement,
     getPrimaryColor,
+    LineLinkGraphicsWrapper,
     LINK_KEY,
     PluginInstances,
     rgb2int,
@@ -15,10 +16,11 @@ import {
 
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
-    graphicsWrapper?: CurveLinkGraphicsWrapper;
+    graphicsWrapper?: CurveLinkGraphicsWrapper | LineLinkGraphicsWrapper;
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
     siblingLink?: ExtendedGraphLink;
+    firstSibling: boolean = true;
     container?: Container;
 
     protected override additionalConstruct() {
@@ -41,6 +43,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.siblingLink = this.instances.linksSet.extendedElementsMap.get(siblingID);
         if (this.siblingLink) {
             this.siblingLink.siblingLink = this;
+            this.firstSibling = false;
         }
     }
 
@@ -61,7 +64,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
 
     protected override needGraphicsWrapper(): boolean {
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links']
+            && (this.instances.settings.curvedLinks || this.instances.settings.allowMultipleLinkTypes)) {
             (this.id, "Needs graphics wrapper");
             return true; // Always for curved links
         }
@@ -70,7 +74,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override createGraphicsWrapper(): void {
         if (!this.graphicsWrapper) {
-            this.graphicsWrapper = new CurveLinkGraphicsWrapper(this);
+            this.graphicsWrapper = this.instances.settings.curvedLinks ? new CurveLinkGraphicsWrapper(this) : new LineLinkGraphicsWrapper(this);
             this.graphicsWrapper.createGraphics();
         }
     }
