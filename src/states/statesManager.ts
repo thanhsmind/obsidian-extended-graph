@@ -1,4 +1,5 @@
-import { DEFAULT_STATE_ID, FOLDER_KEY, Graph, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, Pinner, PluginInstances } from "src/internal";
+import { stat } from "fs";
+import { DEFAULT_STATE_ID, FOLDER_KEY, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -35,6 +36,7 @@ export class StatesManager {
 
         stateData = this.validateStateData(stateData);
         if (!stateData) return;
+
         this.updateInteractiveManagers(stateData, instances).then(() => {
             if (!stateData) return;
             if (stateData.engineOptions) {
@@ -44,6 +46,10 @@ export class StatesManager {
                     // @ts-ignore
                     node.fontDirty = true;
                 }
+            }
+
+            if (stateData.hiddenLegendRows) {
+                instances.legendUI?.hideRows(stateData.hiddenLegendRows);
             }
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
@@ -132,10 +138,10 @@ export class StatesManager {
         this.onStateNeedsSaving(state.data);
     }
 
-    onStateNeedsSaving(stateData: GraphStateData) {
+    onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false) {
         this.updateStateArray(stateData);
         PluginInstances.plugin.saveSettings().then(() => {
-            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
+            if (notice) new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
             this.updateAllStates();
         });
     }

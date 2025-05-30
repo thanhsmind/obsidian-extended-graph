@@ -24,6 +24,7 @@ export default class STRINGS {
 		enable: "Enable",
 		enabled: "Enabled",
 		enableAll: "Enable all",
+		hideRow: "Hide row",
 		manage: "Manage",
 		moveUp: "Move up",
 		moveDown: "Move down",

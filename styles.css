@@ -83,6 +83,39 @@ body {
     .graph-legend-none {
         order: 1;
     }
+
+    >.is-hidden {
+        display: none;
+    }
+
+    :nth-child(1 of .setting-item:not(.is-hidden)) {
+        padding-top: 0;
+        border-top: none;
+    }
+
+    .graph-legend-hide-rows-container {
+        --icon-size: 14px;
+        --icon-stroke: 1px;
+
+        display: flex;
+        justify-content: center;
+        gap: var(--size-4-2);
+
+        button {
+            display: flex;
+            align-items: center;
+            gap: var(--size-2-2);
+            padding: var(--size-4-1) var(--size-4-2);
+        }
+
+        .is-inactive {
+            color: var(--text-faint);
+        }
+
+        svg {
+            vertical-align: text-bottom;
+        }
+    }
 }
 
 /* STATES */
@@ -166,6 +199,7 @@ body {
         font-size: var(--code-size);
         padding: 0.15em 0.3em;
         border: var(--code-border-width) solid var(--code-border-color);
+        box-decoration-break: clone;
         -webkit-box-decoration-break: clone;
     }
 

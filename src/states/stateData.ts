@@ -52,6 +52,7 @@ export class GraphStateData {
     toggleTypes: { [interactive: string]: string[] };
     pinNodes?: { [nodeID: string]: { x: number, y: number } };
     engineOptions?: EngineOptions;
+    hiddenLegendRows?: string[];
 
     constructor() {
         this.toggleTypes = {};
@@ -60,6 +61,7 @@ export class GraphStateData {
         this.toggleTypes[FOLDER_KEY] = [];
 
         this.pinNodes = {};
+        this.hiddenLegendRows = [];
 
         this.engineOptions = new EngineOptions();
     }

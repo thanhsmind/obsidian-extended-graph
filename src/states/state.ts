@@ -38,6 +38,16 @@ export class GraphState {
 
         // Engine options
         this.data.engineOptions = new EngineOptions(instances.engine.getOptions());
+
+        // Hidden legend rows
+        this.data.hiddenLegendRows = [];
+        if (instances.legendUI) {
+            for (const [key, row] of instances.legendUI.legendRows) {
+                if (!row.row.isVisible) {
+                    this.data.hiddenLegendRows?.push(key);
+                }
+            }
+        }
     }
 
     saveState(stateData: GraphStateData): boolean {
@@ -46,7 +56,7 @@ export class GraphState {
     }
 
     isValidProperty(key: string) {
-        return ['id', 'name', 'toggleTypes', 'pinNodes', 'engineOptions'].includes(key);
+        return ['id', 'name', 'toggleTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows'].includes(key);
     }
 
     completeDefaultOptions(): boolean {
@@ -73,6 +83,10 @@ export class GraphState {
         }
         if (!this.data.engineOptions) {
             this.data.engineOptions = new EngineOptions();
+            hasChanged = true;
+        }
+        if (!this.data.hiddenLegendRows) {
+            this.data.hiddenLegendRows = [];
             hasChanged = true;
         }
 

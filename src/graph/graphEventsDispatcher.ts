@@ -1,4 +1,4 @@
-import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
+import { Component, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import {
