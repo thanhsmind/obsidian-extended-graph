@@ -37,6 +37,21 @@ export class SettingTags extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        // Weight arcs
+        if (PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs === undefined) {
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs = false;
+        }
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.interactives.arcWeight)
+            .setDesc(STRINGS.features.interactives.arcWeightDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs || false);
+                cb.onChange(value => {
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     protected override isValueValid(name: string): boolean {

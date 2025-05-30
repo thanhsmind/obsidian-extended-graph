@@ -144,13 +144,28 @@ export class SettingProperty extends SettingInteractives {
         if (PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs === undefined) {
             PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs = false;
         }
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+        this.elementsBody.push(new Setting(this.array.propertiesContainer)
             .setName(STRINGS.features.interactives.arcsSpread)
             .setDesc(STRINGS.features.interactives.arcsSpreadDesc)
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs || false);
                 cb.onChange(value => {
                     PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+
+        // Weight arcs
+        if (PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs === undefined) {
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs = false;
+        }
+        this.elementsBody.push(new Setting(this.array.propertiesContainer)
+            .setName(STRINGS.features.interactives.arcWeight)
+            .setDesc(STRINGS.features.interactives.arcWeightDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs || false);
+                cb.onChange(value => {
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].weightArcs = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

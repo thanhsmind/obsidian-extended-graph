@@ -121,6 +121,8 @@ export default class STRINGS {
 			arcsAddTagDesc: "Add arcs around the nodes to visualize the tags",
 			arcsSpread: "Spread arcs",
 			arcsSpreadDesc: "Spread the arcs around the nodes to fill the available space",
+			arcWeight: "Weight arc length",
+			arcWeightDesc: "Use the number of time the value is found to determine arcs lengths (requires 'Spread arcs' to be enabled)",
 			colorLinks: "Color links",
 			colorLinksDesc: "Add colors to the link rendered in the graph view",
 			curvedLinks: "Curved links",

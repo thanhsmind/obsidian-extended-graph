@@ -24,6 +24,7 @@ type InteractiveSettings = {
     noneType: string;
     showOnGraph: boolean;
     spreadArcs?: boolean;
+    weightArcs?: boolean;
     enableByDefault: boolean;
 }
 

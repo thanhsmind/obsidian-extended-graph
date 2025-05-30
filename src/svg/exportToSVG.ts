@@ -2,7 +2,6 @@ import { HexString } from "obsidian";
 import { Color, ColorSource } from 'pixi.js';
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import {
-    ArcsCircle,
     CurveLinkGraphicsWrapper,
     ExportSVGOptionModal,
     ExportSVGOptions,

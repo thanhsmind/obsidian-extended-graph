@@ -1,4 +1,5 @@
-import { getAllTags, TFile } from "obsidian";
+import { re } from "mathjs";
+import { getAllTags, TagCache, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
 
@@ -18,6 +19,18 @@ export function getFileInteractives(interactive: string, file: TFile): Set<strin
     }
 }
 
+export function getNumberOfFileInteractives(interactive: string, file: TFile, type: string): number {
+    if (file.extension !== "md") return 0;
+    switch (interactive) {
+        case TAG_KEY:
+            return getNumberOfTags(file, type);
+        case FOLDER_KEY:
+            return 1;
+        default:
+            return getNumberOfProperties(interactive, file, type);
+    }
+}
+
 function getTags(file: TFile): Set<string> {
     const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return new Set<string>();
@@ -26,6 +39,36 @@ function getTags(file: TFile): Set<string> {
     if (!tags) return new Set<string>();
 
     return new Set<string>(tags.sort());
+}
+
+function getNumberOfTags(file: TFile, tag: string): number {
+    const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
+    if (!metadataCache) return 0;
+
+    tag = "#" + tag.replace('#', ''); // Ensure the tag starts with '#'
+    const frontmatterTags: string[] = metadataCache.frontmatter?.tags?.filter((t: string) => t === tag) || [];
+    const contentTags: string[] = metadataCache.tags?.reduce((acc: string[], tagCache: TagCache) => {
+        if (tagCache.tag === tag) {
+            acc.push(tagCache.tag);
+        }
+        return acc;
+    }, []) || [];
+    return frontmatterTags.length + contentTags.length;
+}
+
+function recursiveGetProperties(value: any, types: Set<string>): void {
+    if (typeof value === "string" || typeof value === "number") {
+        types.add(String(value));
+    }
+    else if (value && (typeof value === "object") && ("path" in value)) {
+        const targetFile = getFile(value.path);
+        types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, value.path, true) : value.path);
+    }
+    else if (Array.isArray(value)) {
+        for (const v of value) {
+            recursiveGetProperties(v, types);
+        }
+    }
 }
 
 function getProperty(key: string, file: TFile): Set<string> {
@@ -37,21 +80,7 @@ function getProperty(key: string, file: TFile): Set<string> {
         const sourcePage = dv.page(file.path);
         const values = sourcePage[key];
         if (values === null || values === undefined || values === '') return new Set<string>();
-
-        if (typeof values === "string" || typeof values === "number") {
-            types.add(String(values));
-        }
-        else if (Array.isArray(values)) {
-            for (const value of values) {
-                if (typeof value === "string" || typeof value === "number") {
-                    types.add(String(value));
-                }
-            }
-        }
-        else if (values && (typeof values === "object") && ("path" in values)) {
-            const targetFile = getFile(values.path);
-            types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
-        }
+        recursiveGetProperties(values, types);
     }
 
     // Links in the frontmatter
@@ -59,24 +88,58 @@ function getProperty(key: string, file: TFile): Set<string> {
         const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
         if (frontmatter?.hasOwnProperty(key)) {
             const values = frontmatter[key];
-            if (typeof values === "string" || typeof values === "number") {
-                types.add(String(values));
-            }
-            else if (Array.isArray(values)) {
-                for (const value of values) {
-                    if (typeof value === "string" || typeof value === "number") {
-                        types.add(String(value));
-                    }
-                }
-            }
-            else if (values && (typeof values === "object") && ("path" in values)) {
-                const targetFile = getFile(values.path);
-                types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, values.path, true) : values.path);
-            }
+            recursiveGetProperties(values, types);
         }
     }
 
     return types;
+}
+
+function recursiveCountProperties(value: any, valueToMatch: string): number {
+    if (typeof value === "string" || typeof value === "number") {
+        if (valueToMatch === String(value)) return 1;
+    }
+    else if (value && (typeof value === "object") && ("path" in value)) {
+        const targetFile = getFile(value.path);
+        if (targetFile && PluginInstances.app.metadataCache.fileToLinktext(targetFile, value.path, true) === valueToMatch) {
+            return 1;
+        }
+        else if (!targetFile && value.path === valueToMatch) {
+            return 1;
+        }
+    }
+    else if (Array.isArray(value)) {
+        let result = 0;
+        for (const v of value) {
+            result += recursiveCountProperties(v, valueToMatch);
+        }
+        return result;
+    }
+    return 0;
+}
+
+function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): number {
+    const dv = getDataviewAPI(PluginInstances.app);
+
+    // With Dataview
+    if (dv) {
+        const sourcePage = dv.page(file.path);
+        const values = sourcePage[key];
+        if (values === null || values === undefined || values === '') return 0;
+
+        return recursiveCountProperties(values, valueToMatch);
+    }
+
+    // Links in the frontmatter
+    else {
+        const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
+        if (frontmatter?.hasOwnProperty(key)) {
+            const values = frontmatter[key];
+            return recursiveCountProperties(values, valueToMatch);
+        }
+    }
+
+    return 1;
 }
 
 function getFolderPath(file: TFile): Set<string> {

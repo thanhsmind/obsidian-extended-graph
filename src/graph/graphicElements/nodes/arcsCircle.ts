@@ -1,5 +1,5 @@
-import { ColorSource, Graphics } from "pixi.js";
-import { InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
+import { Graphics } from "pixi.js";
+import { ExtendedGraphNode, getFile, getNumberOfFileInteractives, InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
 
 export class Arc {
     type: string;
@@ -9,6 +9,7 @@ export class Arc {
     startAngle: number;
     endAngle: number;
     size: number;
+    weight: number;
 }
 
 export class ArcsCircle extends Graphics implements ManagerGraphics {
@@ -19,6 +20,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
     static readonly maxArcSize = Math.PI / 2;
 
     // Instance interface values
+    extendedNode: ExtendedGraphNode;
     manager: InteractiveManager;
     types: Set<string>
     name: string;
@@ -36,9 +38,10 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
      * @param manager - The interactive manager
      * @param circleLayer - The layer of the circle
      */
-    constructor(types: Set<string>, manager: InteractiveManager, circleLayer: number, shape: ShapeEnum) {
+    constructor(extendedNode: ExtendedGraphNode, types: Set<string>, manager: InteractiveManager, circleLayer: number, shape: ShapeEnum) {
         super();
         this.name = manager.name;
+        this.extendedNode = extendedNode;
         this.types = types;
         this.manager = manager;
         this.circleLayer = circleLayer;
@@ -64,6 +67,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         const arcSize = Math.min(2 * Math.PI / nTags, ArcsCircle.maxArcSize);
         this.radius = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
         this.thickness = ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
+        const weightedArcs = true;
 
         for (const type of this.types) {
             if (type === this.manager.instances.settings.interactiveSettings[this.manager.name].noneType) continue;
@@ -77,13 +81,24 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
                 arc.graphic = new Graphics();
                 arc.graphic.name = this.getArcName(type);
                 arc.color = this.manager.getColor(type);
+                arc.weight = 1;
+                if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs
+                    && this.manager.instances.settings.interactiveSettings[this.manager.name].weightArcs
+                ) {
+                    const file = getFile(this.extendedNode.id);
+                    if (file) {
+                        arc.weight = getNumberOfFileInteractives(this.manager.name, file, type);
+                    }
+                }
                 this.graphics.set(type, arc);
                 this.addChild(arc.graphic);
             }
             else {
 
             }
+        }
 
+        for (const type of this.types) {
             this.redrawType(type);
         }
     }
@@ -94,14 +109,15 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
 
         if (color) arc.color = color;
 
-
         if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs) {
-            const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
-            arc.size = 2 * Math.PI / activeTypes.length;
-            arc.index = activeTypes.indexOf(type);
+            const activeTypes = [...this.types].filter(t => this.manager.isActive(t));
+            const totalWeight = activeTypes.reduce((acc, type) => acc + (this.graphics.get(type)?.weight || 0), 0);
+            const typesBefore = activeTypes.slice(0, activeTypes.indexOf(type));
+            arc.size = arc.weight * 2 * Math.PI / totalWeight;
+            arc.index = typesBefore.reduce((acc, t) => acc + (this.graphics.get(t)?.weight || 0), 0);
             const addGap = [...this.types].some(t => t !== type && this.manager.isActive(t));
-            arc.startAngle = arc.size * arc.index + (addGap ? ArcsCircle.gap * 0.5 : 0);
-            arc.endAngle = arc.size * (arc.index + 1) - (addGap ? ArcsCircle.gap * 0.5 : 0);
+            arc.startAngle = 2 * Math.PI / totalWeight * arc.index + (addGap ? ArcsCircle.gap * 0.5 : 0);
+            arc.endAngle = arc.startAngle + arc.size - (addGap ? ArcsCircle.gap * 0.5 : 0);
         }
         else {
             arc.startAngle = arc.size * arc.index + ArcsCircle.gap * 0.5;

@@ -82,7 +82,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     }
 
     protected createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
-        const arcsCircle = new ArcsCircle(types, manager, layer, this.shape);
+        const arcsCircle = new ArcsCircle(this.extendedElement, types, manager, layer, this.shape);
         this.managerGraphicsMap?.set(manager.name, arcsCircle);
         this.pixiElement.addChild(arcsCircle);
     }
