@@ -1,4 +1,4 @@
-import { Component, Menu, TFile } from "obsidian";
+import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import {
@@ -27,6 +27,7 @@ export class GraphEventsDispatcher extends Component {
 
     listenStage: boolean = true;
     coreArrowAlpha?: number;
+    coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -115,6 +116,7 @@ export class GraphEventsDispatcher extends Component {
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
             this.changeArrowAlpha();
+            this.changeNodeOnClick();
         }
         catch (error) {
             this.listenStage = false;
@@ -221,6 +223,13 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.colors.arrow.a = 1;
     }
 
+    private changeNodeOnClick(): void {
+        if (!this.instances.settings.openInNewTab) return;
+        this.onNodeClick = this.onNodeClick.bind(this);
+        this.coreOnNodeClick = this.instances.renderer.onNodeClick;
+        this.instances.renderer.onNodeClick = this.onNodeClick;
+    }
+
     // =============================== UNLOADING ===============================
 
     /**
@@ -235,6 +244,7 @@ export class GraphEventsDispatcher extends Component {
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
         this.restoreArrowAlpha();
+        this.restoreOnNodeClick();
     }
 
     private unbindStageEvents(): void {
@@ -248,6 +258,13 @@ export class GraphEventsDispatcher extends Component {
         if (this.coreArrowAlpha !== undefined) {
             this.instances.renderer.colors.arrow.a = this.coreArrowAlpha;
             this.coreArrowAlpha = undefined;
+        }
+    }
+
+    private restoreOnNodeClick(): void {
+        if (this.coreOnNodeClick) {
+            this.instances.renderer.onNodeClick = this.coreOnNodeClick;
+            this.coreOnNodeClick = undefined;
         }
     }
 
@@ -462,6 +479,14 @@ export class GraphEventsDispatcher extends Component {
         }
 
         return data;
+    }
+
+    private onNodeClick(e: UserEvent | null, id: string, type: string) {
+        if ("tag" !== type)
+            PluginInstances.app.workspace.openLinkText(id, "", "tab");
+        else {
+            if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
+        }
     }
 
     // ============================== GRAPH CYCLE ==============================

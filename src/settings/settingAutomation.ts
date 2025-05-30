@@ -11,6 +11,7 @@ export class SettingAutomation extends SettingsSection {
     protected override addBody() {
         this.addAutoEnable();
         this.addStartingState();
+        this.addOpenInNewTab();
         this.addResetAfterChanges();
     }
 
@@ -34,6 +35,20 @@ export class SettingAutomation extends SettingsSection {
                 cb.setValue(PluginInstances.settings.startingStateID);
                 cb.onChange(id => {
                     PluginInstances.settings.startingStateID = id;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }
+            ).settingEl);
+    }
+
+    private addOpenInNewTab() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(STRINGS.features.openInNewTab)
+            .setDesc(STRINGS.features.openInNewTabDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.openInNewTab);
+                cb.onChange((value) => {
+                    PluginInstances.settings.openInNewTab = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }
