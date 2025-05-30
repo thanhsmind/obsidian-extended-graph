@@ -161,7 +161,7 @@ export class StatesUI extends Component {
         }
     }
 
-    private setValue(id: string) {
+    setValue(id: string) {
         this.currentStateID = id;
         this.select.setValue(id);
         this.displaySaveDeleteButton();

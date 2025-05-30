@@ -71,14 +71,17 @@ export abstract class ExportGraphToSVG {
             this.svg.appendChild(this.groupText);
         }
 
-        this.svg.setAttribute('viewBox', this.getViewBox());
+        const { xMin, xMax, yMin, yMax } = this.getViewBox();
+        this.svg.setAttribute('viewBox', `${xMin} ${yMin} ${xMax - xMin} ${yMax - yMin}`);
 
         // Background
+        const w = xMax - xMin;
+        const h = yMax - yMin;
         this.svg.prepend(getSVGNode('rect', {
-            width: '120%',
-            height: '120%',
-            x: '-60%',
-            y: '-60%',
+            width: w * 1.1,
+            height: h * 1.1,
+            x: xMin - w * 0.05,
+            y: yMin - h * 0.05,
             fill: this.backgroundColor
         }));
 
@@ -161,7 +164,7 @@ export abstract class ExportGraphToSVG {
         return node.getDisplayText();
     }
 
-    private getViewBox(): string {
+    private getViewBox(): { xMin: number, xMax: number, yMin: number, yMax: number } {
         document.body.appendChild(this.svg);
         const { xMin, xMax, yMin, yMax } = Array.from(this.svg.children).reduce((acc: any, el) => {
             const { x, y, width, height } = (el as SVGGraphicsElement).getBBox();
@@ -172,7 +175,7 @@ export abstract class ExportGraphToSVG {
             return acc;
         }, {});
         document.body.removeChild(this.svg);
-        return `${xMin} ${yMin} ${xMax - xMin} ${yMax - yMin}`;
+        return { xMin, xMax, yMin, yMax };
     }
 
     private getCoreNode(node: ExtendedGraphNode | GraphNode): GraphNode {
@@ -402,28 +405,39 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             });
 
             for (const [type, arc] of arcs.graphics) {
-                const color: HexString = rgb2hex(manager.getColor(type));
-
                 const alpha = arc.graphic.alpha;
-                const radius = size * (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * arcs.circleLayer) * 2 * NodeShape.getSizeFactor(arcs.shape);
-                const startAngle = arcs.arcSize * arc.index + ArcsCircle.gap * 0.5;
-                const endAngle = arcs.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
-                const thickness = size * ArcsCircle.thickness * 2 * NodeShape.getSizeFactor(arcs.shape);
 
-                const start = polar2Cartesian(cx, cy, radius, endAngle);
-                const end = polar2Cartesian(cx, cy, radius, startAngle);
-                const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+                const radius = arcs.radius / NodeShape.RADIUS * size;
+                const thickness = arcs.thickness / NodeShape.RADIUS * size;
 
-                const path = `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
-                const arcSVG = getSVGNode('path', {
-                    class: 'arc arc-' + type,
-                    d: path,
-                    opacity: alpha,
-                    'stroke-width': thickness,
-                    'stroke': color,
-                    'fill': 'none',
-                });
-                circleGroup.appendChild(arcSVG);
+                const start = polar2Cartesian(cx, cy, radius, arc.endAngle);
+                const end = polar2Cartesian(cx, cy, radius, arc.startAngle);
+                if (start.x === end.x && start.y === end.y) {
+                    const arcSVG = getSVGNode('circle', {
+                        class: 'arc arc-' + type,
+                        cx: node.x,
+                        cy: node.y,
+                        r: radius,
+                        opacity: alpha,
+                        'stroke-width': thickness,
+                        'stroke': rgb2hex(arc.color),
+                        'fill': 'none',
+                    });
+                    circleGroup.appendChild(arcSVG);
+                }
+                else {
+                    const largeArcFlag = arc.endAngle - arc.startAngle <= Math.PI ? "0" : "1";
+                    const path = `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+                    const arcSVG = getSVGNode('path', {
+                        class: 'arc arc-' + type,
+                        d: path,
+                        opacity: alpha,
+                        'stroke-width': thickness,
+                        'stroke': rgb2hex(arc.color),
+                        'fill': 'none',
+                    });
+                    circleGroup.appendChild(arcSVG);
+                }
             }
 
             group.appendChild(circleGroup);

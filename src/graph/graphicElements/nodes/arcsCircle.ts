@@ -1,5 +1,15 @@
-import { Graphics } from "pixi.js";
+import { ColorSource, Graphics } from "pixi.js";
 import { InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
+
+export class Arc {
+    type: string;
+    index: number;
+    graphic: Graphics;
+    color: Uint8Array;
+    startAngle: number;
+    endAngle: number;
+    size: number;
+}
 
 export class ArcsCircle extends Graphics implements ManagerGraphics {
     // Static values
@@ -14,9 +24,10 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
     name: string;
 
     // Instance values
-    arcSize: number;
+    radius: number;
+    thickness: number;
     circleLayer: number;
-    graphics = new Map<string, { index: number, graphic: Graphics }>();
+    graphics = new Map<string, Arc>();
     shape: ShapeEnum;
 
     /**
@@ -49,18 +60,23 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
     updateValues(): void {
         const allTypes = this.manager.getTypesWithoutNone();
         const nTags = allTypes.length;
-        this.arcSize = Math.min(2 * Math.PI / nTags, ArcsCircle.maxArcSize);
+
+        const arcSize = Math.min(2 * Math.PI / nTags, ArcsCircle.maxArcSize);
+        this.radius = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
+        this.thickness = ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
 
         for (const type of this.types) {
             if (type === this.manager.instances.settings.interactiveSettings[this.manager.name].noneType) continue;
             const index = allTypes.findIndex(t => t === type);
             let arc = this.graphics.get(type);
             if (!arc) {
-                arc = {
-                    index: index,
-                    graphic: new Graphics()
-                }
+                arc = new Arc();
+                arc.type = type;
+                arc.index = index;
+                arc.size = arcSize;
+                arc.graphic = new Graphics();
                 arc.graphic.name = this.getArcName(type);
+                arc.color = this.manager.getColor(type);
                 this.graphics.set(type, arc);
                 this.addChild(arc.graphic);
             }
@@ -76,16 +92,26 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         const arc = this.graphics.get(type);
         if (!arc) return;
 
-        if (!color) color = this.manager.getColor(type);
+        if (color) arc.color = color;
 
-        const radius = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
-        const startAngle = this.arcSize * arc.index + ArcsCircle.gap * 0.5;
-        const endAngle = this.arcSize * (arc.index + 1) - ArcsCircle.gap * 0.5;
+
+        if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs) {
+            const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
+            arc.size = 2 * Math.PI / activeTypes.length;
+            arc.index = activeTypes.indexOf(type);
+            const addGap = [...this.types].some(t => t !== type && this.manager.isActive(t));
+            arc.startAngle = arc.size * arc.index + (addGap ? ArcsCircle.gap * 0.5 : 0);
+            arc.endAngle = arc.size * (arc.index + 1) - (addGap ? ArcsCircle.gap * 0.5 : 0);
+        }
+        else {
+            arc.startAngle = arc.size * arc.index + ArcsCircle.gap * 0.5;
+            arc.endAngle = arc.size * (arc.index + 1) - ArcsCircle.gap * 0.5;
+        }
 
         arc.graphic.clear();
         arc.graphic
-            .lineStyle(ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2, color)
-            .arc(0, 0, radius, startAngle, endAngle)
+            .lineStyle(this.thickness, arc.color)
+            .arc(0, 0, this.radius, arc.startAngle, arc.endAngle)
             .endFill();
         arc.graphic.alpha = this.manager.isActive(type) ? 1 : 0.1;
     }
@@ -98,8 +124,13 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
      * @param enable Whether to enable the arc
      */
     toggleType(type: string, enable: boolean): void {
-        const arc = this.graphics.get(type);
-        if (arc) arc.graphic.alpha = enable ? 1 : 0.1;
+        if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs) {
+            this.updateValues();
+        }
+        else {
+            const arc = this.graphics.get(type);
+            if (arc) arc.graphic.alpha = enable ? 1 : 0.1;
+        }
     }
 
     /**

@@ -22,6 +22,21 @@ export class SettingTags extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        // Spread arcs
+        if (PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs === undefined) {
+            PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs = false;
+        }
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.interactives.arcsSpread)
+            .setDesc(STRINGS.features.interactives.arcsSpreadDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs || false);
+                cb.onChange(value => {
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].spreadArcs = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     protected override isValueValid(name: string): boolean {

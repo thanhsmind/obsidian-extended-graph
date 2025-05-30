@@ -23,6 +23,7 @@ type InteractiveSettings = {
     unselected: string[];
     noneType: string;
     showOnGraph: boolean;
+    spreadArcs?: boolean;
     enableByDefault: boolean;
 }
 
