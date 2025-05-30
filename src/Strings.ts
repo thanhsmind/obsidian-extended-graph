@@ -205,6 +205,7 @@ export default class STRINGS {
 		nodeStatsInvertDesc: "When computing the node statistics, reverse the graph so that the source nodes become targets and vice versa",
 		openInNewTab: "Open nodes in new tab",
 		openInNewTabDesc: "Always open the nodes in a new tab when left clicking on them",
+		otherDisplay: "Other display options",
 		performance: "Performances",
 		performanceDelay: "Initialization delay (milliseconds)",
 		performanceDelayDesc: "Because of asynchronous mechanics, it can be needed to wait a time before starting initializing the extended features",

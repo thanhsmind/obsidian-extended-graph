@@ -82,8 +82,8 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
                 arc.graphic.name = this.getArcName(type);
                 arc.color = this.manager.getColor(type);
                 arc.weight = 1;
-                if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs
-                    && this.manager.instances.settings.interactiveSettings[this.manager.name].weightArcs
+                if (this.manager.instances.settings.spreadArcs
+                    && this.manager.instances.settings.weightArcs
                 ) {
                     const file = getFile(this.extendedNode.id);
                     if (file) {
@@ -109,7 +109,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
 
         if (color) arc.color = color;
 
-        if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs) {
+        if (this.manager.instances.settings.spreadArcs) {
             const activeTypes = [...this.types].filter(t => this.manager.isActive(t));
             const totalWeight = activeTypes.reduce((acc, type) => acc + (this.graphics.get(type)?.weight || 0), 0);
             const typesBefore = activeTypes.slice(0, activeTypes.indexOf(type));
@@ -140,7 +140,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
      * @param enable Whether to enable the arc
      */
     toggleType(type: string, enable: boolean): void {
-        if (this.manager.instances.settings.interactiveSettings[this.manager.name].spreadArcs) {
+        if (this.manager.instances.settings.spreadArcs) {
             this.updateValues();
         }
         else {

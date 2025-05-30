@@ -23,8 +23,6 @@ type InteractiveSettings = {
     unselected: string[];
     noneType: string;
     showOnGraph: boolean;
-    spreadArcs?: boolean;
-    weightArcs?: boolean;
     enableByDefault: boolean;
 }
 
@@ -94,6 +92,8 @@ export interface ExtendedGraphSettings {
     fadeOnDisable: boolean;
     focusScaleFactor: number;
     borderUnresolved: number | string;
+    spreadArcs: boolean;
+    weightArcs: boolean;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -250,6 +250,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
     borderUnresolved: '',
+    spreadArcs: false,
+    weightArcs: false,
 
     // Links
     allowMultipleLinkTypes: false,

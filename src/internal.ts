@@ -78,6 +78,7 @@ export * from "./settings/settingsSection";
 export * from "./settings/settingSectionPerGraphType";
 export * from "./settings/settingArrows";
 export * from "./settings/settingAutomation";
+export * from "./settings/settingDisplay";
 export * from "./settings/settingElementsStats";
 export * from "./settings/settingFocus";
 export * from "./settings/settingIcons";

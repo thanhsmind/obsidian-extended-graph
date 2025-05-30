@@ -19,7 +19,8 @@ import {
     SettingQuery,
     SettingAutomation,
     Feature,
-    FeatureSetting
+    FeatureSetting,
+    SettingDisplay
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
@@ -43,8 +44,9 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingFocus(this));
         this.sections.push(new SettingShapes(this));
         this.sections.push(new SettingElementsStats(this));
-        this.sections.push(new SettingZoom(this));
         this.sections.push(new SettingNames(this));
+        this.sections.push(new SettingZoom(this));
+        this.sections.push(new SettingDisplay(this));
         this.sections.push(new SettingPerformance(this));
     }
 
@@ -55,8 +57,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
 
         this.addNav();
         this.addDisableNodes();
-        this.addBorderUnresolved();
-        this.addLinkSameColorAsNodes();
 
         // FEATURES
         for (const section of this.sections) {
@@ -82,34 +82,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
-    }
-
-    private addBorderUnresolved() {
-        new Setting(this.containerEl)
-            .setName(STRINGS.features.borderUnresolved)
-            .setDesc(STRINGS.features.borderUnresolvedDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.borderUnresolved.toString())
-                .onChange(async (value) => {
-                    if (value === '') {
-                        PluginInstances.settings.borderUnresolved = '';
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                    const intValue = parseFloat(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.borderUnresolved = Math.clamp(intValue, 0, 1);
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                }));
-    }
-
-    private addLinkSameColorAsNodes() {
-        new FeatureSetting(
-            this.containerEl,
-            STRINGS.features.linksSameColorAsNode,
-            STRINGS.features.linksSameColorAsNodeDesc,
-            'linksSameColorAsNode'
-        );
     }
 
     hide(): void {
