@@ -20,13 +20,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
     siblingLink?: ExtendedGraphLink;
-    firstSibling: boolean = true;
+    firstSibling: boolean;
     container?: Container;
 
     protected override additionalConstruct() {
         if (SettingQuery.needToChangeArrow(this.instances)) {
             this.extendedArrow = new ExtendedGraphArrow(this.instances, this);
         }
+        this.firstSibling = true;
     }
 
 
@@ -43,7 +44,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.siblingLink = this.instances.linksSet.extendedElementsMap.get(siblingID);
         if (this.siblingLink) {
             this.siblingLink.siblingLink = this;
-            this.firstSibling = false;
+            if (this.siblingLink.firstSibling) {
+                this.firstSibling = false;
+            }
         }
     }
 

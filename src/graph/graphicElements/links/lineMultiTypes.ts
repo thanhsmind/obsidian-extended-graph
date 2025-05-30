@@ -121,36 +121,49 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             arrowColor = this.tint;
         }
         else {
-            // Compute one bezier curve for each type
-            // with the De Casteljau algorithm, considering the full
-            // curbe with control points P0_, P1, P2_.
             const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
-            if (activeTypes.length === 1) {
-                this.lineStyle({ width: thickness, color: "white" });
-                this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
-                this.tint = this.color;
-                arrowColor = this.tint;
-            }
-            else if (activeTypes.length > 0) {
-                this.tint = "white";
-                // length of the line
-                const step = 1 / activeTypes.length;
-                let i = 0;
-                this.moveTo(P0_.x, P0_.y);
-                for (const type of activeTypes) {
-                    const t = step * (1 + i);
-
-                    this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
-                    this.lineTo(
-                        (1 - t) * P0_.x + t * P2_.x,
-                        (1 - t) * P0_.y + t * P2_.y
-                    );
-                    ++i;
-                }
-                arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+            // If the link has a sibling already drawn, we don't draw this line but we still select the correct arrow color
+            if (!this.extendedLink.firstSibling && this.extendedLink.siblingLink?.getActiveType(LINK_KEY)) {
+                arrowColor = this.color;
             }
             else {
-                arrowColor = this.tint;
+                // If the link has a sibling link, we concatenate its active types
+                if (this.extendedLink.siblingLink) {
+                    const siblingActiveTypes = [...this.extendedLink.siblingLink.types.get(LINK_KEY) ?? []].filter(type => this.manager.isActive(type));
+                    for (const type of siblingActiveTypes) {
+                        if (!activeTypes.includes(type)) {
+                            activeTypes.unshift(type);
+                        }
+                    }
+                }
+                // If there is only one active type, we draw a single line
+                if (activeTypes.length === 1) {
+                    this.lineStyle({ width: thickness, color: "white" });
+                    this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
+                    this.tint = this.color;
+                    arrowColor = this.tint;
+                }
+                else if (activeTypes.length > 0) {
+                    this.tint = "white";
+                    // length of the line
+                    const step = 1 / activeTypes.length;
+                    let i = 0;
+                    this.moveTo(P0_.x, P0_.y);
+                    for (const type of activeTypes) {
+                        const t = step * (1 + i);
+
+                        this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
+                        this.lineTo(
+                            (1 - t) * P0_.x + t * P2_.x,
+                            (1 - t) * P0_.y + t * P2_.y
+                        );
+                        ++i;
+                    }
+                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                }
+                else {
+                    arrowColor = this.tint;
+                }
             }
         }
 
