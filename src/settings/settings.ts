@@ -93,6 +93,7 @@ export interface ExtendedGraphSettings {
     borderUnresolved: number | string;
 
     // Links
+    allowMultipleLinkTypes: boolean;
     disableSource: boolean;
     disableTarget: boolean;
     excludedSourcesFolder: string[];
@@ -247,6 +248,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     borderUnresolved: '',
 
     // Links
+    allowMultipleLinkTypes: false,
     disableSource: false,
     disableTarget: false,
     excludedSourcesFolder: [],

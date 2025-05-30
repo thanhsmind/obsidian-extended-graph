@@ -146,6 +146,8 @@ export default class STRINGS {
 			tags: "Tags",
 			tagsDesc: "Display and filter by tags",
 		},
+		linksAllowMultipleTypes: "Draw multiple types",
+		linksAllowMultipleTypesDesc: "Allow the graph to draw multiple types of links between two nodes",
 		linksOutline: "Outline links",
 		linksOutlineDesc: "Add a thin outline to the links and the arrows (when opaque)",
 		linksSameColorAsNode: "Color link based on source",

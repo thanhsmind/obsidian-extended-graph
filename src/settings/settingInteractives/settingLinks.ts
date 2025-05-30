@@ -17,6 +17,7 @@ export class SettingLinks extends SettingInteractives {
         this.addDisableSources();
         this.addDisableTargets();
         this.addShowOnGraph();
+        this.addMultipleTypes();
         this.addCurvedLinks();
         this.addOutlineLinks();
     }
@@ -49,6 +50,19 @@ export class SettingLinks extends SettingInteractives {
 
     private setManageNumber(cb: ButtonComponent, n: number): void {
         cb.setButtonText(`${STRINGS.controls.manage} (${n})`);
+    }
+
+    private addMultipleTypes() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.linksAllowMultipleTypes)
+            .setDesc(STRINGS.features.linksAllowMultipleTypesDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.allowMultipleLinkTypes);
+                cb.onChange(value => {
+                    PluginInstances.settings.allowMultipleLinkTypes = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addDisableSources() {

@@ -28,6 +28,7 @@ export * from "./graph/extendedElements/extendedGraphArrow";
 
 export * from "./graph/graphicElements/graphicsWrapper";
 export * from "./graph/graphicElements/links/curve";
+export * from "./graph/graphicElements/links/curveMultiTypes";
 export * from "./graph/graphicElements/links/curveLinkGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/nodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/attachmentNodeGraphicsWrapper";
