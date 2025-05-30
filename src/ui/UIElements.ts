@@ -4,7 +4,7 @@ import STRINGS from "src/Strings";
 const BUTTON_DELETE_CLASS: string = "extended-graph-delete-button";
 const BUTTON_ADD_CLASS: string = "extended-graph-add-button";
 
-export type ButtonType = 'add' | 'delete' | 'save';
+export type ButtonType = 'add' | 'delete' | 'edit' | 'save';
 
 export class UIElements {
     static setupButton(button: ButtonComponent, type: ButtonType) {
@@ -18,6 +18,10 @@ export class UIElements {
                 button.setClass(BUTTON_DELETE_CLASS);
                 button.setIcon('trash-2');
                 button.setTooltip(STRINGS.controls.delete);
+                break;
+            case 'edit':
+                button.setIcon('pencil');
+                button.setTooltip(STRINGS.controls.edit);
                 break;
             case 'save':
                 button.setIcon('save');
@@ -40,6 +44,10 @@ export class UIElements {
                 extraButton.extraSettingsEl.addClass(BUTTON_DELETE_CLASS);
                 extraButton.setIcon('trash-2');
                 extraButton.setTooltip(STRINGS.controls.delete);
+                break;
+            case 'edit':
+                extraButton.setIcon('pencil');
+                extraButton.setTooltip(STRINGS.controls.edit);
                 break;
             case 'save':
                 extraButton.setIcon('save');

@@ -158,6 +158,16 @@ export class StatesManager {
         });
     }
 
+    renameState(id: string, newName: string): void {
+        const stateData = this.getStateDataById(id);
+        if (!stateData || stateData.name === newName) return;
+        stateData.name = newName;
+        PluginInstances.plugin.saveSettings().then(() => {
+            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateRenamed} (${newName})`);
+            this.updateAllStates();
+        });
+    }
+
     // ============================= DELETE STATE ==============================
 
     /**

@@ -4,12 +4,14 @@ import { PluginInstances, UIElements } from "src/internal";
 export class NewNameModal extends Modal {
     callback: (name: string) => boolean;
     input: TextComponent;
+    name?: string;
 
-    constructor(title: string, callback: (name: string) => boolean) {
+    constructor(title: string, callback: (name: string) => boolean, name?: string) {
         super(PluginInstances.app);
         this.setTitle(title);
         this.modalEl.addClass("graph-modal-new");
         this.callback = callback;
+        this.name = name;
 
         this.scope.register(null, "Enter", (e: KeyboardEvent) => {
             if (this.callback(this.input.getValue())) {
@@ -20,9 +22,14 @@ export class NewNameModal extends Modal {
 
     onOpen() {
         new Setting(this.contentEl)
-            .addText((text) => { this.input = text; })
+            .addText((text) => {
+                this.input = text;
+                if (this.name) {
+                    this.input.setValue(this.name);
+                }
+            })
             .addButton((cb) => {
-                UIElements.setupButton(cb, 'add');
+                UIElements.setupButton(cb, this.name ? 'edit' : 'add');
                 cb.buttonEl.addEventListener('click', e => {
                     if (this.callback(this.input.getValue())) {
                         this.close();

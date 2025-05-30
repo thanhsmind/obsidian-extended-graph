@@ -20,6 +20,7 @@ export default class STRINGS {
 		delete: "Delete",
 		disable: "Disable",
 		disableAll: "Disable all",
+		edit: "Edit",
 		enable: "Enable",
 		enabled: "Enabled",
 		enableAll: "Enable all",
@@ -261,6 +262,7 @@ export default class STRINGS {
 		linkStatColorFailed: "Failed to compute the statistics for the links colors",
 		functionToDefault: "The default function has been set instead.",
 		stateDeleted: "State has been removed",
+		stateRenamed: "State has been renamed",
 		stateSaved: "State has been saved",
 		normalStateSave: "Engine options have been saved for the normal state",
 		svgCopied: "SVG copied to clipboard",
@@ -304,6 +306,7 @@ export default class STRINGS {
 	static states = {
 		graphState: "Graph state",
 		newStateName: "New state name",
+		editStateName: "Edit state name",
 		openSettings: "Open state settings",
 		saveForDefaultState: "Save for default state",
 		saveForDefaultStateDesc: "Save the current settings as the default state settings",

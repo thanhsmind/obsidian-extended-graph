@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
 import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances } from "src/internal";
 import STRINGS from "src/Strings";
@@ -16,6 +17,7 @@ export class StatesUI extends Component {
     saveButton: ExtraButtonComponent;
     addButton: ExtraButtonComponent;
     deleteButton: ExtraButtonComponent;
+    editButton: ExtraButtonComponent;
 
     constructor(instances: GraphInstances) {
         super();
@@ -50,6 +52,14 @@ export class StatesUI extends Component {
                     this.displaySaveDeleteButton();
                     PluginInstances.statesManager.changeState(this.instances, value);
                 })
+            })
+            .addExtraButton(cb => {
+                this.editButton = cb;
+                UIElements.setupExtraButton(cb, 'edit');
+                cb.onClick(() => {
+                    this.editButton.extraSettingsEl.blur();
+                    this.openModalToRenameState();
+                });
             })
             .addExtraButton(cb => {
                 this.addButton = cb;
@@ -98,7 +108,19 @@ export class StatesUI extends Component {
         modal.open();
     }
 
-    addOption(key: string, name: string): void {
+    private openModalToRenameState() {
+        const stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+        if (stateData) {
+            const modal = new NewNameModal(
+                STRINGS.states.editStateName,
+                this.renameState.bind(this),
+                stateData.name
+            );
+            modal.open();
+        }
+    }
+
+    private addOption(key: string, name: string): void {
         for (let i = 0; i < this.select.selectEl.length; ++i) {
             if (this.select.selectEl.options[i].value == key) {
                 this.select.selectEl.options[i].innerText = name;
@@ -108,15 +130,21 @@ export class StatesUI extends Component {
         this.select.addOption(key, name);
     }
 
-    addState(key: string, name: string) {
+    private addState(key: string, name: string) {
         this.addOption(key, name);
         this.select.setValue(key);
     }
 
-    newState(name: string): boolean {
+    private newState(name: string): boolean {
         if (name.length === 0) return false;
         const id = PluginInstances.statesManager.newState(this.instances, name);
         this.currentStateID = id;
+        return true;
+    }
+
+    private renameState(name: string): boolean {
+        if (name.length === 0) return false;
+        PluginInstances.statesManager.renameState(this.currentStateID, name);
         return true;
     }
 
@@ -133,13 +161,13 @@ export class StatesUI extends Component {
         }
     }
 
-    setValue(id: string) {
+    private setValue(id: string) {
         this.currentStateID = id;
         this.select.setValue(id);
         this.displaySaveDeleteButton();
     }
 
-    clear() {
+    private clear() {
         for (let i = this.select.selectEl.length; i >= 0; i--) {
             this.select.selectEl.remove(i);
         }
@@ -147,16 +175,18 @@ export class StatesUI extends Component {
 
     private displaySaveDeleteButton() {
         if (this.select.getValue() !== DEFAULT_STATE_ID) {
+            this.statePane.settingEl.append(this.editButton.extraSettingsEl);
             this.statePane.settingEl.append(this.saveButton.extraSettingsEl);
             this.statePane.settingEl.append(this.deleteButton.extraSettingsEl);
         }
         else {
+            this.editButton.extraSettingsEl.remove();
             this.saveButton.extraSettingsEl.remove();
             this.deleteButton.extraSettingsEl.remove();
         }
     }
 
-    open() {
+    private open() {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
@@ -164,7 +194,7 @@ export class StatesUI extends Component {
         PluginInstances.plugin.saveSettings();
     }
 
-    close() {
+    private close() {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
