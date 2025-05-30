@@ -1,6 +1,7 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, graphTypeLabels, isPropertyKeyValid, PluginInstances, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection } from "src/internal";
 import STRINGS from "src/Strings";
+import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingImages extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -8,14 +9,14 @@ export class SettingImages extends SettingsSection {
     }
 
     protected override addBody() {
-        this.addImagesFromProperty();
+        this.addImagesFromProperties();
         this.addImagesFromEmbeds();
         this.addImagesForAttachments();
         this.addBorderFactor();
         this.addAllowExternal();
     }
 
-    private addImagesFromProperty() {
+    private addImagesFromProperties() {
         this.elementsBody.push(new FeatureSetting(
             this.settingTab.containerEl,
             STRINGS.features.imagesFromProperty,
@@ -23,17 +24,22 @@ export class SettingImages extends SettingsSection {
             'imagesFromProperty'
         ).settingEl);
 
+
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imageProperty)
-            .setDesc(STRINGS.features.imagePropertyDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.imageProperty)
-                .onChange(async (key) => {
-                    if (isPropertyKeyValid(key)) {
-                        PluginInstances.settings.imageProperty = key;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                })).settingEl);
+            .setName(STRINGS.features.imageProperties)
+            .setDesc(STRINGS.features.imagePropertiesDesc)
+            .addExtraButton(cb => {
+                cb.setIcon('mouse-pointer-click');
+                cb.onClick(() => {
+                    const modal = new SettingMultiPropertiesModal(
+                        STRINGS.features.imageProperties,
+                        STRINGS.features.imagePropertiesAdd,
+                        PluginInstances.settings.imageProperties
+                    );
+                    modal.open();
+                })
+            }
+            ).settingEl);
     }
 
     private addImagesFromEmbeds() {

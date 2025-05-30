@@ -1,6 +1,7 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
+import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingNames extends SettingsSectionPerGraphType {
     verticalOffset: Setting;
@@ -66,19 +67,20 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addUseProperty() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesUseProperty)
-            .setDesc(STRINGS.features.namesUsePropertyDesc)
-            .addText(cb => {
-                cb.setValue(PluginInstances.settings.usePropertyForName || '');
-                cb.onChange(value => {
-                    if (value === '') {
-                        PluginInstances.settings.usePropertyForName = null;
-                    } else if (isPropertyKeyValid(value)) {
-                        PluginInstances.settings.usePropertyForName = value;
-                    }
-                    PluginInstances.plugin.saveSettings();
+            .setName(STRINGS.features.namesUseProperties)
+            .setDesc(STRINGS.features.namesUsePropertiesDesc)
+            .addExtraButton(cb => {
+                cb.setIcon('mouse-pointer-click');
+                cb.onClick(() => {
+                    const modal = new SettingMultiPropertiesModal(
+                        STRINGS.features.namesUseProperties,
+                        STRINGS.features.namesUsePropertiesAdd,
+                        PluginInstances.settings.usePropertiesForName
+                    );
+                    modal.open();
                 })
-            }).settingEl);
+            }
+            ).settingEl);
     }
 
     private addBackground() {

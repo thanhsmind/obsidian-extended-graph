@@ -1,6 +1,7 @@
 import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, PluginInstances, PropertiesSuggester, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
+import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingIcons extends SettingsSectionPerGraphType {
     colorSetting: Setting | undefined;
@@ -18,19 +19,20 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     private addProperty(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)
-                .setName(STRINGS.features.iconProperty)
-                .setDesc(STRINGS.features.iconPropertyDesc)
-                .addSearch((cb) => {
-                    cb.setValue(PluginInstances.settings.iconProperty);
-                    new PropertiesSuggester(cb.inputEl, (value) => {
-                        PluginInstances.settings.iconProperty = value;
-                        PluginInstances.plugin.saveSettings();
-                    });
-                    cb.onChange((value) => {
-                        PluginInstances.settings.iconProperty = value;
-                        PluginInstances.plugin.saveSettings();
+                .setName(STRINGS.features.iconProperties)
+                .setDesc(STRINGS.features.iconPropertiesDesc)
+                .addExtraButton(cb => {
+                    cb.setIcon('mouse-pointer-click');
+                    cb.onClick(() => {
+                        const modal = new SettingMultiPropertiesModal(
+                            STRINGS.features.iconProperties,
+                            STRINGS.features.iconPropertiesAdd,
+                            PluginInstances.settings.iconProperties
+                        );
+                        modal.open();
                     })
-                }).settingEl
+                }
+                ).settingEl
         );
     }
 

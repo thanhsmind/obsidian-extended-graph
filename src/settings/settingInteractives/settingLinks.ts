@@ -145,7 +145,7 @@ export class SettingLinks extends SettingInteractives {
         if (dv) {
             for (const page of dv.pages()) {
                 for (const [key, value] of Object.entries(page)) {
-                    if (key === "file" || key === PluginInstances.settings.imageProperty || INVALID_KEYS[LINK_KEY].includes(key)) continue;
+                    if (key === "file" || PluginInstances.settings.imageProperties.contains(key) || INVALID_KEYS[LINK_KEY].includes(key)) continue;
                     if (value === null || value === undefined || value === '') continue;
 
                     if ((typeof value === "object") && ("path" in value)) {
@@ -167,7 +167,7 @@ export class SettingLinks extends SettingInteractives {
             for (const file of this.settingTab.app.vault.getFiles()) {
                 const frontmatterLinks = this.settingTab.app.metadataCache.getCache(file.path)?.frontmatterLinks;
                 if (!frontmatterLinks) continue;
-                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => k !== PluginInstances.settings.imageProperty && !INVALID_KEYS[LINK_KEY].includes(k));
+                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => !PluginInstances.settings.imageProperties.contains(k) && !INVALID_KEYS[LINK_KEY].includes(k));
                 allTypes = new Set<string>([...allTypes, ...types]);
             }
         }

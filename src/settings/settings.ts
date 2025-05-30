@@ -56,13 +56,13 @@ export interface ExtendedGraphSettings {
     openInNewTab: boolean;
 
     // Image
-    imageProperty: string;
+    imageProperties: string[];
     borderFactor: number;
     allowExternalImages: boolean; // Protocol http: and https:
     allowExternalLocalImages: boolean; // Protocol file: and app:
 
     // Nodes sizes
-    nodesSizeProperty: string;
+    nodesSizeProperties: string[];
     nodesSizeFunction: NodeStatFunction;
     // Nodes colors
     nodesColorColormap: string;
@@ -118,14 +118,14 @@ export interface ExtendedGraphSettings {
     numberOfCharacters: number | null;
     showOnlyFileName: boolean;
     noExtension: boolean;
-    usePropertyForName: string | null;
+    usePropertiesForName: string[];
     addBackgroundToName: boolean;
     nameVerticalOffset: number;
     dynamicVerticalOffset: boolean;
     useInterfaceFont: boolean;
 
     // Icons
-    iconProperty: string;
+    iconProperties: string[];
     usePluginForIcon: boolean;
     usePluginForIconColor: boolean;
     useParentIcon: boolean;
@@ -203,13 +203,13 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     openInNewTab: false,
 
     // Images
-    imageProperty: "image",
+    imageProperties: ["image"],
     borderFactor: 0.06,
     allowExternalImages: false,
     allowExternalLocalImages: false,
 
     // Nodes sizes
-    nodesSizeProperty: "",
+    nodesSizeProperties: [""],
     nodesSizeFunction: 'default',
     // Nodes colors
     nodesColorColormap: 'YlOrRd',
@@ -276,14 +276,14 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     numberOfCharacters: null,
     showOnlyFileName: false,
     noExtension: false,
-    usePropertyForName: null,
+    usePropertiesForName: [],
     addBackgroundToName: false,
     nameVerticalOffset: 0,
     dynamicVerticalOffset: false,
     useInterfaceFont: true,
 
     // Icons
-    iconProperty: "",
+    iconProperties: [""],
     usePluginForIcon: true,
     usePluginForIconColor: true,
     useParentIcon: false,

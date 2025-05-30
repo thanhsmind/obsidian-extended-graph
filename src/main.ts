@@ -159,6 +159,28 @@ export default class ExtendedGraphPlugin extends Plugin {
             delete settings['collapsedSettings']["property-key"];
         }
 
+        // 2.3.0 --> 2.4.0
+        if ("iconProperty" in settings) {
+            if (!settings['iconProperties'].contains(settings["iconProperty"]))
+                settings['iconProperties'].push(settings["iconProperty"]);
+            delete settings["iconProperty"];
+        }
+        if ("nodesSizeProperty" in settings) {
+            if (!settings['nodesSizeProperties'].contains(settings["nodesSizeProperty"]))
+                settings['nodesSizeProperties'].push(settings["nodesSizeProperty"]);
+            delete settings["nodesSizeProperty"];
+        }
+        if ("imageProperty" in settings) {
+            if (!settings['imageProperties'].contains(settings["imageProperty"]))
+                settings['imageProperties'].push(settings["imageProperty"]);
+            delete settings["imageProperty"];
+        }
+        if ("usePropertyForName" in settings) {
+            if (settings["usePropertyForName"] && !settings['usePropertiesForName'].contains(settings["usePropertyForName"]))
+                settings['usePropertiesForName'].push(settings["usePropertyForName"]);
+            delete settings["usePropertyForName"];
+        }
+
         return settings;
     }
 

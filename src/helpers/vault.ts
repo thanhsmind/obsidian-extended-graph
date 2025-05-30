@@ -157,7 +157,7 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
     const linkTypes = new Map<string, Set<string>>();
     const sourcePage = dv.page(file.path);
     for (const [key, value] of Object.entries(sourcePage)) {
-        if (key === "file" || key === settings.imageProperty) continue;
+        if (key === "file" || settings.imageProperties.contains(key)) continue;
         if (value === null || value === undefined || value === '') continue;
 
         if (value && (typeof value === "object") && ("path" in value)) {

@@ -1,6 +1,7 @@
 import { DropdownComponent, setIcon, Setting } from "obsidian";
 import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
+import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingElementsStats extends SettingsSectionPerGraphType {
     warningNodeSizeSetting: Setting;
@@ -13,7 +14,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     protected override addBody(): void {
-        this.addNodeSizeProperty();
+        this.addNodeSizeProperties();
         this.addNodeSizeFunction();
         this.addNodeSizeWarning();
 
@@ -30,18 +31,21 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         }
     }
 
-    private addNodeSizeProperty(): void {
+    private addNodeSizeProperties(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.nodeSizesProperty)
-            .setDesc(STRINGS.features.nodeSizesPropertyDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.nodesSizeProperty)
-                .onChange(async (key) => {
-                    if (key === "" || isPropertyKeyValid(key)) {
-                        PluginInstances.settings.nodesSizeProperty = key;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                }));
+            .setName(STRINGS.features.nodeSizeProperties)
+            .setDesc(STRINGS.features.nodeSizePropertiesDesc)
+            .addExtraButton(cb => {
+                cb.setIcon('mouse-pointer-click');
+                cb.onClick(() => {
+                    const modal = new SettingMultiPropertiesModal(
+                        STRINGS.features.nodeSizeProperties,
+                        STRINGS.features.nodeSizePropertiesAdd,
+                        PluginInstances.settings.nodesSizeProperties
+                    );
+                    modal.open();
+                })
+            });
 
         this.elementsBody.push(setting.settingEl);
     }

@@ -73,7 +73,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
             if (this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
                 && (extendedNode.coreElement.type === ""
                     || extendedNode.coreElement.type === "focused")) {
-                imageUri = await Media.getImageUriFromProperty(this.instances.settings.imageProperty, id);
+                for (const property of this.instances.settings.imageProperties) {
+                    imageUri = await Media.getImageUriFromProperty(property, id);
+                    if (imageUri) break;
+                }
             }
             if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
                 && (extendedNode.coreElement.type === ""

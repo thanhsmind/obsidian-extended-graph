@@ -111,14 +111,19 @@ export class ExtendedGraphText {
 
         let text = this.coreElement.getDisplayText();
 
-        if (this.instances.settings.usePropertyForName) {
+        if (this.instances.settings.usePropertiesForName) {
             const file = getFile(this.coreElement.id);
             if (file) {
-                const values = getFileInteractives(this.instances.settings.usePropertyForName, file);
-                for (const value of values) {
-                    if (value !== undefined && value !== null) {
-                        text = value.toString();
-                        break;
+                let found = false;
+                for (const property of this.instances.settings.usePropertiesForName) {
+                    const values = getFileInteractives(property, file);
+                    for (const value of values) {
+                        if (value !== undefined && value !== null) {
+                            text = value.toString();
+                            found = true;
+                            break;
+                        }
+                        if (found) break;
                     }
                 }
             }

@@ -135,21 +135,27 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         let icon: typeof this.icon | null = null;
 
         // try to find in properties
-        if (this.instances.settings.iconProperty !== "") {
+        if (this.instances.settings.iconProperties.some(p => p !== "")) {
             const file = getFile(this.id);
             if (file) {
-                const iconList = getFileInteractives(this.instances.settings.iconProperty, file);
-                for (const iconString of iconList) {
-                    if (isEmoji(iconString)) {
-                        icon = { svg: null, color: null, emoji: iconString };
-                        break;
+                let found = false;
+                for (const property of this.instances.settings.iconProperties) {
+                    const iconList = getFileInteractives(property, file);
+                    for (const iconString of iconList) {
+                        if (isEmoji(iconString)) {
+                            icon = { svg: null, color: null, emoji: iconString };
+                            found = true;
+                            break;
+                        }
+                        const svg = getIcon(iconString);
+                        if (svg) {
+                            svg.setAttribute("stroke", "white");
+                            icon = { svg: svg, color: null, emoji: null };
+                            found = true;
+                            break;
+                        }
                     }
-                    const svg = getIcon(iconString);
-                    if (svg) {
-                        svg.setAttribute("stroke", "white");
-                        icon = { svg: svg, color: null, emoji: null };
-                        break;
-                    }
+                    if (found) break;
                 }
             }
         }
@@ -180,19 +186,24 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     private computeRadius() {
         if (!this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) return;
 
-        const property = this.instances.settings.nodesSizeProperty;
-        if (!property || property === "") return;
+        const properties = this.instances.settings.nodesSizeProperties.filter(p => p !== "");
+        if (properties.length === 0) return;
 
         const file = getFile(this.id);
         if (!file) return;
 
-        const values = getFileInteractives(property, file);
-        for (const value of values) {
-            if (isNumber(value)) {
-                this.radius = parseInt(value);
-                if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
-                break;
+        let found = false;
+        for (const property of properties) {
+            const values = getFileInteractives(property, file);
+            for (const value of values) {
+                if (isNumber(value)) {
+                    this.radius = parseInt(value);
+                    if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
+                    found = true;
+                    break;
+                }
             }
+            if (found) break;
         }
     }
 

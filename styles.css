@@ -439,11 +439,13 @@ body {
             font-size: var(--font-ui-small);
             font-weight: var(--font-weight);
         }
+
         .setting-header-fold-icon {
             display: inline-block;
             vertical-align: middle;
         }
     }
+
     .setting-item-heading:not(.is-collapsed) {
         .setting-header-fold-icon {
             transform: rotate(90deg);
@@ -767,6 +769,24 @@ body {
         color: var(--icon-color-hover);
         background-color: var(--background-modifier-hover);
         border-radius: var(--radius-s);
+    }
+}
+
+.graph-modal-setting-properties {
+    .properties-list {
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: var(--size-4-2);
+        column-gap: var(--size-4-6);
+        padding-top: var(--size-4-4);
+    }
+
+    .property-value {
+        display: flex;
+    }
+
+    .extended-graph-add-button {
+        margin-inline-start: var(--size-4-2);
     }
 }
 
