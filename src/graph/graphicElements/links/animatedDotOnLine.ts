@@ -27,7 +27,7 @@ export class AnimatedDotOnLine extends Graphics {
             bezier.P0.y * (1 - this.t) + bezier.P2.y * this.t,
         );
 
-        this.t += 0.01;
+        this.t += 0.02;
         if (this.t > 1) {
             this.t = 0;
         }

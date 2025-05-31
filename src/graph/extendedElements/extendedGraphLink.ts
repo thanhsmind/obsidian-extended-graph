@@ -262,6 +262,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     private initAnimation(): void {
+        if (this.instances.renderer.dragNode && this.animatedDot) return;
+
         if (this.animatedDot) {
             this.animatedDot.destroy();
             this.animatedDot = undefined;
@@ -317,10 +319,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     private animationLoop() {
         requestAnimationFrame(async () => {
             await this.animate();
-            if (this.coreElement.renderer.dragNode !== this.coreElement.source
-                && this.coreElement.renderer.dragNode !== this.coreElement.target
-                && (this.coreElement.renderer.getHighlightNode() === this.coreElement.source
-                    || this.coreElement.renderer.getHighlightNode() === this.coreElement.target)
+            if ((this.coreElement.renderer.getHighlightNode() === this.coreElement.source
+                || this.coreElement.renderer.getHighlightNode() === this.coreElement.target)
             ) {
                 this.animationLoop();
             }

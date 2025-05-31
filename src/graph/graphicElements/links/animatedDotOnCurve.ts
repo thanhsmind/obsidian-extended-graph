@@ -25,7 +25,7 @@ export class AnimatedDotOnCurve extends Graphics {
         const P = quadratic(this.t, bezier.P0, bezier.P1, bezier.P2);
         this.position.set(P.x, P.y);
 
-        this.t += 0.01;
+        this.t += 0.02;
         if (this.t > 1) {
             this.t = 0;
         }
