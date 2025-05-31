@@ -161,21 +161,33 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         // 2.3.0 --> 2.4.0
         if ("iconProperty" in settings) {
+            if (!('iconProperties' in settings)) {
+                settings['iconProperties'] = [];
+            }
             if (!settings['iconProperties'].contains(settings["iconProperty"]))
                 settings['iconProperties'].push(settings["iconProperty"]);
             delete settings["iconProperty"];
         }
         if ("nodesSizeProperty" in settings) {
+            if (!('nodesSizeProperties' in settings)) {
+                settings['nodesSizeProperties'] = [];
+            }
             if (!settings['nodesSizeProperties'].contains(settings["nodesSizeProperty"]))
                 settings['nodesSizeProperties'].push(settings["nodesSizeProperty"]);
             delete settings["nodesSizeProperty"];
         }
         if ("imageProperty" in settings) {
+            if (!('imageProperties' in settings)) {
+                settings['imageProperties'] = [];
+            }
             if (!settings['imageProperties'].contains(settings["imageProperty"]))
                 settings['imageProperties'].push(settings["imageProperty"]);
             delete settings["imageProperty"];
         }
         if ("usePropertyForName" in settings) {
+            if (!('usePropertiesForName' in settings)) {
+                settings['usePropertiesForName'] = [];
+            }
             if (settings["usePropertyForName"] && !settings['usePropertiesForName'].contains(settings["usePropertyForName"]))
                 settings['usePropertiesForName'].push(settings["usePropertyForName"]);
             delete settings["usePropertyForName"];
