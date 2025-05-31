@@ -106,6 +106,9 @@ export interface ExtendedGraphSettings {
     curvedLinks: boolean;
     outlineLinks: boolean;
 
+    // Folders
+    folderRadius: number;
+
     // Arrows
     invertArrows: boolean;
     flatArrows: boolean;
@@ -266,6 +269,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     curvedLinks: false,
     outlineLinks: false,
 
+    // Folders
+    folderRadius: 50,
+
     // Arrows
     invertArrows: false,
     flatArrows: false,
@@ -406,6 +412,11 @@ export class SettingQuery {
         if (newFeatures['links']) {
             if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks',
                 'disableSource', 'disableTarget', 'outlineLinks'].some(key => !equals(key)))
+                return true;
+        }
+
+        if (newFeatures['folders']) {
+            if (['folderRadius'].some(key => !equals(key)))
                 return true;
         }
 

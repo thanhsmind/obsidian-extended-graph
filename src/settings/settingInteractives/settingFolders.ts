@@ -1,11 +1,33 @@
-import { TFile } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, SettingInteractives } from "src/internal";
+import { Setting, TFile } from "obsidian";
+import { ExtendedGraphSettingTab, FOLDER_KEY, PluginInstances, SettingInteractives } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'folders', FOLDER_KEY, STRINGS.features.folders, 'folder', STRINGS.features.foldersDesc);
+    }
+
+    protected override addBody(): void {
+        super.addBody();
+
+        this.addFolderRadius();
+    }
+
+    private addFolderRadius() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.foldersRadius)
+            .setDesc(STRINGS.features.foldersRadiusDesc)
+            .addText(cb => {
+                cb.setValue(PluginInstances.settings.folderRadius.toString())
+                    .onChange(async (value) => {
+                        const intValue = parseInt(value);
+                        if (!isNaN(intValue) && intValue >= 0) {
+                            PluginInstances.settings.folderRadius = intValue;
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                    });
+            }).settingEl);
     }
 
     protected override isValueValid(name: string): boolean {

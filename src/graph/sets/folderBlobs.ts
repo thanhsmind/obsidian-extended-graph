@@ -11,7 +11,6 @@ export class FolderBlob {
     color: string;
     strokeOpacity: number = 0.5;
     fillOpacity: number = 0.03;
-    radius: number = 50;
     borderWidth: number = 2;
     textStyle: TextStyle;
     BBox: { left: number, right: number, top: number, bottom: number };
@@ -75,7 +74,7 @@ export class FolderBlob {
 
         this.area.lineStyle(this.borderWidth, this.color, this.strokeOpacity)
             .beginFill(this.color, this.fillOpacity)
-            .drawRoundedRect(this.BBox.left, this.BBox.top, (this.BBox.right - this.BBox.left), (this.BBox.bottom - this.BBox.top), this.radius)
+            .drawRoundedRect(this.BBox.left, this.BBox.top, (this.BBox.right - this.BBox.left), (this.BBox.bottom - this.BBox.top), PluginInstances.settings.folderRadius)
             .endFill();
     }
 

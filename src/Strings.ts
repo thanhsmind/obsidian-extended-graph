@@ -92,6 +92,8 @@ export default class STRINGS {
 		focusScaleDesc: "The node corresponding to the currently active note will be scaled up by this factor",
 		folders: "Folders",
 		foldersDesc: "Display folder boxes",
+		foldersRadius: "Radius",
+		foldersRadiusDesc: "Radius of the rounded corners of the folder boxes",
 		globalFilter: "Global filter",
 		globalFilterDesc: "This filter query will be prepend at the beginning of every graph filter",
 		icons: "Icons",
