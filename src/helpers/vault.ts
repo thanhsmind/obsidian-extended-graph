@@ -45,14 +45,22 @@ function getNumberOfTags(file: TFile, tag: string): number {
     const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return 0;
 
-    tag = "#" + tag.replace('#', ''); // Ensure the tag starts with '#'
-    const frontmatterTags: string[] = metadataCache.frontmatter?.tags?.filter((t: string) => t === tag) || [];
+    const tagWithHash = "#" + tag.replace('#', ''); // Ensure the tag starts with '#'
+    const frontmatterTags: string[] = metadataCache.frontmatter?.tags?.filter((t: string) => t === tag || t === tagWithHash) || [];
     const contentTags: string[] = metadataCache.tags?.reduce((acc: string[], tagCache: TagCache) => {
-        if (tagCache.tag === tag) {
+        if (tagCache.tag === tag || tagCache.tag === tagWithHash) {
             acc.push(tagCache.tag);
         }
         return acc;
     }, []) || [];
+
+    if (file.path === "Ruth Shaw.md") {
+        console.log(tag);
+        console.log("Frontmatter Tags:", frontmatterTags, "from", metadataCache.frontmatter?.tags);
+        console.log("Content Tags:", contentTags, "from", metadataCache.tags);
+        console.log("*****");
+    }
+
     return frontmatterTags.length + contentTags.length;
 }
 
