@@ -58,6 +58,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         this.arrow.eventMode = "none";
         this.arrow.zIndex = 1;
         this.arrow.pivot.set(0, 0);
+        this.arrow.alpha = this.extendedLink.coreElement.renderer.colors.arrow.a;
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
@@ -172,6 +173,15 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             arrowColor = this.extendedLink.instances.settings.arrowColor;
         }
 
+        let arrowAlpha: number = 1;
+        if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+            && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
+            if (this.extendedLink.isHighlighted()
+                || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
+                arrowAlpha = 10;
+            }
+        }
+
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;
@@ -185,6 +195,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             }
             if (this.arrow) {
                 this.arrow.tint = arrowColor;
+                this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(P2_.x, P2_.y);
                 this.arrow.rotation = -Math.atan(- (P2_.y - P0_.y) / (P2_.x - P0_.x));
                 if (P0.x > P2_.x) {

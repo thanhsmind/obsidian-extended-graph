@@ -31,6 +31,16 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
             arrowColor = this.tint;
         }
 
+        let arrowAlpha: number = 1;
+        if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+            && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
+            if (this.extendedLink.isHighlighted()
+                || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
+                arrowAlpha = 10;
+            }
+        }
+
+
         // Arrow
         if (link.arrow && link.arrow.visible) {
             if (!this.arrow) {
@@ -39,6 +49,7 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
             }
             if (this.arrow) {
                 this.arrow.tint = arrowColor;
+                this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
                 this.arrow.rotation = -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m);
                 if (this.bezier.P1.x > this.bezier.P2.x) {

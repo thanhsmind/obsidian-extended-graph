@@ -64,6 +64,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         this.arrow.eventMode = "none";
         this.arrow.zIndex = 1;
         this.arrow.pivot.set(0, 0);
+        this.arrow.alpha = this.extendedLink.coreElement.renderer.colors.arrow.a;
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
     }
 
