@@ -151,6 +151,11 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             container.addChild(this.coreElement.arrow);
             this.coreElement.arrow.addListener('destroyed', this.removeContainer);
         }
+        if (this.graphicsWrapper?.pixiElement) {
+            this.graphicsWrapper.pixiElement.removeFromParent();
+            container.addChild(this.graphicsWrapper.pixiElement);
+            this.graphicsWrapper.pixiElement.addListener('destroyed', this.removeContainer);
+        }
         container.filters = [new OutlineFilter(
             1, rgb2int(getPrimaryColor(this.coreElement.renderer)), 0.1, 1, false
         )];
@@ -165,6 +170,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
         if (this.coreElement.arrow) {
             this.coreElement.arrow.removeEventListener('destroyed', this.removeContainer);
+        }
+        if (this.graphicsWrapper?.pixiElement) {
+            this.graphicsWrapper.pixiElement.removeEventListener('destroyed', this.removeContainer);
         }
 
         if (!this.container) return;

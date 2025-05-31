@@ -167,6 +167,11 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             }
         }
 
+        if (this.extendedLink.instances.settings.arrowColorBool
+            && this.extendedLink.instances.settings.arrowColor !== "") {
+            arrowColor = this.extendedLink.instances.settings.arrowColor;
+        }
+
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;

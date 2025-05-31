@@ -85,7 +85,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     hide(): void {
-        console.log(SettingQuery.needReload(this.originalSettings, 'graph'));
         if (PluginInstances.graphsManager && PluginInstances.settings.resetAfterChanges) {
             if (SettingQuery.needReload(this.originalSettings, 'graph')) {
                 PluginInstances.graphsManager.resetAllPlugins('graph');

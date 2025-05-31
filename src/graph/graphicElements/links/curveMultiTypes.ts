@@ -1,5 +1,5 @@
-import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkCurveGraphics, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
+import { IDestroyOptions, ColorSource } from "pixi.js";
+import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -59,6 +59,11 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;
+        }
+
+        if (this.extendedLink.instances.settings.arrowColorBool
+            && this.extendedLink.instances.settings.arrowColor !== "") {
+            arrowColor = this.extendedLink.instances.settings.arrowColor;
         }
 
         // Arrow
