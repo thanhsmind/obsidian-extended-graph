@@ -155,7 +155,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         }
 
         // 2.2.5 --> 2.2.6
-        if ("property-key" in settings['collapsedSettings']) {
+        if ('collapsedSettings' in settings && "property-key" in settings['collapsedSettings']) {
             delete settings['collapsedSettings']["property-key"];
         }
 
