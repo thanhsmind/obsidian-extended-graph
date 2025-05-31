@@ -854,3 +854,10 @@ svg.shape-svg {
         height: var(--icon-size);
     }
 }
+
+
+/* STATUS BAR */
+
+.status-bar-item.plugin-extended-graph.mod-clickable {
+    padding-block: 1px;
+}

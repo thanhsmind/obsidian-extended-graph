@@ -1,6 +1,6 @@
-import { CachedMetadata, Component, FileView, MarkdownView, Menu, Plugin, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
+import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal } from "./internal";
 import STRINGS from "./Strings";
 
 
@@ -14,6 +14,7 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
 
+    statusBarItem: HTMLElement;
 
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodesColorCalculator: NodeStatCalculator | undefined;
@@ -33,6 +34,7 @@ export class GraphsManager extends Component {
         this.initializeNodesColorCalculator();
         this.initializeLinksSizeCalculator();
         this.initializeLinksColorCalculator();
+        this.addStatusBarItem();
         this.registerEvents();
     }
 
@@ -95,6 +97,11 @@ export class GraphsManager extends Component {
             if (!this.isCoreGraphLoaded()) return;
             this.onNodeMenuOpened(menu, file, source, leaf);
         }));
+    }
+
+    private addStatusBarItem(): void {
+        this.statusBarItem = PluginInstances.plugin.addStatusBarItem();
+        this.statusBarItem.addClasses(['plugin-extended-graph']);
     }
 
     private isCoreGraphLoaded(): boolean {
@@ -610,6 +617,7 @@ export class GraphsManager extends Component {
         const globalUI = this.setGlobalUI(view);
         globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(instances);
+        this.updateStatusBarItem(view.leaf);
     }
 
     private addGraph(view: GraphView | LocalGraphView, stateID: string): GraphInstances {
@@ -696,6 +704,8 @@ export class GraphsManager extends Component {
             this.applyNormalState(view);
         }
         this.restoreBackup();
+
+        this.updateStatusBarItem(view.leaf);
     }
 
     // ============================= RESET PLUGIN ==============================
@@ -722,13 +732,18 @@ export class GraphsManager extends Component {
     // ===================== CHANGE CURRENT MARKDOWN FILE ======================
 
     onActiveLeafChange(leaf: WorkspaceLeaf | null) {
-        if (!leaf) return;
-        if (!this.isMarkdownLeaf(leaf)) {
-            this.changeActiveFile((leaf.view as FileView).file);
+        // Change the focus on active file
+        if (leaf) {
+            if (!this.isMarkdownLeaf(leaf)) {
+                this.changeActiveFile((leaf.view as FileView).file);
+            }
+            else {
+                this.changeActiveFile(null);
+            }
         }
-        else {
-            this.changeActiveFile(null);
-        }
+
+        // Change the number of nodes in the status bar
+        this.updateStatusBarItem(leaf);
     }
 
     private isMarkdownLeaf(leaf: WorkspaceLeaf): boolean {
@@ -898,5 +913,32 @@ export class GraphsManager extends Component {
         renderer.setPan(panX, panY);
         renderer.setScale(scale);
         renderer.changed();
+    }
+
+
+    // =============================== STATUS BAR ==============================
+
+    updateStatusBarItem(leaf: WorkspaceLeaf | null) {
+        // Change the number of nodes in the status bar
+        this.statusBarItem.innerHTML = "";
+        this.statusBarItem.removeClass("mod-clickable");
+        if (leaf && (leaf.view.getViewType() === "graph" || leaf.view.getViewType() === "localgraph")) {
+            const numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
+            if (numberOfNodes !== undefined) {
+                this.statusBarItem.createSpan({ text: numberOfNodes.toString() + " " + STRINGS.plugin.nodes, cls: "status-bar-item-segment" });
+            }
+
+            const instances = this.allInstances.get(leaf.id);
+            if (instances) {
+                this.statusBarItem.addClass("mod-clickable");
+                const infoButton = createSpan({ cls: "status-bar-item-icon status-bar-item-segment" });
+                setIcon(infoButton, "info");
+                infoButton.addEventListener('click', () => {
+                    const modal = new GraphStateModal(instances);
+                    modal.open();
+                });
+                this.statusBarItem.appendChild(infoButton);
+            }
+        }
     }
 }
