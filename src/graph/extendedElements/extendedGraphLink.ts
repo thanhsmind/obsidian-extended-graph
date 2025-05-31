@@ -2,12 +2,15 @@ import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
 import {
+    AnimatedDotOnCurve,
+    AnimatedDotOnLine,
     CurveLinkGraphicsWrapper,
     ExtendedGraphArrow,
     ExtendedGraphElement,
     getPrimaryColor,
     LineLinkGraphicsWrapper,
     LINK_KEY,
+    LinkCurveGraphics,
     PluginInstances,
     rgb2int,
     SettingQuery
@@ -17,6 +20,7 @@ import {
 export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     name: string;
     graphicsWrapper?: CurveLinkGraphicsWrapper | LineLinkGraphicsWrapper;
+    animatedDot?: AnimatedDotOnLine | AnimatedDotOnCurve;
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
     siblingLink?: ExtendedGraphLink;
@@ -35,6 +39,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override init(): void {
         this.findSiblingLink();
+        this.addAnimationListener();
         super.init();
         this.extendedArrow?.init();
     }
@@ -61,6 +66,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
         this.removeContainer();
+    }
+
+    // ================================= UNLOAD ================================
+
+    override unload(): void {
+        this.removeAnimationListener();
+        super.unload();
     }
 
     // =============================== GRAPHICS ================================
@@ -191,8 +203,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         return this.coreElement.source === this.coreElement.renderer.getHighlightNode() || this.coreElement.target === this.coreElement.renderer.getHighlightNode();
     }
 
-    getStrokeColor(): number | undefined {
-        if (this.isHighlighted()) {
+    getStrokeColor(overrideHighlight: boolean = false): number | undefined {
+        if (!overrideHighlight && this.isHighlighted()) {
             return;
         }
 
@@ -233,6 +245,92 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             return color;
         }
     }
+
+    // ============================= LINK ANIMATION ============================
+
+    private addAnimationListener(): void {
+        if (!this.instances.settings.animateDotsOnLinks) return;
+
+        this.initAnimation = this.initAnimation.bind(this);
+        this.coreElement.source.circle?.addListener('mouseenter', this.initAnimation);
+        this.coreElement.target.circle?.addListener('mouseenter', this.initAnimation);
+    }
+
+    private removeAnimationListener(): void {
+        this.coreElement.source.circle?.removeListener('mouseenter', this.initAnimation);
+        this.coreElement.target.circle?.removeListener('mouseenter', this.initAnimation);
+    }
+
+    private initAnimation(): void {
+        if (this.animatedDot) {
+            this.animatedDot.destroy();
+            this.animatedDot = undefined;
+        }
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks) {
+            this.animatedDot = new AnimatedDotOnCurve(this);
+            this.coreElement.renderer.hanger.addChild(this.animatedDot);
+        }
+        else {
+            this.animatedDot = new AnimatedDotOnLine(this);
+            this.coreElement.renderer.hanger.addChild(this.animatedDot);
+        }
+        this.animationLoop();
+    }
+
+    // Create a little dot that will move along the link, from source to target
+    // while the source node is highlighted
+    // Do that every frame with requestAnimationFrame
+    async animate(): Promise<void> {
+        this.coreElement.renderer.idleFrames = 0;
+        if (this.instances.settings.enableFeatures[this.instances.type]['links']
+            && this.instances.settings.curvedLinks
+            && this.graphicsWrapper?.pixiElement
+        ) {
+            this.animatedDot?.updateFrame((this.graphicsWrapper.pixiElement as LinkCurveGraphics).bezier);
+        }
+        else {
+            const f = this.coreElement.renderer.nodeScale;
+            const source = this.coreElement.source;
+            const target = this.coreElement.target;
+            const dir = { x: target.x - source.x, y: target.y - source.y };
+            const length = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+            dir.x /= length;
+            dir.y /= length;
+
+            const start = {
+                x: source.x + f * source.getSize() * dir.x,
+                y: source.y + f * source.getSize() * dir.y
+            };
+            const end = {
+                x: target.x - f * target.getSize() * dir.x,
+                y: target.y - f * target.getSize() * dir.y
+            };
+
+            this.animatedDot?.updateFrame({
+                P0: start,
+                P1: { x: (start.x + end.x) * 0.5, y: (start.y + end.y) * 0.5 },
+                P2: end
+            });
+        }
+    }
+
+    private animationLoop() {
+        requestAnimationFrame(async () => {
+            await this.animate();
+            if (this.coreElement.renderer.dragNode !== this.coreElement.source
+                && this.coreElement.renderer.dragNode !== this.coreElement.target
+                && (this.coreElement.renderer.getHighlightNode() === this.coreElement.source
+                    || this.coreElement.renderer.getHighlightNode() === this.coreElement.target)
+            ) {
+                this.animationLoop();
+            }
+            else {
+                this.animatedDot?.destroy();
+                this.animatedDot = undefined;
+            }
+        });
+    }
+
 
     // ============================== CORE ELEMENT =============================
 

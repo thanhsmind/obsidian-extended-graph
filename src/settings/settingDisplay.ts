@@ -13,6 +13,7 @@ export class SettingDisplay extends SettingsSection {
         this.addLinkSameColorAsNodes();
         this.addSpreadArcs();
         this.addWeightArcs();
+        this.addAnimateDotsOnLinks();
     }
 
 
@@ -67,6 +68,19 @@ export class SettingDisplay extends SettingsSection {
                     PluginInstances.settings.weightArcs = value;
                     PluginInstances.plugin.saveSettings();
                 })
+            }).settingEl);
+    }
+
+    private addAnimateDotsOnLinks() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(STRINGS.features.animateDotsOnLinks)
+            .setDesc(STRINGS.features.animateDotsOnLinksDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.animateDotsOnLinks || false);
+                cb.onChange(value => {
+                    PluginInstances.settings.animateDotsOnLinks = value;
+                    PluginInstances.plugin.saveSettings();
+                });
             }).settingEl);
     }
 

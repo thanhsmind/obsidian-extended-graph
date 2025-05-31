@@ -1,113 +1,24 @@
 import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkCurveGraphics, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
 
 
-export class LinkCurveMultiTypesGraphics extends Graphics implements ManagerGraphics {
-    manager: InteractiveManager;
-    types: Set<string>;
-    name: string;
-    targetAlpha: number;
-    color: ColorSource;
-    extendedLink: ExtendedGraphLink;
-    arrow: Graphics | null;
-    activeType: string | undefined;
-
-    constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
-        super();
-        this.manager = manager;
-        this.types = types;
-        this.name = "curve:" + name;
-        this.extendedLink = link;
-        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading ? 1 : 0.6;
-        this.updateValues();
-    }
-
-    updateValues(): void {
-        this.activeType = this.extendedLink.getActiveType(this.manager.name);
-        if (!this.activeType) return;
-        const overrideColor = this.extendedLink.getStrokeColor();
-        if (overrideColor !== undefined) {
-            this.color = overrideColor;
-        }
-        else if (this.extendedLink.instances.settings.interactiveSettings[this.manager.name].showOnGraph) {
-            this.color = this.manager.getColor(this.activeType);
-        }
-        else if (this.extendedLink.coreElement.line) {
-            this.color = this.extendedLink.coreElement.line.tint
-        }
-        else {
-            this.color = this.extendedLink.coreElement.renderer.colors.line.rgb;
-        }
-        this.redraw();
-    }
-
-    private initArrow() {
-        if (this.destroyed) return;
-
-        this.arrow = new Graphics();
-        this.arrow.beginFill("white");
-        this.arrow.moveTo(0, 0);
-        this.arrow.lineTo(-4, -2);
-        if (!this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] || !this.extendedLink.instances.settings.flatArrows) {
-            this.arrow.lineTo(-3, 0);
-        }
-        this.arrow.lineTo(-4, 2);
-        this.arrow.lineTo(0, 0);
-        this.arrow.endFill();
-        this.arrow.name = "arrow";
-        this.arrow.eventMode = "none";
-        this.arrow.zIndex = 1;
-        this.arrow.pivot.set(0, 0);
-        if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
-    }
-
-    protected redraw(): void {
-        if (!this.activeType && this.arrow) {
-            this.arrow.clear();
-            this.arrow.destroy();
-            this.arrow = null;
-        }
-        this.updateFrame();
-    }
-
+export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
     updateFrame(): void {
-        if (this.destroyed) return;
+        if (!this.computeMainBezier()) return;
 
-        this.clear();
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
 
-        const inverted = this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] && this.extendedLink.instances.settings.invertArrows;
-        const target = inverted ? link.source : link.target;
-        const source = inverted ? link.target : link.source;
-
-        if (!target.circle || !source.circle) {
-            this.destroy();
-            this.extendedLink.disable();
-            return;
-        }
-
-        const f = renderer.nodeScale;
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-
-        const P0 = { x: source.x, y: source.y }; // Center of source
-        const P2 = { x: target.x, y: target.y }; // Center ot target
-        let P1 = { // Control point, shifted along the normal
-            x: (P0.x + P2.x) * 0.5 + dy * 0.2,
-            y: (P0.y + P2.y) * 0.5 - dx * 0.2
-        };
-
-        const L = lengthQuadratic(1, P0, P1, P2); // length of the arc between centers
-        let P0_ = quadratic(0.9 * source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
-        const P2_ = quadratic(1 - 0.9 * target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
-
-
         let arrowColor: ColorSource;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
+
+
+        let P0_ = { x: this.bezier.P0.x, y: this.bezier.P0.y };
+        let P1 = { x: this.bezier.P1.x, y: this.bezier.P1.y };
+
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
-            this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
+            this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
             arrowColor = this.tint;
         }
@@ -118,7 +29,7 @@ export class LinkCurveMultiTypesGraphics extends Graphics implements ManagerGrap
             const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
             if (activeTypes.length === 1) {
                 this.lineStyle({ width: thickness, color: "white" });
-                this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
+                this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
                 this.tint = this.color;
                 arrowColor = this.tint;
             }
@@ -126,10 +37,10 @@ export class LinkCurveMultiTypesGraphics extends Graphics implements ManagerGrap
                 this.tint = "white";
                 const step = 1 / activeTypes.length;
                 let i = 0;
-                this.moveTo(P0_.x, P0_.y);
+                this.moveTo(this.bezier.P0.x, this.bezier.P0.y);
                 for (const type of activeTypes) {
                     const t = step * (1 + i);
-                    const [bezierA, bezierB] = this.deCasteljau([P0_, P1, P2_], t);
+                    const [bezierA, bezierB] = this.deCasteljau([P0_, P1, this.bezier.P2], t);
                     P0_ = bezierB[0];
                     P1 = bezierB[1];
 
@@ -158,9 +69,9 @@ export class LinkCurveMultiTypesGraphics extends Graphics implements ManagerGrap
             }
             if (this.arrow) {
                 this.arrow.tint = arrowColor;
-                this.arrow.position.set(P2_.x, P2_.y);
-                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, P0_, P1, P2_).m);
-                if (P1.x > P2_.x) {
+                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
+                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, P0_, P1, this.bezier.P2).m);
+                if (this.bezier.P1.x > this.bezier.P2.x) {
                     this.arrow.rotation += Math.PI;
                 }
                 this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);

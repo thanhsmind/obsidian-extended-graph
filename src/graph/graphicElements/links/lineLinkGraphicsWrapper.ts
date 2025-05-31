@@ -83,4 +83,10 @@ export class LineLinkGraphicsWrapper implements GraphicsWrapper {
             graphics.removeFromParent();
         }
     }
+
+    // =============================== ANIMATION ===============================
+
+    animate(): void {
+
+    }
 }

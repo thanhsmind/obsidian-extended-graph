@@ -1,8 +1,8 @@
 import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, int2rgb, InteractiveManager, lengthQuadratic, ManagerGraphics, NodeShape, quadratic, tangentQuadratic } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
 
 
-export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
+export abstract class LinkCurveGraphics extends Graphics implements ManagerGraphics {
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
@@ -11,6 +11,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
     activeType: string | undefined;
+    bezier: { P0: { x: number, y: number }, P1: { x: number, y: number }, P2: { x: number, y: number } };
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
         super();
@@ -19,6 +20,11 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.name = "curve:" + name;
         this.extendedLink = link;
         this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading ? 1 : 0.6;
+        this.bezier = {
+            P0: { x: 0, y: 0 }, // Center of source
+            P1: { x: 0, y: 0 }, // Control point, shifted along the normal
+            P2: { x: 0, y: 0 } // Center of target
+        };
         this.updateValues();
     }
 
@@ -41,7 +47,7 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.redraw();
     }
 
-    private initArrow() {
+    protected initArrow() {
         if (this.destroyed) return;
 
         this.arrow = new Graphics();
@@ -70,6 +76,39 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         this.updateFrame();
     }
 
+    protected computeMainBezier(): boolean {
+        if (this.destroyed) return false;
+
+        this.clear();
+        const renderer = this.extendedLink.coreElement.renderer;
+        const link = this.extendedLink.coreElement;
+
+        const inverted = this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] && this.extendedLink.instances.settings.invertArrows;
+        const target = inverted ? link.source : link.target;
+        const source = inverted ? link.target : link.source;
+
+        if (!target.circle || !source.circle) {
+            this.destroy();
+            this.extendedLink.disable();
+            return false;
+        }
+
+        const f = renderer.nodeScale;
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+
+        this.bezier.P1 = { // Control point, shifted along the normal
+            x: (source.x + target.x) * 0.5 + dy * 0.2,
+            y: (source.y + target.y) * 0.5 - dx * 0.2
+        };
+
+        const L = lengthQuadratic(1, source, this.bezier.P1, target); // length of the arc between centers
+        this.bezier.P0 = quadratic(0.9 * source.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the source node, along the arc.
+        this.bezier.P2 = quadratic(1 - 0.9 * target.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the target node, along the arc
+
+        return true;
+    }
+
     updateFrame(): void {
         if (this.destroyed) return;
 
@@ -91,19 +130,17 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
         const dx = target.x - source.x;
         const dy = target.y - source.y;
 
-        const P0 = { x: source.x, y: source.y }; // Center of source
-        const P2 = { x: target.x, y: target.y }; // Center ot target
-        const P1 = { // Control point, shifted along the normal
-            x: (P0.x + P2.x) * 0.5 + dy * 0.2,
-            y: (P0.y + P2.y) * 0.5 - dx * 0.2
+        this.bezier.P1 = { // Control point, shifted along the normal
+            x: (source.x + target.x) * 0.5 + dy * 0.2,
+            y: (source.y + target.y) * 0.5 - dx * 0.2
         };
 
-        const L = lengthQuadratic(1, P0, P1, P2); // length of the arc between centers
-        const P0_ = quadratic(0.9 * source.getSize() * f / L, P0, P1, P2); // point on the border of the source node, along the arc.
-        const P2_ = quadratic(1 - 0.9 * target.getSize() * f / L, P0, P1, P2); // point on the border of the target node, along the arc
+        const L = lengthQuadratic(1, source, this.bezier.P1, target); // length of the arc between centers
+        this.bezier.P0 = quadratic(0.9 * source.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the source node, along the arc.
+        this.bezier.P2 = quadratic(1 - 0.9 * target.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the target node, along the arc
 
         this.lineStyle({ width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white" });
-        this.moveTo(P0_.x, P0_.y).quadraticCurveTo(P1.x, P1.y, P2_.x, P2_.y);
+        this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
         if (this.extendedLink.isHighlighted()) {
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
         }
@@ -123,9 +160,9 @@ export class LinkCurveGraphics extends Graphics implements ManagerGraphics {
             }
             if (this.arrow) {
                 this.arrow.tint = this.tint;
-                this.arrow.position.set(P2_.x, P2_.y);
-                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, P0_, P1, P2_).m);
-                if (P1.x > P2_.x) {
+                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
+                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m);
+                if (this.bezier.P1.x > this.bezier.P2.x) {
                     this.arrow.rotation += Math.PI;
                 }
                 this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);

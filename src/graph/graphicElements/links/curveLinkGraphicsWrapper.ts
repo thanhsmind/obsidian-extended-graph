@@ -1,11 +1,11 @@
-import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkCurveGraphics, LinkCurveMultiTypesGraphics } from "src/internal";
+import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkCurveSingleTypeGraphics, LinkCurveMultiTypesGraphics, LinkCurveGraphics } from "src/internal";
 
 
 export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
     name: string;
     extendedElement: ExtendedGraphLink;
-    managerGraphicsMap: Map<string, LinkCurveGraphics | LinkCurveMultiTypesGraphics>;
-    pixiElement: LinkCurveGraphics | LinkCurveMultiTypesGraphics;
+    managerGraphicsMap: Map<string, LinkCurveGraphics>;
+    pixiElement: LinkCurveGraphics;
 
     constructor(extendedElement: ExtendedGraphLink) {
         this.name = extendedElement.id;
@@ -36,12 +36,12 @@ export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
         else {
             const curveLink = this.extendedElement.instances.settings.allowMultipleLinkTypes
                 ? new LinkCurveMultiTypesGraphics(manager, types, this.name, this.extendedElement)
-                : new LinkCurveGraphics(manager, types, this.name, this.extendedElement);
+                : new LinkCurveSingleTypeGraphics(manager, types, this.name, this.extendedElement);
             this.setManagerGraphics(manager, curveLink);
         }
     }
 
-    protected setManagerGraphics(manager: InteractiveManager, linkGraphics: LinkCurveGraphics | LinkCurveMultiTypesGraphics): void {
+    protected setManagerGraphics(manager: InteractiveManager, linkGraphics: LinkCurveGraphics): void {
         const existingLinkGraphics = this.managerGraphicsMap.get(manager.name);
         if (existingLinkGraphics && existingLinkGraphics !== linkGraphics) {
             if (existingLinkGraphics.parent) existingLinkGraphics.removeFromParent();

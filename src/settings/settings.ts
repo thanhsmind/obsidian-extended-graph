@@ -94,6 +94,7 @@ export interface ExtendedGraphSettings {
     borderUnresolved: number | string;
     spreadArcs: boolean;
     weightArcs: boolean;
+    animateDotsOnLinks: boolean;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -252,6 +253,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     borderUnresolved: '',
     spreadArcs: false,
     weightArcs: false,
+    animateDotsOnLinks: false,
 
     // Links
     allowMultipleLinkTypes: false,
