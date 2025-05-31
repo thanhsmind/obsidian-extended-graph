@@ -14,6 +14,7 @@ export class SettingDisplay extends SettingsSection {
         this.addSpreadArcs();
         this.addWeightArcs();
         this.addAnimateDotsOnLinks();
+        this.addAnimationSpeedForDot();
     }
 
 
@@ -82,6 +83,22 @@ export class SettingDisplay extends SettingsSection {
                     PluginInstances.plugin.saveSettings();
                 });
             }).settingEl);
+    }
+
+
+    private addAnimationSpeedForDot() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(STRINGS.features.animateDotsOnLinksSpeed)
+            .setDesc(STRINGS.features.animateDotsOnLinksSpeedDesc)
+            .addText(cb => cb
+                .setValue(PluginInstances.settings.animationSpeedForDots.toString())
+                .onChange(async (value) => {
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue) && floatValue > 0) {
+                        PluginInstances.settings.animationSpeedForDots = floatValue;
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                })).settingEl);
     }
 
 }

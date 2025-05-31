@@ -50,6 +50,8 @@ export default class STRINGS {
 	static features = {
 		animateDotsOnLinks: "Animate dots on links",
 		animateDotsOnLinksDesc: "Animate dots on links when a node is hovered to show the flow of information",
+		animateDotsOnLinksSpeed: "Animation speed",
+		animateDotsOnLinksSpeedDesc: "Speed of the animation of the dots on links",
 		arrows: "Arrows",
 		arrowsDesc: "Customize how arrows are displayed",
 		arrowsColoredFronLinks: "Color from links",

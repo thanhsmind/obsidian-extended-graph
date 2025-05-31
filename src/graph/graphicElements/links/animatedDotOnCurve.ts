@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { ExtendedGraphLink, quadratic } from "src/internal";
+import { ExtendedGraphLink, PluginInstances, quadratic } from "src/internal";
 
 export class AnimatedDotOnCurve extends Graphics {
     extendedLink: ExtendedGraphLink;
@@ -25,7 +25,7 @@ export class AnimatedDotOnCurve extends Graphics {
         const P = quadratic(this.t, bezier.P0, bezier.P1, bezier.P2);
         this.position.set(P.x, P.y);
 
-        this.t += 0.02;
+        this.t += 0.01 * PluginInstances.settings.animationSpeedForDots;
         if (this.t > 1) {
             this.t = 0;
         }

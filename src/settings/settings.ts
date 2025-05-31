@@ -95,6 +95,7 @@ export interface ExtendedGraphSettings {
     spreadArcs: boolean;
     weightArcs: boolean;
     animateDotsOnLinks: boolean;
+    animationSpeedForDots: number;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -254,6 +255,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     spreadArcs: false,
     weightArcs: false,
     animateDotsOnLinks: false,
+    animationSpeedForDots: 1,
 
     // Links
     allowMultipleLinkTypes: false,
@@ -473,7 +475,8 @@ export class SettingQuery {
         // Display settings
         if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])
             return true;
-        if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs', 'animateDotsOnLinks'].some(key => !equals(key)))
+        if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
+            'animateDotsOnLinks', 'animationSpeedForDots'].some(key => !equals(key)))
             return true;
 
         // Automation
