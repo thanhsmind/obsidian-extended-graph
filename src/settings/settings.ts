@@ -411,7 +411,7 @@ export class SettingQuery {
         const imageFeatures: Feature[] = ['imagesForAttachments', 'imagesFromEmbeds', 'imagesFromProperty'];
         if (imageFeatures.some(f => oldFeatures[f] !== newFeatures[f]))
             return true;
-        if (newFeatures['imagesFromProperty'] && !equals('imageProperty'))
+        if (newFeatures['imagesFromProperty'] && !equals('imageProperties'))
             return true;
         if (imageFeatures.some(feature => newFeatures[feature])) {
             if (['borderFactor', 'allowExternalImages', 'allowExternalLocalImages'].some(key => !equals(key)))
@@ -422,7 +422,7 @@ export class SettingQuery {
         if (newFeatures['elements-stats'] !== oldFeatures['elements-stats'])
             return true;
         if (newFeatures['elements-stats']) {
-            if (['nodesSizeProperty', 'nodesSizeFunction', 'linksSizeFunction'].some(key => !equals(key)))
+            if (['nodesSizeProperties', 'nodesSizeFunction', 'linksSizeFunction'].some(key => !equals(key)))
                 return true;
         }
 
@@ -433,6 +433,7 @@ export class SettingQuery {
             if (!equals('shapeQueries'))
                 return true;
         }
+
 
         // Arrows
         if (newFeatures['arrows'] !== oldFeatures['arrows'])
@@ -447,7 +448,7 @@ export class SettingQuery {
         if (newFeatures['names'] !== oldFeatures['names'])
             return true;
         if (newFeatures['names']) {
-            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertyForName',
+            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertiesForName',
                 'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont'].some(k => !equals(k)))
                 return true;
             if (!oldSettings.dynamicVerticalOffset && !newSettings.dynamicVerticalOffset) {
@@ -460,7 +461,7 @@ export class SettingQuery {
         if (newFeatures['icons'] !== oldFeatures['icons'])
             return true;
         if (newFeatures['arrows']) {
-            if (['iconProperty', 'usePluginForIcon'].some(k => !equals(k)))
+            if (['iconProperties', 'usePluginForIcon'].some(k => !equals(k)))
                 return true;
             if (oldSettings.usePluginForIcon && newSettings.usePluginForIcon) {
                 if (['usePluginForIconColor', 'useParentIcon'].some(k => !equals(k)))
@@ -471,7 +472,11 @@ export class SettingQuery {
         // Display settings
         if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])
             return true;
-        if (['fadeOnDisable', 'borderUnresolved'].some(key => !equals(key)))
+        if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs', 'animateDotsOnLinks'].some(key => !equals(key)))
+            return true;
+
+        // Automation
+        if (['openInNewTab'].some(key => !equals(key)))
             return true;
 
         return false;
