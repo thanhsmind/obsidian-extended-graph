@@ -75,7 +75,7 @@ export class GraphEventsDispatcher extends Component {
 
         const foldersManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);
         if (!foldersManager) return;
-        this.instances.foldersUI = new GCFolders(this.instances.view, foldersManager);
+        this.instances.foldersUI = new GCFolders(this.instances, foldersManager);
         this.instances.foldersUI.display();
     }
 

@@ -409,7 +409,7 @@ body {
 }
 
 .graph-controls .mod-extended-graph-folders .tree-item-children {
-    max-height: 140px;
+    max-height: 300px;
     overflow-y: auto;
 }
 

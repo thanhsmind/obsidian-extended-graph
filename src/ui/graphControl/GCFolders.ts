@@ -1,16 +1,18 @@
-import { Setting, ToggleComponent } from "obsidian";
+import { ExtraButtonComponent, Setting, ToggleComponent } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { FOLDER_KEY, GCSection, InteractiveManager, InteractiveUI } from "src/internal";
+import { FOLDER_KEY, GCSection, GraphInstances, InteractiveManager, InteractiveUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;
+
     settingsMap = new Map<string, { setting: Setting, toggle: ToggleComponent }>();
 
-    constructor(view: GraphView | LocalGraphView, foldersManager: InteractiveManager) {
-        super(view, "folders", STRINGS.features.folders);
+    constructor(instances: GraphInstances, foldersManager: InteractiveManager) {
+        super(instances.view, "folders", STRINGS.features.folders);
 
         this.foldersManager = foldersManager;
+        this.instances = instances;
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
 
@@ -23,7 +25,48 @@ export class GCFolders extends GCSection implements InteractiveUI {
 
     override display() {
         this.treeItemChildren.replaceChildren();
+        this.addToggleAllButton();
+        this.addToggleAllWithAtLeastOneNodeButton();
         this.createFolders();
+    }
+
+    private addToggleAllButton(): void {
+        new Setting(this.treeItemChildren)
+            .setName(STRINGS.controls.toggleAll)
+            .addExtraButton(cb => {
+                cb.setIcon("copy")
+                    .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
+                    .onClick(() => {
+                        this.disableAll();
+                    });
+            })
+            .addExtraButton(cb => {
+                cb.setIcon("copy-check")
+                    .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
+                    .onClick(() => {
+                        this.enableAll();
+                    });
+            });
+    }
+
+    private addToggleAllWithAtLeastOneNodeButton(): void {
+        new Setting(this.treeItemChildren)
+            .setName(STRINGS.controls.toggleAllWithAtLeastOneNode)
+            .addExtraButton(cb => {
+                cb.setIcon("copy")
+                    .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
+                    .onClick(() => {
+                        this.disableAllWithAtLeastOneNode();
+                    });
+            })
+            .addExtraButton(cb => {
+                cb.setIcon("copy-check")
+                    .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
+                    .onClick(() => {
+                        this.enableAllWithAtLeastOneNode();
+                    });
+            });
+
     }
 
     private createFolders(): void {
@@ -34,7 +77,7 @@ export class GCFolders extends GCSection implements InteractiveUI {
         }
     }
 
-    // =========================================================================
+    // ================================ SET UP =================================
 
     update(key: string, path: string, color: Uint8Array): void {
         this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
@@ -64,6 +107,8 @@ export class GCFolders extends GCSection implements InteractiveUI {
         }
     }
 
+    // ============================= INTERACTIONS ==============================
+
     toggle(key: string, path: string): void {
         if (this.foldersManager.isActive(path)) {
             this.foldersManager.disable([path]);
@@ -73,12 +118,50 @@ export class GCFolders extends GCSection implements InteractiveUI {
         }
     }
 
-    disableUI(key: string, path: string): void {
-        this.foldersManager.disable([path]);
+    enableAll(): void {
+        this.foldersManager.enable(this.foldersManager.getTypes());
+        this.enableAllUI(FOLDER_KEY);
     }
 
+    disableAll(): void {
+        this.foldersManager.disable(this.foldersManager.getTypes());
+        this.disableAllUI(FOLDER_KEY);
+    }
+
+    enableAllWithAtLeastOneNode(): void {
+        const paths = this.foldersManager.getTypes();
+        const needToBeEnabled: string[] = [];
+        for (const path of paths) {
+            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
+                needToBeEnabled.push(path);
+                this.enableUI(FOLDER_KEY, path);
+            }
+        }
+
+        this.foldersManager.enable(needToBeEnabled);
+    }
+
+    disableAllWithAtLeastOneNode(): void {
+        const paths = this.foldersManager.getTypes();
+        const needToBeDisabled: string[] = [];
+        for (const path of paths) {
+            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
+                needToBeDisabled.push(path);
+                this.disableUI(FOLDER_KEY, path);
+            }
+        }
+
+        this.foldersManager.disable(needToBeDisabled);
+    }
+
+    // ============================== UI CONTROL ===============================
+
     enableUI(key: string, path: string): void {
-        this.foldersManager.enable([path]);
+        this.settingsMap.get(path)?.toggle.setValue(true);
+    }
+
+    disableUI(key: string, path: string): void {
+        this.settingsMap.get(path)?.toggle.setValue(false);
     }
 
     enableAllUI(key: string): void {

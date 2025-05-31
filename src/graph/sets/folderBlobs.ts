@@ -223,14 +223,9 @@ export class FoldersSet {
                 blobExists = false;
                 blob.initGraphics();
             }
-            for (const file of folder.children) {
-                if (file instanceof TFile) {
-                    const node = this.instances.nodesSet.extendedElementsMap.get(file.path)?.coreElement;
-                    if (node) blob.addNode(node);
-                }
-                else if (file instanceof TFolder) {
-                    // it's a nested folder
-                }
+            const nodes = this.getNodesInFolder(folder);
+            for (const node of nodes) {
+                blob.addNode(node);
             }
             if (blob.nodes.length > 0) {
                 this.foldersMap.set(path, blob);
@@ -240,6 +235,20 @@ export class FoldersSet {
                 }
             }
         }
+    }
+
+    private getNodesInFolder(folder: TFolder): GraphNode[] {
+        const nodes: GraphNode[] = [];
+        for (const file of folder.children) {
+            if (file instanceof TFolder) {
+                nodes.push(...this.getNodesInFolder(file));
+            }
+            else {
+                const node = this.instances.renderer.nodes.find(n => n.id === file.path);
+                if (node) nodes.push(node);
+            }
+        }
+        return nodes;
     }
 
     removeFolder(path: string): void {
@@ -261,5 +270,20 @@ export class FoldersSet {
         if (!folderBlob || !manager) return;
         folderBlob.color = rgb2hex(manager.getColor(path));
         folderBlob.updateGraphics(this.instances.renderer.scale);
+    }
+
+    // ================================ GETTERS ================================
+
+    hasMoreThanOneNode(key: string, path: string): boolean {
+        const blob = this.foldersMap.get(path);
+
+        if (blob) return blob.nodes.length > 1;
+
+        const folder = PluginInstances.app.vault.getFolderByPath(path);
+
+        // folder.getFileCount() is probably more efficient but counts files that are not displayed in the graph
+        // this.getNodesInFolder(folder).length is more accurate but may be slower
+
+        return (folder?.getFileCount() || 0) > 1;
     }
 }

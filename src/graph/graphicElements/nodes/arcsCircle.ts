@@ -118,20 +118,6 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
             const addGap = [...this.types].some(t => t !== type && this.manager.isActive(t));
             arc.startAngle = 2 * Math.PI / totalWeight * arc.index + (addGap ? ArcsCircle.gap * 0.5 : 0);
             arc.endAngle = arc.startAngle + arc.size - (addGap ? ArcsCircle.gap * 0.5 : 0);
-
-            if (this.extendedNode.id === "Debug/250514_.md") {
-                const weightsPerType = activeTypes.map(t => this.graphics.get(t)?.weight || 0);
-                console.log("----------------");
-                console.log("activeTypes:", activeTypes);
-                console.log("weightsPerType:", weightsPerType);
-                console.log("totalWeight:", totalWeight);
-                console.log("typesBefore:", typesBefore);
-                console.log("arc.weight:", arc.weight);
-                console.log("arc.size:", arc.size);
-                console.log("arc.index:", arc.index);
-                console.log("arc.startAngle:", arc.startAngle);
-                console.log("arc.endAngle:", arc.endAngle);
-            }
         }
         else {
             arc.startAngle = arc.size * arc.index + ArcsCircle.gap * 0.5;

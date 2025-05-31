@@ -69,6 +69,14 @@ export class InteractiveManager extends Component {
         return false;
     }
 
+    isFullyEnabled(): boolean {
+        const types = this.getTypes();
+        for (const type of types) {
+            if (!this.isActive(type)) return false;
+        }
+        return true;
+    }
+
     setColor(type: string, color: Uint8Array): void {
         const interactive = this.interactives.get(type);
         if (!interactive) return;

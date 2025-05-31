@@ -38,6 +38,9 @@ export default class STRINGS {
 		resetGraph: "Reset graph",
 		save: "Save",
 		show: "Show",
+		toggle: "Toggle",
+		toggleAll: "Toggle all",
+		toggleAllWithAtLeastOneNode: "Toggle all (at least one node)",
 		rows: "rows",
 		yes: "Yes",
 	};

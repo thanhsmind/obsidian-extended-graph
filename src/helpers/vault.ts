@@ -54,13 +54,6 @@ function getNumberOfTags(file: TFile, tag: string): number {
         return acc;
     }, []) || [];
 
-    if (file.path === "Ruth Shaw.md") {
-        console.log(tag);
-        console.log("Frontmatter Tags:", frontmatterTags, "from", metadataCache.frontmatter?.tags);
-        console.log("Content Tags:", contentTags, "from", metadataCache.tags);
-        console.log("*****");
-    }
-
     return frontmatterTags.length + contentTags.length;
 }
 
