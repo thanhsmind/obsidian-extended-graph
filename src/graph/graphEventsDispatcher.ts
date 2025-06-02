@@ -57,7 +57,7 @@ export class GraphEventsDispatcher extends Component {
 
     instances: GraphInstances;
 
-    lastFilteringAction: LastFilteringAction;
+    lastFilteringAction: LastFilteringAction | undefined;
     lastCheckboxContainerToggled: HTMLDivElement | undefined;
 
     listenStage: boolean = true;
@@ -305,6 +305,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private registerEventsForLastFilteringAction(): void {
+        if (!this.lastFilteringAction) return;
         const lastFilteringAction = this.lastFilteringAction;
 
         // Search
@@ -389,7 +390,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private setLastFilteringActionAsStateChange(stateID: string) {
-        if (!this.lastFilteringAction.record) return;
+        if (!this.lastFilteringAction || !this.lastFilteringAction.record) return;
         this.lastFilteringAction.id = 'plugin-state-change';
         this.lastFilteringAction.userChange = true;
         this.lastFilteringAction.stateIDOld = this.lastFilteringAction.stateIDNew;
@@ -397,7 +398,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private setLastFilteringActionAsInteractive(key: string, types: string[]) {
-        if (!this.lastFilteringAction.record) return;
+        if (!this.lastFilteringAction || !this.lastFilteringAction.record) return;
         if (key !== FOLDER_KEY) {
             this.lastFilteringAction.id = 'plugin-interactives';
             this.lastFilteringAction.userChange = true;
@@ -450,6 +451,12 @@ export class GraphEventsDispatcher extends Component {
 
     private unregisterEventsForLastFilteringAction(): void {
         PluginInstances.proxysManager.unregisterProxy(this.instances.engine.filterOptions.search.changeCallback);
+
+        const checkboxes = this.instances.view.contentEl.querySelectorAll('.graph-control-section.mod-filter .checkbox-container');
+        for (const checkboxContainer of Array.from(checkboxes)) {
+            checkboxContainer.addEventListener('mousedown', this.updateLastCheckboxToggled);
+        }
+
         PluginInstances.proxysManager.unregisterProxy(this.instances.engine.options);
     }
 
@@ -665,11 +672,10 @@ export class GraphEventsDispatcher extends Component {
 
         PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
 
-        const showNotice = this.lastFilteringAction.userChange;
-        this.lastFilteringAction.userChange = false;
-
+        const showNotice = this.lastFilteringAction?.userChange || true;
+        if (this.lastFilteringAction) this.lastFilteringAction.userChange = false;
         if (PluginInstances.graphsManager.isNodeLimitExceededForData(data, showNotice)) {
-            if (PluginInstances.settings.revertAction) {
+            if (PluginInstances.settings.revertAction && this.lastFilteringAction) {
                 this.revertLastFilteringAction();
                 return undefined;
             }
@@ -681,6 +687,7 @@ export class GraphEventsDispatcher extends Component {
                 return undefined;
             }
         }
+
 
         return data;
     }
@@ -760,7 +767,7 @@ export class GraphEventsDispatcher extends Component {
 
     private revertLastFilteringAction(): void {
         // Disable the plugin if no last action was recorder (the plugin was just enabled)
-        if (this.lastFilteringAction.id === undefined) {
+        if (!this.lastFilteringAction || this.lastFilteringAction.id === undefined) {
             this.listenStage = false;
             PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
