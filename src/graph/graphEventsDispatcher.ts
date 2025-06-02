@@ -193,13 +193,13 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createRenderCallbackProxy(): void {
-        const onRendered = this.onRendered.bind(this);
+        const beforeRenderCallback = this.beforeRenderCallback.bind(this);
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.renderCallback>(
             this.instances.renderer,
             "renderCallback",
             {
                 apply(target, thisArg, args) {
-                    onRendered();
+                    beforeRenderCallback();
                     return Reflect.apply(target, thisArg, args);
                 }
             }
@@ -741,7 +741,7 @@ export class GraphEventsDispatcher extends Component {
         }, this.instances.settings.delay);
     }
 
-    private onRendered() {
+    private beforeRenderCallback() {
         // If nodes need to be pinned because we just changed the state and new nodes were added
         if (this.instances.statePinnedNodes) {
             const pinner = new Pinner(this.instances);

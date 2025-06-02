@@ -203,6 +203,8 @@ export default class STRINGS {
 		namesBackgroundDesc: "Add a background to the node name in order to make it more readable by hiding elements behind it",
 		namesInterfaceFont: "Use interface font",
 		namesInterfaceFontDesc: "Use the same font as the one for your vault's interface",
+		namesShowWhenNeighborHighlighted: "Always show when hovering neighbor node",
+		namesShowWhenNeighborHighlightedDesc: "Shows the text even when fully zoomed out if a connected neighbor node is highlighted",
 		namesVerticalOffset: "Vertical offset",
 		namesVerticalOffsetDesc: "Vertical offset of the text. Positive value will push the text lower, and positive value will move it higher.",
 		namesDynamicVerticalOffset: "Dynamic vertical offset",

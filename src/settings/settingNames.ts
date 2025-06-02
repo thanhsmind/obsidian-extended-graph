@@ -12,6 +12,7 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     protected override addBody() {
         this.addInterfaceFont();
+        this.addShowWhenNeighborHighlighted();
         this.addNumberOfCharacters();
         this.addOnlyFilename();
         this.addNoExtension();
@@ -135,6 +136,19 @@ export class SettingNames extends SettingsSectionPerGraphType {
                 cb.setValue(PluginInstances.settings.useInterfaceFont);
                 cb.onChange(value => {
                     PluginInstances.settings.useInterfaceFont = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+    }
+
+    private addShowWhenNeighborHighlighted() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.namesShowWhenNeighborHighlighted)
+            .setDesc(STRINGS.features.namesShowWhenNeighborHighlightedDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.showNamesWhenNeighborHighlighted);
+                cb.onChange(value => {
+                    PluginInstances.settings.showNamesWhenNeighborHighlighted = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);

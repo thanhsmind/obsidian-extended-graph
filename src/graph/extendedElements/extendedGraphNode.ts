@@ -58,6 +58,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     override modifyCoreElement(): void {
         this.proxyGetSize();
         this.proxyGetFillColor();
+        this.proxyRender();
 
         this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
     }
@@ -84,7 +85,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected needToChangeColor(): boolean { return false; }
     protected needToUpdateGraphicsColor(): boolean { return false; }
-    protected proxyGetFillColor(): void {
+    private proxyGetFillColor(): void {
         const needToUpdateGraphicsColor = this.needToUpdateGraphicsColor();
         const needToChangeColor = this.needToChangeColor();
         if (!(needToUpdateGraphicsColor || needToChangeColor)) return;
@@ -101,9 +102,31 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
+    private proxyRender(): void {
+        // TODO: for now, I check the setting only here because I know it's the only reason
+        // we have something to do when node.render is being called.
+        // But if more options need this proxy, I'll need to add this test inside the loop
+        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.instances.settings.showNamesWhenNeighborHighlighted)
+            return;
+
+        const onRenderCalled = this.onRenderCalled.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.render>(
+            this.coreElement,
+            "render",
+            {
+                apply(target, thisArg, args) {
+                    const applied = Reflect.apply(target, thisArg, args);
+                    onRenderCalled();
+                    return applied;
+                }
+            }
+        );
+    }
+
     override restoreCoreElement(): void {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.render);
     }
 
     // ================================ UNLOAD =================================
@@ -179,6 +202,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
         if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
         else this.icon = icon;
+    }
+
+    // ================================ RENDER =================================
+
+    private onRenderCalled() {
+        this.extendedText.makeVisibleIfNeighborHighlighted();
     }
 
     // =============================== NODE SIZE ===============================

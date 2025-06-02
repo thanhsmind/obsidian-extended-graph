@@ -37,7 +37,8 @@ export class StatesManager {
         stateData = this.validateStateData(stateData);
         if (!stateData) return;
 
-        instances.dispatcher.lastFilteringAction.record = false;
+        if (instances.dispatcher.lastFilteringAction)
+            instances.dispatcher.lastFilteringAction.record = false;
 
         setTimeout(() => {
             this.updateInteractiveManagers(stateData, instances);
@@ -56,7 +57,7 @@ export class StatesManager {
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
 
-            if (instances.statesUI.currentStateID === id) {
+            if (instances.statesUI.currentStateID === id && instances.dispatcher.lastFilteringAction) {
                 instances.dispatcher.lastFilteringAction.record = true;
             }
         }, 200)

@@ -129,6 +129,7 @@ export interface ExtendedGraphSettings {
     nameVerticalOffset: number;
     dynamicVerticalOffset: boolean;
     useInterfaceFont: boolean;
+    showNamesWhenNeighborHighlighted: boolean;
 
     // Icons
     iconProperties: string[];
@@ -293,6 +294,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     nameVerticalOffset: 0,
     dynamicVerticalOffset: false,
     useInterfaceFont: true,
+    showNamesWhenNeighborHighlighted: false,
 
     // Icons
     iconProperties: [""],
@@ -465,7 +467,7 @@ export class SettingQuery {
             return true;
         if (newFeatures['names']) {
             if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertiesForName',
-                'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont'].some(k => !equals(k)))
+                'addBackgroundToName', 'dynamicVerticalOffset', 'useInterfaceFont', 'showNamesWhenNeighborHighlighted'].some(k => !equals(k)))
                 return true;
             if (!oldSettings.dynamicVerticalOffset && !newSettings.dynamicVerticalOffset) {
                 if (!equals('nameVerticalOffset'))

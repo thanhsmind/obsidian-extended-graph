@@ -1,7 +1,7 @@
 
 import { GraphNode } from "obsidian-typings";
 import { TextStyle } from "pixi.js";
-import { getFile, getFileInteractives, GraphInstances, PluginInstances, TextGraphicsWrapper } from "src/internal";
+import { getFile, getFileInteractives, GraphInstances, TextGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphText {
     coreElement: GraphNode;
@@ -40,9 +40,9 @@ export class ExtendedGraphText {
     unload(): void {
         this.restoreTextPositionCallback();
         if (this.coreElement.text && this.hasChangedText) {
-            this.restoreText();
             this.coreElement.circle?.removeListener('mouseenter', this.onMouseEnter);
             this.coreElement.circle?.removeListener('mouseleave', this.onMouseLeave);
+            this.restoreText();
             this.hasChangedText = false;
         }
         this.graphicsWrapper?.destroyGraphics();
@@ -251,4 +251,31 @@ export class ExtendedGraphText {
         node.text.position._y = value;
     }
 
+    // ================== Increase alpha of connected nodes
+
+    // Called on each render frame, from the dispatcher
+    makeVisibleIfNeighborHighlighted(): void {
+        const text = this.coreElement.text;
+        if (!text) return;
+
+        const renderer = this.coreElement.renderer;
+        const highlightNode = renderer.getHighlightNode();
+        if (!highlightNode) return;
+
+        if (!this.coreElement.forward.hasOwnProperty(highlightNode.id) && !this.coreElement.reverse.hasOwnProperty(highlightNode.id)) {
+            return;
+        }
+
+        text.alpha = 1;
+
+        if (text.visible) return; // Text visible means that all the computations were already done
+        // Otherwise, we need to redo everything
+        text.visible = true;
+        text.position.set(
+            this.coreElement.x,
+            this.coreElement.y + (this.coreElement.getSize() + 5) * renderer.nodeScale
+        );
+        text.scale.set(renderer.nodeScale);
+        //this.coreElement.text.scale.set(renderer.scale < 1 ? ((1 / renderer.scale) + this.coreElement.renderer.nodeScale) * 0.5 : this.coreElement.renderer.nodeScale);
+    }
 }
