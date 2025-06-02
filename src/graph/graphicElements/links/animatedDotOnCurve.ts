@@ -15,7 +15,7 @@ export class AnimatedDotOnCurve extends Graphics {
     private init(): void {
         this.alpha = 0;
         this.beginFill(this.extendedLink.getStrokeColor(true) || this.extendedLink.coreElement.renderer.colors.lineHighlight.rgb);
-        this.drawCircle(0, 0, 3 * this.extendedLink.coreElement.renderer.fLineSizeMult); // Draw a circle with radius 5
+        this.drawCircle(0, 0, 3);
         this.endFill();
     }
 
@@ -24,6 +24,7 @@ export class AnimatedDotOnCurve extends Graphics {
 
         const P = quadratic(this.t, bezier.P0, bezier.P1, bezier.P2);
         this.position.set(P.x, P.y);
+        this.scale.set(this.extendedLink.coreElement.renderer.fLineSizeMult / Math.sqrt(this.extendedLink.coreElement.renderer.scale));
 
         this.t += 0.01 * PluginInstances.settings.animationSpeedForDots;
         if (this.t > 1) {
