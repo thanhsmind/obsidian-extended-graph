@@ -215,7 +215,7 @@
 		"invalidCharacter": "Caractère invalide",
 		"nlpPluginRequired": "Le module communautaire NLP doit être activé pour utiliser cette fonction",
 		"nodeLimiteExceeded": "Tentative de gérer trop de noeuds",
-		"nodeLimiteIs": "La limite est",
+		"nodeLimitIs": "La limite est",
 		"nodeStatSizeFailed": "Echec lors du calcul des statistiques pour les tailles des noeuds",
 		"nodeStatColorFailed": "Echec lors du calcul des statistiques pour les couleurs des noeuds",
 		"linkStatSizeFailed": "Echec lors du calcul des statistiques pour les épaisseurs des liens",

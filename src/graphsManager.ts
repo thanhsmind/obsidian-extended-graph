@@ -643,7 +643,7 @@ export class GraphsManager extends Component {
 
     isNodeLimitExceededForView(view: GraphView | LocalGraphView): boolean {
         if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
-            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
+            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimitIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.notices.changeInSettings}.`);
             return true;
         }
         return false;
@@ -652,7 +652,7 @@ export class GraphsManager extends Component {
     isNodeLimitExceededForData(data: GraphData, notice: boolean = true): boolean {
         if (Object.keys(data.nodes).length > PluginInstances.settings.maxNodes) {
             if (notice)
-                new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${Object.keys(data.nodes).length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
+                new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${Object.keys(data.nodes).length}). ${STRINGS.notices.nodeLimitIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
             return true;
         }
         return false;

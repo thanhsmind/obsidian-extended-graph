@@ -274,7 +274,7 @@ export default class STRINGS {
 		invalidCharacter: "Invalid character",
 		nlpPluginRequired: "NLP community plugin must be enabled to use this function",
 		nodeLimiteExceeded: "Try to handle too many nodes",
-		nodeLimiteIs: "The limite is",
+		nodeLimitIs: "The limit is",
 		nodeStatSizeFailed: "Failed to compute the statistics for the nodes sizes",
 		nodeStatColorFailed: "Failed to compute the statistics for the nodes colors",
 		linkStatSizeFailed: "Failed to compute the statistics for the links thickness",
