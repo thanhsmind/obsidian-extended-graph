@@ -37,8 +37,10 @@ export class StatesManager {
         stateData = this.validateStateData(stateData);
         if (!stateData) return;
 
-        this.updateInteractiveManagers(stateData, instances).then(() => {
-            if (!stateData) return;
+        instances.dispatcher.lastFilteringAction.record = false;
+
+        setTimeout(() => {
+            this.updateInteractiveManagers(stateData, instances);
             if (stateData.engineOptions) {
                 instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
                 instances.engine.setOptions(stateData.engineOptions);
@@ -53,7 +55,11 @@ export class StatesManager {
             }
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
-        });
+
+            if (instances.statesUI.currentStateID === id) {
+                instances.dispatcher.lastFilteringAction.record = true;
+            }
+        }, 200)
     }
 
     private validateStateData(stateData: GraphStateData): GraphStateData {
@@ -65,12 +71,10 @@ export class StatesManager {
         return state.data;
     }
 
-    private async updateInteractiveManagers(stateData: GraphStateData, instance: GraphInstances): Promise<void> {
-        new Promise(resolve => setTimeout(() => {
-            this.updateManagers(stateData, instance.nodesSet.managers, instance.legendUI);
-            this.updateManagers(stateData, instance.linksSet.managers, instance.legendUI);
-            if (instance.foldersSet) this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
-        }, 200));
+    private updateInteractiveManagers(stateData: GraphStateData, instance: GraphInstances): void {
+        this.updateManagers(stateData, instance.nodesSet.managers, instance.legendUI);
+        this.updateManagers(stateData, instance.linksSet.managers, instance.legendUI);
+        if (instance.foldersSet) this.updateManagers(stateData, instance.foldersSet.managers, instance.foldersUI);
     }
 
     private updateManagers(stateData: GraphStateData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {

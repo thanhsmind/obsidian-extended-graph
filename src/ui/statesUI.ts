@@ -50,7 +50,7 @@ export class StatesUI extends Component {
                 cb.onChange(value => {
                     this.currentStateID = value;
                     this.displaySaveDeleteButton();
-                    PluginInstances.statesManager.changeState(this.instances, value);
+                    this.instances.dispatcher.changeState(value);
                 })
             })
             .addExtraButton(cb => {

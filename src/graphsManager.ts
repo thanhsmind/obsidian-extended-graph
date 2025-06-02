@@ -1,5 +1,5 @@
 import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
-import { GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
+import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
 import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal } from "./internal";
 import STRINGS from "./Strings";
 
@@ -604,7 +604,7 @@ export class GraphsManager extends Component {
         this.backupOptions(view);
 
         if (this.isPluginAlreadyEnabled(view)) return;
-        if (this.isNodeLimitExceeded(view)) return;
+        if (this.isNodeLimitExceededForView(view)) return;
 
         if (this.getGraphAnalysis()["graph-analysis"]) {
             if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
@@ -641,9 +641,18 @@ export class GraphsManager extends Component {
         return instances;
     }
 
-    isNodeLimitExceeded(view: GraphView | LocalGraphView): boolean {
+    isNodeLimitExceededForView(view: GraphView | LocalGraphView): boolean {
         if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
             new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
+            return true;
+        }
+        return false;
+    }
+
+    isNodeLimitExceededForData(data: GraphData, notice: boolean = true): boolean {
+        if (Object.keys(data.nodes).length > PluginInstances.settings.maxNodes) {
+            if (notice)
+                new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${Object.keys(data.nodes).length}). ${STRINGS.notices.nodeLimiteIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
             return true;
         }
         return false;
@@ -918,12 +927,12 @@ export class GraphsManager extends Component {
 
     // =============================== STATUS BAR ==============================
 
-    updateStatusBarItem(leaf: WorkspaceLeaf | null) {
+    updateStatusBarItem(leaf: WorkspaceLeaf | null, numberOfNodes?: number) {
         // Change the number of nodes in the status bar
         this.statusBarItem.innerHTML = "";
         this.statusBarItem.removeClass("mod-clickable");
         if (leaf && (leaf.view.getViewType() === "graph" || leaf.view.getViewType() === "localgraph")) {
-            const numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
+            if (numberOfNodes === undefined) numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
             if (numberOfNodes !== undefined) {
                 this.statusBarItem.createSpan({ text: numberOfNodes.toString() + " " + STRINGS.plugin.nodes, cls: "status-bar-item-segment" });
             }

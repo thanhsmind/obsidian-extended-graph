@@ -15,19 +15,55 @@ import {
     LINK_KEY,
     Pinner,
     PluginInstances,
+    ProxysManager,
     regExpFromString,
     StatesUI,
     TAG_KEY
 } from "src/internal";
 import STRINGS from "src/Strings";
 
+interface LastFilteringAction {
+    id: 'core-search' | 'core-tags' | 'core-attachments' | 'core-hide-unresolved' | 'core-orphans'
+    | 'core-local-jumps' | 'core-local-forelinks' | 'core-local-backlinks'
+    | 'plugin-interactives' | 'plugin-state-change' | undefined;
+
+    searchNew: string;
+    searchOld: string;
+    showTagsNew: boolean;
+    showTagsOld: boolean;
+    showAttachmentsNew: boolean;
+    showAttachmentsOld: boolean;
+    hideUnresolvedNew: boolean;
+    hideUnresolvedOld: boolean;
+    showOrphansNew: boolean;
+    showOrphansOld: boolean;
+
+    localJumpsNew: number,
+    localJumpsOld: number,
+    localForelinksNew: boolean,
+    localForelinksOld: boolean,
+    localBacklinksNew: boolean;
+    localBacklinksOld: boolean;
+
+    interactives: { key: string, types: string[] };
+    stateIDNew: string;
+    stateIDOld: string;
+
+    record: boolean;
+    userChange: boolean;
+}
+
 export class GraphEventsDispatcher extends Component {
 
     instances: GraphInstances;
 
+    lastFilteringAction: LastFilteringAction;
+    lastCheckboxContainerToggled: HTMLDivElement | undefined;
+
     listenStage: boolean = true;
     coreArrowAlpha?: number;
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
+    coreSetData: (data: GraphData) => void;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -90,10 +126,10 @@ export class GraphEventsDispatcher extends Component {
      */
     onload(): void {
         this.createSetDataProxy();
-        this.loadCurrentState();
+        //this.loadCurrentStateEngineOptions();
     }
 
-    private loadCurrentState(): void {
+    private loadCurrentStateEngineOptions(): void {
         const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
@@ -117,6 +153,8 @@ export class GraphEventsDispatcher extends Component {
             this.createDestroyGraphicsProxy();
             this.changeArrowAlpha();
             this.changeNodeOnClick();
+            this.loadLastFilteringAction();
+            this.registerEventsForLastFilteringAction();
         }
         catch (error) {
             this.listenStage = false;
@@ -169,17 +207,25 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createSetDataProxy() {
-        const updateData = this.updateData.bind(this);
+        const updateData: (data: GraphData) => GraphData | undefined = this.updateData.bind(this);
+
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
             "setData",
             {
                 apply(target, thisArg, args) {
-                    args[0] = updateData(args[0]);
-                    return Reflect.apply(target, thisArg, args);
+                    const data = updateData(args[0] as GraphData);
+                    if (data) {
+                        args[0] = data;
+                        return Reflect.apply(target, thisArg, args);
+                    }
+                    else {
+                        return false;
+                    }
                 }
             }
         )
+
     }
 
     private createDestroyGraphicsProxy() {
@@ -230,6 +276,139 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.onNodeClick = this.onNodeClick;
     }
 
+    private loadLastFilteringAction(): void {
+        this.lastFilteringAction = {
+            id: undefined,
+            searchNew: this.instances.engine.filterOptions.search.getValue() || '',
+            searchOld: this.instances.engine.filterOptions.search.getValue() || '',
+            showTagsNew: this.instances.engine.options.showTags || false,
+            showTagsOld: this.instances.engine.options.showTags || false,
+            showAttachmentsNew: this.instances.engine.options.showAttachments || false,
+            showAttachmentsOld: this.instances.engine.options.showAttachments || false,
+            hideUnresolvedNew: this.instances.engine.options.hideUnresolved || false,
+            hideUnresolvedOld: this.instances.engine.options.hideUnresolved || false,
+            showOrphansNew: this.instances.engine.options.showOrphans || true,
+            showOrphansOld: this.instances.engine.options.showOrphans || true,
+            localJumpsNew: this.instances.engine.options.localJumps || 1,
+            localJumpsOld: this.instances.engine.options.localJumps || 1,
+            localForelinksNew: this.instances.engine.options.localForelinks || true,
+            localForelinksOld: this.instances.engine.options.localForelinks || true,
+            localBacklinksNew: this.instances.engine.options.localBacklinks || true,
+            localBacklinksOld: this.instances.engine.options.localBacklinks || true,
+            interactives: { key: '', types: [] },
+            stateIDNew: this.instances.statesUI.currentStateID,
+            stateIDOld: this.instances.statesUI.currentStateID,
+
+            record: true,
+            userChange: false,
+        }
+    }
+
+    private registerEventsForLastFilteringAction(): void {
+        const lastFilteringAction = this.lastFilteringAction;
+
+        // Search
+        if (this.instances.engine.filterOptions.search.changeCallback) {
+            PluginInstances.proxysManager.registerProxy<typeof this.instances.engine.filterOptions.search.changeCallback>(
+                this.instances.engine.filterOptions.search,
+                'changeCallback',
+                {
+                    apply(target, thisArg, args) {
+                        if (!lastFilteringAction.record) return Reflect.apply(target, thisArg, args);
+
+                        lastFilteringAction.id = 'core-search';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.searchOld = lastFilteringAction.searchNew;
+                        lastFilteringAction.searchNew = args[0];
+                        return Reflect.apply(target, thisArg, args);
+                    }
+                }
+            );
+        }
+
+        // Checkbox filters
+        this.updateLastCheckboxToggled = this.updateLastCheckboxToggled.bind(this);
+        const checkboxes = this.instances.view.contentEl.querySelectorAll('.graph-control-section.mod-filter .checkbox-container');
+        for (const checkboxContainer of Array.from(checkboxes)) {
+            checkboxContainer.addEventListener('mousedown', this.updateLastCheckboxToggled);
+        }
+
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.engine.options>(
+            this.instances.engine,
+            'options',
+            {
+                set(target, p, newValue, receiver) {
+                    if (!lastFilteringAction.record) return Reflect.set(target, p, newValue, receiver);
+
+                    if (p === 'showTags') {
+                        lastFilteringAction.id = 'core-tags';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.showTagsOld = lastFilteringAction.showTagsNew;
+                        lastFilteringAction.showTagsNew = newValue;
+                    }
+                    else if (p === 'showAttachments') {
+                        lastFilteringAction.id = 'core-attachments';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.showAttachmentsOld = lastFilteringAction.showAttachmentsNew;
+                        lastFilteringAction.showAttachmentsNew = newValue;
+                    }
+                    else if (p === 'hideUnresolved') {
+                        lastFilteringAction.id = 'core-hide-unresolved';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.hideUnresolvedOld = lastFilteringAction.hideUnresolvedNew;
+                        lastFilteringAction.hideUnresolvedNew = newValue;
+                    }
+                    else if (p === 'showOrphans') {
+                        lastFilteringAction.id = 'core-orphans';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.showOrphansOld = lastFilteringAction.showOrphansNew;
+                        lastFilteringAction.showOrphansNew = newValue;
+                    }
+                    else if (p === 'localJumps') {
+                        lastFilteringAction.id = 'core-local-jumps';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.localJumpsOld = lastFilteringAction.localJumpsNew;
+                        lastFilteringAction.localJumpsNew = newValue;
+                    }
+                    else if (p === 'localForelinks') {
+                        lastFilteringAction.id = 'core-local-forelinks';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.localForelinksOld = lastFilteringAction.localForelinksNew;
+                        lastFilteringAction.localForelinksNew = newValue;
+                    }
+                    else if (p === 'localBacklinks') {
+                        lastFilteringAction.id = 'core-local-backlinks';
+                        lastFilteringAction.userChange = true;
+                        lastFilteringAction.localBacklinksOld = lastFilteringAction.localBacklinksNew;
+                        lastFilteringAction.localBacklinksNew = newValue;
+                    }
+                    return Reflect.set(target, p, newValue, receiver);
+                },
+            }
+        )
+    }
+
+    private setLastFilteringActionAsStateChange(stateID: string) {
+        if (!this.lastFilteringAction.record) return;
+        this.lastFilteringAction.id = 'plugin-state-change';
+        this.lastFilteringAction.userChange = true;
+        this.lastFilteringAction.stateIDOld = this.lastFilteringAction.stateIDNew;
+        this.lastFilteringAction.stateIDNew = stateID;
+    }
+
+    private setLastFilteringActionAsInteractive(key: string, types: string[]) {
+        if (!this.lastFilteringAction.record) return;
+        if (key !== FOLDER_KEY) {
+            this.lastFilteringAction.id = 'plugin-interactives';
+            this.lastFilteringAction.userChange = true;
+            this.lastFilteringAction.interactives = { key, types };
+        }
+    }
+
+    private updateLastCheckboxToggled(ev: MouseEvent) {
+        this.lastCheckboxContainerToggled = ev.currentTarget as HTMLDivElement;
+    }
+
     // =============================== UNLOADING ===============================
 
     /**
@@ -245,6 +424,7 @@ export class GraphEventsDispatcher extends Component {
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
         this.restoreArrowAlpha();
         this.restoreOnNodeClick();
+        this.unregisterEventsForLastFilteringAction();
     }
 
     private unbindStageEvents(): void {
@@ -268,6 +448,11 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
+    private unregisterEventsForLastFilteringAction(): void {
+        PluginInstances.proxysManager.unregisterProxy(this.instances.engine.filterOptions.search.changeCallback);
+        PluginInstances.proxysManager.unregisterProxy(this.instances.engine.options);
+    }
+
     // ============================= STAGE EVENTS ==============================
 
     /**
@@ -275,16 +460,16 @@ export class GraphEventsDispatcher extends Component {
      */
     private onChildAddedToStage(child: DisplayObject, container: Container, index: number): void {
         if (!this.listenStage) return;
-        if (PluginInstances.graphsManager.isNodeLimitExceeded(this.instances.view)) {
-            this.listenStage = false;
-            setTimeout(() => {
-                PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
-            }, 200);
-            return;
-        }
 
         const node = this.instances.renderer.nodes.find(n => n.circle === child);
         if (node) {
+            if (PluginInstances.graphsManager.isNodeLimitExceededForView(this.instances.view)) {
+                this.listenStage = false;
+                setTimeout(() => {
+                    PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+                }, 200);
+                return;
+            }
             const extendedNode = this.instances.nodesSet.extendedElementsMap.get(node.id);
             if (!extendedNode) {
                 this.instances.nodesSet.load();
@@ -365,7 +550,7 @@ export class GraphEventsDispatcher extends Component {
         this.pinDraggingPinnedNode();
     }
 
-    private updateData(data: GraphData): GraphData {
+    private updateData(data: GraphData): GraphData | undefined {
         // Filter out nodes
         let nodesToRemove: string[] = [];
         if (!this.instances.settings.fadeOnDisable) {
@@ -478,6 +663,16 @@ export class GraphEventsDispatcher extends Component {
             nodesToRemove = [];
         }
 
+        PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
+
+        this.lastFilteringAction.userChange = false;
+
+        if (PluginInstances.graphsManager.isNodeLimitExceededForData(data, this.lastFilteringAction.userChange)) {
+            this.revertLastFilteringAction();
+            this.lastFilteringAction.userChange = false;
+            return undefined;
+        }
+
         return data;
     }
 
@@ -552,6 +747,70 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
+    // ========================== REVERT LAST ACTION ===========================
+
+    private revertLastFilteringAction(): void {
+        // Disable the plugin if no last action was recorder (the plugin was just enabled)
+        if (this.lastFilteringAction.id === undefined) {
+            this.listenStage = false;
+            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            return;
+        }
+
+        switch (this.lastFilteringAction.id) {
+            case 'core-search':
+                this.instances.engine.filterOptions.search.inputEl.blur();
+                this.lastFilteringAction.searchNew = this.lastFilteringAction.searchOld;
+                this.instances.engine.filterOptions.search.inputEl.value = this.lastFilteringAction.searchOld;
+                this.instances.engine.updateSearch();
+                break;
+            case 'core-tags':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.showTagsNew = this.lastFilteringAction.showTagsOld;
+                break;
+            case 'core-attachments':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.showAttachmentsNew = this.lastFilteringAction.showAttachmentsOld;
+                break;
+            case 'core-hide-unresolved':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.hideUnresolvedNew = this.lastFilteringAction.hideUnresolvedOld;
+                break;
+            case 'core-orphans':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.showOrphansNew = this.lastFilteringAction.showOrphansOld;
+                break;
+            case 'core-local-jumps':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.localJumpsNew = this.lastFilteringAction.localJumpsOld;
+                break;
+            case 'core-local-forelinks':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.localForelinksNew = this.lastFilteringAction.localForelinksOld;
+                break;
+            case 'core-local-backlinks':
+                this.lastCheckboxContainerToggled?.dispatchEvent(new Event('click'));
+                this.lastFilteringAction.localBacklinksNew = this.lastFilteringAction.localBacklinksOld;
+                break;
+            case 'plugin-interactives':
+                const manager = this.instances.interactiveManagers.get(this.lastFilteringAction.interactives.key);
+                if (manager) {
+                    manager.disable(this.lastFilteringAction.interactives.types);
+                    for (const type of this.lastFilteringAction.interactives.types) {
+                        this.instances.legendUI?.disableUI(this.lastFilteringAction.interactives.key, type);
+                    }
+                }
+                break;
+            case 'plugin-state-change':
+                if (this.lastFilteringAction.stateIDNew !== this.lastFilteringAction.stateIDOld) {
+                    this.lastFilteringAction.stateIDNew = this.lastFilteringAction.stateIDOld;
+                    this.instances.statesUI.setValue(this.lastFilteringAction.stateIDOld);
+                    PluginInstances.statesManager.changeState(this.instances, this.lastFilteringAction.stateIDOld);
+                }
+                break;
+        }
+    }
+
     // ============================= INTERACTIVES ==============================
 
     /**
@@ -602,18 +861,18 @@ export class GraphEventsDispatcher extends Component {
 
     /**
      * Handles the disabling of interactive elements.
-     * @param name - The name of the interactive element type.
+     * @param key - The name of the interactive element type.
      * @param types - An array of types to be disabled.
      */
-    onInteractivesDisabled(name: string, types: string[]) {
-        if (name === LINK_KEY) {
+    onInteractivesDisabled(key: string, types: string[]) {
+        if (key === LINK_KEY) {
             this.instances.graph.disableLinkTypes(types);
             this.instances.engine.render();
             this.instances.renderer.changed();
-        } else if (name === FOLDER_KEY) {
+        } else if (key === FOLDER_KEY) {
             this.disableFolders(types);
         } else {
-            this.instances.graph.disableNodeInteractiveTypes(name, types);
+            this.instances.graph.disableNodeInteractiveTypes(key, types);
             if (!this.instances.settings.fadeOnDisable) {
                 this.instances.engine.render();
             }
@@ -623,18 +882,20 @@ export class GraphEventsDispatcher extends Component {
 
     /**
      * Handles the enabling of interactive elements.
-     * @param name - The name of the interactive element type.
+     * @param key - The name of the interactive element type.
      * @param types - An array of types to be enabled.
      */
-    onInteractivesEnabled(name: string, types: string[]) {
-        if (name === LINK_KEY) {
+    onInteractivesEnabled(key: string, types: string[]) {
+        this.setLastFilteringActionAsInteractive(key, types);
+
+        if (key === LINK_KEY) {
             this.instances.graph.enableLinkTypes(types);
             this.instances.engine.render();
             this.instances.renderer.changed();
-        } else if (name === FOLDER_KEY) {
+        } else if (key === FOLDER_KEY) {
             this.enableFolders(types);
         } else {
-            this.instances.graph.enableNodeInteractiveTypes(name, types);
+            this.instances.graph.enableNodeInteractiveTypes(key, types);
             if (!this.instances.settings.fadeOnDisable) {
                 this.instances.engine.render();
             }
@@ -761,6 +1022,12 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.changed();
     }
 
+    // STATES
+
+    changeState(stateID: string) {
+        this.setLastFilteringActionAsStateChange(stateID);
+        PluginInstances.statesManager.changeState(this.instances, stateID);
+    }
 
     // =============================== PIN NODES ===============================
 
