@@ -665,12 +665,21 @@ export class GraphEventsDispatcher extends Component {
 
         PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
 
+        const showNotice = this.lastFilteringAction.userChange;
         this.lastFilteringAction.userChange = false;
 
-        if (PluginInstances.graphsManager.isNodeLimitExceededForData(data, this.lastFilteringAction.userChange)) {
-            this.revertLastFilteringAction();
-            this.lastFilteringAction.userChange = false;
-            return undefined;
+        if (PluginInstances.graphsManager.isNodeLimitExceededForData(data, showNotice)) {
+            if (PluginInstances.settings.revertAction) {
+                this.revertLastFilteringAction();
+                return undefined;
+            }
+            else {
+                this.listenStage = false;
+                setTimeout(() => {
+                    PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+                }, 200);
+                return undefined;
+            }
         }
 
         return data;

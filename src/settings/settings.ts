@@ -80,6 +80,7 @@ export interface ExtendedGraphSettings {
 
     // Performances
     maxNodes: number;
+    revertAction: boolean;
     delay: number;
 
     // Shapes
@@ -232,6 +233,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Performances
     maxNodes: 20,
+    revertAction: true,
     delay: 500,
 
     // Shapes
