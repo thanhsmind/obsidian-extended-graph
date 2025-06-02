@@ -1,6 +1,7 @@
 import { re } from "mathjs";
-import { getAllTags, TagCache, TFile } from "obsidian";
+import { getAllTags, getLinkpath, parseLinktext, TagCache, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
+import path from "path";
 import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
 
 export function getFile(path: string): TFile | null {
@@ -58,12 +59,24 @@ function getNumberOfTags(file: TFile, tag: string): number {
 }
 
 function recursiveGetProperties(value: any, types: Set<string>): void {
-    if (typeof value === "string" || typeof value === "number") {
+    if (!value) return;
+    if (typeof value === "string") {
+        if (value.startsWith("[[") && value.endsWith("]]")) {
+            const linkPath = getLinkpath(value.slice(2, value.length - 2));
+            const displayTextIndex = linkPath.indexOf("|");
+            const filepath = displayTextIndex >= 0 ? linkPath.slice(0, displayTextIndex) : linkPath;
+            types.add(path.parse(filepath).name);
+        }
+        else {
+            types.add(value);
+        }
+    }
+    else if (typeof value === "number") {
         types.add(String(value));
     }
-    else if (value && (typeof value === "object") && ("path" in value)) {
-        const targetFile = getFile(value.path);
-        types.add(targetFile ? PluginInstances.app.metadataCache.fileToLinktext(targetFile, value.path, true) : value.path);
+    else if ((typeof value === "object") && ("path" in value)) {
+        // Dataview
+        types.add(path.parse(value.path).name);
     }
     else if (Array.isArray(value)) {
         for (const v of value) {
