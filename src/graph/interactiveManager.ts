@@ -1,6 +1,6 @@
 
 import { Component } from "obsidian";
-import { getColor, GraphInstances, hex2rgb, INVALID_KEYS, NONE_COLOR, PluginInstances } from "src/internal";
+import { getColor, GraphInstances, hex2rgb, int2rgb, INVALID_KEYS, LINK_KEY, NONE_COLOR, PluginInstances } from "src/internal";
 
 class Interactive {
     type: string;
@@ -162,7 +162,12 @@ export class InteractiveManager extends Component {
             color = hex2rgb(colorSettings);
         }
         else if (type === this.instances.settings.interactiveSettings[this.name].noneType) {
-            color = NONE_COLOR;
+            if (this.name === LINK_KEY) {
+                color = int2rgb(this.instances.renderer.colors.line.rgb);
+            }
+            else {
+                color = NONE_COLOR;
+            }
         }
         else {
             const allTypesWithoutNone = [...this.interactives.keys()];

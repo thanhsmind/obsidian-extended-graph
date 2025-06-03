@@ -224,7 +224,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         ) {
             const manager = this.managers.get(LINK_KEY);
             const type = this.getActiveType(LINK_KEY);
-            if (manager && type) {
+            if (manager && type && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
                 color = rgb2int(manager.getColor(type));
                 return color
             }
