@@ -26,3 +26,9 @@ debug/
 logs.txt
 *.xcf
 git-filter-repo
+
+# Stat plot
+.venv/
+downloads.csv
+download-stats.py
+releases.csv
