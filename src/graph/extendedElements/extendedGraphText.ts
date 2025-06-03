@@ -259,6 +259,8 @@ export class ExtendedGraphText {
         if (!text) return;
 
         const renderer = this.coreElement.renderer;
+        if (this.instances.settings.linkedNamesScaleThreshold && renderer.scale < this.instances.settings.linkedNamesScaleThreshold) return;
+
         const highlightNode = renderer.getHighlightNode();
         if (!highlightNode) return;
 
@@ -268,14 +270,20 @@ export class ExtendedGraphText {
 
         text.alpha = 1;
 
-        if (text.visible) return; // Text visible means that all the computations were already done
-        // Otherwise, we need to redo everything
-        text.visible = true;
-        text.position.set(
-            this.coreElement.x,
-            this.coreElement.y + (this.coreElement.getSize() + 5) * renderer.nodeScale
-        );
-        text.scale.set(renderer.nodeScale);
-        //this.coreElement.text.scale.set(renderer.scale < 1 ? ((1 / renderer.scale) + this.coreElement.renderer.nodeScale) * 0.5 : this.coreElement.renderer.nodeScale);
+        if (!text.visible) { // Text not visible means that position and scale where not computed
+            text.visible = true;
+            text.position.set(
+                this.coreElement.x,
+                this.coreElement.y + (this.coreElement.getSize() + 5) * renderer.nodeScale
+            );
+        }
+
+        if (!text.visible || this.instances.settings.linkedNamesScale > 0) {
+            const t = Math.clamp(this.instances.settings.linkedNamesScale, 0, 1);
+            const minScale = renderer.nodeScale;
+            const maxScale = renderer.scale < 1 ? 1 / renderer.scale : renderer.nodeScale;
+            const scale = (1 - t) * minScale + t * maxScale;
+            text.scale.set(scale);
+        }
     }
 }

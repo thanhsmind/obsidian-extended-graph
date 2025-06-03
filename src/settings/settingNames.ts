@@ -13,6 +13,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
     protected override addBody() {
         this.addInterfaceFont();
         this.addShowWhenNeighborHighlighted();
+        this.addLinkedNamesScale();
+        this.addLinkedNamesScaleThreshold();
         this.addNumberOfCharacters();
         this.addOnlyFilename();
         this.addNoExtension();
@@ -152,6 +154,44 @@ export class SettingNames extends SettingsSectionPerGraphType {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+    }
+
+    private addLinkedNamesScale() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName("Linked labels scale when a node is hovered")
+            .setDesc("Change the scale of the labels of the linked node when one is hovered. Set between 0 (default) and 1 (same as the highlighted node).")
+            .addText(cb => cb
+                .setValue(PluginInstances.settings.linkedNamesScale.toString())
+                .onChange(async (value) => {
+                    if (value === '') {
+                        PluginInstances.settings.linkedNamesScale = 0;
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.linkedNamesScale = Math.clamp(floatValue, 0, 1);
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                })).settingEl);
+    }
+
+    private addLinkedNamesScaleThreshold() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName("Zoom threshold to show linked labels")
+            .setDesc("If the graph is zoomed out more than this value, labels of nodes linked to the highlighted one won't be displayed. 0.1 is a good starting value, decrease it to allow text to be displayed longer while zooming out. Leave empty to always show the labels.")
+            .addText(cb => cb
+                .setValue((PluginInstances.settings.linkedNamesScaleThreshold || '').toString())
+                .onChange(async (value) => {
+                    if (value === '') {
+                        PluginInstances.settings.linkedNamesScaleThreshold = null;
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.linkedNamesScaleThreshold = floatValue;
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                })).settingEl);
     }
 
 }

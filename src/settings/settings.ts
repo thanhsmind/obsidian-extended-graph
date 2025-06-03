@@ -130,6 +130,8 @@ export interface ExtendedGraphSettings {
     dynamicVerticalOffset: boolean;
     useInterfaceFont: boolean;
     showNamesWhenNeighborHighlighted: boolean;
+    linkedNamesScale: number;
+    linkedNamesScaleThreshold: number | null;
 
     // Icons
     iconProperties: string[];
@@ -295,6 +297,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     dynamicVerticalOffset: false,
     useInterfaceFont: true,
     showNamesWhenNeighborHighlighted: false,
+    linkedNamesScale: 0,
+    linkedNamesScaleThreshold: null,
 
     // Icons
     iconProperties: [""],
