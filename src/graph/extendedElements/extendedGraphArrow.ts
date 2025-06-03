@@ -88,7 +88,8 @@ export class ExtendedGraphArrow {
 
     private colorArrow(target: Graphics, prop: string | symbol, value: any): boolean {
         if (prop === "tint") {
-            if (this.extendedLink.instances.settings.arrowColorBool
+            if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+                && this.extendedLink.instances.settings.arrowColorBool
                 && this.extendedLink.instances.settings.arrowColor !== "") {
                 value = this.extendedLink.instances.settings.arrowColor;
             }
