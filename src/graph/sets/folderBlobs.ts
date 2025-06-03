@@ -284,6 +284,6 @@ export class FoldersSet {
         // folder.getFileCount() is probably more efficient but counts files that are not displayed in the graph
         // this.getNodesInFolder(folder).length is more accurate but may be slower
 
-        return (folder?.getFileCount() || 0) > 1;
+        return folder ? this.getNodesInFolder(folder).length > 1 : false;
     }
 }
