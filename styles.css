@@ -939,7 +939,7 @@ svg.shape-svg {
 
 
 .graph-view.node-text {
-    font-family: var(--font-interface);
+    font-family: var(--font-text);
     font-style: normal;
     font-variant: normal;
     font-weight: normal;
