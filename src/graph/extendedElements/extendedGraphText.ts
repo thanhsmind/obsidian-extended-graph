@@ -254,12 +254,14 @@ export class ExtendedGraphText {
     // ================== Increase alpha of connected nodes
 
     // Called on each render frame, from the dispatcher
+
     makeVisibleIfNeighborHighlighted(): void {
         const text = this.coreElement.text;
         if (!text) return;
 
         const renderer = this.coreElement.renderer;
-        if (this.instances.settings.linkedNamesScaleThreshold && renderer.scale < this.instances.settings.linkedNamesScaleThreshold) return;
+        // At 0, the threshold should be 0.1 (https://github.com/ElsaTam/obsidian-extended-graph/issues/79#issuecomment-2934788603)
+        if (renderer.scale < renderer.fTextShowMult + 0.1) return;
 
         const highlightNode = renderer.getHighlightNode();
         if (!highlightNode) return;
@@ -276,14 +278,7 @@ export class ExtendedGraphText {
                 this.coreElement.x,
                 this.coreElement.y + (this.coreElement.getSize() + 5) * renderer.nodeScale
             );
-        }
-
-        if (!text.visible || this.instances.settings.linkedNamesScale > 0) {
-            const t = Math.clamp(this.instances.settings.linkedNamesScale, 0, 1);
-            const minScale = renderer.nodeScale;
-            const maxScale = renderer.scale < 1 ? 1 / renderer.scale : renderer.nodeScale;
-            const scale = (1 - t) * minScale + t * maxScale;
-            text.scale.set(scale);
+            text.scale.set(renderer.scale < 1 ? 1 / renderer.scale : renderer.nodeScale);
         }
     }
 }

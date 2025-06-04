@@ -38,12 +38,6 @@ export default class ExtendedGraphPlugin extends Plugin {
                 this.onMarkdownViewOpen(view);
             }),
         );
-
-        this.registerEvent(
-            this.app.workspace.on('layout-change', async () => {
-                //this.onLayoutChange();
-            })
-        );
     }
 
     private initializeInvalidKeys(): void {
