@@ -53,6 +53,7 @@ export class GraphStateData {
     pinNodes?: { [nodeID: string]: { x: number, y: number } };
     engineOptions?: EngineOptions;
     hiddenLegendRows?: string[];
+    collapsedLegendRows?: string[];
 
     constructor() {
         this.toggleTypes = {};
@@ -62,6 +63,7 @@ export class GraphStateData {
 
         this.pinNodes = {};
         this.hiddenLegendRows = [];
+        this.collapsedLegendRows = [];
 
         this.engineOptions = new EngineOptions();
     }

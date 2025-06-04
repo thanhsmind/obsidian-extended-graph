@@ -54,6 +54,9 @@ export class StatesManager {
             if (stateData.hiddenLegendRows) {
                 instances.legendUI?.hideRows(stateData.hiddenLegendRows);
             }
+            if (stateData.collapsedLegendRows) {
+                instances.legendUI?.collapseRows(stateData.collapsedLegendRows);
+            }
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
 

@@ -10,7 +10,6 @@ body {
     border: 1px solid var(--background-modifier-border);
     box-shadow: var(--shadow-s);
     border-radius: var(--radius-m);
-    padding: var(--size-4-2);
 
     &:hover {
         --ext-graph-background-container-opacity: 1;
@@ -37,34 +36,72 @@ body {
     --input-height: 1.7em;
 
     position: absolute;
+    top: calc(var(--input-height) + 50px);
     bottom: var(--size-4-3);
     left: var(--size-4-3);
-    right: var(--size-4-3);
     margin-inline: auto;
     width: fit-content;
     max-width: calc(100% - 2 * var(--size-4-3));
+    overflow: auto;
     display: flex;
     flex-direction: column;
-    overflow: auto;
+
+    .graph-legend-rows {
+        display: flex;
+        flex-grow: 1;
+        align-self: stretch;
+    }
 
     &.is-closed {
         display: none;
     }
 
-    .setting-item-info {
-        flex-grow: 0;
+    .setting-item {
+        flex-direction: column;
+        border-top: 0;
+        padding: var(--size-2-2) var(--size-2-2) var(--size-2-2);
+        border-left: 1px solid var(--background-modifier-border);
+    }
+
+    .setting-item:nth-child(1 of .setting-item:not(.is-hidden)) {
+        border-left: 0;
     }
 
     .setting-item-name {
+        --icon-size: 16px;
         font-variant: small-caps;
-        width: 5ch;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        padding: var(--size-2-2);
+        line-height: 1;
+
+        svg {
+            padding-inline-start: var(--size-2-2);
+            vertical-align: text-bottom;
+            padding-block: 0;
+        }
+    }
+
+    @media (hover: hover) {
+        .setting-item-name.mod-clickable:hover {
+            background-color: var(--background-modifier-hover);
+            color: var(--text-normal);
+            border-radius: var(--radius-s);
+        }
+    }
+
+    .setting-item-info {
+        flex-grow: 0;
+        text-align: center;
+        margin-right: 0;
+        margin-inline-end: 0;
     }
 
     .setting-item-control {
+        flex-direction: column;
         justify-content: flex-start;
+        align-items: stretch;
     }
 
     .graph-legend {
@@ -72,6 +109,12 @@ body {
         color: var(--legend-text-color);
         padding: var(--size-2-2) var(--size-4-2);
         border-radius: var(--radius-s);
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        line-height: 1;
     }
 
     .graph-legend.is-hidden {
@@ -84,13 +127,33 @@ body {
         order: 1;
     }
 
-    >.is-hidden {
-        display: none;
+    .is-collapsed {
+        display: flex;
+        padding-inline: 0;
+        background-color: var(--background-secondary);
+        flex-grow: 1;
+        overflow: hidden;
+
+        .setting-item-info {
+            writing-mode: vertical-lr;
+
+            .setting-item-name {
+                width: unset;
+            }
+        }
+
+        .graph-legend {
+            font-size: 0;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            padding: 0;
+            align-self: center;
+        }
     }
 
-    :nth-child(1 of .setting-item:not(.is-hidden)) {
-        padding-top: 0;
-        border-top: none;
+    .setting-item.is-hidden {
+        display: none;
     }
 
     .graph-legend-hide-rows-container {
@@ -98,14 +161,25 @@ body {
         --icon-stroke: 1px;
 
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        padding: var(--size-4-2);
         gap: var(--size-4-2);
+        border-top: 1px solid var(--background-modifier-border);
 
         button {
             display: flex;
             align-items: center;
             gap: var(--size-2-2);
             padding: var(--size-4-1) var(--size-4-2);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            line-height: 1;
+
+            span {
+                margin-right: 4px;
+            }
         }
 
         .is-inactive {
@@ -136,6 +210,7 @@ body {
     position: absolute;
     top: var(--size-4-3);
     left: var(--size-4-3);
+    padding: var(--size-4-2);
     display: flex;
     flex-wrap: wrap;
     align-items: center;

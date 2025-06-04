@@ -14,6 +14,7 @@ import STRINGS from "src/Strings";
 class LegendRow extends Setting {
     name: string;
     isVisible: boolean = true;
+    isCollapsed: boolean = false;
     disableAllButton: ExtraButtonComponent;
     enableAllButton: ExtraButtonComponent;
     cssBGColorVariable: string;
@@ -49,6 +50,13 @@ class LegendRow extends Setting {
                     });
             })
             .setClass(`${this.getClassName(name)}s-row`);
+
+        this.nameEl.addClass("mod-clickable");
+        this.nameEl.onclick = () => {
+            this.toggleCollapse();
+        };
+        const chevron = this.nameEl.createSpan();
+        setIcon(chevron, "chevron-down");
     }
 
     private getClassName(type: string): string {
@@ -168,6 +176,36 @@ class LegendRow extends Setting {
         this.settingEl.addClass("is-hidden");
         this.isVisible = false;
     }
+
+    toggleCollapse() {
+        if (this.isCollapsed) this.expend();
+        else this.collapse();
+
+        const stateData = PluginInstances.statesManager.getStateDataById(this.manager.instances.settings.startingStateID);
+        if (stateData) {
+            if (this.isCollapsed) {
+                if (!stateData.collapsedLegendRows) {
+                    stateData.collapsedLegendRows = [];
+                }
+                stateData.collapsedLegendRows?.push(this.name);
+            }
+            else {
+                stateData.collapsedLegendRows?.remove(this.name);
+            }
+        }
+
+        if (stateData) PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
+    }
+
+    collapse() {
+        this.settingEl.addClass("is-collapsed");
+        this.isCollapsed = true;
+    }
+
+    expend() {
+        this.settingEl.removeClass("is-collapsed");
+        this.isCollapsed = false;
+    }
 }
 
 interface RowData {
@@ -186,6 +224,7 @@ export class LegendUI extends Component implements InteractiveUI {
     isOpen: boolean;
 
     root: HTMLDivElement;
+    rowsDiv: HTMLDivElement;
     toggleButton: ExtraButtonComponent;
 
     constructor(instances: GraphInstances) {
@@ -218,13 +257,14 @@ export class LegendUI extends Component implements InteractiveUI {
         this.legendRows = new Map<string, RowData>();
 
         this.root = this.instances.view.contentEl.createDiv("graph-legend-container");
+        this.rowsDiv = this.root.createDiv("graph-legend-rows");
         const hideRowsContainer = createDiv("graph-legend-hide-rows-container");
         const stateData = PluginInstances.statesManager.getStateDataById(this.instances.settings.startingStateID);
 
         for (const [key, manager] of this.instances.interactiveManagers) {
             if (key === FOLDER_KEY) continue;
 
-            const legendRow = new LegendRow(key, manager, this.root);
+            const legendRow = new LegendRow(key, manager, this.rowsDiv);
 
             const eyeIcon = createSpan();
             setIcon(eyeIcon, "eye");
@@ -251,6 +291,9 @@ export class LegendUI extends Component implements InteractiveUI {
             if (stateData?.hiddenLegendRows?.contains(key)) {
                 row.row.hide();
             }
+            if (stateData?.collapsedLegendRows?.contains(key)) {
+                row.row.collapse();
+            }
         }
 
         this.root.appendChild(hideRowsContainer);
@@ -266,18 +309,18 @@ export class LegendUI extends Component implements InteractiveUI {
     private toggleVisibility(row: RowData, stateData: GraphStateData | undefined) {
         row.row.toggleVisibility();
 
-        if (row.row.isVisible) {
-            row.visibilityButton.cb.buttonEl.removeClass("is-inactive");
-            setIcon(row.visibilityButton.eyeIcon, "eye");
-            stateData?.hiddenLegendRows?.remove(row.row.name);
-        }
-        else {
-            row.visibilityButton.cb.buttonEl.addClass("is-inactive");
-            setIcon(row.visibilityButton.eyeIcon, "eye-off");
-            if (stateData && !stateData.hiddenLegendRows) {
-                stateData.hiddenLegendRows = [];
+        row.visibilityButton.cb.buttonEl.toggleClass("is-inactive", !row.row.isVisible);
+        setIcon(row.visibilityButton.eyeIcon, row.row.isVisible ? "eye" : "eye-off");
+        if (stateData) {
+            if (row.row.isVisible) {
+                stateData.hiddenLegendRows?.remove(row.row.name);
             }
-            stateData?.hiddenLegendRows?.push(row.row.name);
+            else {
+                if (!stateData.hiddenLegendRows) {
+                    stateData.hiddenLegendRows = [];
+                }
+                stateData.hiddenLegendRows?.push(row.row.name);
+            }
         }
 
         if (stateData) PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
@@ -334,6 +377,16 @@ export class LegendUI extends Component implements InteractiveUI {
                 row.row.show();
                 row.visibilityButton.cb.buttonEl.removeClass("is-inactive");
                 setIcon(row.visibilityButton.eyeIcon, "eye");
+            }
+        }
+    }
+
+    collapseRows(rows: string[]) {
+        for (const [key, row] of this.legendRows) {
+            if (rows.includes(key)) {
+                row.row.collapse();
+            } else {
+                row.row.expend();
             }
         }
     }

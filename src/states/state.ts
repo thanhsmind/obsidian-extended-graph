@@ -48,6 +48,16 @@ export class GraphState {
                 }
             }
         }
+
+        // Collapsed legend rows
+        this.data.collapsedLegendRows = [];
+        if (instances.legendUI) {
+            for (const [key, row] of instances.legendUI.legendRows) {
+                if (!row.row.isCollapsed) {
+                    this.data.collapsedLegendRows?.push(key);
+                }
+            }
+        }
     }
 
     saveState(stateData: GraphStateData): boolean {
@@ -56,7 +66,7 @@ export class GraphState {
     }
 
     isValidProperty(key: string) {
-        return ['id', 'name', 'toggleTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows'].includes(key);
+        return ['id', 'name', 'toggleTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows'].includes(key);
     }
 
     completeDefaultOptions(): boolean {
@@ -87,6 +97,10 @@ export class GraphState {
         }
         if (!this.data.hiddenLegendRows) {
             this.data.hiddenLegendRows = [];
+            hasChanged = true;
+        }
+        if (!this.data.collapsedLegendRows) {
+            this.data.collapsedLegendRows = [];
             hasChanged = true;
         }
 
