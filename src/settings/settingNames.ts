@@ -11,7 +11,6 @@ export class SettingNames extends SettingsSectionPerGraphType {
     }
 
     protected override addBody() {
-        this.addInterfaceFont();
         this.addShowWhenNeighborHighlighted();
         this.addNumberOfCharacters();
         this.addOnlyFilename();
@@ -126,19 +125,6 @@ export class SettingNames extends SettingsSectionPerGraphType {
         this.verticalOffset.setDisabled(PluginInstances.settings.dynamicVerticalOffset);
 
         this.elementsBody.push(this.verticalOffset.settingEl);
-    }
-
-    private addInterfaceFont() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesInterfaceFont)
-            .setDesc(STRINGS.features.namesInterfaceFontDesc)
-            .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.useInterfaceFont);
-                cb.onChange(value => {
-                    PluginInstances.settings.useInterfaceFont = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            }).settingEl);
     }
 
     private addShowWhenNeighborHighlighted() {

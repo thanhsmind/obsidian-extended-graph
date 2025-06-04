@@ -936,3 +936,12 @@ svg.shape-svg {
 .status-bar-item.plugin-extended-graph.mod-clickable {
     padding-block: 1px;
 }
+
+
+.graph-view.node-text {
+    font-family: var(--font-interface);
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    letter-spacing: 0px;
+}

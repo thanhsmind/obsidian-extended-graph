@@ -1,6 +1,6 @@
 
 import { GraphNode } from "obsidian-typings";
-import { TextStyle } from "pixi.js";
+import { TextStyle, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
 import { getFile, getFileInteractives, GraphInstances, TextGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphText {
@@ -56,16 +56,45 @@ export class ExtendedGraphText {
     // ================== Change font family to match the interface font
 
     updateFontFamily(): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.instances.settings.useInterfaceFont || !this.coreElement.text) return;
-        const style = window.getComputedStyle(this.coreElement.renderer.interactiveEl);
-        const fontInterface = style.getPropertyValue("--font-interface");
+        if (!this.coreElement.text) return;
+
+        const cssDiv = document.body.createDiv("graph-view node-names");
+        const style = getComputedStyle(cssDiv);
+        const fontFamily = style.fontFamily;
+        let fontStyle = style.fontStyle.toLowerCase();
+        if (['normal', 'italic', 'oblique'].contains(fontStyle)) {
+            fontStyle = 'normal';
+        }
+        let fontVariant = style.fontVariant.toLowerCase();
+        if (!['normal', 'small-caps'].contains(fontVariant)) {
+            fontVariant = 'normal';
+        }
+        let fontWeight = style.fontWeight.toLowerCase();
+        if (!['normal', 'bold', 'bolder', 'lighter', '100', '200', '300', '400', '500', '600', '700', '800', '900'].contains(fontVariant)) {
+            fontWeight = 'normal';
+        }
+        const letterSpacingString = style.letterSpacing.toLowerCase();
+        let letterSpacing = 0;
+        if (letterSpacingString.endsWith("px")) {
+            letterSpacing = parseFloat(letterSpacingString.toLowerCase());
+            if (isNaN(letterSpacing)) {
+                letterSpacing = 0;
+            }
+        }
+        cssDiv.detach();
+
+
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
-        if (fontNode !== fontInterface) {
+        if (fontNode !== fontFamily) {
             this.coreElement.getTextStyle = () => {
                 const coreStyle = this.coreGetTextStyle();
-                coreStyle.fontFamily = fontInterface + ", " + fontNode;
+                coreStyle.fontFamily = fontFamily + ", " + fontNode;
+                coreStyle.fontStyle = fontStyle as TextStyleFontStyle;
+                coreStyle.fontVariant = fontVariant as TextStyleFontVariant;
+                coreStyle.fontWeight = fontWeight as TextStyleFontWeight;
+                coreStyle.letterSpacing = letterSpacing;
                 return coreStyle;
             }
             // @ts-ignore

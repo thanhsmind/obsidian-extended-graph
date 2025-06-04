@@ -279,7 +279,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             if (this.instances.settings.addBackgroundToName) {
                 text.setAttribute('filter', "url(#textBackground)");
             }
-            if (this.instances.settings.useInterfaceFont && coreText) {
+            if (coreText) {
                 const fontFamily = (typeof coreText.style.fontFamily === "string")
                     ? coreText.style.fontFamily.split(',')[0].trim()
                     : coreText.style.fontFamily[0].split(',')[0].trim();
