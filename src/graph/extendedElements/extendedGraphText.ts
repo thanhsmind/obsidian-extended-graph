@@ -64,7 +64,7 @@ export class ExtendedGraphText {
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
 
-        if (fontNode !== customStyle.fontFamily && !isNodeTextStyleDefault(customStyle))
+        if (fontNode !== customStyle.fontFamily && !isNodeTextStyleDefault(customStyle)) {
             this.coreElement.getTextStyle = () => {
                 const coreStyle = this.coreGetTextStyle();
                 coreStyle.fontFamily = customStyle.fontFamily + ", " + fontNode;
@@ -77,8 +77,12 @@ export class ExtendedGraphText {
                 }
                 return coreStyle;
             }
-        // @ts-ignore
-        this.coreElement.fontDirty = true;
+
+            if (this.graphicsWrapper) this.graphicsWrapper.textClone.style = this.coreElement.getTextStyle();
+
+            // @ts-ignore
+            this.coreElement.fontDirty = true;
+        }
     }
 
     private restoreTextStyle(): void {
