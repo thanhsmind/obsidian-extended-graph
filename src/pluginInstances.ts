@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, NodeTextStyle, ProxysManager, StatesManager, StatesUI } from "./internal";
+import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, CSSTextStyle, ProxysManager, StatesManager, StatesUI, CSSFolderStyle } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 
@@ -11,7 +11,8 @@ export class PluginInstances {
     static statesManager: StatesManager; // init in main.ts
     static proxysManager: ProxysManager; // init in main.ts
     static pinSVGDataUrl: string; // init in main.ts
-    static nodeTextStyle: NodeTextStyle; // init in main.ts
+    static nodeTextStyle: CSSTextStyle; // init in main.ts
+    static folderStyle: CSSFolderStyle; // init in main.ts
 }
 
 export class GraphInstances {

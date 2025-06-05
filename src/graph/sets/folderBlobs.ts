@@ -2,7 +2,7 @@ import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { FOLDER_KEY, getFile, getFileInteractives, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
+import { FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -11,9 +11,6 @@ export class FolderBlob {
     text: Text;
     textStyle: TextStyle;
     color: string;
-    strokeOpacity: number = 0.5;
-    fillOpacity: number = 0.03;
-    borderWidth: number = 2;
     BBox: { left: number, right: number, top: number, bottom: number };
 
     constructor(path: string, color?: string) {
@@ -26,15 +23,18 @@ export class FolderBlob {
         this.area.eventMode = 'none';
 
         this.textStyle = new TextStyle({
-            fontSize: 14,
+            fontSize: PluginInstances.folderStyle.textStyle.fontSize,
             fill: this.color,
-            fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei Light", sans-serif',
+            fontFamily: PluginInstances.folderStyle.textStyle.textStyle.fontFamily,
+            fontStyle: PluginInstances.folderStyle.textStyle.textStyle.fontStyle,
+            fontVariant: PluginInstances.folderStyle.textStyle.textStyle.fontVariant,
+            fontWeight: PluginInstances.folderStyle.textStyle.textStyle.fontWeight,
+            letterSpacing: PluginInstances.folderStyle.textStyle.textStyle.letterSpacing,
             wordWrap: !0,
             wordWrapWidth: 300,
-            align: "center"
+            align: PluginInstances.folderStyle.textStyle.align
         });
         this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
-        this.text.anchor.set(0.5, 0);
         this.area.addChild(this.text);
     }
 
@@ -73,9 +73,18 @@ export class FolderBlob {
     private drawBox() {
         this.area.clear();
 
-        this.area.lineStyle(this.borderWidth, this.color, this.strokeOpacity)
-            .beginFill(this.color, this.fillOpacity)
-            .drawRoundedRect(this.BBox.left, this.BBox.top, (this.BBox.right - this.BBox.left), (this.BBox.bottom - this.BBox.top), PluginInstances.settings.folderRadius)
+        this.area.lineStyle(
+            PluginInstances.folderStyle.borderWidth,
+            this.color,
+            PluginInstances.folderStyle.strokeOpacity,
+            1
+        ).beginFill(this.color, PluginInstances.folderStyle.fillOpacity)
+            .drawRoundedRect(
+                this.BBox.left,
+                this.BBox.top,
+                (this.BBox.right - this.BBox.left),
+                (this.BBox.bottom - this.BBox.top),
+                PluginInstances.folderStyle.radius)
             .endFill();
     }
 
@@ -93,18 +102,33 @@ export class FolderBlob {
         }
 
         this.BBox = {
-            left: xMin - 50,
-            right: xMax + 50,
-            top: yMin - 50,
-            bottom: yMax + 50,
+            left: xMin - 50 - PluginInstances.folderStyle.padding.left,
+            right: xMax + 50 + PluginInstances.folderStyle.padding.right,
+            top: yMin - 50 - PluginInstances.folderStyle.padding.top,
+            bottom: yMax + 50 + PluginInstances.folderStyle.padding.bottom,
         };
     }
 
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
-        this.text.style.fontSize = 14 * t;
-        this.text.x = this.BBox.left + 0.5 * (this.BBox.right - this.BBox.left);
-        this.text.y = this.BBox.top;
+        this.text.style.fontSize = PluginInstances.folderStyle.textStyle.fontSize * t;
+        this.text.style.letterSpacing = PluginInstances.folderStyle.textStyle.textStyle.letterSpacing * t;
+        switch (PluginInstances.folderStyle.textStyle.align) {
+            case 'center':
+                this.text.anchor.set(0.5, 0);
+                this.text.x = this.BBox.left + 0.5 * (this.BBox.right - this.BBox.left);
+                break;
+            case 'left':
+                this.text.anchor.set(0, 0);
+                this.text.x = this.BBox.left + PluginInstances.folderStyle.padding.left;
+                break;
+            case 'right':
+                this.text.anchor.set(1, 0);
+                this.text.x = this.BBox.right - PluginInstances.folderStyle.padding.right;
+                break;
+        }
+
+        this.text.y = this.BBox.top + PluginInstances.folderStyle.padding.top;
         this.text.scale.set(1 / t);
     }
 }

@@ -1008,3 +1008,17 @@ svg.shape-svg {
     font-weight: normal;
     letter-spacing: 0px;
 }
+
+.graph-view.folder {
+    font-family: var(--font-text);
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    letter-spacing: 0px;
+    font-size: 14px;
+
+    border-radius: 50px;
+    border-width: 2px;
+    opacity: 0.03;
+    padding: 0px 0px 0px 0px;
+}
