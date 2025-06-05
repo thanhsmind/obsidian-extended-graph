@@ -65,7 +65,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         this.pixiElement.name = this.name;
 
         this.placeNode();
-        if (this.extendedElement.icon?.svg || this.extendedElement.icon?.emoji) this.initIcon();
+        //if (this.extendedElement.icon?.svg || this.extendedElement.icon?.emoji) this.initIcon();
         if (this.extendedElement.needOpacityLayer()) this.initOpacityLayer();
     }
 
