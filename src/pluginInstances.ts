@@ -36,7 +36,7 @@ export class GraphInstances {
 
     coreStyleEl?: HTMLStyleElement; // init in graphDistacher.ts
     extendedStyleEl?: HTMLStyleElement; // init in graphDistacher.ts
-    stylesData: {
+    stylesData?: {
         nodeText: CSSTextStyle; // init in graphDistacher.ts
         folder: CSSFolderStyle; // init in graphDistacher.ts
     }

@@ -82,6 +82,8 @@ export interface ExtendedGraphSettings {
     maxNodes: number;
     revertAction: boolean;
     delay: number;
+    enableCSS: boolean;
+    cssSnippetFilename: string;
 
     // Shapes
     shapeQueries: Record<string, QueryData>;
@@ -239,6 +241,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     maxNodes: 20,
     revertAction: true,
     delay: 500,
+    enableCSS: false,
+    cssSnippetFilename: "",
 
     // Shapes
     shapeQueries: {

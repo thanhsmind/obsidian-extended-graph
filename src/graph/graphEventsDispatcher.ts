@@ -1093,6 +1093,8 @@ export class GraphEventsDispatcher extends Component {
     // ================================== CSS ==================================
 
     private createStyleElementsForCSSBridge(): void {
+        if (!this.instances.settings.enableCSS) return;
+
         // Get the document inside the iframe
         const doc = this.instances.renderer.iframeEl.contentDocument;
         if (!doc) return;
@@ -1128,7 +1130,9 @@ export class GraphEventsDispatcher extends Component {
         this.computeStylingFromCSSBridge();
         if (this.instances.nodesSet) {
             this.instances.nodesSet.onCSSChange();
-            this.instances.foldersSet?.onCSSChange();
+            if (this.instances.settings.enableCSS) {
+                this.instances.foldersSet?.onCSSChange();
+            }
             this.instances.renderer.changed();
         }
     }

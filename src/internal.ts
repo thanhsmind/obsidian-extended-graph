@@ -81,6 +81,7 @@ export * from "./settings/settingsSection";
 export * from "./settings/settingSectionPerGraphType";
 export * from "./settings/settingArrows";
 export * from "./settings/settingAutomation";
+export * from "./settings/settingBeta";
 export * from "./settings/settingDisplay";
 export * from "./settings/settingElementsStats";
 export * from "./settings/settingFocus";
@@ -99,6 +100,7 @@ export * from "./settings/components/settingColorPalette";
 export * from "./settings/components/settingFeature";
 
 export * from "./suggester/AbstractFormattingSuggester";
+export * from "./suggester/CSSSnippetsSuggester";
 export * from "./suggester/FoldersSuggester";
 export * from "./suggester/InteractivesSuggester";
 export * from "./suggester/InteractivesColorSuggester";

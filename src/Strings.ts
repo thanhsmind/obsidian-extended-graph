@@ -50,6 +50,14 @@ export default class STRINGS {
 		issueNeedView: "There was an issue with the plugin " + STRINGS.plugin.name + ". Please close the graph view and open it again.",
 	}
 
+	static beta = {
+		beta: "Beta features",
+		enableCSS: "Enable CSS customization",
+		enableCSSDesc: "Allows the plugin to inject custom CSS into the graph view for further customization. Write the name of the CSS snippet to use.",
+		revertAction: "Revert action",
+		revertActionDesc: "If the max number of nodes is reached, try to reverse last action instead of disabling the plugin",
+	}
+
 	static features = {
 		animateDotsOnLinks: "Animate dots on links",
 		animateDotsOnLinksDesc: "Animate dots on links when a node is hovered to show the flow of information",

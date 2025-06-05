@@ -9,6 +9,7 @@ export interface CSSTextStyle {
     fontVariant: TextStyleFontVariant;
     fontWeight: TextStyleFontWeight;
     letterSpacing: number;
+    fill?: TextStyleFill;
 }
 
 export interface CSSFolderTextStyle {
@@ -36,7 +37,7 @@ const DEFAULT_TEXT_STYLE: CSSTextStyle = {
 
 const cssDivId = "extended-graph-css-div";
 
-const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
+export const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
     textStyle: {
         textStyle: DEFAULT_TEXT_STYLE,
         align: 'center',
@@ -109,7 +110,7 @@ function applyCoreCSSStyle(instances: GraphInstances): void {
 function applyExtendedCSSStyle(instances: GraphInstances): void {
     if (!instances.extendedStyleEl) return;
 
-    const snippetName = "test";
+    const snippetName = PluginInstances.settings.cssSnippetFilename;
     if (!PluginInstances.app.customCss.enabledSnippets.has(snippetName)) return;
 
     const snippet = [...PluginInstances.app.customCss.csscache.entries()].find(p => path.basename(p[0], ".css") === snippetName);
@@ -126,7 +127,7 @@ function getGraphComputedStyle(instances: GraphInstances, cssClass: string, path
     div.classList.add("graph-view", cssClass);
     div.id = cssDivId;
     if (path) {
-        div.setAttr('data-path', path);
+        div.setAttribute('data-path', path);
     }
     div.style.borderStyle = 'solid';
     const style = getComputedStyle(div);
@@ -161,12 +162,15 @@ function getTextStyle(instances: GraphInstances, cssClass: string, path?: string
 
     const letterSpacing = getUnitlessPixel(style.letterSpacing, DEFAULT_TEXT_STYLE.letterSpacing);
 
+    const fill = getGraphComputedStyle(instances, "color-text", path).color;
+
     const textStyle = {
         fontFamily: fontFamily,
         fontStyle: fontStyle as TextStyleFontStyle,
         fontVariant: fontVariant as TextStyleFontVariant,
         fontWeight: fontWeight as TextStyleFontWeight,
-        letterSpacing: letterSpacing
+        letterSpacing: letterSpacing,
+        fill: fill
     };
 
     detachCSSDiv(instances);

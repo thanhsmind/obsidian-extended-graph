@@ -56,9 +56,9 @@ export class ExtendedGraphText {
     // ================== Change font family to match the interface font
 
     updateTextStyle(): void {
-        if (!this.coreElement.text) return;
+        if (!this.coreElement.text || !this.instances.extendedStyleEl) return;
 
-        const customStyle = this.instances.stylesData.nodeText;//getNodeTextStyle(this.coreElement.id);
+        const customStyle = getNodeTextStyle(this.instances, this.coreElement.id);
 
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
@@ -72,6 +72,9 @@ export class ExtendedGraphText {
                 coreStyle.fontVariant = customStyle.fontVariant;
                 coreStyle.fontWeight = customStyle.fontWeight;
                 coreStyle.letterSpacing = customStyle.letterSpacing;
+                if (customStyle.fill) {
+                    coreStyle.fill = customStyle.fill;
+                }
                 return coreStyle;
             }
         // @ts-ignore

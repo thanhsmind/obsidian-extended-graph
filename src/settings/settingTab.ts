@@ -18,9 +18,8 @@ import {
     ExtendedGraphSettings,
     SettingQuery,
     SettingAutomation,
-    Feature,
-    FeatureSetting,
-    SettingDisplay
+    SettingDisplay,
+    SettingBeta
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
@@ -48,6 +47,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingZoom(this));
         this.sections.push(new SettingDisplay(this));
         this.sections.push(new SettingPerformance(this));
+        this.sections.push(new SettingBeta(this));
     }
 
     display(): void {

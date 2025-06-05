@@ -2,7 +2,7 @@ import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { CSSFolderStyle, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
+import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -248,7 +248,7 @@ export class FoldersSet {
             let blobExists = true;
             if (!blob) {
                 blobExists = false;
-                blob = new FolderBlob(path, this.instances.stylesData.folder, manager ? rgb2hex(manager.getColor(path)) : undefined);
+                blob = new FolderBlob(path, this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE, manager ? rgb2hex(manager.getColor(path)) : undefined);
                 blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             else if (blob.area.destroyed || !blob.area.parent) {
@@ -306,7 +306,7 @@ export class FoldersSet {
 
     onCSSChange() {
         for (const blob of this.foldersMap.values()) {
-            blob.folderStyle = this.instances.stylesData.folder;
+            blob.folderStyle = this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE;
             blob.initTextStyle();
         }
     }
