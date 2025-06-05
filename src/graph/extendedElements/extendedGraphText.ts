@@ -1,7 +1,7 @@
 
 import { GraphNode } from "obsidian-typings";
 import { TextStyle, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
-import { getFile, getFileInteractives, GraphInstances, TextGraphicsWrapper } from "src/internal";
+import { getFile, getFileInteractives, getNodeTextStyle, GraphInstances, isNodeTextStyleDefault, PluginInstances, TextGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphText {
     coreElement: GraphNode;
@@ -32,7 +32,7 @@ export class ExtendedGraphText {
     }
 
     modifyCoreElement() {
-        this.updateFontFamily();
+        this.updateTextStyle();
         this.updateText();
         this.createTextPositionCallback();
     }
@@ -46,7 +46,7 @@ export class ExtendedGraphText {
             this.hasChangedText = false;
         }
         this.graphicsWrapper?.destroyGraphics();
-        this.restoreFontFamily();
+        this.restoreTextStyle();
     }
 
     disable() {
@@ -55,54 +55,30 @@ export class ExtendedGraphText {
 
     // ================== Change font family to match the interface font
 
-    updateFontFamily(): void {
+    updateTextStyle(): void {
         if (!this.coreElement.text) return;
 
-        const cssDiv = document.body.createDiv("graph-view node-names");
-        const style = getComputedStyle(cssDiv);
-        const fontFamily = style.fontFamily;
-        let fontStyle = style.fontStyle.toLowerCase();
-        if (['normal', 'italic', 'oblique'].contains(fontStyle)) {
-            fontStyle = 'normal';
-        }
-        let fontVariant = style.fontVariant.toLowerCase();
-        if (!['normal', 'small-caps'].contains(fontVariant)) {
-            fontVariant = 'normal';
-        }
-        let fontWeight = style.fontWeight.toLowerCase();
-        if (!['normal', 'bold', 'bolder', 'lighter', '100', '200', '300', '400', '500', '600', '700', '800', '900'].contains(fontVariant)) {
-            fontWeight = 'normal';
-        }
-        const letterSpacingString = style.letterSpacing.toLowerCase();
-        let letterSpacing = 0;
-        if (letterSpacingString.endsWith("px")) {
-            letterSpacing = parseFloat(letterSpacingString.toLowerCase());
-            if (isNaN(letterSpacing)) {
-                letterSpacing = 0;
-            }
-        }
-        cssDiv.detach();
-
+        const customStyle = PluginInstances.nodeTextStyle;
 
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
-        if (fontNode !== fontFamily) {
+
+        if (fontNode !== customStyle.fontFamily && !isNodeTextStyleDefault(customStyle))
             this.coreElement.getTextStyle = () => {
                 const coreStyle = this.coreGetTextStyle();
-                coreStyle.fontFamily = fontFamily + ", " + fontNode;
-                coreStyle.fontStyle = fontStyle as TextStyleFontStyle;
-                coreStyle.fontVariant = fontVariant as TextStyleFontVariant;
-                coreStyle.fontWeight = fontWeight as TextStyleFontWeight;
-                coreStyle.letterSpacing = letterSpacing;
+                coreStyle.fontFamily = customStyle.fontFamily + ", " + fontNode;
+                coreStyle.fontStyle = customStyle.fontStyle;
+                coreStyle.fontVariant = customStyle.fontVariant;
+                coreStyle.fontWeight = customStyle.fontWeight;
+                coreStyle.letterSpacing = customStyle.letterSpacing;
                 return coreStyle;
             }
-            // @ts-ignore
-            this.coreElement.fontDirty = true;
-        }
+        // @ts-ignore
+        this.coreElement.fontDirty = true;
     }
 
-    private restoreFontFamily(): void {
+    private restoreTextStyle(): void {
         this.coreElement.getTextStyle = this.coreGetTextStyle;
         // @ts-ignore
         this.coreElement.fontDirty = true;

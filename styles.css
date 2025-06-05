@@ -999,6 +999,8 @@ svg.shape-svg {
 }
 
 
+/* CSS BRIDGE */
+
 .graph-view.node-text {
     font-family: var(--font-text);
     font-style: normal;

@@ -220,7 +220,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
             extendedNode.extendedText.graphicsWrapper?.updateTextBackgroundColor(color);
-            extendedNode.extendedText.updateFontFamily();
+            extendedNode.extendedText.updateTextStyle();
         });
     }
 

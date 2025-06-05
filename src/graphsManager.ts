@@ -197,6 +197,7 @@ export class GraphsManager extends Component {
     // ============================= THEME CHANGE ==============================
 
     private onCSSChange() {
+        PluginInstances.plugin.getStylingFromCSSBridge();
         this.allInstances.forEach(instance => {
             if (instance.nodesSet) {
                 instance.nodesSet.onCSSChange();
