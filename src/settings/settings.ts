@@ -239,8 +239,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Performances
     maxNodes: 20,
-    revertAction: true,
     delay: 500,
+    revertAction: false,
     enableCSS: false,
     cssSnippetFilename: "",
 
