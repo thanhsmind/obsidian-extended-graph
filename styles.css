@@ -121,10 +121,6 @@ body {
         background-color: var(--background-secondary);
         overflow: hidden;
 
-        .setting-item-info svg {
-            transform: rotate(-90deg);
-        }
-
         .graph-legend {
             font-size: 0;
             height: 12px;
@@ -185,6 +181,10 @@ body {
 
     .is-collapsed {
         padding-block: 0;
+
+        .setting-item-info svg {
+            transform: rotate(-90deg);
+        }
     }
 
     .setting-item:nth-child(1 of .setting-item:not(.is-hidden)) {
@@ -235,12 +235,15 @@ body {
     .is-collapsed {
         flex-grow: 1;
         padding-inline: 0;
+        row-gap: var(--size-2-2);
 
         .setting-item-info {
             writing-mode: vertical-lr;
+            text-align: left;
 
             .setting-item-name {
-                width: unset;
+                height: 10ch;
+                padding-inline-end: 0;
             }
         }
     }
