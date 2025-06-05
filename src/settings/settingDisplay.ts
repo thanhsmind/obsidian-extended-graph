@@ -15,6 +15,7 @@ export class SettingDisplay extends SettingsSection {
         this.addWeightArcs();
         this.addAnimateDotsOnLinks();
         this.addAnimationSpeedForDot();
+        this.addHorizontalLegend();
     }
 
 
@@ -99,6 +100,19 @@ export class SettingDisplay extends SettingsSection {
                         await PluginInstances.plugin.saveSettings();
                     }
                 })).settingEl);
+    }
+
+    private addHorizontalLegend() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(STRINGS.UI.horizontalLegend)
+            .setDesc(STRINGS.UI.horizontalLegendDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.horizontalLegend);
+                cb.onChange(value => {
+                    PluginInstances.settings.horizontalLegend = value;
+                    PluginInstances.plugin.saveSettings();
+                });
+            }).settingEl);
     }
 
 }

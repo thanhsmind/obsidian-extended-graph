@@ -136,6 +136,9 @@ export interface ExtendedGraphSettings {
     usePluginForIconColor: boolean;
     useParentIcon: boolean;
 
+    // UI
+    horizontalLegend: boolean;
+
     // Internal settings (not set by the user)
     collapseState: boolean;
     collapseLegend: boolean;
@@ -299,6 +302,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     usePluginForIcon: true,
     usePluginForIconColor: true,
     useParentIcon: false,
+
+    // UI
+    horizontalLegend: false,
 
     // Internal settings (not set by the user)
     collapseState: true,

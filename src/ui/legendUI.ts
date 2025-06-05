@@ -257,6 +257,7 @@ export class LegendUI extends Component implements InteractiveUI {
         this.legendRows = new Map<string, RowData>();
 
         this.root = this.instances.view.contentEl.createDiv("graph-legend-container");
+        if (this.instances.settings.horizontalLegend) this.root.addClass("horizontal-layout");
         this.rowsDiv = this.root.createDiv("graph-legend-rows");
         const hideRowsContainer = createDiv("graph-legend-hide-rows-container");
         const stateData = PluginInstances.statesManager.getStateDataById(this.instances.settings.startingStateID);

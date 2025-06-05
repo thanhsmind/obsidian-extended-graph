@@ -367,6 +367,11 @@ export default class STRINGS {
 		sentiment: "Sentiment",
 	};
 
+	static UI = {
+		horizontalLegend: "Horizontal legend",
+		horizontalLegendDesc: "Use a horizontal layout for the legend container (with tags, properties and tags toggle buttons)"
+	}
+
 	static {
 		STRINGS.localize();
 	}

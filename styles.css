@@ -33,10 +33,8 @@ body {
 /* LEGEND */
 
 .graph-legend-container {
-    --input-height: 1.7em;
 
     position: absolute;
-    top: calc(var(--input-height) + 50px);
     bottom: var(--size-4-3);
     left: var(--size-4-3);
     margin-inline: auto;
@@ -47,6 +45,7 @@ body {
     flex-direction: column;
 
     .graph-legend-rows {
+        --input-height: 1.7em;
         display: flex;
         flex-grow: 1;
         align-self: stretch;
@@ -57,14 +56,7 @@ body {
     }
 
     .setting-item {
-        flex-direction: column;
-        border-top: 0;
         padding: var(--size-2-2) var(--size-2-2) var(--size-2-2);
-        border-left: 1px solid var(--background-modifier-border);
-    }
-
-    .setting-item:nth-child(1 of .setting-item:not(.is-hidden)) {
-        border-left: 0;
     }
 
     .setting-item-name {
@@ -93,15 +85,12 @@ body {
 
     .setting-item-info {
         flex-grow: 0;
-        text-align: center;
         margin-right: 0;
         margin-inline-end: 0;
     }
 
     .setting-item-control {
-        flex-direction: column;
         justify-content: flex-start;
-        align-items: stretch;
     }
 
     .graph-legend {
@@ -129,17 +118,11 @@ body {
 
     .is-collapsed {
         display: flex;
-        padding-inline: 0;
         background-color: var(--background-secondary);
-        flex-grow: 1;
         overflow: hidden;
 
-        .setting-item-info {
-            writing-mode: vertical-lr;
-
-            .setting-item-name {
-                width: unset;
-            }
+        .setting-item-info svg {
+            transform: rotate(-90deg);
         }
 
         .graph-legend {
@@ -157,11 +140,11 @@ body {
     }
 
     .graph-legend-hide-rows-container {
+        --input-height: 1.7em;
         --icon-size: 14px;
         --icon-stroke: 1px;
 
         display: flex;
-        flex-direction: column;
         padding: var(--size-4-2);
         gap: var(--size-4-2);
         border-top: 1px solid var(--background-modifier-border);
@@ -189,6 +172,81 @@ body {
         svg {
             vertical-align: text-bottom;
         }
+    }
+}
+
+.graph-legend-container.horizontal-layout {
+    right: var(--size-4-3);
+
+    .graph-legend-rows {
+        flex-direction: column;
+        min-width: fit-content;
+    }
+
+    .is-collapsed {
+        padding-block: 0;
+    }
+
+    .setting-item:nth-child(1 of .setting-item:not(.is-hidden)) {
+        border-top: 0;
+    }
+
+    .setting-item-info {
+        min-width: unset;
+    }
+
+    .setting-item-name {
+        width: 10ch;
+    }
+
+    .is-collapsed {
+        .setting-item-info svg {
+            vertical-align: middle;
+        }
+    }
+
+    .graph-legend-hide-rows-container {
+        justify-content: center;
+    }
+}
+
+.graph-legend-container:not(.horizontal-layout) {
+    top: calc(var(--input-height) + 50px);
+
+    .setting-item {
+        flex-direction: column;
+        border-top: 0;
+        border-left: 1px solid var(--background-modifier-border);
+    }
+
+    .setting-item:nth-child(1 of .setting-item:not(.is-hidden)) {
+        border-left: 0;
+    }
+
+    .setting-item-info {
+        text-align: center;
+    }
+
+    .setting-item-control {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .is-collapsed {
+        flex-grow: 1;
+        padding-inline: 0;
+
+        .setting-item-info {
+            writing-mode: vertical-lr;
+
+            .setting-item-name {
+                width: unset;
+            }
+        }
+    }
+
+    .graph-legend-hide-rows-container {
+        flex-direction: column;
     }
 }
 
