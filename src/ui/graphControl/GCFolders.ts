@@ -34,14 +34,14 @@ export class GCFolders extends GCSection implements InteractiveUI {
         new Setting(this.treeItemChildren)
             .setName(STRINGS.controls.toggleAll)
             .addExtraButton(cb => {
-                cb.setIcon("copy")
+                cb.setIcon("x")
                     .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
                     .onClick(() => {
                         this.disableAll();
                     });
             })
             .addExtraButton(cb => {
-                cb.setIcon("copy-check")
+                cb.setIcon("check-check")
                     .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
                     .onClick(() => {
                         this.enableAll();
@@ -53,14 +53,14 @@ export class GCFolders extends GCSection implements InteractiveUI {
         new Setting(this.treeItemChildren)
             .setName(STRINGS.controls.toggleAllWithAtLeastOneNode)
             .addExtraButton(cb => {
-                cb.setIcon("copy")
+                cb.setIcon("x")
                     .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
                     .onClick(() => {
                         this.disableAllWithAtLeastOneNode();
                     });
             })
             .addExtraButton(cb => {
-                cb.setIcon("copy-check")
+                cb.setIcon("check-check")
                     .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
                     .onClick(() => {
                         this.enableAllWithAtLeastOneNode();

@@ -32,7 +32,7 @@ class LegendRow extends Setting {
             .setTooltip(this.name)
             .addExtraButton(cb => {
                 this.disableAllButton = cb;
-                cb.setIcon("copy")
+                cb.setIcon("x")
                     .setTooltip(STRINGS.controls.disableAll + ": " + this.name)
                     .onClick(() => {
                         this.disableAll();
@@ -40,7 +40,7 @@ class LegendRow extends Setting {
             })
             .addExtraButton(cb => {
                 this.enableAllButton = cb;
-                cb.setIcon("copy-check")
+                cb.setIcon("check-check")
                     .setTooltip(STRINGS.controls.enableAll + ": " + this.name)
                     .onClick(() => {
                         this.enableAll();
