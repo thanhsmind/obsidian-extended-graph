@@ -600,9 +600,16 @@ export class GraphEventsDispatcher extends Component {
             return regExpFromString(folder)?.test(file) ?? file.startsWith(folder);
         };
 
-        for (const [source, node] of Object.entries(data.nodes)) {
+        const potentialOrphans: string[] = [];
+        let dataNodesEntries = Object.entries(data.nodes);
+        for (const [source, node] of dataNodesEntries) {
             // @ts-ignore
-            if (Object.keys(node.links).length === 0) continue;
+            if (Object.keys(node.links).length === 0) {
+                if (!this.instances.engine.options.showOrphans) {
+                    potentialOrphans.push(source);
+                }
+                continue;
+            }
 
             const file = getFile(source);
             if (file) {
@@ -624,7 +631,12 @@ export class GraphEventsDispatcher extends Component {
                     }
                 }
                 // @ts-ignore
-                if (Object.keys(node.links).length === 0) continue;
+                if (Object.keys(node.links).length === 0) {
+                    if (!this.instances.engine.options.showOrphans) {
+                        potentialOrphans.push(source);
+                    }
+                    continue;
+                }
 
                 // Filter out based on types
                 for (const [key, manager] of this.instances.linksSet.managers) {
@@ -665,6 +677,14 @@ export class GraphEventsDispatcher extends Component {
                         }
                     }
                 }
+
+                // @ts-ignore
+                if (Object.keys(node.links).length === 0) {
+                    if (!this.instances.engine.options.showOrphans) {
+                        potentialOrphans.push(source);
+                    }
+                    continue;
+                }
             }
 
             // Actually remove source and targets
@@ -672,6 +692,17 @@ export class GraphEventsDispatcher extends Component {
                 delete data.nodes[id];
             }
             nodesToRemove = [];
+        }
+
+        // Remove orphans
+        if (!this.instances.engine.options.showOrphans) {
+            const remainingNodes = Object.values(data.nodes);
+            for (const source of potentialOrphans) {
+                // @ts-ignore
+                if (!remainingNodes.find(n => source in n.links)) {
+                    delete data.nodes[source];
+                }
+            }
         }
 
         PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
