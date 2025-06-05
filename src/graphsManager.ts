@@ -1,7 +1,8 @@
 import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle } from "./internal";
 import STRINGS from "./Strings";
+import path from "path";
 
 
 
@@ -197,13 +198,9 @@ export class GraphsManager extends Component {
     // ============================= THEME CHANGE ==============================
 
     private onCSSChange() {
-        PluginInstances.plugin.getStylingFromCSSBridge();
-        this.allInstances.forEach(instance => {
-            if (instance.nodesSet) {
-                instance.nodesSet.onCSSChange();
-                instance.renderer.changed();
-            }
-        });
+        for (const instances of this.allInstances.values()) {
+            instances.dispatcher.onCSSChange();
+        }
     }
 
     // ============================ METADATA CHANGES ===========================

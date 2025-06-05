@@ -2,12 +2,15 @@ import { Component, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import {
+    applyCSSStyle,
     ExtendedGraphSettings,
     FOLDER_KEY,
     GCFolders,
     getFile,
     getFileInteractives,
+    getFolderStyle,
     getLinkID,
+    getNodeTextStyle,
     getOutlinkTypes,
     Graph,
     GraphInstances,
@@ -15,7 +18,6 @@ import {
     LINK_KEY,
     Pinner,
     PluginInstances,
-    ProxysManager,
     regExpFromString,
     StatesUI,
     TAG_KEY
@@ -125,6 +127,7 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is loaded.
      */
     onload(): void {
+        this.createStyleElementsForCSSBridge();
         this.createSetDataProxy();
         //this.loadCurrentStateEngineOptions();
     }
@@ -416,6 +419,7 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is unloaded.
      */
     onunload(): void {
+        this.removeStylingForCSSBridge();
         this.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.setData);
@@ -1084,5 +1088,48 @@ export class GraphEventsDispatcher extends Component {
     pinDraggingPinnedNode() {
         const pinner = new Pinner(this.instances);
         pinner.pinLastDraggedPinnedNode();
+    }
+
+    // ================================== CSS ==================================
+
+    private createStyleElementsForCSSBridge(): void {
+        // Get the document inside the iframe
+        const doc = this.instances.renderer.iframeEl.contentDocument;
+        if (!doc) return;
+
+        // Add the styling elements
+        this.instances.coreStyleEl = doc.createElement("style");
+        this.instances.coreStyleEl.setAttribute('type', "text/css");
+        doc.head.appendChild(this.instances.coreStyleEl);
+
+        this.instances.extendedStyleEl = doc.createElement("style");
+        this.instances.extendedStyleEl.setAttribute('type', "text/css");
+        doc.head.appendChild(this.instances.extendedStyleEl);
+
+        // Compute
+        this.computeStylingFromCSSBridge();
+    }
+
+    private computeStylingFromCSSBridge(): void {
+        applyCSSStyle(this.instances);
+
+        this.instances.stylesData = {
+            nodeText: getNodeTextStyle(this.instances),
+            folder: getFolderStyle(this.instances)
+        }
+    }
+
+    private removeStylingForCSSBridge(): void {
+        this.instances.coreStyleEl?.remove();
+        this.instances.extendedStyleEl?.remove();
+    }
+
+    onCSSChange() {
+        this.computeStylingFromCSSBridge();
+        if (this.instances.nodesSet) {
+            this.instances.nodesSet.onCSSChange();
+            this.instances.foldersSet?.onCSSChange();
+            this.instances.renderer.changed();
+        }
     }
 }

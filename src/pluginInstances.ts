@@ -11,8 +11,6 @@ export class PluginInstances {
     static statesManager: StatesManager; // init in main.ts
     static proxysManager: ProxysManager; // init in main.ts
     static pinSVGDataUrl: string; // init in main.ts
-    static nodeTextStyle: CSSTextStyle; // init in main.ts
-    static folderStyle: CSSFolderStyle; // init in main.ts
 }
 
 export class GraphInstances {
@@ -35,6 +33,13 @@ export class GraphInstances {
     legendUI: LegendUI | null = null;
     foldersUI: GCFolders | null = null;
     statesUI: StatesUI;
+
+    coreStyleEl?: HTMLStyleElement; // init in graphDistacher.ts
+    extendedStyleEl?: HTMLStyleElement; // init in graphDistacher.ts
+    stylesData: {
+        nodeText: CSSTextStyle; // init in graphDistacher.ts
+        folder: CSSFolderStyle; // init in graphDistacher.ts
+    }
 
     colorGroupHaveChanged: boolean = false;
     statePinnedNodes: Record<string, { x: number; y: number; handled?: boolean }> | null = null;

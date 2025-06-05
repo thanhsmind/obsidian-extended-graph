@@ -460,9 +460,9 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             rx: PluginInstances.settings.folderRadius,
             fill: folderBlob.color,
             stroke: folderBlob.color,
-            'stroke-width': folderBlob.borderWidth,
-            'fill-opacity': folderBlob.fillOpacity,
-            'stroke-opacity': folderBlob.strokeOpacity,
+            'stroke-width': folderBlob.folderStyle.borderWidth,
+            'fill-opacity': folderBlob.folderStyle.fillOpacity,
+            'stroke-opacity': folderBlob.folderStyle.strokeOpacity,
         });
         const fontSize = 14;
         const text = getSVGNode('text', {

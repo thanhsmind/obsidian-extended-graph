@@ -1,6 +1,21 @@
 import { addIcon, getIcon, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
-import { DEFAULT_SETTINGS, ExtendedGraphSettingTab, FOLDER_KEY, getFolderStyle, getGraphBannerClass, getGraphBannerPlugin, getIconicPlugin, getNodeTextStyle, GraphsManager, hasEngine, INVALID_KEYS, isGraphBannerLoaded, LINK_KEY, PluginInstances, ProxysManager, StatesManager, TAG_KEY } from './internal';
-import { re } from 'mathjs';
+import {
+    DEFAULT_SETTINGS,
+    ExtendedGraphSettingTab,
+    FOLDER_KEY,
+    getGraphBannerClass,
+    getGraphBannerPlugin,
+    GraphsManager,
+    hasEngine,
+    INVALID_KEYS,
+    isGraphBannerLoaded,
+    LINK_KEY,
+    PluginInstances,
+    ProxysManager,
+    StatesManager,
+    TAG_KEY
+} from './internal';
+
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -22,7 +37,6 @@ export default class ExtendedGraphPlugin extends Plugin {
         this.addSettingTab(new ExtendedGraphSettingTab(this));
 
         this.registerEvent(this.app.workspace.on('layout-ready', () => {
-            this.getStylingFromCSSBridge();
             this.loadGraphsManager();
             this.onLayoutChange();
         }));
@@ -69,11 +83,6 @@ export default class ExtendedGraphPlugin extends Plugin {
             const s = new XMLSerializer();
             PluginInstances.pinSVGDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
         }
-    }
-
-    getStylingFromCSSBridge() {
-        PluginInstances.nodeTextStyle = getNodeTextStyle();
-        PluginInstances.folderStyle = getFolderStyle();
     }
 
     // =============================== UNLOADING ===============================

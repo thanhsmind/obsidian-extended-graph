@@ -2,10 +2,11 @@ import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
+import { CSSFolderStyle, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
+    folderStyle: CSSFolderStyle;
     nodes: GraphNode[] = [];
     area: Graphics;
     text: Text;
@@ -13,8 +14,9 @@ export class FolderBlob {
     color: string;
     BBox: { left: number, right: number, top: number, bottom: number };
 
-    constructor(path: string, color?: string) {
+    constructor(path: string, folderStyle: CSSFolderStyle, color?: string) {
         this.path = path;
+        this.folderStyle = folderStyle;
         this.color = color ? color : randomColor();
     }
 
@@ -22,20 +24,25 @@ export class FolderBlob {
         this.area = new Graphics();
         this.area.eventMode = 'none';
 
-        this.textStyle = new TextStyle({
-            fontSize: PluginInstances.folderStyle.textStyle.fontSize,
-            fill: this.color,
-            fontFamily: PluginInstances.folderStyle.textStyle.textStyle.fontFamily,
-            fontStyle: PluginInstances.folderStyle.textStyle.textStyle.fontStyle,
-            fontVariant: PluginInstances.folderStyle.textStyle.textStyle.fontVariant,
-            fontWeight: PluginInstances.folderStyle.textStyle.textStyle.fontWeight,
-            letterSpacing: PluginInstances.folderStyle.textStyle.textStyle.letterSpacing,
-            wordWrap: !0,
-            wordWrapWidth: 300,
-            align: PluginInstances.folderStyle.textStyle.align
-        });
+        this.initTextStyle();
         this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
         this.area.addChild(this.text);
+    }
+
+    initTextStyle() {
+        this.textStyle = new TextStyle({
+            fontSize: this.folderStyle.textStyle.fontSize,
+            fill: this.color,
+            fontFamily: this.folderStyle.textStyle.textStyle.fontFamily,
+            fontStyle: this.folderStyle.textStyle.textStyle.fontStyle,
+            fontVariant: this.folderStyle.textStyle.textStyle.fontVariant,
+            fontWeight: this.folderStyle.textStyle.textStyle.fontWeight,
+            letterSpacing: this.folderStyle.textStyle.textStyle.letterSpacing,
+            wordWrap: !0,
+            wordWrapWidth: 300,
+            align: this.folderStyle.textStyle.align
+        });
+        if (this.text) this.text.style = this.textStyle;
     }
 
     clearGraphics() {
@@ -74,17 +81,17 @@ export class FolderBlob {
         this.area.clear();
 
         this.area.lineStyle(
-            PluginInstances.folderStyle.borderWidth,
+            this.folderStyle.borderWidth,
             this.color,
-            PluginInstances.folderStyle.strokeOpacity,
+            this.folderStyle.strokeOpacity,
             1
-        ).beginFill(this.color, PluginInstances.folderStyle.fillOpacity)
+        ).beginFill(this.color, this.folderStyle.fillOpacity)
             .drawRoundedRect(
                 this.BBox.left,
                 this.BBox.top,
                 (this.BBox.right - this.BBox.left),
                 (this.BBox.bottom - this.BBox.top),
-                PluginInstances.folderStyle.radius)
+                this.folderStyle.radius)
             .endFill();
     }
 
@@ -102,33 +109,33 @@ export class FolderBlob {
         }
 
         this.BBox = {
-            left: xMin - 50 - PluginInstances.folderStyle.padding.left,
-            right: xMax + 50 + PluginInstances.folderStyle.padding.right,
-            top: yMin - 50 - PluginInstances.folderStyle.padding.top,
-            bottom: yMax + 50 + PluginInstances.folderStyle.padding.bottom,
+            left: xMin - 50 - this.folderStyle.padding.left,
+            right: xMax + 50 + this.folderStyle.padding.right,
+            top: yMin - 50 - this.folderStyle.padding.top,
+            bottom: yMax + 50 + this.folderStyle.padding.bottom,
         };
     }
 
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
-        this.text.style.fontSize = PluginInstances.folderStyle.textStyle.fontSize * t;
-        this.text.style.letterSpacing = PluginInstances.folderStyle.textStyle.textStyle.letterSpacing * t;
-        switch (PluginInstances.folderStyle.textStyle.align) {
+        this.text.style.fontSize = this.folderStyle.textStyle.fontSize * t;
+        this.text.style.letterSpacing = this.folderStyle.textStyle.textStyle.letterSpacing * t;
+        switch (this.folderStyle.textStyle.align) {
             case 'center':
                 this.text.anchor.set(0.5, 0);
                 this.text.x = this.BBox.left + 0.5 * (this.BBox.right - this.BBox.left);
                 break;
             case 'left':
                 this.text.anchor.set(0, 0);
-                this.text.x = this.BBox.left + PluginInstances.folderStyle.padding.left;
+                this.text.x = this.BBox.left + this.folderStyle.padding.left;
                 break;
             case 'right':
                 this.text.anchor.set(1, 0);
-                this.text.x = this.BBox.right - PluginInstances.folderStyle.padding.right;
+                this.text.x = this.BBox.right - this.folderStyle.padding.right;
                 break;
         }
 
-        this.text.y = this.BBox.top + PluginInstances.folderStyle.padding.top;
+        this.text.y = this.BBox.top + this.folderStyle.padding.top;
         this.text.scale.set(1 / t);
     }
 }
@@ -241,7 +248,7 @@ export class FoldersSet {
             let blobExists = true;
             if (!blob) {
                 blobExists = false;
-                blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
+                blob = new FolderBlob(path, this.instances.stylesData.folder, manager ? rgb2hex(manager.getColor(path)) : undefined);
                 blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             else if (blob.area.destroyed || !blob.area.parent) {
@@ -295,6 +302,13 @@ export class FoldersSet {
         if (!folderBlob || !manager) return;
         folderBlob.color = rgb2hex(manager.getColor(path));
         folderBlob.updateGraphics(this.instances.renderer.scale);
+    }
+
+    onCSSChange() {
+        for (const blob of this.foldersMap.values()) {
+            blob.folderStyle = this.instances.stylesData.folder;
+            blob.initTextStyle();
+        }
     }
 
     // ================================ GETTERS ================================

@@ -58,7 +58,7 @@ export class ExtendedGraphText {
     updateTextStyle(): void {
         if (!this.coreElement.text) return;
 
-        const customStyle = PluginInstances.nodeTextStyle;
+        const customStyle = this.instances.stylesData.nodeText;//getNodeTextStyle(this.coreElement.id);
 
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
