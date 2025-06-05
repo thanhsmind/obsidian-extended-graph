@@ -16,11 +16,12 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
     destroyGraphics() {
         if (this.pixiElement) {
             this.pixiElement.removeFromParent();
-            this.pixiElement.destroy(true);
+            if (!this.pixiElement.destroyed) this.pixiElement.destroy(true);
         }
         if (this.textClone) {
             this.textClone.removeFromParent();
             this.textClone.destroy(true);
+            if (!this.textClone.destroyed) this.textClone.destroy(true);
         }
     }
 
