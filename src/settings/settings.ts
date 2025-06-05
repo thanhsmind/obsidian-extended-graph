@@ -109,6 +109,7 @@ export interface ExtendedGraphSettings {
 
     // Folders
     folderRadius: number;
+    folderShowFullPath: boolean;
 
     // Arrows
     invertArrows: boolean;
@@ -276,6 +277,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Folders
     folderRadius: 50,
+    folderShowFullPath: true,
 
     // Arrows
     invertArrows: false,

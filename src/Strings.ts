@@ -95,6 +95,8 @@ export default class STRINGS {
 		focusScaleDesc: "The node corresponding to the currently active note will be scaled up by this factor",
 		folders: "Folders",
 		foldersDesc: "Display folder boxes",
+		folderShowFullPath: "Show full path",
+		folderShowFullPathDesc: "If enable, the full path of the folder will be displayed ; if disabled, only the folder name will be displayed",
 		foldersRadius: "Radius",
 		foldersRadiusDesc: "Radius of the rounded corners of the folder boxes",
 		globalFilter: "Global filter",

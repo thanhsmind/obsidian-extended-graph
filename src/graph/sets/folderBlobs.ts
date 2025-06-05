@@ -1,5 +1,6 @@
-import { TFile, TFolder } from "obsidian";
+import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
+import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { FOLDER_KEY, getFile, getFileInteractives, Graph, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
 
@@ -8,11 +9,11 @@ export class FolderBlob {
     nodes: GraphNode[] = [];
     area: Graphics;
     text: Text;
+    textStyle: TextStyle;
     color: string;
     strokeOpacity: number = 0.5;
     fillOpacity: number = 0.03;
     borderWidth: number = 2;
-    textStyle: TextStyle;
     BBox: { left: number, right: number, top: number, bottom: number };
 
     constructor(path: string, color?: string) {
@@ -20,7 +21,7 @@ export class FolderBlob {
         this.color = color ? color : randomColor();
     }
 
-    initGraphics() {
+    initGraphics(showFullPath: boolean) {
         this.area = new Graphics();
         this.area.eventMode = 'none';
 
@@ -32,7 +33,7 @@ export class FolderBlob {
             wordWrapWidth: 300,
             align: "center"
         });
-        this.text = new Text(this.path, this.textStyle);
+        this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
         this.text.anchor.set(0.5, 0);
         this.area.addChild(this.text);
     }
@@ -40,7 +41,7 @@ export class FolderBlob {
     clearGraphics() {
         this.area.removeFromParent();
         this.area.destroy();
-        this.text.destroy();
+        this.text?.destroy();
     }
 
     updateGraphics(rendererScale: number) {
@@ -217,11 +218,11 @@ export class FoldersSet {
             if (!blob) {
                 blobExists = false;
                 blob = new FolderBlob(path, manager ? rgb2hex(manager.getColor(path)) : undefined);
-                blob.initGraphics();
+                blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             else if (blob.area.destroyed || !blob.area.parent) {
                 blobExists = false;
-                blob.initGraphics();
+                blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             const nodes = this.getNodesInFolder(folder);
             for (const node of nodes) {

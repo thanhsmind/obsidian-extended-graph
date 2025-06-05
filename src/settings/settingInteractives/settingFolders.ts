@@ -12,6 +12,7 @@ export class SettingFolders extends SettingInteractives {
         super.addBody();
 
         this.addFolderRadius();
+        this.addShowFullPath();
     }
 
     private addFolderRadius() {
@@ -26,6 +27,19 @@ export class SettingFolders extends SettingInteractives {
                             PluginInstances.settings.folderRadius = intValue;
                             await PluginInstances.plugin.saveSettings();
                         }
+                    });
+            }).settingEl);
+    }
+
+    private addShowFullPath() {
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.folderShowFullPath)
+            .setDesc(STRINGS.features.folderShowFullPathDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.folderShowFullPath)
+                    .onChange(async (value) => {
+                        PluginInstances.settings.folderShowFullPath = value;
+                        await PluginInstances.plugin.saveSettings();
                     });
             }).settingEl);
     }
