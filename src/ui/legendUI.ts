@@ -68,6 +68,7 @@ class LegendRow extends Setting {
         if (button) return;
         this.addButton(cb => {
             cb.setClass(this.getClassName(type))
+                .setTooltip(type)
                 .setClass("graph-legend")
                 .setButtonText(type)
                 .onClick(() => {
