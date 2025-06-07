@@ -113,21 +113,17 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         }
 
 
-        let arrowColor: ColorSource;
+        let arrowColor: ColorSource | undefined = this.extendedLink.coreElement.arrow?.tint;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
-            arrowColor = this.tint;
         }
         else {
             const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
-            // If the link has a sibling already drawn, we don't draw this line but we still select the correct arrow color
-            if (!this.extendedLink.firstSibling && this.extendedLink.siblingLink?.getActiveType(LINK_KEY)) {
-                arrowColor = this.color;
-            }
-            else {
+            // We draw the line only if the link has no sibling already drawn
+            if (this.extendedLink.firstSibling || !this.extendedLink.siblingLink?.getActiveType(LINK_KEY)) {
                 // If the link has a sibling link, we concatenate its active types
                 if (this.extendedLink.siblingLink) {
                     const siblingActiveTypes = [...this.extendedLink.siblingLink.types.get(LINK_KEY) ?? []].filter(type => this.manager.isActive(type));
@@ -142,7 +138,6 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                     this.lineStyle({ width: thickness, color: "white" });
                     this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
                     this.tint = this.color;
-                    arrowColor = this.tint;
                 }
                 else if (activeTypes.length > 0) {
                     this.tint = "white";
@@ -160,17 +155,16 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                         );
                         ++i;
                     }
-                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
-                }
-                else {
-                    arrowColor = this.tint;
+                    if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+                        && this.extendedLink.instances.settings.arrowColorBool
+                        && this.extendedLink.instances.settings.arrowColor !== "") {
+                        arrowColor = this.extendedLink.instances.settings.arrowColor;
+                    }
+                    else {
+                        arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                    }
                 }
             }
-        }
-
-        if (this.extendedLink.instances.settings.arrowColorBool
-            && this.extendedLink.instances.settings.arrowColor !== "") {
-            arrowColor = this.extendedLink.instances.settings.arrowColor;
         }
 
         let arrowAlpha: number = 1;
@@ -194,7 +188,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                 if (this.arrow) this.addChild(this.arrow);
             }
             if (this.arrow) {
-                this.arrow.tint = arrowColor;
+                this.arrow.tint = arrowColor ?? this.tint;
                 this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(P2_.x, P2_.y);
                 this.arrow.rotation = -Math.atan(- (P2_.y - P0_.y) / (P2_.x - P0_.x));

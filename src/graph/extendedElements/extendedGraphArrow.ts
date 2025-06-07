@@ -1,6 +1,5 @@
-import { Graphics } from "pixi.js"
-import { GraphLink, GraphRenderer } from "obsidian-typings";
-import { ExtendedGraphLink, ExtendedGraphSettings, GraphInstances, int2rgb, PluginInstances, SettingQuery } from "src/internal";
+import { ColorSource, Graphics } from "pixi.js"
+import { ExtendedGraphLink, GraphInstances, PluginInstances, SettingQuery } from "src/internal";
 
 export class ExtendedGraphArrow {
     extendedLink: ExtendedGraphLink;
@@ -88,20 +87,24 @@ export class ExtendedGraphArrow {
 
     private colorArrow(target: Graphics, prop: string | symbol, value: any): boolean {
         if (prop === "tint") {
-            if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
-                && this.extendedLink.instances.settings.arrowColorBool
-                && this.extendedLink.instances.settings.arrowColor !== "") {
-                value = this.extendedLink.instances.settings.arrowColor;
-            }
-            else if (this.extendedLink.coreElement.line?.worldVisible) {
-                value = this.extendedLink.coreElement.line.tint;
-            }
-            else if (this.extendedLink.siblingLink?.coreElement.line?.worldVisible) {
-                value = this.extendedLink.siblingLink.coreElement.line.tint;
-            }
-            return Reflect.set(target, prop, value);
+            const newColor = this.getArrowColor();
+            return Reflect.set(target, prop, newColor ?? value);
         }
         return false;
+    }
+
+    getArrowColor(): ColorSource | undefined {
+        if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+            && this.extendedLink.instances.settings.arrowColorBool
+            && this.extendedLink.instances.settings.arrowColor !== "") {
+            return this.extendedLink.instances.settings.arrowColor;
+        }
+        else if (this.extendedLink.coreElement.line?.worldVisible) {
+            return this.extendedLink.coreElement.line.tint;
+        }
+        else if (this.extendedLink.siblingLink?.coreElement.line?.worldVisible) {
+            return this.extendedLink.siblingLink.coreElement.line.tint;
+        }
     }
 
     // =========================== ARROW DIRECTION ============================

@@ -9,7 +9,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
 
-        let arrowColor: ColorSource;
+        let arrowColor: ColorSource | undefined = this.extendedLink.coreElement.arrow?.tint;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
 
 
@@ -20,7 +20,6 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
-            arrowColor = this.tint;
         }
         else {
             // Compute one bezier curve for each type
@@ -31,7 +30,6 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                 this.lineStyle({ width: thickness, color: "white" });
                 this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
                 this.tint = this.color;
-                arrowColor = this.tint;
             }
             else if (activeTypes.length > 0) {
                 this.tint = "white";
@@ -49,21 +47,20 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                     this.quadraticCurveTo(bezierA[1].x, bezierA[1].y, bezierA[2].x, bezierA[2].y);
                     ++i;
                 }
-                arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
-            }
-            else {
-                arrowColor = this.tint;
+                if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+                    && this.extendedLink.instances.settings.arrowColorBool
+                    && this.extendedLink.instances.settings.arrowColor !== "") {
+                    arrowColor = this.extendedLink.instances.settings.arrowColor;
+                }
+                else {
+                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                }
             }
         }
 
         if (link.line) {
             this.alpha = link.line.alpha + this.targetAlpha;
             link.line.alpha = -0.2;
-        }
-
-        if (this.extendedLink.instances.settings.arrowColorBool
-            && this.extendedLink.instances.settings.arrowColor !== "") {
-            arrowColor = this.extendedLink.instances.settings.arrowColor;
         }
 
         let arrowAlpha: number = 1;
@@ -82,7 +79,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                 if (this.arrow) this.addChild(this.arrow);
             }
             if (this.arrow) {
-                this.arrow.tint = arrowColor;
+                this.arrow.tint = arrowColor ?? this.tint;
                 this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
                 this.arrow.rotation = -Math.atan(-tangentQuadratic(1, P0_, P1, this.bezier.P2).m);

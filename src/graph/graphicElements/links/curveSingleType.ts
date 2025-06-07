@@ -22,15 +22,6 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
             link.line.alpha = -0.2;
         }
 
-        let arrowColor: ColorSource;
-        if (this.extendedLink.instances.settings.arrowColorBool
-            && this.extendedLink.instances.settings.arrowColor !== "") {
-            arrowColor = this.extendedLink.instances.settings.arrowColor;
-        }
-        else {
-            arrowColor = this.tint;
-        }
-
         let arrowAlpha: number = 1;
         if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
             && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
@@ -48,7 +39,7 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
                 if (this.arrow) this.addChild(this.arrow);
             }
             if (this.arrow) {
-                this.arrow.tint = arrowColor;
+                this.arrow.tint = this.extendedLink.coreElement.arrow?.tint ?? this.tint;
                 this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
                 this.arrow.rotation = -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m);
