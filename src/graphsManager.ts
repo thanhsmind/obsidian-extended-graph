@@ -822,6 +822,7 @@ export class GraphsManager extends Component {
         const engine = getEngine(view);
         const options = structuredClone(engine.getOptions());
         this.optionsBackup.set(view.leaf.id, options);
+        delete options.search;
         this.lastBackup = view.leaf.id;
         PluginInstances.settings.backupGraphOptions = options;
         PluginInstances.plugin.saveSettings();
