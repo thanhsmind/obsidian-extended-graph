@@ -1,4 +1,4 @@
-import { Component, Menu, TFile, UserEvent } from "obsidian";
+import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import {
@@ -18,6 +18,8 @@ import {
     LINK_KEY,
     Pinner,
     PluginInstances,
+    RadialMenu,
+    RadialMenuManager,
     regExpFromString,
     StatesUI,
     TAG_KEY
@@ -65,6 +67,7 @@ export class GraphEventsDispatcher extends Component {
     listenStage: boolean = true;
     coreArrowAlpha?: number;
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
+    coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreSetData: (data: GraphData) => void;
 
     // ============================== CONSTRUCTOR ==============================
@@ -273,10 +276,15 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private changeNodeOnClick(): void {
-        if (!this.instances.settings.openInNewTab) return;
-        this.onNodeClick = this.onNodeClick.bind(this);
-        this.coreOnNodeClick = this.instances.renderer.onNodeClick;
-        this.instances.renderer.onNodeClick = this.onNodeClick;
+        if (this.instances.settings.openInNewTab) {
+            this.onNodeClick = this.onNodeClick.bind(this);
+            this.coreOnNodeClick = this.instances.renderer.onNodeClick;
+            this.instances.renderer.onNodeClick = this.onNodeClick;
+        }
+
+        this.onNodeRightClick = this.onNodeRightClick.bind(this);
+        this.coreOnNodeRightClick = this.instances.renderer.onNodeRightClick;
+        this.instances.renderer.onNodeRightClick = this.onNodeRightClick;
     }
 
     private loadLastFilteringAction(): void {
@@ -450,6 +458,10 @@ export class GraphEventsDispatcher extends Component {
         if (this.coreOnNodeClick) {
             this.instances.renderer.onNodeClick = this.coreOnNodeClick;
             this.coreOnNodeClick = undefined;
+        }
+        if (this.coreOnNodeRightClick) {
+            this.instances.renderer.onNodeRightClick = this.coreOnNodeRightClick;
+            this.coreOnNodeRightClick = undefined;
         }
     }
 
@@ -727,12 +739,22 @@ export class GraphEventsDispatcher extends Component {
         return data;
     }
 
-    private onNodeClick(e: UserEvent | null, id: string, type: string) {
+    private onNodeClick(e: UserEvent | null, id: string, type: string): void {
         if ("tag" !== type)
             PluginInstances.app.workspace.openLinkText(id, "", "tab");
         else {
             if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
         }
+    }
+
+    private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {
+        if (e && Keymap.isModifier(e, "Shift")) {
+            const radialMenu = new RadialMenuManager(this.instances, id, type);
+            radialMenu.open(e);
+            return;
+        }
+
+        if (this.coreOnNodeRightClick) this.coreOnNodeRightClick(e, id, type);
     }
 
     // ============================== GRAPH CYCLE ==============================
@@ -1102,9 +1124,20 @@ export class GraphEventsDispatcher extends Component {
         pinner.pinNode(file.path);
     }
 
+    pinNodeFromId(id: string) {
+        const pinner = new Pinner(this.instances);
+        pinner.pinNode(id);
+    }
+
     private unpinNode(file: TFile) {
         const pinner = new Pinner(this.instances);
         pinner.unpinNode(file.path);
+        this.instances.renderer.changed();
+    }
+
+    unpinNodeFromId(id: string) {
+        const pinner = new Pinner(this.instances);
+        pinner.unpinNode(id);
         this.instances.renderer.changed();
     }
 

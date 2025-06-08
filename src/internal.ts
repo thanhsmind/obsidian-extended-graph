@@ -117,6 +117,7 @@ export * from "./types/workspace";
 export * from "./ui/UIElements";
 export * from "./ui/legendUI";
 export * from "./ui/menu";
+export * from "./ui/radialMenu";
 export * from "./ui/statesUI";
 
 export * from "./ui/graphControl/graphControl";

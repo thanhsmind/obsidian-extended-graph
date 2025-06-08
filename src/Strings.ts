@@ -16,6 +16,7 @@ export default class STRINGS {
 	static controls = {
 		add: "Add",
 		apply: "Apply",
+		back: "Back",
 		cancel: "Cancel",
 		delete: "Delete",
 		disable: "Disable",

@@ -1,6 +1,6 @@
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode } from "obsidian-typings";
-import { Graphics } from "pixi.js";
+import { FederatedPointerEvent, Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     ExtendedGraphElement,
@@ -123,12 +123,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
-    override restoreCoreElement(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.render);
-    }
-
     // ================================ UNLOAD =================================
 
     override unload() {
@@ -137,6 +131,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
         this.extendedText.unload();
         super.unload();
+    }
+
+    override restoreCoreElement(): void {
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.render);
     }
 
     // =============================== GRAPHICS ================================

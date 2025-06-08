@@ -1,4 +1,3 @@
-import { stat } from "fs";
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
 import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances } from "src/internal";
 import STRINGS from "src/Strings";

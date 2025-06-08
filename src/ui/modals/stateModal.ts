@@ -9,12 +9,16 @@ export class GraphStateModal extends Modal {
         asc: (boolean | undefined)[],
         sortIndex: number,
         table: HTMLTableElement,
-        rows: HTMLTableRowElement[],
+        rows: { id: string, el: HTMLTableRowElement }[],
         page: number,
         pagination: HTMLDivElement,
         maxRows: number
     }> = {};
     defaultMaxRows: number = 10;
+    target?: {
+        tableID: string,
+        elementID: string
+    };
 
     constructor(instances: GraphInstances) {
         super(PluginInstances.app);
@@ -25,10 +29,15 @@ export class GraphStateModal extends Modal {
         this.modalEl.addClass("graph-modal-graph-state");
     }
 
+    setTarget(tableID: 'nodes', elementID: string) {
+        this.target = { tableID, elementID };
+    }
+
     onOpen() {
         this.addNodes();
         this.addLinks();
         this.addPinnedNodes();
+        this.focusOnTarget();
     }
 
     private addNodes() {
@@ -65,11 +74,13 @@ export class GraphStateModal extends Modal {
         if (!hasRows) return;
 
         const tbody = table.createTBody();
+        const ids: string[] = [];
 
         for (const [id, extendedNode] of this.instances.nodesSet.extendedElementsMap) {
             const nodeData = this.getNodeData(id);
 
             const tr = tbody.insertRow();
+            ids.push(id);
             let cell: HTMLTableCellElement;
             cell = tr.insertCell(); cell.setText(nodeData.path);
             cell = tr.insertCell(); nodeData.link ? cell.appendChild(nodeData.link) : cell.setText(id);
@@ -101,7 +112,7 @@ export class GraphStateModal extends Modal {
             }
         }
 
-        this.prepareTable("nodes", table);
+        this.prepareTable("nodes", table, ids);
     }
 
     private addLinks() {
@@ -138,12 +149,14 @@ export class GraphStateModal extends Modal {
         if (!hasRows) return;
 
         const tbody = table.createTBody();
+        const ids: string[] = [];
 
         for (const [id, extendedLink] of this.instances.linksSet.extendedElementsMap) {
             const nodeSourceData = this.getNodeData(extendedLink.coreElement.source.id);
             const nodeTargetData = this.getNodeData(extendedLink.coreElement.target.id);
 
             const tr = tbody.insertRow();
+            ids.push(id);
             let cell: HTMLTableCellElement;
             cell = tr.insertCell(); cell.setText(nodeSourceData.path);
             cell = tr.insertCell(); nodeSourceData.link ? cell.appendChild(nodeSourceData.link) : cell.setText(extendedLink.coreElement.source.id);
@@ -172,7 +185,7 @@ export class GraphStateModal extends Modal {
             }
         }
 
-        this.prepareTable("links", table);
+        this.prepareTable("links", table, ids);
     }
 
     private addPinnedNodes() {
@@ -198,11 +211,13 @@ export class GraphStateModal extends Modal {
         if (!this.state.data.pinNodes || !hasRows) return;
 
         const tbody = table.createTBody();
+        const ids: string[] = [];
 
         for (const [id, p] of Object.entries(this.state.data.pinNodes)) {
             const nodeData = this.getNodeData(id);
 
             const tr = tbody.insertRow();
+            ids.push(id);
             let cell: HTMLTableCellElement;
             cell = tr.insertCell(); cell.setText(nodeData.path);
             cell = tr.insertCell(); nodeData.link ? cell.appendChild(nodeData.link) : cell.setText(id);
@@ -210,7 +225,7 @@ export class GraphStateModal extends Modal {
             cell = tr.insertCell(); cell.setText(p.y.toFixed(2));
         }
 
-        this.prepareTable("pinned", table);
+        this.prepareTable("pinned", table, ids);
     }
 
     private createHeading(title: string, key: string, hasTable?: boolean) {
@@ -276,12 +291,12 @@ export class GraphStateModal extends Modal {
         return;
     }
 
-    private prepareTable(key: string, table: HTMLTableElement, index: number = 1) {
+    private prepareTable(key: string, table: HTMLTableElement, rowIds: string[], index: number = 1) {
         if (!table.tHead) return;
 
         this.sortableTables[key] = {
             table: table,
-            rows: Array.from(table.tBodies[0].rows),
+            rows: Array.from(table.tBodies[0].rows).map((row, i) => { return { id: rowIds[i], el: row } }),
             sortIndex: index,
             asc: Array.from(table.tHead.rows[0].cells).map(el => undefined),
             page: 0,
@@ -386,9 +401,9 @@ export class GraphStateModal extends Modal {
         const asc = !this.sortableTables[key].asc[this.sortableTables[key].sortIndex];
         this.sortableTables[key].asc[this.sortableTables[key].sortIndex] = asc;
         this.sortableTables[key].rows
-            .sort((a: HTMLTableRowElement, b: HTMLTableRowElement) => {
-                const aText = a.cells[this.sortableTables[key].sortIndex].textContent ?? "";
-                const bText = b.cells[this.sortableTables[key].sortIndex].textContent ?? "";
+            .sort((a: { id: string, el: HTMLTableRowElement }, b: { id: string, el: HTMLTableRowElement }) => {
+                const aText = a.el.cells[this.sortableTables[key].sortIndex].textContent ?? "";
+                const bText = b.el.cells[this.sortableTables[key].sortIndex].textContent ?? "";
                 if (asc) {
                     return aText.localeCompare(bText);
                 }
@@ -414,7 +429,7 @@ export class GraphStateModal extends Modal {
         this.sortableTables[key].table.tBodies[0].replaceChildren();
         const page = this.sortableTables[key].page;
         for (let i = 0, n = this.sortableTables[key].rows.length; i < this.sortableTables[key].maxRows && page * this.sortableTables[key].maxRows + i < n; ++i) {
-            this.sortableTables[key].table.tBodies[0].appendChild(this.sortableTables[key].rows[page * this.sortableTables[key].maxRows + i]);
+            this.sortableTables[key].table.tBodies[0].appendChild(this.sortableTables[key].rows[page * this.sortableTables[key].maxRows + i].el);
         }
         this.mountPagination(key);
     }
@@ -448,6 +463,23 @@ export class GraphStateModal extends Modal {
 
     private numberOfPages(key: string): number {
         return Math.ceil(this.sortableTables[key].rows.length / this.sortableTables[key].maxRows);
+    }
+
+    private focusOnTarget(): void {
+        if (!this.target) return;
+
+        const table = this.sortableTables[this.target.tableID];
+        const rowIndex = table.rows.findIndex(row => row.id === this.target?.elementID);
+        if (rowIndex === -1) return;
+
+        table.page = Math.floor(rowIndex / table.maxRows);
+        this.showPageRows(this.target.tableID);
+
+        const row = table.rows[rowIndex].el;
+        row.addClass("is-flashing");
+        row.win.setTimeout((function () {
+            return row.removeClass("is-flashing")
+        }), 1500);
     }
 
     onClose(): void {
