@@ -88,7 +88,7 @@ export class RadialMenu extends Menu {
             this.addItem((item) => {
                 item.dom.style.setProperty("--color-rgb", `var(--color-${items[i].color}-rgb)`);
                 item.dom.style.setProperty("--rotation", `${-22.5 + (i - 1) * 45}deg`);
-                item.setTitle(items[i].title)
+                item.setTitle(items[i].title.slice(0, Math.min(3, items[i].title.length)).toUpperCase())
                     .setIcon(items[i].icon)
                     .onClick(() => {
                         onClick(items[i]);
@@ -317,7 +317,7 @@ export class RadialMenuManager {
             return this.getFoldersInteractivesTypes();
         }
         else if (key === LINK_KEY) {
-            return this.getLinksInteractuvesTypes();
+            return this.getLinksInteractivesTypes();
         }
         else {
             return this.getNodesInteractivesTypes(key);
@@ -357,7 +357,7 @@ export class RadialMenuManager {
         return new Set(types);
     }
 
-    private getLinksInteractuvesTypes(): Set<{ text: string, id?: string }> | undefined {
+    private getLinksInteractivesTypes(): Set<{ text: string, id?: string }> | undefined {
         const manager = this.instances.linksSet.managers.get(LINK_KEY);
         if (!manager) return;
 

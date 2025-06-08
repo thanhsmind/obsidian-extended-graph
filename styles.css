@@ -1065,10 +1065,13 @@ svg.shape-svg {
 
         .menu-item-icon,
         .menu-item-title {
+            font-family: var(--font-interface);
+            font-size: var(--font-ui-smaller);
             position: absolute;
             top: 40%;
-            left: 15%;
+            left: 10%;
             transform: rotate(calc(var(--rotation) * -1));
+            transform-origin: center center;
             color: var(--text-normal);
         }
     }
