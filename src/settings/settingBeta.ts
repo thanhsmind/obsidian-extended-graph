@@ -11,6 +11,7 @@ export class SettingBeta extends SettingsSection {
     protected override addBody() {
         this.addRevertAction();
         this.addEnableCSS();
+        this.addRadialMenu();
     }
 
     private addRevertAction() {
