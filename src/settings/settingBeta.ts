@@ -46,4 +46,18 @@ export class SettingBeta extends SettingsSection {
 
         this.elementsBody.push(setting.settingEl);
     }
+
+    private addRadialMenu() {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.beta.radialMenu)
+            .setDesc(STRINGS.beta.radialMenuDesc)
+            .addToggle(cb => cb
+                .setValue(PluginInstances.settings.useRadialMenu)
+                .onChange(async (value) => {
+                    PluginInstances.settings.useRadialMenu = value;
+                    await PluginInstances.plugin.saveSettings();
+                }));
+
+        this.elementsBody.push(setting.settingEl);
+    }
 }

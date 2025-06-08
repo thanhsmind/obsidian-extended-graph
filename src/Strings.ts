@@ -55,6 +55,8 @@ export default class STRINGS {
 		beta: "Beta features",
 		enableCSS: "Enable CSS customization",
 		enableCSSDesc: "Allows the plugin to inject custom CSS into the graph view for further customization. Write the name of the CSS snippet to use.",
+		radialMenu: "Enable the node radial context menu",
+		radialMenuDesc: "When doing a right click on a node while holding the Shift key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu.",
 		revertAction: "Revert action",
 		revertActionDesc: "If the max number of nodes is reached, try to reverse last action instead of disabling the plugin",
 	}

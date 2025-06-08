@@ -141,6 +141,7 @@ export interface ExtendedGraphSettings {
 
     // UI
     horizontalLegend: boolean;
+    useRadialMenu: boolean;
 
     // Internal settings (not set by the user)
     collapseState: boolean;
@@ -311,6 +312,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // UI
     horizontalLegend: false,
+    useRadialMenu: false,
 
     // Internal settings (not set by the user)
     collapseState: true,

@@ -1,5 +1,5 @@
-import { Menu, MenuItem, MenuPositionDef, Modal, setIcon, setTooltip } from "obsidian";
-import { ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, GraphInstances, GraphStateModal, LINK_KEY, PluginInstances, TAG_KEY, textColor } from "src/internal";
+import { Menu, MenuPositionDef, setTooltip } from "obsidian";
+import { ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, GraphInstances, GraphStateModal, LINK_KEY, TAG_KEY, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 interface RadialMenuItem {
@@ -86,7 +86,7 @@ export class RadialMenu extends Menu {
                     .onClick(() => {
                         onClick(items[i]);
                     });
-                setTooltip(item.dom, items[i].title);
+                setTooltip(item.dom, items[i].title, { placement: 'bottom' });
 
                 item.dom.addEventListener('mouseenter', () => onMouseEnter(items[i]));
                 item.dom.addEventListener('mouseleave', () => onMouseLeave(items[i]));
@@ -105,11 +105,9 @@ export class RadialMenu extends Menu {
             item.dom.addClass("back");
             if (this.level > 0) {
                 item.setIcon("undo-2");
-                setTooltip(item.dom, STRINGS.controls.back);
             }
             else {
                 item.setIcon("x");
-                setTooltip(item.dom, STRINGS.controls.cancel);
             }
             item.onClick(onClickCenter);
         });

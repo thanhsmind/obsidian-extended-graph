@@ -282,9 +282,11 @@ export class GraphEventsDispatcher extends Component {
             this.instances.renderer.onNodeClick = this.onNodeClick;
         }
 
-        this.onNodeRightClick = this.onNodeRightClick.bind(this);
-        this.coreOnNodeRightClick = this.instances.renderer.onNodeRightClick;
-        this.instances.renderer.onNodeRightClick = this.onNodeRightClick;
+        if (this.instances.settings.useRadialMenu) {
+            this.onNodeRightClick = this.onNodeRightClick.bind(this);
+            this.coreOnNodeRightClick = this.instances.renderer.onNodeRightClick;
+            this.instances.renderer.onNodeRightClick = this.onNodeRightClick;
+        }
     }
 
     private loadLastFilteringAction(): void {
@@ -1095,7 +1097,7 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.changed();
     }
 
-    // STATES
+    // ================================ STATES =================================
 
     changeState(stateID: string) {
         this.setLastFilteringActionAsStateChange(stateID);
