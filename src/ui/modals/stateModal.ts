@@ -1,11 +1,13 @@
-import { ButtonComponent, ExtraButtonComponent, Modal, Setting, TFile } from "obsidian";
-import { getFile, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
+import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting, TFile } from "obsidian";
+import { ExtendedElementsSuggester, getFile, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
+
+type TableType = 'nodes' | 'links' | 'pinned';
 
 export class GraphStateModal extends Modal {
     state: GraphState;
     instances: GraphInstances;
-    sortableTables: Record<string, {
+    sortableTables: Partial<Record<TableType, {
         asc: (boolean | undefined)[],
         sortIndex: number,
         table: HTMLTableElement,
@@ -13,10 +15,10 @@ export class GraphStateModal extends Modal {
         page: number,
         pagination: HTMLDivElement,
         maxRows: number
-    }> = {};
+    }>> = {};
     defaultMaxRows: number = 10;
     target?: {
-        tableID: string,
+        tableID: TableType,
         elementID: string
     };
 
@@ -29,8 +31,13 @@ export class GraphStateModal extends Modal {
         this.modalEl.addClass("graph-modal-graph-state");
     }
 
-    setTarget(tableID: 'nodes', elementID: string) {
+    setTarget(tableID: TableType, elementID: string) {
         this.target = { tableID, elementID };
+    }
+
+    override open() {
+        super.open();
+        this.modalEl.querySelectorAll('input').forEach(input => input.blur());
     }
 
     onOpen() {
@@ -228,7 +235,7 @@ export class GraphStateModal extends Modal {
         this.prepareTable("pinned", table, ids);
     }
 
-    private createHeading(title: string, key: string, hasTable?: boolean) {
+    private createHeading(title: string, key: TableType, hasTable?: boolean) {
         const h = new Setting(this.contentEl)
             .setName(title)
             .setHeading();
@@ -238,18 +245,35 @@ export class GraphStateModal extends Modal {
                 cb.inputEl.insertAdjacentText('beforebegin', STRINGS.controls.show);
                 cb.setValue(this.defaultMaxRows.toString())
                     .onChange((value) => {
+                        const table = this.sortableTables[key];
+                        if (!table) return;
+
                         const intValue = parseInt(value);
                         if (!isNaN(intValue) && intValue > 0) {
-                            const factor = this.sortableTables[key].maxRows / intValue;
-                            this.sortableTables[key].maxRows = intValue;
-                            this.sortableTables[key].page = Math.round(this.sortableTables[key].page * factor);
-                            this.sortableTables[key].page = Math.clamp(this.sortableTables[key].page, 0, this.numberOfPages(key));
+                            const factor = table.maxRows / intValue;
+                            table.maxRows = intValue;
+                            table.page = Math.round(table.page * factor);
+                            table.page = Math.clamp(table.page, 0, this.numberOfPages(key));
                             this.mountPagination(key);
                             this.showPageRows(key);
                         }
                     });
                 cb.inputEl.insertAdjacentText('afterend', STRINGS.controls.rows);
             });
+
+            if (key === 'nodes' || key === 'pinned') {
+                const search = new SearchComponent(h.settingEl)
+                    .then(cb => {
+                        const callback = (value: string) => {
+                            this.setTarget(key, value);
+                            this.focusOnTarget();
+                        }
+                        new ExtendedElementsSuggester(cb.inputEl, this.instances, key, callback);
+                        cb.onChange(callback);
+                    });
+                h.infoEl.insertAdjacentElement('afterend', search.containerEl);
+            }
+
             h.controlEl.addClass("number-of-rows");
         }
     }
@@ -291,7 +315,7 @@ export class GraphStateModal extends Modal {
         return;
     }
 
-    private prepareTable(key: string, table: HTMLTableElement, rowIds: string[], index: number = 1) {
+    private prepareTable(key: TableType, table: HTMLTableElement, rowIds: string[], index: number = 1) {
         if (!table.tHead) return;
 
         this.sortableTables[key] = {
@@ -311,14 +335,17 @@ export class GraphStateModal extends Modal {
         this.makeSortable(key);
     }
 
-    private mountPagination(key: string) {
-        const pagination = this.sortableTables[key].pagination;
+    private mountPagination(key: TableType) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        const pagination = table.pagination;
         pagination.replaceChildren();
-        if (this.sortableTables[key].rows.length < this.sortableTables[key].maxRows) return;
+        if (table.rows.length < table.maxRows) return;
         const nShow = 3;
 
         // First page
-        if (this.sortableTables[key].page !== 0) {
+        if (table.page !== 0) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-left")
                 .setTooltip(STRINGS.controls.pageFirst)
@@ -330,42 +357,42 @@ export class GraphStateModal extends Modal {
 
         const paginationInner = pagination.createDiv("pagination-inner");
 
-        if (this.sortableTables[key].page > nShow) {
+        if (table.page > nShow) {
             paginationInner.createSpan().setText("...");
         }
 
         // Previous pages
-        for (let i = Math.max(0, this.sortableTables[key].page - nShow); i < this.sortableTables[key].page; ++i) {
+        for (let i = Math.max(0, table.page - nShow); i < table.page; ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
                 .setTooltip(STRINGS.controls.page + " " + i.toString())
                 .onClick(() => {
-                    this.showPreviousPage(key, this.sortableTables[key].page - i);
+                    this.showPreviousPage(key, table.page - i);
                 });
         }
 
         // Current page
         new ButtonComponent(paginationInner)
-            .setButtonText(this.sortableTables[key].page.toString())
+            .setButtonText(table.page.toString())
             .setCta()
             .setTooltip(STRINGS.controls.pageCurrent);
 
         // Following pages
-        for (let i = this.sortableTables[key].page + 1; i < Math.min(this.sortableTables[key].page + nShow + 1, this.numberOfPages(key)); ++i) {
+        for (let i = table.page + 1; i < Math.min(table.page + nShow + 1, this.numberOfPages(key)); ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
                 .setTooltip(STRINGS.controls.page + " " + i.toString())
                 .onClick(() => {
-                    this.showNextPage(key, i - this.sortableTables[key].page);
+                    this.showNextPage(key, i - table.page);
                 });
         }
 
-        if (this.sortableTables[key].page < this.numberOfPages(key) - nShow - 1) {
+        if (table.page < this.numberOfPages(key) - nShow - 1) {
             paginationInner.createSpan().setText("...");
         }
 
         // Last Page
-        if (this.sortableTables[key].page !== this.numberOfPages(key) - 1) {
+        if (table.page !== this.numberOfPages(key) - 1) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-right")
                 .setTooltip(STRINGS.controls.pageLast)
@@ -376,9 +403,10 @@ export class GraphStateModal extends Modal {
         }
     }
 
-    private makeSortable(key: string) {
-        const table = this.sortableTables[key].table;
-        if (!table.tHead) return;
+    private makeSortable(key: TableType) {
+        const sortableTable = this.sortableTables[key];
+        const table = this.sortableTables[key]?.table;
+        if (!sortableTable || !table?.tHead) return;
 
         let i = 0;
         Array.from(table.tHead.rows[0].cells)
@@ -387,7 +415,7 @@ export class GraphStateModal extends Modal {
                     .setIcon("chevron-down")
                     .onClick(() => {
                         if (!table.tHead) return;
-                        this.sortableTables[key].sortIndex = Array.from(table.tHead.rows[0].cells).indexOf(td);
+                        sortableTable.sortIndex = Array.from(table.tHead.rows[0].cells).indexOf(td);
                         this.sortTable(key);
                     });
 
@@ -397,13 +425,16 @@ export class GraphStateModal extends Modal {
         this.sortTable(key);
     }
 
-    private sortTable(key: string) {
-        const asc = !this.sortableTables[key].asc[this.sortableTables[key].sortIndex];
-        this.sortableTables[key].asc[this.sortableTables[key].sortIndex] = asc;
-        this.sortableTables[key].rows
+    private sortTable(key: TableType) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        const asc = !table.asc[table.sortIndex];
+        table.asc[table.sortIndex] = asc;
+        table.rows
             .sort((a: { id: string, el: HTMLTableRowElement }, b: { id: string, el: HTMLTableRowElement }) => {
-                const aText = a.el.cells[this.sortableTables[key].sortIndex].textContent ?? "";
-                const bText = b.el.cells[this.sortableTables[key].sortIndex].textContent ?? "";
+                const aText = a.el.cells[table.sortIndex].textContent ?? "";
+                const bText = b.el.cells[table.sortIndex].textContent ?? "";
                 if (asc) {
                     return aText.localeCompare(bText);
                 }
@@ -412,63 +443,83 @@ export class GraphStateModal extends Modal {
                 }
             });
         this.showPageRows(key);
-        for (let i = 0, n = this.sortableTables[key].asc.length; i < n; ++i) {
-            if (i === this.sortableTables[key].sortIndex) {
-                this.sortableTables[key].asc[i] = asc;
-                this.sortableTables[key].table.tHead?.rows[0].cells[i].addClass(asc ? "sorted-asc" : "sorted-desc");
-                this.sortableTables[key].table.tHead?.rows[0].cells[i].removeClass(!asc ? "sorted-asc" : "sorted-desc");
+        for (let i = 0, n = table.asc.length; i < n; ++i) {
+            if (i === table.sortIndex) {
+                table.asc[i] = asc;
+                table.table.tHead?.rows[0].cells[i].addClass(asc ? "sorted-asc" : "sorted-desc");
+                table.table.tHead?.rows[0].cells[i].removeClass(!asc ? "sorted-asc" : "sorted-desc");
             }
             else {
-                this.sortableTables[key].asc[i] = undefined;
-                this.sortableTables[key].table.tHead?.rows[0].cells[i].removeClasses(["sorted-asc", "sorted-desc"]);
+                table.asc[i] = undefined;
+                table.table.tHead?.rows[0].cells[i].removeClasses(["sorted-asc", "sorted-desc"]);
             }
         }
     }
 
-    private showPageRows(key: string) {
-        this.sortableTables[key].table.tBodies[0].replaceChildren();
-        const page = this.sortableTables[key].page;
-        for (let i = 0, n = this.sortableTables[key].rows.length; i < this.sortableTables[key].maxRows && page * this.sortableTables[key].maxRows + i < n; ++i) {
-            this.sortableTables[key].table.tBodies[0].appendChild(this.sortableTables[key].rows[page * this.sortableTables[key].maxRows + i].el);
+    private showPageRows(key: TableType) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        table.table.tBodies[0].replaceChildren();
+        const page = table.page;
+        for (let i = 0, n = table.rows.length; i < table.maxRows && page * table.maxRows + i < n; ++i) {
+            table.table.tBodies[0].appendChild(table.rows[page * table.maxRows + i].el);
         }
         this.mountPagination(key);
     }
 
-    private showFirstPage(key: string) {
-        this.sortableTables[key].page = 0;
+    private showFirstPage(key: TableType) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        table.page = 0;
         this.showPageRows(key);
     }
-    private showPreviousPage(key: string, shift: number) {
-        this.sortableTables[key].page -= shift;
-        if (this.sortableTables[key].page < 0) {
+    private showPreviousPage(key: TableType, shift: number) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        table.page -= shift;
+        if (table.page < 0) {
             this.showFirstPage(key);
         }
         else {
             this.showPageRows(key);
         }
     }
-    private showNextPage(key: string, shift: number) {
-        this.sortableTables[key].page += shift;
-        if (this.sortableTables[key].page >= this.numberOfPages(key)) {
+    private showNextPage(key: TableType, shift: number) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        table.page += shift;
+        if (table.page >= this.numberOfPages(key)) {
             this.showLastPage(key);
         }
         else {
             this.showPageRows(key);
         }
     }
-    private showLastPage(key: string) {
-        this.sortableTables[key].page = this.numberOfPages(key) - 1;
+    private showLastPage(key: TableType) {
+        const table = this.sortableTables[key];
+        if (!table) return;
+
+        table.page = this.numberOfPages(key) - 1;
         this.showPageRows(key);
     }
 
-    private numberOfPages(key: string): number {
-        return Math.ceil(this.sortableTables[key].rows.length / this.sortableTables[key].maxRows);
+    private numberOfPages(key: TableType): number {
+        const table = this.sortableTables[key];
+        if (!table) return 0;
+
+        return Math.ceil(table.rows.length / table.maxRows);
     }
 
     private focusOnTarget(): void {
         if (!this.target) return;
 
         const table = this.sortableTables[this.target.tableID];
+        if (!table) return;
+
         const rowIndex = table.rows.findIndex(row => row.id === this.target?.elementID);
         if (rowIndex === -1) return;
 

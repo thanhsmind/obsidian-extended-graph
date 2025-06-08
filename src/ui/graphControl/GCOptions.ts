@@ -1,10 +1,10 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, getGraphView, GraphStateModal, NodeNamesSuggester, PinMultipleNodesModal, Pinner, PluginInstances } from "src/internal";
+import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, RendererNodeNamesSuggester, PinMultipleNodesModal, Pinner, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
-    suggester: NodeNamesSuggester;
+    suggester: RendererNodeNamesSuggester;
 
     constructor(view: GraphView | LocalGraphView) {
         super(view, "options", STRINGS.plugin.options);
@@ -74,7 +74,7 @@ export class GCOptions extends GCSection {
                 const callback = (value: string) => {
                     PluginInstances.graphsManager.zoomOnNode(this.view, value);
                 }
-                this.suggester = new NodeNamesSuggester(cb.inputEl, this.view.renderer, callback);
+                this.suggester = new RendererNodeNamesSuggester(cb.inputEl, this.view.renderer, callback);
             });
     }
 

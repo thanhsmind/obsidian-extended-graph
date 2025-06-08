@@ -101,10 +101,11 @@ export * from "./settings/components/settingFeature";
 
 export * from "./suggester/AbstractFormattingSuggester";
 export * from "./suggester/CSSSnippetsSuggester";
+export * from "./suggester/ExtendedElementsSuggester";
 export * from "./suggester/FoldersSuggester";
 export * from "./suggester/InteractivesSuggester";
 export * from "./suggester/InteractivesColorSuggester";
-export * from "./suggester/NodeNamesSuggester";
+export * from "./suggester/RendererNodeNamesSuggester";
 export * from "./suggester/PropertiesSuggester";
 export * from "./suggester/PropertiesUnusedSuggester";
 

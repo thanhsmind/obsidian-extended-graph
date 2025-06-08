@@ -412,95 +412,103 @@ body {
     .col-size {
         width: 7em;
     }
-}
 
-/* PAGINATION */
-.pagination {
-    display: flex;
-    justify-content: center;
-    padding: 0.75em;
-    align-items: stretch;
 
-    button {
-        border-radius: 0;
+    /* PAGINATION */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        padding: 0.75em;
+        align-items: stretch;
+
+        button {
+            border-radius: 0;
+        }
+
+        button:not(.mod-cta) {
+            background: none;
+            box-shadow: none;
+        }
+
+        button:not(.mod-cta):hover {
+            background-color: var(--background-modifier-hover);
+            border-color: var(--background-modifier-border-hover);
+        }
+
+        button.mod-cta {
+            pointer-events: none;
+        }
+
+        .first-page,
+        .last-page {
+            border: 1px solid var(--background-modifier-border);
+            height: unset;
+        }
+
+        .first-page {
+            border-top-left-radius: var(--button-radius);
+            border-bottom-left-radius: var(--button-radius);
+            border-right: 0;
+        }
+
+        .last-page {
+            border-top-right-radius: var(--button-radius);
+            border-bottom-right-radius: var(--button-radius);
+            border-left: 0;
+        }
+
     }
 
-    button:not(.mod-cta) {
-        background: none;
-        box-shadow: none;
-    }
-
-    button:not(.mod-cta):hover {
-        background-color: var(--background-modifier-hover);
-        border-color: var(--background-modifier-border-hover);
-    }
-
-    button.mod-cta {
-        pointer-events: none;
-    }
-
-    .first-page,
-    .last-page {
+    .pagination-inner {
+        display: flex;
         border: 1px solid var(--background-modifier-border);
-        height: unset;
+        align-items: baseline;
+
+        > :not(button) {
+            padding-inline: var(--size-4-3);
+        }
     }
 
-    .first-page {
-        border-top-left-radius: var(--button-radius);
-        border-bottom-left-radius: var(--button-radius);
-        border-right: 0;
+    .pagination-inner:first-child {
+
+        &,
+        &> :first-child {
+            border-top-left-radius: var(--button-radius);
+            border-bottom-left-radius: var(--button-radius);
+        }
     }
 
-    .last-page {
-        border-top-right-radius: var(--button-radius);
-        border-bottom-right-radius: var(--button-radius);
-        border-left: 0;
+    .pagination-inner:last-child {
+
+        &,
+        &> :last-child {
+            border-top-right-radius: var(--button-radius);
+            border-bottom-right-radius: var(--button-radius);
+        }
     }
 
-}
-
-.pagination-inner {
-    display: flex;
-    border: 1px solid var(--background-modifier-border);
-    align-items: baseline;
-
-    > :not(button) {
-        padding-inline: var(--size-4-3);
-    }
-}
-
-.pagination-inner:first-child {
-
-    &,
-    &> :first-child {
-        border-top-left-radius: var(--button-radius);
-        border-bottom-left-radius: var(--button-radius);
-    }
-}
-
-.pagination-inner:last-child {
-
-    &,
-    &> :last-child {
-        border-top-right-radius: var(--button-radius);
-        border-bottom-right-radius: var(--button-radius);
-    }
-}
-
-/* NUMBER OF ROWS */
-.number-of-rows {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75em;
-    align-items: center;
-    padding: var(--size-4-3);
-    font-size: var(--font-ui-small);
-    font-weight: var(--font-weight);
-
-    input {
-        width: 4em;
+    /* CONTROLS */
+    .number-of-rows {
+        display: flex;
+        justify-content: flex-end;
+        flex: unset;
+        gap: 0.75em;
+        align-items: center;
+        padding: var(--size-4-3);
         font-size: var(--font-ui-small);
+        font-weight: var(--font-weight);
+
+        input {
+            width: 4em;
+            font-size: var(--font-ui-small);
+        }
     }
+
+    .setting-item-heading {
+        justify-content: space-between;
+    }
+
+    .search-input-container {}
 }
 
 /* GRAPH CONTROLS */
