@@ -43,7 +43,11 @@ export class RadialMenu extends Menu {
 
     override showAtPosition(position: MenuPositionDef, doc?: Document): this {
         this.position = position;
-        return super.showAtPosition(position, doc);
+        const t = super.showAtPosition(position, doc);
+        const bbox = t.dom.getBoundingClientRect();
+        t.dom.addClass(bbox.left < this.position.x ? "left" : "right");
+        t.dom.addClass(bbox.top < this.position.y ? "top" : "bottom");
+        return t;
     }
 
     private onClick(item: RadialMenuItem) {
@@ -69,6 +73,9 @@ export class RadialMenu extends Menu {
     private onClickCenter() {
         if (this.parentMenu) {
             this.switchWhichMenu(this.parentMenu as RadialMenu);
+        }
+        else {
+            this.hide();
         }
     }
 
@@ -96,6 +103,16 @@ export class RadialMenu extends Menu {
                     this.radialSubmenus.set(items[i].id, new RadialMenu(this.menuManager, subitems, this.level + 1, this));
                 }
             })
+        }
+
+        this.onMenuClick = function (e: MouseEvent) {
+            var t = e.targetNode;
+            if (t && t.instanceOf(Element) && (t.matchParent(".menu-item") || t.hasClass(".menu-item"))) {
+                return;
+            }
+            else {
+                this.hide();
+            }
         }
     }
 
@@ -125,9 +142,11 @@ export class RadialMenu extends Menu {
             this.position = this.dom.getBoundingClientRect();
         }
 
+        const parent = this.parentMenu;
         this.close();
+        this.parentMenu = parent;
         this.menuManager.setCurrentMenu(menu);
-        menu.showAtPosition({ x: this.position.x, y: this.position.y, left: true });
+        menu.showAtPosition({ x: this.position.x, y: this.position.y });
     }
 }
 
@@ -153,11 +172,11 @@ export class RadialMenuManager {
         if (node?.circle) {
             const canvasBound = this.instances.renderer.interactiveEl.getBoundingClientRect();
             const nodePos = node.circle.getGlobalPosition();
-            this.menu.showAtPosition({ x: nodePos.x + canvasBound.left, y: nodePos.y + canvasBound.top, left: true });
+            this.menu.showAtPosition({ x: nodePos.x + canvasBound.left, y: nodePos.y + canvasBound.top });
             return;
         }
         else if (e) {
-            this.menu.showAtPosition({ x: e.clientX, y: e.clientY, left: true });
+            this.menu.showAtPosition({ x: e.clientX, y: e.clientY });
         }
     }
 
@@ -180,7 +199,7 @@ export class RadialMenuManager {
         ];
 
 
-        if (this.instances.settings.enableFeatures[this.instances.type]['links']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && (this.getInteractivesTypes(LINK_KEY)?.size ?? 0) > 0) {
             this.allItems.push({
                 id: 'links',
                 title: 'Links',
@@ -192,7 +211,7 @@ export class RadialMenuManager {
         }
 
 
-        if (this.instances.settings.enableFeatures[this.instances.type]['folders']) {
+        if (this.instances.settings.enableFeatures[this.instances.type]['folders'] && (this.getInteractivesTypes(FOLDER_KEY)?.size ?? 0) > 0) {
             this.allItems.push({
                 id: 'folders',
                 title: 'Folders',
@@ -205,7 +224,7 @@ export class RadialMenuManager {
 
         // File node
         if (this.nodeType === "") {
-            if (this.instances.settings.enableFeatures[this.instances.type]['tags']) {
+            if (this.instances.settings.enableFeatures[this.instances.type]['tags'] && (this.getInteractivesTypes(TAG_KEY)?.size ?? 0) > 0) {
                 this.allItems.push({
                     id: 'tags',
                     title: 'Tags',
@@ -229,7 +248,7 @@ export class RadialMenuManager {
                 const colors = ['red', 'orange ', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
                 let i = 0;
                 for (const [prop, enable] of Object.entries(this.instances.settings.additionalProperties)) {
-                    if (enable[this.instances.type] && this.getInteractivesTypes(prop).size > 0) {
+                    if (enable[this.instances.type] && (this.getInteractivesTypes(prop)?.size ?? 0) > 0) {
                         const propertyItems: RadialMenuItem = {
                             id: prop,
                             title: prop,
@@ -277,45 +296,94 @@ export class RadialMenuManager {
         if (!manager) return;
 
         const types = this.getInteractivesTypes(key);
-        if (types.size === 0) return;
+        if (!types || types.size === 0) return;
 
         this.clearInteractivesList();
         const div = this.menu.dom.createDiv("interactives-list");
 
         for (const type of types) {
-            const color = manager.getColor(type)
+            const color = manager.getColor(type.id ?? type.text)
 
             const typeELement = div.createDiv("interactive-item");
-            typeELement.textContent = type;
+            typeELement.textContent = type.text;
             typeELement.style.setProperty("--bg-color", `${color[0]}, ${color[1]}, ${color[2]}`);
             typeELement.style.setProperty("--text-color", textColor(color));
-            typeELement.toggleClass("is-hidden", !manager.isActive(type));
+            typeELement.toggleClass("is-hidden", !!type.id && !manager.isActive(type.id));
         }
     }
 
-    private getInteractivesTypes(key: string): Set<string> {
-        let extendedElements: ExtendedGraphNode[] | ExtendedGraphLink[] | FolderBlob[];
-
-        if (key === FOLDER_KEY && this.instances.foldersSet) {
-            extendedElements = [...this.instances.foldersSet.foldersMap.values()]
-                .filter(folder => folder.nodes.find(node => node.id === this.nodeID));
+    private getInteractivesTypes(key: string): Set<{ text: string, id?: string }> | undefined {
+        if (key === FOLDER_KEY) {
+            return this.getFoldersInteractivesTypes();
         }
         else if (key === LINK_KEY) {
-            extendedElements = [...this.instances.linksSet.extendedElementsMap.values()]
-                .filter(link => link.coreElement.source.id === this.nodeID || link.coreElement.target.id === this.nodeID);
+            return this.getLinksInteractuvesTypes();
         }
         else {
-            const extendedNode = this.instances.nodesSet.extendedElementsMap.get(this.nodeID);
-            extendedElements = extendedNode ? [extendedNode] : [];
+            return this.getNodesInteractivesTypes(key);
         }
-        if (!extendedElements) return new Set();
+    }
 
-        const types = new Set<string>(extendedElements.map(element => {
-            if ("getTypes" in element && typeof element.getTypes === 'function') return [...(element as ExtendedGraphNode | ExtendedGraphLink).getTypes(key)];
-            if ("path" in element && typeof element.path === 'string') return [element.path];
-            else return [];
-        }).flat().filter(type => type !== this.instances.settings.interactiveSettings[key].noneType));
-        return types;
+    private getNodesInteractivesTypes(key: string): Set<{ text: string, id?: string }> | undefined {
+        const extendedNode = this.instances.nodesSet.extendedElementsMap.get(this.nodeID);
+        if (!extendedNode) return;
+        const manager = this.instances.nodesSet.managers.get(key);
+        if (!manager) return;
+
+        let types = [...extendedNode.getTypes(key)].reduce((acc: { text: string, id?: string }[], type: string) => {
+            if (type !== this.instances.settings.interactiveSettings[key].noneType) {
+                acc.push({ text: type });
+            }
+            return acc;
+        }, []);
+        return new Set(types);
+    }
+
+    private getFoldersInteractivesTypes(): Set<{ text: string, id?: string }> | undefined {
+        if (!this.instances.foldersSet) return;
+        const manager = this.instances.foldersSet.managers.get(FOLDER_KEY);
+        if (!manager) return;
+
+        const extendedElements = [...this.instances.foldersSet.foldersMap.values()]
+            .filter(folder => folder.nodes.find(node => node.id === this.nodeID));
+
+        let types = extendedElements.reduce((acc: { text: string, id?: string }[], curr: FolderBlob) => {
+            if (curr.path !== this.instances.settings.interactiveSettings[FOLDER_KEY].noneType) {
+                acc.push({ text: curr.path });
+            }
+            return acc;
+        }, []);
+
+        return new Set(types);
+    }
+
+    private getLinksInteractuvesTypes(): Set<{ text: string, id?: string }> | undefined {
+        const manager = this.instances.linksSet.managers.get(LINK_KEY);
+        if (!manager) return;
+
+        const extendedElements = [...this.instances.linksSet.extendedElementsMap.values()]
+            .filter(link => link.coreElement.source.id === this.nodeID || link.coreElement.target.id === this.nodeID);
+
+        const typesCount: Record<string, { forward: number, reverse: number }> = {};
+        for (const link of extendedElements) {
+            const types = link.getTypes(LINK_KEY);
+            for (const type of types) {
+                if (!(type in typesCount)) {
+                    typesCount[type] = { forward: 0, reverse: 0 };
+                }
+                if (this.nodeID === link.coreElement.source.id) {
+                    typesCount[type].forward++;
+                }
+                if (this.nodeID === link.coreElement.target.id) {
+                    typesCount[type].reverse++;
+                }
+            }
+        }
+        const types = Object.entries(typesCount).map(([type, counts]) => {
+            return { text: `${type} (${counts.forward} →, ${counts.reverse} ←)`, id: type };
+        });
+
+        return new Set(types);
     }
 
     private clearInteractivesList(): void {

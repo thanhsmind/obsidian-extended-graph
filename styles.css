@@ -1018,7 +1018,22 @@ svg.shape-svg {
     border-radius: 0;
     box-shadow: none;
     filter: drop-shadow(var(--menu-shadow));
-    transform: translate(50%, -50%);
+
+    &.left.top {
+        transform: translate(50%, 50%);
+    }
+
+    &.left.bottom {
+        transform: translate(50%, -50%);
+    }
+
+    &.right.top {
+        transform: translate(-50%, 50%);
+    }
+
+    &.right.bottom {
+        transform: translate(-50%, -50%);
+    }
 
     .menu-scroll {
         position: relative;
@@ -1048,11 +1063,11 @@ svg.shape-svg {
         clip-path: polygon(0 0, 0 99%, 99% 0);
         transform: rotate(var(--rotation));
 
-        .menu-item-icon {
+        .menu-item-icon,
+        .menu-item-title {
             position: absolute;
             top: 40%;
             left: 15%;
-            font-size: 2rem;
             transform: rotate(calc(var(--rotation) * -1));
             color: var(--text-normal);
         }
