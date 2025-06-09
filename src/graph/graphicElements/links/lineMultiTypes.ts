@@ -108,8 +108,8 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             y: P0.y + f * source.getSize() * dir.y,
         }
         let P2_ = { // point on the border of the target node, along the line
-            x: P2.x - f * source.getSize() * dir.x,
-            y: P2.y - f * source.getSize() * dir.y,
+            x: P2.x - f * target.getSize() * dir.x,
+            y: P2.y - f * target.getSize() * dir.y,
         }
 
 

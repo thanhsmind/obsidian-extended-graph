@@ -1,4 +1,4 @@
-import { ColorSource, IDestroyOptions } from "pixi.js";
+import { IDestroyOptions } from "pixi.js";
 import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/internal";
 
 
