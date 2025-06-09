@@ -457,7 +457,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             y: BBox.top,
             height: BBox.bottom - BBox.top,
             width: BBox.right - BBox.left,
-            rx: PluginInstances.settings.folderRadius,
+            rx: folderBlob.folderStyle.radius,
             fill: folderBlob.color,
             stroke: folderBlob.color,
             'stroke-width': folderBlob.folderStyle.borderWidth,

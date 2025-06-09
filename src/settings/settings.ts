@@ -110,7 +110,6 @@ export interface ExtendedGraphSettings {
     outlineLinks: boolean;
 
     // Folders
-    folderRadius: number;
     folderShowFullPath: boolean;
 
     // Arrows
@@ -281,7 +280,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     outlineLinks: false,
 
     // Folders
-    folderRadius: 50,
     folderShowFullPath: true,
 
     // Arrows
@@ -428,11 +426,6 @@ export class SettingQuery {
         if (newFeatures['links']) {
             if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks',
                 'disableSource', 'disableTarget', 'outlineLinks'].some(key => !equals(key)))
-                return true;
-        }
-
-        if (newFeatures['folders']) {
-            if (['folderRadius'].some(key => !equals(key)))
                 return true;
         }
 

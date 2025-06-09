@@ -11,24 +11,7 @@ export class SettingFolders extends SettingInteractives {
     protected override addBody(): void {
         super.addBody();
 
-        this.addFolderRadius();
         this.addShowFullPath();
-    }
-
-    private addFolderRadius() {
-        this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.foldersRadius)
-            .setDesc(STRINGS.features.foldersRadiusDesc)
-            .addText(cb => {
-                cb.setValue(PluginInstances.settings.folderRadius.toString())
-                    .onChange(async (value) => {
-                        const intValue = parseInt(value);
-                        if (!isNaN(intValue) && intValue >= 0) {
-                            PluginInstances.settings.folderRadius = intValue;
-                            await PluginInstances.plugin.saveSettings();
-                        }
-                    });
-            }).settingEl);
     }
 
     private addShowFullPath() {
