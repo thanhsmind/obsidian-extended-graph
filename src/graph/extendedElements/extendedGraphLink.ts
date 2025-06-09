@@ -118,12 +118,15 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     getThicknessScale(): number {
-        return PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            && PluginInstances.settings.linksColorFunction !== "default" ?
-            PluginInstances.graphsManager.linksSizeCalculator
-                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value
-            ?? 1
-            : 1;
+        if (!PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            || PluginInstances.settings.linksSizeFunction === "default"
+        ) return 1;
+
+        if (!PluginInstances.graphsManager.linksSizeCalculator) return 1;
+        if (!(this.coreElement.source.id in PluginInstances.graphsManager.linksSizeCalculator.linksStats)) return 1;
+        if (!(this.coreElement.target.id in PluginInstances.graphsManager.linksSizeCalculator.linksStats[this.coreElement.source.id])) return 1;
+
+        return PluginInstances.graphsManager.linksSizeCalculator.linksStats[this.coreElement.source.id][this.coreElement.target.id].value;
     }
 
     // ============================= LINK CONTAINER =============================

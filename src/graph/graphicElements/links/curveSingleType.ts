@@ -1,8 +1,17 @@
-import { IDestroyOptions } from "pixi.js";
+import { ColorSource, IDestroyOptions } from "pixi.js";
 import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements ManagerGraphics {
+    arrowColor?: ColorSource;
+
+    override updateValues(): void {
+        this.arrowColor = this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+            && this.extendedLink.instances.settings.arrowColorBool
+            && this.extendedLink.instances.settings.arrowColor !== ""
+            ? this.extendedLink.instances.settings.arrowColor : undefined
+        super.updateValues();
+    }
     updateFrame(): void {
         if (!this.computeMainBezier()) return;
 
@@ -39,7 +48,7 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
                 if (this.arrow) this.addChild(this.arrow);
             }
             if (this.arrow) {
-                this.arrow.tint = this.extendedLink.coreElement.arrow?.tint ?? this.tint;
+                this.arrow.tint = this.arrowColor ?? this.tint;
                 this.arrow.alpha = arrowAlpha;
                 this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
                 this.arrow.rotation = -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m);

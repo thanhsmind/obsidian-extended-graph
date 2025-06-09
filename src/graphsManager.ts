@@ -138,7 +138,7 @@ export class GraphsManager extends Component {
     private initializeLinksSizeCalculator(): void {
         try {
             if (this.canUseLinkStatFunction('size')) {
-                this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('size');
+                this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
             }
         } catch (error) {
             console.error(error);
@@ -148,6 +148,7 @@ export class GraphsManager extends Component {
             this.linksSizeCalculator = undefined;
         }
         this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
+        console.log(this.linksSizeCalculator);
     }
 
     private initializeLinksColorCalculator(): void {
@@ -606,13 +607,8 @@ export class GraphsManager extends Component {
         if (this.isPluginAlreadyEnabled(view)) return;
         if (this.isNodeLimitExceededForView(view)) return;
 
-        if (this.getGraphAnalysis()["graph-analysis"]) {
-            if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
-            if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
-        }
-        else {
-            this.linksSizeCalculator = undefined;
-        }
+        if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
+        if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
         const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
         const globalUI = this.setGlobalUI(view);
         globalUI.menu.setEnableUIState();
