@@ -6,6 +6,7 @@ export class EccentricityCalculator extends NodeStatCalculator {
 
     override async getStat(id: string, invert: boolean): Promise<number> {
         const connectedGraph = GraphologySingleton.getConnectedGraphology(id, invert);
+        if (!connectedGraph) return NaN;
         return eccentricity(connectedGraph, id);
     }
 

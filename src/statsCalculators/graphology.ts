@@ -1,17 +1,37 @@
 import Graphology from 'graphology';
-import { TFile } from "obsidian";
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { getFile, PluginInstances } from 'src/internal';
+import { PluginInstances } from 'src/internal';
 import { reverse } from 'graphology-operators';
 
 export class GraphologySingleton {
     static _instance: GraphologySingleton;
 
-    graphologyGraph: Graphology;
+    graphologyGraph?: Graphology;
+    doneListeners: ((graphologyGraph: Graphology) => any)[] = [];
     graphologyConnectedGraphs = new Map<string, Graphology>();
 
     private constructor() {
-        this.graphologyGraph = new Graphology();
+        this.buildGraphology = this.buildGraphology.bind(this);
+
+        if (PluginInstances.app.metadataCache.isCacheClean()) {
+            this.buildGraphology();
+        }
+        else {
+            PluginInstances.app.metadataCache.on("resolved", this.buildGraphology);
+        }
+    }
+
+    private buildGraphology() {
+        PluginInstances.app.metadataCache.off("resolved", this.buildGraphology);
+
+        console.log("buildGraphology");
+
+        if (this.graphologyGraph) {
+            this.graphologyGraph.clear();
+        }
+        else {
+            this.graphologyGraph = new Graphology();
+        }
 
         // Add existing files
         const files = PluginInstances.app.vault.getFiles();
@@ -21,6 +41,7 @@ export class GraphologySingleton {
 
         // Add unresolved links
         const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
+        console.log(Object.keys(resolvedLinks).length);
         for (const [source, references] of Object.entries(resolvedLinks)) {
             for (const [target, count] of Object.entries(references)) {
                 this.graphologyGraph.addEdge(source, target, { count: count });
@@ -35,6 +56,17 @@ export class GraphologySingleton {
                 this.graphologyGraph.addEdge(source, target, { count: count });
             }
         }
+
+        for (const callback of this.doneListeners) {
+            callback(this.graphologyGraph);
+        }
+    }
+
+    registerListener(callback: (graphologyGraph: Graphology) => any, triggerIfPossible: boolean = false) {
+        this.doneListeners.push(callback);
+        if (triggerIfPossible && this.graphologyGraph) {
+            callback(this.graphologyGraph);
+        }
     }
 
     static getInstance(): GraphologySingleton {
@@ -42,12 +74,13 @@ export class GraphologySingleton {
         return GraphologySingleton._instance;
     }
 
-    static getGraphology(): Graphology {
+    static getGraphology(): Graphology | undefined {
         return GraphologySingleton.getInstance().graphologyGraph;
     }
 
     static getConnectedGraphology(node: string, invert: boolean) {
-        const instance = GraphologySingleton.getInstance();
+        const graphology = GraphologySingleton.getInstance().graphologyGraph;
+        if (!graphology) return;
 
         const addNeighbors = function (originalGraph: Graphology, subGraph: Graphology, node: string) {
             const neighbors = originalGraph.neighbors(node);
@@ -59,8 +92,8 @@ export class GraphologySingleton {
         }
 
         const graph = new Graphology();
-        dfsFromNode(instance.graphologyGraph, node, (function (node: string, attr: string, depth: number) {
-            if (graph) addNeighbors(instance.graphologyGraph, graph, node);
+        dfsFromNode(graphology, node, (function (node: string, attr: string, depth: number) {
+            if (graph) addNeighbors(graphology, graph, node);
         }).bind(this));
 
         if (invert) {

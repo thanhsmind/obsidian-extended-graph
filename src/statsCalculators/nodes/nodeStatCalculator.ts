@@ -35,13 +35,16 @@ export abstract class NodeStatCalculator {
     }
 
     async computeStats(invert: boolean): Promise<void> {
-        await this.getStats(invert);
-        this.mapStat();
+        GraphologySingleton.getInstance().registerListener(async (graph) => {
+            await this.getStats(invert);
+            this.mapStat();
+        }, true);
     }
 
     protected async getStats(invert: boolean): Promise<void> {
         this.filesStats = new Map<string, { measure: number, value: number }>();
-        const ids = GraphologySingleton.getInstance().graphologyGraph.nodes();
+        const ids = GraphologySingleton.getInstance().graphologyGraph?.nodes();
+        if (!ids) return;
         for (const id of ids) {
             this.getStat(id, invert).then(size => this.filesStats.set(id, { measure: size, value: 0 }));
         }

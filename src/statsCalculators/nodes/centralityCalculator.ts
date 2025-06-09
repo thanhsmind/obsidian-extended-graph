@@ -19,7 +19,9 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     }
 
     override async computeStats(invert: boolean): Promise<void> {
-        this.computeCentralityMap(invert ? reverse(GraphologySingleton.getGraphology()) : GraphologySingleton.getGraphology());
+        const graphology = GraphologySingleton.getInstance().graphologyGraph;
+        if (!graphology) return;
+        this.computeCentralityMap(invert ? reverse(graphology) : graphology);
         return super.computeStats(invert);
     }
 

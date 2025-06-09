@@ -10,7 +10,9 @@ export class TopologicalSortCalculator extends NodeStatCalculator {
     topologicalWeights: Map<string, number> = new Map<string, number>();
 
     override async getStats(invert: boolean): Promise<void> {
-        const g = invert ? reverse(GraphologySingleton.getInstance().graphologyGraph) : GraphologySingleton.getInstance().graphologyGraph;
+        const graphology = GraphologySingleton.getInstance().graphologyGraph;
+        if (!graphology) return;
+        const g = invert ? reverse(graphology) : graphology;
         const components = stronglyConnectedComponents(g);
         const condensedGraph = new DirectedGraph();
         for (const [i, component] of components.entries()) {

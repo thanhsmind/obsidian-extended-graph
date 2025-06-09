@@ -56,13 +56,17 @@ export abstract class LinkStatCalculator {
 
     async computeStats(statFunction: LinkStatFunction): Promise<void> {
         this.statFunction = statFunction;
-        await this.getStats();
-        this.mapStat();
+        GraphologySingleton.getInstance().registerListener(async (graph) => {
+            await this.getStats();
+            this.mapStat();
+            console.log(this);
+        }, true);
     }
 
     private async getStats(): Promise<void> {
         this.linksStats = {};
-        const links = GraphologySingleton.getInstance().graphologyGraph.edgeEntries();
+        const links = GraphologySingleton.getInstance().graphologyGraph?.edgeEntries();
+        if (!links) return;
         for (const link of links) {
             if (!this.linksStats[link.source]) {
                 this.linksStats[link.source] = {};
