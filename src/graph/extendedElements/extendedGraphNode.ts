@@ -5,6 +5,7 @@ import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     ExtendedGraphElement,
     ExtendedGraphText,
+    getLinkID,
     getListOfSubpaths,
     getSvgFromIconic,
     getSvgFromIconize,
@@ -48,6 +49,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     override init(): void {
         super.init();
+        this.addAnimationListener();
         if (this.isPinned && this.pinnedPosition) {
             const pinner = new Pinner(this.instances);
             pinner.pinNode(this.id, this.pinnedPosition.x, this.pinnedPosition.y);
@@ -126,6 +128,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // ================================ UNLOAD =================================
 
     override unload() {
+        this.removeAnimationListener();
         if (this.isPinned) {
             new Pinner(this.instances).unpinNode(this.id);
         }
@@ -329,5 +332,31 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.isPinned = false;
         this.pinnedPosition = undefined;
         this.graphicsWrapper?.unpin();
+    }
+
+    // ============================= LINK ANIMATION ============================
+
+    private addAnimationListener(): void {
+        if (!this.instances.settings.animateDotsOnLinks) return;
+
+        this.initLinksAnimation = this.initLinksAnimation.bind(this);
+        this.coreElement.circle?.addListener('mouseenter', this.initLinksAnimation);
+    }
+
+    private removeAnimationListener(): void {
+        this.coreElement.circle?.removeListener('mouseenter', this.initLinksAnimation);
+    }
+
+    private initLinksAnimation() {
+        for (const target of Object.entries(this.coreElement.forward)) {
+            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: this.id }, target: { id: target[0] } }));
+            if (!link) continue;
+            link.initAnimation();
+        }
+        for (const source of Object.entries(this.coreElement.reverse)) {
+            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: source[0] }, target: { id: this.id } }));
+            if (!link) continue;
+            link.initAnimation();
+        }
     }
 }

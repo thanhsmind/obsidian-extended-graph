@@ -39,7 +39,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override init(): void {
         this.findSiblingLink();
-        this.addAnimationListener();
         super.init();
         this.extendedArrow?.init();
     }
@@ -66,13 +65,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
         this.removeContainer();
-    }
-
-    // ================================= UNLOAD ================================
-
-    override unload(): void {
-        this.removeAnimationListener();
-        super.unload();
     }
 
     // =============================== GRAPHICS ================================
@@ -264,22 +256,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ============================= LINK ANIMATION ============================
 
-    private addAnimationListener(): void {
-        if (!this.instances.settings.animateDotsOnLinks) return;
-
-        this.initAnimation = this.initAnimation.bind(this);
-        this.coreElement.source.circle?.addListener('mouseenter', this.initAnimation);
-        this.coreElement.target.circle?.addListener('mouseenter', this.initAnimation);
-    }
-
-    private removeAnimationListener(): void {
-        this.coreElement.source.circle?.removeListener('mouseenter', this.initAnimation);
-        this.coreElement.target.circle?.removeListener('mouseenter', this.initAnimation);
-    }
-
-    private initAnimation(): void {
+    initAnimation(): void {
         if (this.instances.renderer.dragNode && this.animatedDot) return;
-
         if (this.animatedDot) {
             this.animatedDot.destroy();
             this.animatedDot = undefined;
