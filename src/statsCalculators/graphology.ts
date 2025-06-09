@@ -24,8 +24,6 @@ export class GraphologySingleton {
     private buildGraphology() {
         PluginInstances.app.metadataCache.off("resolved", this.buildGraphology);
 
-        console.log("buildGraphology");
-
         if (this.graphologyGraph) {
             this.graphologyGraph.clear();
         }
@@ -41,7 +39,6 @@ export class GraphologySingleton {
 
         // Add unresolved links
         const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
-        console.log(Object.keys(resolvedLinks).length);
         for (const [source, references] of Object.entries(resolvedLinks)) {
             for (const [target, count] of Object.entries(references)) {
                 this.graphologyGraph.addEdge(source, target, { count: count });

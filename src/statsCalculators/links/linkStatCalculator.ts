@@ -59,7 +59,6 @@ export abstract class LinkStatCalculator {
         GraphologySingleton.getInstance().registerListener(async (graph) => {
             await this.getStats();
             this.mapStat();
-            console.log(this);
         }, true);
     }
 

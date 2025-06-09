@@ -731,7 +731,6 @@ export class GraphsManager extends Component {
     }
 
     resetPlugin(view: GraphView | LocalGraphView): void {
-        console.log("Rsetplugin");
         this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
         const stateID = instances?.statesUI.currentStateID;
