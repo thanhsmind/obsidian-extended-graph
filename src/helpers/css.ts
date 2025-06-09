@@ -110,12 +110,37 @@ function applyCoreCSSStyle(instances: GraphInstances): void {
 function applyExtendedCSSStyle(instances: GraphInstances): void {
     if (!instances.extendedStyleEl) return;
 
+    // First, add base styling with default values
+    const css = `
+    .graph-view.node-text {
+        font-family: ${DEFAULT_TEXT_STYLE.fontFamily};
+        font-style: ${DEFAULT_TEXT_STYLE.fontStyle};
+        font-variant: ${DEFAULT_TEXT_STYLE.fontVariant};
+        font-weight: ${DEFAULT_TEXT_STYLE.fontWeight};
+        letter-spacing: ${DEFAULT_TEXT_STYLE.letterSpacing}px;
+    }
+    .graph-view.folder {
+        font-family: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontFamily};
+        font-style: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontStyle};
+        font-variant: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontVariant};
+        font-weight: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontWeight};
+        letter-spacing: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.letterSpacing}px;
+        font-size: ${DEFAULT_FOLDER_STYLE.textStyle.fontSize}px;
+        text-align: ${DEFAULT_FOLDER_STYLE.textStyle.align};
+
+        border-radius: ${DEFAULT_FOLDER_STYLE.radius}px;
+        border-width: ${DEFAULT_FOLDER_STYLE.borderWidth}px;
+        opacity: ${DEFAULT_FOLDER_STYLE.fillOpacity};
+        padding: ${DEFAULT_FOLDER_STYLE.padding.top}px ${DEFAULT_FOLDER_STYLE.padding.right}px ${DEFAULT_FOLDER_STYLE.padding.bottom}px ${DEFAULT_FOLDER_STYLE.padding.left}px;
+    }`;
+
+    // Then, add custom styling from the snippet
     const snippetName = PluginInstances.settings.cssSnippetFilename;
     if (!PluginInstances.app.customCss.enabledSnippets.has(snippetName)) return;
 
     const snippet = [...PluginInstances.app.customCss.csscache.entries()].find(p => path.basename(p[0], ".css") === snippetName);
     if (!snippet) return;
-    instances.extendedStyleEl.innerHTML = snippet[1];
+    instances.extendedStyleEl.innerHTML = css + "\n" + snippet[1];
 }
 
 function getGraphComputedStyle(instances: GraphInstances, cssClass: string, path?: string): CSSStyleDeclaration {

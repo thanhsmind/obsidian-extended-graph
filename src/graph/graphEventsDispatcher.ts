@@ -1160,6 +1160,7 @@ export class GraphEventsDispatcher extends Component {
 
     private createStyleElementsForCSSBridge(): void {
         if (!this.instances.settings.enableCSS) return;
+        if (!PluginInstances.app.customCss.enabledSnippets.has(PluginInstances.settings.cssSnippetFilename)) return;
 
         // Get the document inside the iframe
         const doc = this.instances.renderer.iframeEl.contentDocument;
