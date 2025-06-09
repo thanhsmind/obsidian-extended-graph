@@ -1,5 +1,5 @@
 import { getIcon } from "obsidian";
-import { GraphColorAttributes, GraphNode } from "obsidian-typings";
+import { GraphColorAttributes, GraphLink, GraphNode } from "obsidian-typings";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
@@ -349,13 +349,25 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     private initLinksAnimation() {
         for (const target of Object.entries(this.coreElement.forward)) {
-            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: this.id }, target: { id: target[0] } }));
-            if (!link) continue;
+            if (!this.instances.renderer.nodes.find(node => node.id === target[0])) {
+                continue;
+            }
+            // @ts-ignore
+            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID(target[1]));
+            if (!link) {
+                continue;
+            }
             link.initAnimation();
         }
         for (const source of Object.entries(this.coreElement.reverse)) {
-            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: source[0] }, target: { id: this.id } }));
-            if (!link) continue;
+            if (!this.instances.renderer.nodes.find(node => node.id === source[0])) {
+                continue;
+            }
+            // @ts-ignore
+            const link = this.instances.linksSet.extendedElementsMap.get(getLinkID(source[1]));
+            if (!link) {
+                continue;
+            }
             link.initAnimation();
         }
     }
