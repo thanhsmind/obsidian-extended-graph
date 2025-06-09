@@ -237,10 +237,15 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
             && PluginInstances.settings.linksColorFunction !== "default"
         ) {
-            color = PluginInstances.graphsManager.linksColorCalculator
-                ?.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value;
-
-            if (color) return color;
+            const calculator = PluginInstances.graphsManager.linksColorCalculator;
+            if (calculator) {
+                if (this.coreElement.source.id in calculator.linksStats
+                    && this.coreElement.target.id in calculator.linksStats[this.coreElement.source.id]
+                ) {
+                    const color = calculator.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value;
+                    if (color) return color;
+                }
+            }
         }
 
         // From source node
