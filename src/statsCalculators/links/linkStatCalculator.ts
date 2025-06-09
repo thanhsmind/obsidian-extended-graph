@@ -79,7 +79,7 @@ export abstract class LinkStatCalculator {
     mapStat(): void {
         switch (this.stat) {
             case 'size':
-                this.normalizeValues(0.5, 1.5);
+                this.normalizeValues(0.3, 2);
                 this.cleanNanAndInfiniteValues(1);
                 break;
 

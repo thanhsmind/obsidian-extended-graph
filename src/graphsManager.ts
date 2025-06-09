@@ -148,7 +148,6 @@ export class GraphsManager extends Component {
             this.linksSizeCalculator = undefined;
         }
         this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
-        console.log(this.linksSizeCalculator);
     }
 
     private initializeLinksColorCalculator(): void {
