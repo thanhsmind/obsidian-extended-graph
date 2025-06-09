@@ -1069,10 +1069,14 @@ svg.shape-svg {
             font-size: var(--font-ui-smaller);
             position: absolute;
             top: 40%;
-            left: 10%;
+            left: 15%;
             transform: rotate(calc(var(--rotation) * -1));
             transform-origin: center center;
             color: var(--text-normal);
+        }
+
+        .menu-item-title {
+            left: 10%;
         }
     }
 
@@ -1152,5 +1156,14 @@ svg.shape-svg {
                 }
             }
         }
+    }
+
+    .tooltip {
+        top: 50%;
+        left: 0;
+        right: 0;
+        margin-inline: auto;
+        width: fit-content;
+        transform: translateX(50%);
     }
 }

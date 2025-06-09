@@ -58,13 +58,21 @@ export class RadialMenu extends Menu {
         }
     }
 
-    private onMouseEnter(item: RadialMenuItem) {
+    private onMouseEnter(event: MouseEvent, item: RadialMenuItem) {
+        const itemEl = event.targetNode as HTMLElement;
+        const tooltip = createDiv("tooltip extended-graph-tooltip");
+        tooltip.setText(item.title);
+        this.dom.doc.body.appendChild(tooltip);
+        const bbox = itemEl.getBoundingClientRect();
+        tooltip.style.left = `${bbox.left + bbox.width * 0.5 + 10}px`;
+        tooltip.style.top = `${event.clientY + 10}px`;
         if (item.onMouseEnter) {
             item.onMouseEnter();
         }
     }
 
-    private onMouseLeave(item: RadialMenuItem) {
+    private onMouseLeave(event: MouseEvent, item: RadialMenuItem) {
+        this.dom.doc.body.querySelectorAll(".tooltip.extended-graph-tooltip").forEach(el => el.detach());
         if (item.onMouseLeave) {
             item.onMouseLeave();
         }
@@ -93,10 +101,9 @@ export class RadialMenu extends Menu {
                     .onClick(() => {
                         onClick(items[i]);
                     });
-                setTooltip(item.dom, items[i].title, { placement: 'bottom' });
 
-                item.dom.addEventListener('mouseenter', () => onMouseEnter(items[i]));
-                item.dom.addEventListener('mouseleave', () => onMouseLeave(items[i]));
+                item.dom.addEventListener('mouseenter', (event) => onMouseEnter(event, items[i]));
+                item.dom.addEventListener('mouseleave', (event) => onMouseLeave(event, items[i]));
 
                 const subitems = items[i].items;
                 if (subitems && subitems.length > 0) {
