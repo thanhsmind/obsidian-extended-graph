@@ -15,6 +15,9 @@ export class GraphsManager extends Component {
     lastBackup: string;
     localGraphID: string | null = null;
 
+    isHandlingMarkdownViewChange: boolean = false;
+    isResetting: boolean = false;
+
     statusBarItem: HTMLElement;
 
     nodesSizeCalculator: NodeStatCalculator | undefined;
@@ -475,8 +478,10 @@ export class GraphsManager extends Component {
         try {
             this.setGlobalUI(view);
         }
-        catch {
+        catch (e) {
             // UI not set, probably because the graph is in a closed sidebar
+            console.error("ERROR: could not set global UI.");
+            console.error(e);
         }
         if (this.isPluginAlreadyEnabled(view)) return;
 
@@ -676,7 +681,9 @@ export class GraphsManager extends Component {
 
     disablePlugin(view: GraphView | LocalGraphView): void {
         this.disablePluginFromLeafID(view.leaf.id);
-        view.renderer.changed();
+        if (!this.isResetting) {
+            view.renderer.changed();
+        }
     }
 
     disablePluginFromLeafID(leafID: string) {
@@ -704,10 +711,12 @@ export class GraphsManager extends Component {
 
         if (this.localGraphID === view.leaf.id) this.localGraphID = null;
 
-        if (view._loaded) {
-            this.applyNormalState(view);
+        if (!this.isResetting) {
+            if (view._loaded) {
+                this.applyNormalState(view);
+            }
+            this.restoreBackup();
         }
-        this.restoreBackup();
 
         this.updateStatusBarItem(view.leaf);
     }
@@ -722,6 +731,8 @@ export class GraphsManager extends Component {
     }
 
     resetPlugin(view: GraphView | LocalGraphView): void {
+        console.log("Rsetplugin");
+        this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
         const stateID = instances?.statesUI.currentStateID;
         const scale = instances?.renderer.targetScale ?? false;
@@ -731,6 +742,7 @@ export class GraphsManager extends Component {
         if (newDispatcher && scale) {
             newDispatcher.renderer.targetScale = scale;
         }
+        this.isResetting = false;
     }
 
     // ===================== CHANGE CURRENT MARKDOWN FILE ======================
@@ -754,8 +766,6 @@ export class GraphsManager extends Component {
         return (leaf.view.getViewType() === "markdown") && (leaf.view instanceof FileView);
     }
 
-    isHandlingMarkdownViewChange: boolean = false;
-
     private onFileOpen(file: TFile | null): void {
         if (this.isHandlingMarkdownViewChange) return;
         this.isHandlingMarkdownViewChange = true;
@@ -763,7 +773,9 @@ export class GraphsManager extends Component {
             this.changeActiveFile(file);
             if (this.localGraphID) {
                 const localInstances = this.allInstances.get(this.localGraphID);
-                if (localInstances) this.resetPlugin(localInstances.view);
+                if (localInstances) {
+                    // this.resetPlugin(localInstances.view);
+                }
             }
             if (file) {
                 const graphBannerPlugin = getGraphBannerPlugin();
@@ -791,7 +803,7 @@ export class GraphsManager extends Component {
         if (!this.activeFile && !file) return;
 
         for (const instances of this.allInstances.values()) {
-            if (!instances.settings.enableFeatures['graph']['focus']) return;
+            if (!instances.settings.enableFeatures['graph']['focus']) continue;
             if (instances.type !== "graph") continue;
             this.deEmphasizePreviousActiveFile(instances);
             this.emphasizeActiveFile(instances, file);
