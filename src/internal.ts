@@ -58,6 +58,9 @@ export * from "./graph/sets/nodesSet";
 
 export * from "./statsCalculators/graphology";
 export * from "./statsCalculators/links/linkStatCalculator";
+export * from "./statsCalculators/links/linksStatCalculatorFactory";
+export * from "./statsCalculators/links/graphAnalysisLinkCalculator";
+export * from "./statsCalculators/links/occurencesLinkCalculator";
 export * from "./statsCalculators/links/graphAnalysisPluginInterfaces";
 export * from "./statsCalculators/nodes/nodeStatCalculator";
 export * from "./statsCalculators/nodes/nodeStatCalculatorFactory";

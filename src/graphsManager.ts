@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat } from "./internal";
 import STRINGS from "./Strings";
 import path from "path";
 
@@ -137,23 +137,9 @@ export class GraphsManager extends Component {
 
     private initializeLinksSizeCalculator(): void {
         try {
-            const ga = this.getGraphAnalysis();
-            const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
-
-            if (!g) {
-                this.linksSizeCalculator = undefined;
-                return;
+            if (this.canUseLinkStatFunction('size')) {
+                this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('size');
             }
-
-            if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksSizeFunction]) {
-                new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksSizeFunction})`);
-                this.linksSizeCalculator = undefined;
-                PluginInstances.settings.linksSizeFunction = 'default';
-                PluginInstances.plugin.saveSettings();
-                return;
-            }
-
-            this.linksSizeCalculator = new LinkStatCalculator('size', g);
         } catch (error) {
             console.error(error);
             PluginInstances.settings.linksSizeFunction = 'default';
@@ -166,23 +152,9 @@ export class GraphsManager extends Component {
 
     private initializeLinksColorCalculator(): void {
         try {
-            const ga = this.getGraphAnalysis();
-            const g = (ga["graph-analysis"] as GraphAnalysisPlugin | null)?.g;
-
-            if (!g) {
-                this.linksColorCalculator = undefined;
-                return;
+            if (this.canUseLinkStatFunction('color')) {
+                this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
             }
-
-            if (!ga.nlp && linkStatFunctionNeedsNLP[PluginInstances.settings.linksColorFunction]) {
-                new Notice(`${STRINGS.notices.nlpPluginRequired} (${PluginInstances.settings.linksColorFunction})`);
-                this.linksColorCalculator = undefined;
-                PluginInstances.settings.linksColorFunction = 'default';
-                PluginInstances.plugin.saveSettings();
-                return;
-            }
-
-            this.linksColorCalculator = new LinkStatCalculator('color', g);
         } catch (error) {
             console.error(error);
             PluginInstances.settings.linksColorFunction = 'default';
@@ -191,6 +163,36 @@ export class GraphsManager extends Component {
             this.linksColorCalculator = undefined;
         }
         this.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction);
+    }
+
+    private canUseLinkStatFunction(stat: LinkStat): boolean {
+        const ga = this.getGraphAnalysis();
+        const fn = stat === 'color' ? PluginInstances.settings.linksColorFunction : PluginInstances.settings.linksSizeFunction;
+
+        if (!ga["graph-analysis"] && linkStatFunctionNeedsGraphAnalysis[fn]) {
+            if (stat === 'color') {
+                this.linksColorCalculator = undefined;
+            }
+            else {
+                this.linksSizeCalculator = undefined;
+            }
+            return false;
+        }
+
+        if (!ga.nlp && linkStatFunctionNeedsNLP[fn]) {
+            new Notice(`${STRINGS.notices.nlpPluginRequired} (${fn})`);
+            if (stat === 'color') {
+                this.linksColorCalculator = undefined;
+                PluginInstances.settings.linksColorFunction = 'default';
+            }
+            else {
+                this.linksSizeCalculator = undefined;
+                PluginInstances.settings.linksSizeFunction = 'default';
+            }
+            PluginInstances.plugin.saveSettings();
+            return false;
+        }
+        return true;
     }
 
     // =============================== UNLOADING ===============================

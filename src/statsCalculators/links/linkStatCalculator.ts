@@ -1,8 +1,8 @@
-import { getColor, GraphologyGraphAnalysis, PluginInstances, rgb2int } from "src/internal";
+import { getColor, GraphologyGraphAnalysis, GraphologySingleton, PluginInstances, rgb2int } from "src/internal";
 import STRINGS from "src/Strings";
 import { Attributes, EdgeEntry } from "graphology-types";
 
-export type LinkStatFunction = 'default' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
+export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
 
 export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'default': STRINGS.plugin.default,
@@ -11,9 +11,23 @@ export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'Co-Citations': STRINGS.statsFunctions.coCitations,
     'Clustering Coefficient': STRINGS.statsFunctions.clusteringCoefficient,
     'Jaccard': STRINGS.statsFunctions.Jaccard,
+    'Ocurences': STRINGS.statsFunctions.Occurences,
     'Otsuka-Ochiai': STRINGS.statsFunctions.OtsukaOchiai,
     'Overlap': STRINGS.statsFunctions.overlap,
     'Sentiment': STRINGS.statsFunctions.sentiment,
+};
+
+export const linkStatFunctionNeedsGraphAnalysis: Record<LinkStatFunction, boolean> = {
+    'default': false,
+    'Adamic Adar': true,
+    'BoW': true,
+    'Co-Citations': true,
+    'Clustering Coefficient': true,
+    'Jaccard': true,
+    'Ocurences': false,
+    'Otsuka-Ochiai': true,
+    'Overlap': true,
+    'Sentiment': true,
 };
 
 export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
@@ -23,6 +37,7 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
     'Co-Citations': false,
     'Clustering Coefficient': false,
     'Jaccard': false,
+    'Ocurences': false,
     'Otsuka-Ochiai': true,
     'Overlap': false,
     'Sentiment': true,
@@ -30,15 +45,13 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
 
 export type LinkStat = 'size' | 'color';
 
-export class LinkStatCalculator {
+export abstract class LinkStatCalculator {
     linksStats: { [source: string]: { [target: string]: { measure: number, value: number } } };
     stat: LinkStat;
     statFunction: LinkStatFunction;
-    g: GraphologyGraphAnalysis;
 
-    constructor(stat: LinkStat, g: GraphologyGraphAnalysis) {
+    constructor(stat: LinkStat) {
         this.stat = stat;
-        this.g = g;
     }
 
     async computeStats(statFunction: LinkStatFunction): Promise<void> {
@@ -49,7 +62,7 @@ export class LinkStatCalculator {
 
     private async getStats(): Promise<void> {
         this.linksStats = {};
-        const links = this.g.edgeEntries();
+        const links = GraphologySingleton.getInstance().graphologyGraph.edgeEntries();
         for (const link of links) {
             if (!this.linksStats[link.source]) {
                 this.linksStats[link.source] = {};
@@ -61,16 +74,7 @@ export class LinkStatCalculator {
         }
     }
 
-    async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
-        if (this.statFunction === 'default') return 1;
-        try {
-            const measure = (await this.g.algs[this.statFunction](link.source))[link.target].measure;
-            return measure;
-        }
-        catch {
-            return NaN;
-        }
-    }
+    abstract getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number>;
 
     mapStat(): void {
         switch (this.stat) {

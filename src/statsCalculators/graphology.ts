@@ -19,20 +19,20 @@ export class GraphologySingleton {
             this.graphologyGraph.addNode(file.path);
         }
 
-        const links = PluginInstances.app.metadataCache.resolvedLinks;
-        for (const [source, references] of Object.entries(links)) {
-            const validLinks = Object.keys(references)
-            for (const target of validLinks) {
-                this.graphologyGraph.addEdge(source, target);
+        // Add unresolved links
+        const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
+        for (const [source, references] of Object.entries(resolvedLinks)) {
+            for (const [target, count] of Object.entries(references)) {
+                this.graphologyGraph.addEdge(source, target, { count: count });
             }
         }
 
-        // Add unresolved files
+        // Add unresolved links and files
         const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
         for (const [source, references] of Object.entries(unresolvedLinks)) {
             for (const [target, count] of Object.entries(references)) {
                 if (!this.graphologyGraph.hasNode(target)) this.graphologyGraph.addNode(target);
-                this.graphologyGraph.addEdge(source, target);
+                this.graphologyGraph.addEdge(source, target, { count: count });
             }
         }
     }

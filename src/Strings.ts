@@ -372,6 +372,7 @@ export default class STRINGS {
 		hub: "Hub centrality (from HITS)",
 		Jaccard: "Jaccard similarity",
 		modifiedTime: "Time since last modification",
+		Occurences: "Number of occurences",
 		OtsukaOchiai: "Otsuka-Ochiai coefficient",
 		overlap: "Overlap coefficient",
 		tagsCount: "Number of tags",

@@ -1,5 +1,5 @@
 import { DropdownComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionPerGraphType } from "src/internal";
+import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinksStatCalculatorFactory, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsGraphAnalysis, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
@@ -24,11 +24,9 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         this.addInvertNodeStats();
 
-        if (PluginInstances.graphsManager?.getGraphAnalysis()["graph-analysis"]) {
-            this.addLinkSizeFunction();
-            this.addLinkColorFunction();
-            this.addColorPaletteSettingForLinks();
-        }
+        this.addLinkSizeFunction();
+        this.addLinkColorFunction();
+        this.addColorPaletteSettingForLinks();
     }
 
     private addNodeSizeProperties(): void {
@@ -142,10 +140,17 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(STRINGS.features.linkSizesFunctionDesc)
             .addDropdown(cb => {
                 this.linksSizeFunctionDropdown = cb;
-                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
+                const ga = PluginInstances.graphsManager.getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
-                        .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
+                        .filter(entry => {
+                            const fn = entry[0] as LinkStatFunction;
+                            if (linkStatFunctionNeedsGraphAnalysis[fn] && !ga["graph-analysis"])
+                                return false;
+                            if (linkStatFunctionNeedsNLP[fn] && !ga.nlp)
+                                return false;
+                            return true;
+                        })
                     )
                 );
                 cb.setValue(PluginInstances.settings.linksSizeFunction);
@@ -163,10 +168,17 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(STRINGS.features.linkColorsFunctionDesc + " ⚠️ " + STRINGS.features.linksFeatureRequired)
             .addDropdown(cb => {
                 this.linksColorFunctionDropdown = cb;
-                const nlp = PluginInstances.graphsManager?.getGraphAnalysis().nlp;
+                const ga = PluginInstances.graphsManager.getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
-                        .filter(entry => !linkStatFunctionNeedsNLP[entry[0] as LinkStatFunction] || nlp)
+                        .filter(entry => {
+                            const fn = entry[0] as LinkStatFunction;
+                            if (linkStatFunctionNeedsGraphAnalysis[fn] && !ga["graph-analysis"])
+                                return false;
+                            if (linkStatFunctionNeedsNLP[fn] && !ga.nlp)
+                                return false;
+                            return true;
+                        })
                     )
                 );
                 cb.setValue(PluginInstances.settings.linksColorFunction);
@@ -240,7 +252,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {
         const ga = PluginInstances.graphsManager.getGraphAnalysis();
-        if (!ga && functionKey !== 'default') {
+        if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
             return;
         }
         else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
@@ -258,19 +270,15 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             return;
         }
 
-        const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
-        if (!graphAnalysisPlugin) return;
-        if (!PluginInstances.graphsManager.linksSizeCalculator) {
-            PluginInstances.graphsManager.linksSizeCalculator = new LinkStatCalculator('size', graphAnalysisPlugin.g);
-        }
-        PluginInstances.graphsManager.linksSizeCalculator.computeStats(PluginInstances.settings.linksSizeFunction).then(() => {
+        PluginInstances.graphsManager.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
+        PluginInstances.graphsManager.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction).then(() => {
             PluginInstances.graphsManager.updateSizeFunctionForLinksStat();
         });
     }
 
     private recomputeLinksColors(functionKey: LinkStatFunction): void {
         const ga = PluginInstances.graphsManager.getGraphAnalysis();
-        if (!ga && functionKey !== 'default') {
+        if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
             return;
         }
         else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
@@ -288,12 +296,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             return;
         }
 
-        const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
-        if (!graphAnalysisPlugin) return;
-        if (!PluginInstances.graphsManager.linksColorCalculator) {
-            PluginInstances.graphsManager.linksColorCalculator = new LinkStatCalculator('color', graphAnalysisPlugin.g);
-        }
-        PluginInstances.graphsManager.linksColorCalculator.computeStats(PluginInstances.settings.linksColorFunction).then(() => {
+        PluginInstances.graphsManager.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
+        PluginInstances.graphsManager.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction).then(() => {
             PluginInstances.graphsManager.updatePaletteForLinksStat();
         });
     }
