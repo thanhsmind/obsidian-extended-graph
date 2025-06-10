@@ -304,7 +304,9 @@ export default class STRINGS {
 
 	static query = {
 		AND: "AND",
+		ANDFilterDesc: "Filter out when all elements are disabled",
 		OR: "OR",
+		ORFilterDesc: "Filter out when only one element is disabled",
 		combinationLogic: "Combination logic",
 		editShapeQuery: "Edit shape query",
 		setShapeQueryFor: "Set shape query for",

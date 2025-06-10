@@ -57,11 +57,11 @@ class LegendRow extends Setting {
                 const div = createDiv("and-or-group");
                 this.andButton = new ButtonComponent(div)
                     .setButtonText(STRINGS.query.AND)
-                    .setTooltip(STRINGS.query.AND)
+                    .setTooltip(STRINGS.query.ANDFilterDesc)
                     .onClick(() => this.changeCombinationLogic("AND"));
                 this.orButton = new ButtonComponent(div)
                     .setButtonText(STRINGS.query.OR)
-                    .setTooltip(STRINGS.query.OR)
+                    .setTooltip(STRINGS.query.ORFilterDesc)
                     .onClick(() => this.changeCombinationLogic("OR"));
                 (this.manager.instances.stateData?.logicTypes[this.name] === "AND") ? this.andButton.setCta() : this.orButton.setCta();
                 this.controlEl.insertAdjacentElement("afterbegin", div);
