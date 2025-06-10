@@ -1,5 +1,5 @@
 import { GraphColorGroup, GraphPluginInstanceOptions } from "obsidian-typings";
-import { CombinationLogic, FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/internal";
+import { CombinationLogic, FOLDER_KEY, GraphInstances, LINK_KEY, TAG_KEY } from "src/internal";
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];
@@ -72,5 +72,12 @@ export class GraphStateData {
         this.collapsedLegendRows = [];
 
         this.engineOptions = new EngineOptions();
+    }
+}
+
+export class GraphStateDataQuery {
+    static getLogicType(instances: GraphInstances, key: string): CombinationLogic {
+        return (instances.stateData && instances.stateData.logicTypes && instances.stateData.logicTypes[key])
+            ? instances.stateData.logicTypes[key] : "AND";
     }
 }

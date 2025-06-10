@@ -1,8 +1,62 @@
-import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
-import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat, CombinationLogic, SettingQuery } from "./internal";
+import {
+    CachedMetadata,
+    Component,
+    FileView,
+    MarkdownView,
+    Menu,
+    Plugin,
+    setIcon,
+    TAbstractFile,
+    TFile,
+    TFolder,
+    View,
+    WorkspaceLeaf
+} from "obsidian";
+import {
+    GraphData,
+    GraphPluginInstance,
+    GraphPluginInstanceOptions,
+    GraphView,
+    LocalGraphView
+} from "obsidian-typings";
+import {
+    ExportCoreGraphToSVG,
+    ExportExtendedGraphToSVG,
+    ExportGraphToSVG,
+    getEngine,
+    GraphControlsUI,
+    GraphEventsDispatcher,
+    MenuUI,
+    NodeStatCalculator,
+    NodeStatCalculatorFactory,
+    LinkStatCalculator,
+    linkStatFunctionNeedsNLP,
+    PluginInstances,
+    GraphInstances,
+    WorkspaceExt,
+    getFileInteractives,
+    ExtendedGraphFileNode,
+    getOutlinkTypes,
+    LINK_KEY,
+    getLinkID,
+    FOLDER_KEY,
+    ExtendedGraphNode,
+    ExtendedGraphLink,
+    getGraphView,
+    Pinner,
+    isGraphBannerView,
+    getGraphBannerPlugin,
+    getGraphBannerClass,
+    nodeStatFunctionLabels,
+    linkStatFunctionLabels,
+    GraphType,
+    GraphStateModal,
+    LinksStatCalculatorFactory,
+    linkStatFunctionNeedsGraphAnalysis,
+    LinkStat,
+    SettingQuery
+} from "./internal";
 import STRINGS from "./Strings";
-import path from "path";
 
 
 

@@ -4,6 +4,7 @@ import {
     FOLDER_KEY,
     GraphInstances,
     GraphStateData,
+    GraphStateDataQuery,
     InteractiveManager,
     InteractiveUI,
     makeCompatibleForClass,
@@ -63,7 +64,7 @@ class LegendRow extends Setting {
                     .setButtonText(STRINGS.query.OR)
                     .setTooltip(STRINGS.query.ORFilterDesc)
                     .onClick(() => this.changeCombinationLogic("OR"));
-                (this.manager.instances.stateData?.logicTypes[this.name] === "AND") ? this.andButton.setCta() : this.orButton.setCta();
+                (GraphStateDataQuery.getLogicType(this.manager.instances, this.name) === "AND") ? this.andButton.setCta() : this.orButton.setCta();
                 this.controlEl.insertAdjacentElement("afterbegin", div);
             })
             .setClass(`${this.getClassName(name)}s-row`);
@@ -438,10 +439,8 @@ export class LegendUI extends Component implements InteractiveUI {
                 }
             }
         }
-        if (this.instances.stateData.logicTypes) {
-            for (const [key, row] of this.legendRows) {
-                row.row.changeCombinationLogicUI(this.instances.stateData.logicTypes[key]);
-            }
+        for (const [key, row] of this.legendRows) {
+            row.row.changeCombinationLogicUI(GraphStateDataQuery.getLogicType(this.instances, key));
         }
     }
 

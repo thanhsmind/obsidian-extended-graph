@@ -202,6 +202,23 @@ export default class ExtendedGraphPlugin extends Plugin {
             delete settings["usePropertyForName"];
         }
 
+        // 2.4.2 --> 2.4.4
+        if ("interactiveSettings" in settings) {
+            if (typeof settings["interactiveSettings"] === "object") {
+                for (const key of Object.keys(settings["interactiveSettings"])) {
+                    if (!('excludeRegex' in settings["interactiveSettings"][key]) || typeof settings["interactiveSettings"][key]['excludeRegex'] !== "object") {
+                        settings["interactiveSettings"][key]['excludeRegex'] = {
+                            "regex": "",
+                            "flags": ""
+                        }
+                    }
+                }
+            }
+            else {
+                settings["interactiveSettings"] = {};
+            }
+        }
+
         return settings;
     }
 
