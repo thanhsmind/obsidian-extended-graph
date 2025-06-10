@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat, CombinationLogic } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat, CombinationLogic, SettingQuery } from "./internal";
 import STRINGS from "./Strings";
 import path from "path";
 
@@ -225,10 +225,7 @@ export class GraphsManager extends Component {
             if (!extendedNode) return;
             for (const [key, manager] of instances.nodesSet.managers) {
                 let newTypes = [...getFileInteractives(key, file)];
-                newTypes = newTypes.filter(type =>
-                    !INVALID_KEYS[key]?.includes(type)
-                    && !PluginInstances.settings.interactiveSettings[key].unselected.includes(type)
-                );
+                newTypes = newTypes.filter(type => !SettingQuery.excludeType(PluginInstances.settings, key, type));
                 if (newTypes.length === 0) {
                     newTypes.push(instances.settings.interactiveSettings[key].noneType);
                 }
@@ -266,10 +263,7 @@ export class GraphsManager extends Component {
             for (let [targetID, newTypes] of newOutlinkTypes) {
                 const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: file.path }, target: { id: targetID } }));
                 if (!extendedLink) continue;
-                newTypes = new Set<string>([...newTypes].filter(type =>
-                    !INVALID_KEYS[LINK_KEY]?.includes(type)
-                    && !PluginInstances.settings.interactiveSettings[LINK_KEY].unselected.includes(type)
-                ));
+                newTypes = new Set<string>([...newTypes].filter(type => !SettingQuery.excludeType(PluginInstances.settings, LINK_KEY, type)));
                 if (newTypes.size === 0) {
                     newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
                 }

@@ -1,6 +1,6 @@
 
 import { Component } from "obsidian";
-import { getColor, GraphInstances, hex2rgb, int2rgb, INVALID_KEYS, LINK_KEY, NONE_COLOR, PluginInstances } from "src/internal";
+import { getColor, GraphInstances, hex2rgb, int2rgb, INVALID_KEYS, LINK_KEY, NONE_COLOR, PluginInstances, SettingQuery } from "src/internal";
 
 class Interactive {
     type: string;
@@ -94,7 +94,7 @@ export class InteractiveManager extends Component {
         const allTypesWithoutNone = new Set<string>(allTypes);
         allTypesWithoutNone.delete(this.instances.settings.interactiveSettings[this.name].noneType);
         types.forEach(type => {
-            if (INVALID_KEYS[this.name]?.includes(type) || this.instances.settings.interactiveSettings[this.name].unselected.includes(type)) {
+            if (SettingQuery.excludeType(this.instances.settings, this.name, type)) {
                 return;
             }
             if (this.interactives.has(type)) return;

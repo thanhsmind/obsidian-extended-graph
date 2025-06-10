@@ -80,6 +80,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
             colormap: "rainbow",
             colors: [],
             unselected: [],
+            excludeRegex: { regex: "", flags: "" },
             noneType: "none",
             showOnGraph: true,
             enableByDefault: true,

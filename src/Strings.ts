@@ -309,6 +309,8 @@ export default class STRINGS {
 		ORFilterDesc: "Filter out when only one element is disabled",
 		combinationLogic: "Combination logic",
 		editShapeQuery: "Edit shape query",
+		excludeRegex: "Exclude regex",
+		excludeRegexDesc: "Use regex to automatically exclude some values. Start a new line for a new regex.",
 		setShapeQueryFor: "Set shape query for",
 		files: "Files",
 		logicKey: {
@@ -324,6 +326,8 @@ export default class STRINGS {
 			isEmptyNot: "is not empty",
 		},
 		matchingFiles: "Matching files",
+		match: "match",
+		matches: "matches",
 		query: "Query",
 		rules: "Rules",
 		source: {

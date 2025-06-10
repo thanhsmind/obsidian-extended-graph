@@ -9,6 +9,8 @@ export function getFile(path: string): TFile | null {
 }
 
 export function getFileInteractives(interactive: string, file: TFile): Set<string> {
+    if (PluginInstances.app.metadataCache.isUserIgnored(file.path)) return new Set();
+
     if (file.extension !== "md") return new Set<string>();
     switch (interactive) {
         case TAG_KEY:

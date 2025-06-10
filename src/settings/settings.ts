@@ -7,6 +7,7 @@ import {
     GraphInstances,
     GraphStateData,
     GraphType,
+    INVALID_KEYS,
     LINK_KEY,
     LinkStatFunction,
     NodeStatFunction,
@@ -21,6 +22,7 @@ type InteractiveSettings = {
     colormap: string;
     colors: { type: string, color: string }[];
     unselected: string[];
+    excludeRegex: { regex: string, flags: string };
     noneType: string;
     showOnGraph: boolean;
     enableByDefault: boolean
@@ -340,6 +342,17 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 };
 
 export class SettingQuery {
+    static excludeType(settings: ExtendedGraphSettings, key: string, type: string) {
+        if (INVALID_KEYS.hasOwnProperty(key) && INVALID_KEYS[key].includes(type)) return true;
+        if (!settings.interactiveSettings[key].unselected || settings.interactiveSettings[key].unselected.includes(type)) return true;
+        for (const reg of settings.interactiveSettings[key].excludeRegex.regex.split("\n")) {
+            if (reg !== "" && new RegExp(reg, settings.interactiveSettings[key].excludeRegex.flags).test(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static needToChangeLinkColor(instances: GraphInstances): boolean {
         if (instances.settings.enableFeatures[instances.type]['links']
             && instances.settings.interactiveSettings[LINK_KEY].showOnGraph

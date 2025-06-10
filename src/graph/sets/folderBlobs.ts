@@ -2,7 +2,7 @@ import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
 import { Container, Graphics, HTMLText, HTMLTextStyle, Text, TextStyle } from "pixi.js";
-import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex } from "src/internal";
+import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex, SettingQuery } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -247,8 +247,7 @@ export class FoldersSet {
     }
 
     private isFolderValid(type: string): boolean {
-        if (this.instances.settings.interactiveSettings[FOLDER_KEY].unselected.includes(type)) return false;
-        if (INVALID_KEYS[FOLDER_KEY].includes(type)) return false;
+        if (SettingQuery.excludeType(this.instances.settings, FOLDER_KEY, type)) return false;
         return true;
     }
 

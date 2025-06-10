@@ -1,6 +1,6 @@
 import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import { ExtendedGraphElement, ExtendedGraphLink, ExtendedGraphNode, GraphInstances, InteractiveManager, INVALID_KEYS, TAG_KEY } from "src/internal";
+import { ExtendedGraphElement, ExtendedGraphLink, ExtendedGraphNode, GraphInstances, InteractiveManager, INVALID_KEYS, SettingQuery, TAG_KEY } from "src/internal";
 
 
 export abstract class AbstractSet<T extends GraphNode | GraphLink> {
@@ -184,9 +184,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     }
 
     protected isTypeValid(key: string, type: string): boolean {
-        if (!this.instances.settings.interactiveSettings[key].unselected || this.instances.settings.interactiveSettings[key].unselected.includes(type))
-            return false;
-        if (INVALID_KEYS.hasOwnProperty(key) && [key].includes(type))
+        if (SettingQuery.excludeType(this.instances.settings, key, type))
             return false;
         return true;
     }
