@@ -59,7 +59,8 @@ export class FolderBlob {
             fontVariant: this.folderStyle.textStyle.textStyle.fontVariant,
             fontWeight: this.folderStyle.textStyle.textStyle.fontWeight,
             letterSpacing: this.folderStyle.textStyle.textStyle.letterSpacing,
-            wordWrap: !0,
+            whiteSpace: 'pre',
+            wordWrap: true,
             wordWrapWidth: 300,
             align: this.folderStyle.textStyle.align
         });

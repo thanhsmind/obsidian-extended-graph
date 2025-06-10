@@ -213,7 +213,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private createSetDataProxy() {
-        const updateData: (data: GraphData) => GraphData | undefined = this.updateData.bind(this);
+        const updateData = this.updateData.bind(this);
 
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
@@ -585,7 +585,7 @@ export class GraphEventsDispatcher extends Component {
                 if (file) {
                     for (const [key, manager] of this.instances.nodesSet.managers) {
                         const interactives = getFileInteractives(key, file);
-                        if (interactives.size > 0 && ![...interactives].some(interactive => manager.isActive(interactive))) {
+                        if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
                             nodesToRemove.push(id);
                         }
                         if (interactives.size === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType)) {
@@ -667,7 +667,7 @@ export class GraphEventsDispatcher extends Component {
                         // @ts-ignore
                         if (!(target in node.links)) continue;
 
-                        if (types.size > 0 && ![...types].some(type => manager.isActive(type))) {
+                        if (types.size > 0 && !manager.isActiveBasedOnTypes([...types])) {
                             // We can remove directly from the record since we are not iterating over the record
                             // @ts-ignore
                             delete node.links[target];

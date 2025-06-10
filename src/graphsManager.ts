@@ -1,6 +1,6 @@
 import { CachedMetadata, Component, ExtraButtonComponent, FileView, MarkdownView, Menu, Plugin, setIcon, TAbstractFile, TFile, TFolder, View, WorkspaceLeaf } from "obsidian";
 import { GraphData, GraphPluginInstance, GraphPluginInstanceOptions, GraphView, LocalGraphView } from "obsidian-typings";
-import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat } from "./internal";
+import { ExportCoreGraphToSVG, ExportExtendedGraphToSVG, ExportGraphToSVG, getEngine, GraphControlsUI, GraphEventsDispatcher, MenuUI, NodeStatCalculator, NodeStatCalculatorFactory, LinkStatCalculator, GraphAnalysisPlugin, linkStatFunctionNeedsNLP, PluginInstances, GraphInstances, WorkspaceExt, getFileInteractives, INVALID_KEYS, ExtendedGraphFileNode, getOutlinkTypes, LINK_KEY, getLinkID, FOLDER_KEY, ExtendedGraphNode, ExtendedGraphLink, getGraphView, Pinner, isGraphBannerView, getGraphBannerPlugin, getGraphBannerClass, nodeStatFunctionLabels, linkStatFunctionLabels, GraphType, GraphStateModal, getFolderStyle, getNodeTextStyle, LinksStatCalculatorFactory, linkStatFunctionNeedsGraphAnalysis, LinkStat, CombinationLogic } from "./internal";
 import STRINGS from "./Strings";
 import path from "path";
 
@@ -625,6 +625,7 @@ export class GraphsManager extends Component {
         if (instances) return instances;
 
         instances = new GraphInstances(view);
+        instances.stateData = PluginInstances.statesManager.getStateDataById(stateID);
         new GraphEventsDispatcher(instances);
         if (stateID) {
             instances.statesUI.setValue(stateID);
@@ -930,7 +931,6 @@ export class GraphsManager extends Component {
         renderer.setScale(scale);
         renderer.changed();
     }
-
 
     // =============================== STATUS BAR ==============================
 

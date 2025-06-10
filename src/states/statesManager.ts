@@ -37,6 +37,8 @@ export class StatesManager {
         stateData = this.validateStateData(stateData);
         if (!stateData) return;
 
+        instances.stateData = stateData;
+
         if (instances.dispatcher.lastFilteringAction)
             instances.dispatcher.lastFilteringAction.record = false;
 
@@ -51,12 +53,7 @@ export class StatesManager {
                 }
             }
 
-            if (stateData.hiddenLegendRows) {
-                instances.legendUI?.hideRows(stateData.hiddenLegendRows);
-            }
-            if (stateData.collapsedLegendRows) {
-                instances.legendUI?.collapseRows(stateData.collapsedLegendRows);
-            }
+            instances.legendUI?.updateUIFromState();
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
 

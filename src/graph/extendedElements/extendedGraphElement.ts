@@ -89,7 +89,8 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         for (const [key, manager] of this.managers) {
             const types = this.getTypes(key);
             if (types.size === 0) continue;
-            if ([...types].every(type => !manager.isActive(type))) return true;
+
+            if (!manager.isActiveBasedOnTypes([...types])) return true;
         }
         return false;
     }

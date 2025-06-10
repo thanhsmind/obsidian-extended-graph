@@ -48,6 +48,7 @@ export class StatesUI extends Component {
                 this.select = cb;
                 cb.onChange(value => {
                     this.currentStateID = value;
+                    this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
                     this.displaySaveDeleteButton();
                     this.instances.dispatcher.changeState(value);
                 })
@@ -85,6 +86,7 @@ export class StatesUI extends Component {
 
         // CURRENT STATE ID
         this.currentStateID = this.select.getValue();
+        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
 
         if (PluginInstances.settings.collapseState) {
             this.close();
@@ -108,7 +110,7 @@ export class StatesUI extends Component {
     }
 
     private openModalToRenameState() {
-        const stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+        const stateData = this.instances.stateData;
         if (stateData) {
             const modal = new NewNameModal(
                 STRINGS.states.editStateName,
@@ -138,6 +140,7 @@ export class StatesUI extends Component {
         if (name.length === 0) return false;
         const id = PluginInstances.statesManager.newState(this.instances, name);
         this.currentStateID = id;
+        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
         return true;
     }
 
@@ -157,11 +160,13 @@ export class StatesUI extends Component {
         }
         else {
             this.currentStateID = this.select.getValue();
+            this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
         }
     }
 
     setValue(id: string) {
         this.currentStateID = id;
+        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
         this.select.setValue(id);
         this.displaySaveDeleteButton();
     }

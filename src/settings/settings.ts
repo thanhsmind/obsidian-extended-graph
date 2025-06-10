@@ -23,7 +23,7 @@ type InteractiveSettings = {
     unselected: string[];
     noneType: string;
     showOnGraph: boolean;
-    enableByDefault: boolean;
+    enableByDefault: boolean
 }
 
 export type ExportSVGOptions = {
@@ -155,11 +155,12 @@ export interface ExtendedGraphSettings {
     };
 }
 
-export const DEFAULT_STATE_SETTINGS = {
+export const DEFAULT_STATE_SETTINGS: GraphStateData = {
     id: DEFAULT_STATE_ID,
     name: "Vault (default)",
     engineOptions: new EngineOptions(),
-    toggleTypes: {}
+    toggleTypes: {},
+    logicTypes: {}
 };
 
 let shapeQueriesIndex = 0;

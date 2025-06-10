@@ -98,12 +98,12 @@ body {
         color: var(--legend-text-color);
         padding: var(--size-2-2) var(--size-4-2);
         border-radius: var(--radius-s);
+        line-height: 1;
         max-width: 140px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         display: inline-block;
-        line-height: 1;
     }
 
     .graph-legend.is-hidden {
@@ -116,12 +116,22 @@ body {
         order: 1;
     }
 
+    .and-or-group {
+        display: flex;
+        justify-content: center;
+
+        button {
+            padding: var(--size-2-2) var(--size-4-2);
+        }
+    }
+
     .is-collapsed {
         display: flex;
         background-color: var(--background-secondary);
         overflow: hidden;
 
-        .graph-legend {
+        .graph-legend,
+        .and-or-group button {
             font-size: 0;
             height: 12px;
             width: 12px;
@@ -199,6 +209,13 @@ body {
         width: 10ch;
     }
 
+    .and-or-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--size-2-1);
+        padding: var(--size-2-1);
+    }
+
     .is-collapsed {
         .setting-item-info svg {
             vertical-align: middle;
@@ -230,6 +247,11 @@ body {
     .setting-item-control {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .and-or-group {
+        gap: var(--size-2-1);
+        padding: var(--size-2-1);
     }
 
     .is-collapsed {

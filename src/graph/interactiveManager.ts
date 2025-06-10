@@ -61,20 +61,15 @@ export class InteractiveManager extends Component {
         return interactive.isActive;
     }
 
-    isFullyDisabled(): boolean {
-        const types = this.getTypes();
-        for (const type of types) {
-            if (this.isActive(type)) return true;
+    isActiveBasedOnTypes(types: string[]): boolean {
+        switch (this.instances.stateData?.logicTypes[this.name] ?? "AND") {
+            case "AND":
+                if ([...types].some(type => this.isActive(type))) return true;
+                else return false;
+            case "OR":
+                if ([...types].every(type => this.isActive(type))) return true;
+                else return false;
         }
-        return false;
-    }
-
-    isFullyEnabled(): boolean {
-        const types = this.getTypes();
-        for (const type of types) {
-            if (!this.isActive(type)) return false;
-        }
-        return true;
     }
 
     setColor(type: string, color: Uint8Array): void {

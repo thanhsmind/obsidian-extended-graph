@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, CSSTextStyle, ProxysManager, StatesManager, StatesUI, CSSFolderStyle } from "./internal";
+import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, CSSTextStyle, ProxysManager, StatesManager, StatesUI, CSSFolderStyle, GraphStateData } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 
@@ -24,6 +24,7 @@ export class GraphInstances {
 
     dispatcher: GraphEventsDispatcher; // init in graphEventsDispatcher.ts (constructor)
     graph: Graph; // init in graph.ts (constructor)
+    stateData?: GraphStateData; // graphsManager.ts (addGraph) and changed in statesUI.ts
 
 
     nodesSet: NodesSet; // init in graph.ts (constructor)

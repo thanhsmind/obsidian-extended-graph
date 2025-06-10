@@ -1,5 +1,6 @@
 import { ButtonComponent, Component, ExtraButtonComponent, setIcon, Setting } from "obsidian";
 import {
+    CombinationLogic,
     FOLDER_KEY,
     GraphInstances,
     GraphStateData,
@@ -15,10 +16,13 @@ class LegendRow extends Setting {
     name: string;
     isVisible: boolean = true;
     isCollapsed: boolean = false;
+    andButton: ButtonComponent;
+    orButton: ButtonComponent;
     disableAllButton: ExtraButtonComponent;
     enableAllButton: ExtraButtonComponent;
     cssBGColorVariable: string;
     cssTextColorVariable: string;
+    logic: CombinationLogic;
     manager: InteractiveManager;
 
     constructor(name: string, manager: InteractiveManager, containerEl: HTMLElement) {
@@ -49,6 +53,19 @@ class LegendRow extends Setting {
                         this.enableAllButton.extraSettingsEl.remove();
                     });
             })
+            .then(cb => {
+                const div = createDiv("and-or-group");
+                this.andButton = new ButtonComponent(div)
+                    .setButtonText(STRINGS.query.AND)
+                    .setTooltip(STRINGS.query.AND)
+                    .onClick(() => this.changeCombinationLogic("AND"));
+                this.orButton = new ButtonComponent(div)
+                    .setButtonText(STRINGS.query.OR)
+                    .setTooltip(STRINGS.query.OR)
+                    .onClick(() => this.changeCombinationLogic("OR"));
+                (this.manager.instances.stateData?.logicTypes[this.name] === "AND") ? this.andButton.setCta() : this.orButton.setCta();
+                this.controlEl.insertAdjacentElement("afterbegin", div);
+            })
             .setClass(`${this.getClassName(name)}s-row`);
 
         this.nameEl.addClass("mod-clickable");
@@ -61,6 +78,34 @@ class LegendRow extends Setting {
 
     private getClassName(type: string): string {
         return "graph-legend-" + makeCompatibleForClass(type);
+    }
+
+    private changeCombinationLogic(logic: CombinationLogic) {
+        if (this.logic === logic) return;
+
+        const stateData = this.manager.instances.stateData;
+        if (stateData) {
+            if (!stateData.logicTypes) {
+                stateData.logicTypes = {};
+            }
+            stateData.logicTypes[this.name] = logic;
+            this.manager.instances.engine.render();
+            PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
+        }
+
+        this.changeCombinationLogicUI(logic);
+    }
+
+    changeCombinationLogicUI(logic: CombinationLogic) {
+        this.logic = logic;
+        if (logic === "AND") {
+            this.andButton.setCta();
+            this.orButton.removeCta();
+        }
+        else {
+            this.orButton.setCta();
+            this.andButton.removeCta();
+        }
     }
 
     addLegend(type: string, color: Uint8Array): void {
@@ -323,9 +368,8 @@ export class LegendUI extends Component implements InteractiveUI {
                 }
                 stateData.hiddenLegendRows?.push(row.row.name);
             }
+            PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
         }
-
-        if (stateData) PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
     }
 
     onunload(): void {
@@ -369,26 +413,34 @@ export class LegendUI extends Component implements InteractiveUI {
         })
     }
 
-    hideRows(rows: string[]) {
-        for (const [key, row] of this.legendRows) {
-            if (rows.includes(key)) {
-                row.row.hide();
-                row.visibilityButton.cb.buttonEl.addClass("is-inactive");
-                setIcon(row.visibilityButton.eyeIcon, "eye-off");
-            } else {
-                row.row.show();
-                row.visibilityButton.cb.buttonEl.removeClass("is-inactive");
-                setIcon(row.visibilityButton.eyeIcon, "eye");
+    updateUIFromState() {
+        if (!this.instances.stateData) return;
+
+        if (this.instances.stateData.hiddenLegendRows) {
+            for (const [key, row] of this.legendRows) {
+                if (this.instances.stateData.hiddenLegendRows.includes(key)) {
+                    row.row.hide();
+                    row.visibilityButton.cb.buttonEl.addClass("is-inactive");
+                    setIcon(row.visibilityButton.eyeIcon, "eye-off");
+                } else {
+                    row.row.show();
+                    row.visibilityButton.cb.buttonEl.removeClass("is-inactive");
+                    setIcon(row.visibilityButton.eyeIcon, "eye");
+                }
             }
         }
-    }
-
-    collapseRows(rows: string[]) {
-        for (const [key, row] of this.legendRows) {
-            if (rows.includes(key)) {
-                row.row.collapse();
-            } else {
-                row.row.expend();
+        if (this.instances.stateData.collapsedLegendRows) {
+            for (const [key, row] of this.legendRows) {
+                if (this.instances.stateData.collapsedLegendRows.includes(key)) {
+                    row.row.collapse();
+                } else {
+                    row.row.expend();
+                }
+            }
+        }
+        if (this.instances.stateData.logicTypes) {
+            for (const [key, row] of this.legendRows) {
+                row.row.changeCombinationLogicUI(this.instances.stateData.logicTypes[key]);
             }
         }
     }

@@ -1,5 +1,5 @@
 import { GraphColorGroup, GraphPluginInstanceOptions } from "obsidian-typings";
-import { FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/internal";
+import { CombinationLogic, FOLDER_KEY, LINK_KEY, TAG_KEY } from "src/internal";
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];
@@ -50,6 +50,7 @@ export class GraphStateData {
     id: string = "";
     name: string = "";
     toggleTypes: { [interactive: string]: string[] };
+    logicTypes: { [interactive: string]: CombinationLogic };
     pinNodes?: { [nodeID: string]: { x: number, y: number } };
     engineOptions?: EngineOptions;
     hiddenLegendRows?: string[];
@@ -60,6 +61,11 @@ export class GraphStateData {
         this.toggleTypes[TAG_KEY] = [];
         this.toggleTypes[LINK_KEY] = [];
         this.toggleTypes[FOLDER_KEY] = [];
+
+        this.logicTypes = {};
+        this.logicTypes[TAG_KEY] = "AND";
+        this.logicTypes[LINK_KEY] = "AND";
+        this.logicTypes[FOLDER_KEY] = "AND";
 
         this.pinNodes = {};
         this.hiddenLegendRows = [];

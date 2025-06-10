@@ -40,24 +40,17 @@ export class GraphState {
         this.data.engineOptions = new EngineOptions(instances.engine.getOptions());
 
         // Hidden legend rows
-        this.data.hiddenLegendRows = [];
-        if (instances.legendUI) {
-            for (const [key, row] of instances.legendUI.legendRows) {
-                if (!row.row.isVisible) {
-                    this.data.hiddenLegendRows?.push(key);
-                }
-            }
-        }
+        // Since they are updated directly from the UI,
+        // we can just copy the ones from the current instances
+        this.data.hiddenLegendRows = structuredClone(instances.stateData?.hiddenLegendRows) ?? [];
 
         // Collapsed legend rows
-        this.data.collapsedLegendRows = [];
-        if (instances.legendUI) {
-            for (const [key, row] of instances.legendUI.legendRows) {
-                if (!row.row.isCollapsed) {
-                    this.data.collapsedLegendRows?.push(key);
-                }
-            }
-        }
+        // (same)
+        this.data.collapsedLegendRows = structuredClone(instances.stateData?.collapsedLegendRows) ?? [];
+
+        // Combination logics
+        // (same)
+        this.data.logicTypes = structuredClone(instances.stateData?.logicTypes) ?? {};
     }
 
     saveState(stateData: GraphStateData): boolean {
@@ -66,11 +59,12 @@ export class GraphState {
     }
 
     isValidProperty(key: string) {
-        return ['id', 'name', 'toggleTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows'].includes(key);
+        return ['id', 'name', 'toggleTypes', 'logicTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows'].includes(key);
     }
 
     completeDefaultOptions(): boolean {
         let hasChanged = false;
+
         if (!this.data.toggleTypes) {
             this.data.toggleTypes = {};
             hasChanged = true;
@@ -87,18 +81,39 @@ export class GraphState {
             this.data.toggleTypes[FOLDER_KEY] = [];
             hasChanged = true;
         }
+
+        if (!this.data.logicTypes) {
+            this.data.logicTypes = {};
+            hasChanged = true;
+        }
+        if (!this.data.logicTypes[TAG_KEY]) {
+            this.data.logicTypes[TAG_KEY] = "AND";
+            hasChanged = true;
+        }
+        if (!this.data.logicTypes[LINK_KEY]) {
+            this.data.logicTypes[LINK_KEY] = "AND";
+            hasChanged = true;
+        }
+        if (!this.data.logicTypes[FOLDER_KEY]) {
+            this.data.logicTypes[FOLDER_KEY] = "AND";
+            hasChanged = true;
+        }
+
         if (!this.data.pinNodes) {
             this.data.pinNodes = {};
             hasChanged = true;
         }
+
         if (!this.data.engineOptions) {
             this.data.engineOptions = new EngineOptions();
             hasChanged = true;
         }
+
         if (!this.data.hiddenLegendRows) {
             this.data.hiddenLegendRows = [];
             hasChanged = true;
         }
+
         if (!this.data.collapsedLegendRows) {
             this.data.collapsedLegendRows = [];
             hasChanged = true;
