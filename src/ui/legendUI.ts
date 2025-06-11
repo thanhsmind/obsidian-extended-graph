@@ -55,17 +55,17 @@ class LegendRow extends Setting {
                     });
             })
             .then(cb => {
-                const div = createDiv("and-or-group");
-                this.andButton = new ButtonComponent(div)
+                const andOrDiv = createDiv("and-or-group");
+                this.andButton = new ButtonComponent(andOrDiv)
                     .setButtonText(STRINGS.query.AND)
                     .setTooltip(STRINGS.query.ANDFilterDesc)
                     .onClick(() => this.changeCombinationLogic("AND"));
-                this.orButton = new ButtonComponent(div)
+                this.orButton = new ButtonComponent(andOrDiv)
                     .setButtonText(STRINGS.query.OR)
                     .setTooltip(STRINGS.query.ORFilterDesc)
                     .onClick(() => this.changeCombinationLogic("OR"));
                 (GraphStateDataQuery.getLogicType(this.manager.instances, this.name) === "AND") ? this.andButton.setCta() : this.orButton.setCta();
-                this.controlEl.insertAdjacentElement("afterbegin", div);
+                this.controlEl.insertAdjacentElement("afterbegin", andOrDiv);
             })
             .setClass(`${this.getClassName(name)}s-row`);
 
@@ -196,8 +196,8 @@ class LegendRow extends Setting {
             this.disableUI(type);
         }
         this.manager.disable(this.manager.getTypes());
+        this.disableAllButton.extraSettingsEl.insertAdjacentElement('afterend', this.enableAllButton.extraSettingsEl);
         this.disableAllButton.extraSettingsEl.remove();
-        this.controlEl.insertAdjacentElement('afterbegin', this.enableAllButton.extraSettingsEl);
     }
 
     enableAll() {
@@ -205,7 +205,7 @@ class LegendRow extends Setting {
             this.enableUI(type);
         }
         this.manager.enable(this.manager.getTypes());
-        this.controlEl.insertAdjacentElement('afterbegin', this.disableAllButton.extraSettingsEl);
+        this.enableAllButton.extraSettingsEl.insertAdjacentElement('afterend', this.disableAllButton.extraSettingsEl);
         this.enableAllButton.extraSettingsEl.remove();
     }
 
