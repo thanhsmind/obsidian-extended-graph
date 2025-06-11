@@ -64,11 +64,9 @@ export class InteractiveManager extends Component {
     isActiveBasedOnTypes(types: string[]): boolean {
         switch (GraphStateDataQuery.getLogicType(this.instances, this.name)) {
             case "AND":
-                if ([...types].some(type => this.isActive(type))) return true;
-                else return false;
+                return [...types].every(type => this.isActive(type));
             case "OR":
-                if ([...types].every(type => this.isActive(type))) return true;
-                else return false;
+                return [...types].some(type => this.isActive(type));
         }
     }
 
