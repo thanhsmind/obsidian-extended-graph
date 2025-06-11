@@ -1106,7 +1106,7 @@ svg.shape-svg {
             left: 15%;
             transform: rotate(calc(var(--rotation) * -1));
             transform-origin: center center;
-            color: var(--text-normal);
+            color: color-mix(in hsl, var(--color-base-00), var(--color-base-100) var(--dark-text-interp));
         }
 
         .menu-item-title {

@@ -1,5 +1,5 @@
 import { Menu, MenuPositionDef, setTooltip } from "obsidian";
-import { ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, GraphInstances, GraphStateModal, LINK_KEY, TAG_KEY, textColor } from "src/internal";
+import { ExtendedGraphLink, ExtendedGraphNode, FOLDER_KEY, FolderBlob, GraphInstances, GraphStateModal, hex2rgb, LINK_KEY, TAG_KEY, textColor } from "src/internal";
 import STRINGS from "src/Strings";
 
 interface RadialMenuItem {
@@ -94,6 +94,8 @@ export class RadialMenu extends Menu {
 
         for (let i = 0; i < items.length; ++i) {
             this.addItem((item) => {
+                const darkInterp = textColor(hex2rgb(items[i].color), "dark", "light") === "dark" ? "100%" : "0%";
+                item.dom.style.setProperty("--dark-text-interp", darkInterp);
                 item.dom.style.setProperty("--color-rgb", `var(--color-${items[i].color}-rgb)`);
                 item.dom.style.setProperty("--rotation", `${-22.5 + (i - 1) * 45}deg`);
                 item.setTitle(items[i].title.slice(0, Math.min(3, items[i].title.length)).toUpperCase())
