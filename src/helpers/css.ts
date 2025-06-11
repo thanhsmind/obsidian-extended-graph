@@ -16,7 +16,6 @@ export interface CSSFolderTextStyle {
     textStyle: CSSTextStyle;
     fontSize: number;
     align: 'left' | 'center' | 'right';
-    decoration: 'none' | 'underline' | 'line-through';
 }
 
 export interface CSSFolderStyle {
@@ -43,7 +42,6 @@ export const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
         textStyle: DEFAULT_TEXT_STYLE,
         align: 'center',
         fontSize: 14,
-        decoration: 'none',
     },
     radius: 50,
     borderWidth: 2,
@@ -227,11 +225,6 @@ export function getFolderStyle(instances: GraphInstances, path?: string): CSSFol
         align = DEFAULT_FOLDER_STYLE.textStyle.align;
     }
 
-    let decoration = style.textDecorationLine.toLowerCase();
-    if (!['none', 'underline', 'line-through'].contains(decoration)) {
-        decoration = DEFAULT_FOLDER_STYLE.textStyle.decoration;
-    }
-
     const fontSize = getUnitlessPixel(style.fontSize, DEFAULT_FOLDER_STYLE.textStyle.fontSize);
     const radius = getUnitlessPixel(style.borderRadius, DEFAULT_FOLDER_STYLE.radius);
     const borderWidth = getUnitlessPixel(style.borderWidth, DEFAULT_FOLDER_STYLE.borderWidth);
@@ -259,7 +252,6 @@ export function getFolderStyle(instances: GraphInstances, path?: string): CSSFol
             textStyle,
             fontSize,
             align: align as 'left' | 'center' | 'right',
-            decoration: decoration as 'none' | 'underline' | 'line-through',
         },
         radius,
         borderWidth,

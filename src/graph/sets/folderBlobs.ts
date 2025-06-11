@@ -1,7 +1,7 @@
 import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
-import { Container, Graphics, HTMLText, HTMLTextStyle, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex, SettingQuery } from "src/internal";
 
 export class FolderBlob {
@@ -9,8 +9,8 @@ export class FolderBlob {
     folderStyle: CSSFolderStyle;
     nodes: GraphNode[] = [];
     area: Graphics;
-    text: HTMLText;
-    textStyle: HTMLTextStyle;
+    text: Text;
+    textStyle: TextStyle;
     color: string;
     BBox: { left: number, right: number, top: number, bottom: number };
 
@@ -25,33 +25,12 @@ export class FolderBlob {
         this.area.eventMode = 'none';
 
         this.initTextStyle();
-        this.initText(showFullPath);
+        this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
         this.area.addChild(this.text);
     }
 
-    initText(showFullPath: boolean) {
-        let str = showFullPath ? this.path : path.basename(this.path);
-        switch (this.folderStyle.textStyle.decoration) {
-            case 'underline':
-                str = "<u>" + str + "</u>";
-                break;
-            case 'line-through':
-                str = "<s>" + str + "</s>";
-                break;
-            default:
-                break;
-        }
-        if (this.text) {
-            this.text.text = str;
-            this.text.updateText();
-        }
-        else {
-            this.text = new HTMLText(str, this.textStyle);
-        }
-    }
-
     initTextStyle() {
-        this.textStyle = new HTMLTextStyle({
+        this.textStyle = new TextStyle({
             fontSize: this.folderStyle.textStyle.fontSize,
             fill: this.color,
             fontFamily: this.folderStyle.textStyle.textStyle.fontFamily,
@@ -329,7 +308,6 @@ export class FoldersSet {
         for (const blob of this.foldersMap.values()) {
             blob.folderStyle = this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE;
             blob.initTextStyle();
-            blob.initText(PluginInstances.settings.folderShowFullPath);
         }
     }
 
