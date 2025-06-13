@@ -1052,22 +1052,7 @@ svg.shape-svg {
     border-radius: 0;
     box-shadow: none;
     filter: drop-shadow(var(--menu-shadow));
-
-    &.left.top {
-        transform: translate(50%, 50%);
-    }
-
-    &.left.bottom {
-        transform: translate(50%, -50%);
-    }
-
-    &.right.top {
-        transform: translate(-50%, 50%);
-    }
-
-    &.right.bottom {
-        transform: translate(-50%, -50%);
-    }
+    transform: translate(-50%, -50%);
 
     .menu-scroll {
         position: relative;

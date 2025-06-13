@@ -44,9 +44,8 @@ export class RadialMenu extends Menu {
     override showAtPosition(position: MenuPositionDef, doc?: Document): this {
         this.position = position;
         const t = super.showAtPosition(position, doc);
-        const bbox = t.dom.getBoundingClientRect();
-        t.dom.addClass(bbox.left < this.position.x ? "left" : "right");
-        t.dom.addClass(bbox.top < this.position.y ? "top" : "bottom");
+        t.dom.style.left = position.x + "px";
+        t.dom.style.top = position.y + "px";
         return t;
     }
 
@@ -181,7 +180,11 @@ export class RadialMenuManager {
         if (node?.circle) {
             const canvasBound = this.instances.renderer.interactiveEl.getBoundingClientRect();
             const nodePos = node.circle.getGlobalPosition();
-            this.menu.showAtPosition({ x: nodePos.x + canvasBound.left, y: nodePos.y + canvasBound.top });
+            const scale = parseFloat(document.body.style.getPropertyValue("--zoom-factor"));
+            this.menu.showAtPosition({
+                x: (nodePos.x / scale + canvasBound.left),
+                y: (nodePos.y / scale + canvasBound.top)
+            });
             return;
         }
         else if (e) {
