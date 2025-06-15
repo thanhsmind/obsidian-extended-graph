@@ -99,7 +99,7 @@ export default class STRINGS {
 		borderUnresolved: "Border of unresolved nodes",
 		borderUnresolvedDesc: "If between 0 and 1 (excluded), unresolved nodes will only show an outside circle border instead of a full disk",
 		brightness: "Brightness factor",
-		brightnessDesc: "Multiply the brightness of tags, properties, and links by a factor depending on the theme",
+		brightnessDesc: "Multiply the brightness of tags, properties, and links by a factor depending on the theme. Need reloading of the graph if you swap themes while plugin is enabled.",
 		disableNodes: "Disable nodes",
 		disableNodesDesc: "When all arcs are disabled on the node, remove it from the graph",
 		excludeSourceFolders: "Exclude source folders",
