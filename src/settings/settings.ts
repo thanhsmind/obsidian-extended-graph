@@ -57,6 +57,14 @@ export interface ExtendedGraphSettings {
     startingStateID: string;
     openInNewTab: boolean;
 
+    // Color palettes
+    customColorMaps: Record<string, {
+        colors: number[][], // between 0 and 1
+        stops: number[],
+        reverse: boolean,
+        interpolate: boolean,
+    }>;
+
     // Image
     imageProperties: string[];
     borderFactor: number;
@@ -216,6 +224,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     states: [DEFAULT_STATE_SETTINGS],
     startingStateID: DEFAULT_STATE_ID,
     openInNewTab: false,
+
+    // Color palettes
+    customColorMaps: {},
 
     // Images
     imageProperties: ["image"],
@@ -517,6 +528,10 @@ export class SettingQuery {
 
         // Automation
         if (['openInNewTab'].some(key => !equals(key)))
+            return true;
+
+        // Color palettes
+        if (['customColorMaps'].some(key => !equals(key)))
             return true;
 
         return false;

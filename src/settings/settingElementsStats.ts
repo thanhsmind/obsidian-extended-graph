@@ -1,5 +1,19 @@
 import { DropdownComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, GraphAnalysisPlugin, isPropertyKeyValid, LinksStatCalculatorFactory, LinkStatCalculator, LinkStatFunction, linkStatFunctionLabels, linkStatFunctionNeedsGraphAnalysis, linkStatFunctionNeedsNLP, NodeStatCalculatorFactory, NodeStatFunction, nodeStatFunctionLabels, PluginInstances, SettingColorPalette, SettingsSectionPerGraphType } from "src/internal";
+import {
+    ExtendedGraphSettingTab,
+    getCMapData,
+    LinksStatCalculatorFactory,
+    LinkStatFunction,
+    linkStatFunctionLabels,
+    linkStatFunctionNeedsGraphAnalysis,
+    linkStatFunctionNeedsNLP,
+    NodeStatCalculatorFactory,
+    NodeStatFunction,
+    nodeStatFunctionLabels,
+    PluginInstances,
+    SettingColorPalette,
+    SettingsSectionPerGraphType
+} from "src/internal";
 import STRINGS from "src/Strings";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
@@ -8,6 +22,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     warningNodeColorSetting: Setting;
     linksSizeFunctionDropdown: DropdownComponent | undefined;
     linksColorFunctionDropdown: DropdownComponent | undefined;
+    nodesPaletteSetting: SettingColorPalette;
+    linksPaletteSetting: SettingColorPalette;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'elements-stats', '', STRINGS.features.elementsStats, 'chart-pie', STRINGS.features.elementsStatsDesc);
@@ -118,12 +134,12 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private addColorPaletteSettingForNodes(): void {
-        const setting = new SettingColorPalette(this.containerEl, 'stats-colors-nodes')
+        this.nodesPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-nodes')
             .setDesc(STRINGS.features.nodeColorsPaletteDesc);
 
-        setting.setValue(PluginInstances.settings.nodesColorColormap);
+        this.nodesPaletteSetting.setValue(PluginInstances.settings.nodesColorColormap);
 
-        setting.onPaletteChange((palette: string) => {
+        this.nodesPaletteSetting.onPaletteChange((palette: string) => {
             PluginInstances.settings.nodesColorColormap = palette;
             PluginInstances.plugin.saveSettings();
             PluginInstances.graphsManager.nodesColorCalculator?.mapStat();
@@ -131,7 +147,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         });
 
         // Push to body list
-        this.elementsBody.push(setting.settingEl);
+        this.elementsBody.push(this.nodesPaletteSetting.settingEl);
     }
 
     private addLinkSizeFunction(): void {
@@ -191,12 +207,12 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private addColorPaletteSettingForLinks(): void {
-        const setting = new SettingColorPalette(this.containerEl, 'stats-colors-links')
+        this.linksPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-links')
             .setDesc(STRINGS.features.linkColorsPaletteDesc);
 
-        setting.setValue(PluginInstances.settings.linksColorColormap);
+        this.linksPaletteSetting.setValue(PluginInstances.settings.linksColorColormap);
 
-        setting.onPaletteChange((palette: string) => {
+        this.linksPaletteSetting.onPaletteChange((palette: string) => {
             PluginInstances.settings.linksColorColormap = palette;
             PluginInstances.plugin.saveSettings();
             PluginInstances.graphsManager.linksColorCalculator?.mapStat();
@@ -204,10 +220,38 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         });
 
         // Push to body list
-        this.elementsBody.push(setting.settingEl);
+        this.elementsBody.push(this.linksPaletteSetting.settingEl);
     }
 
+    onCustomPaletteModified(oldName: string, newName: string): void {
+        // Check if the colormap is no longer in the settings
+        if (!getCMapData(PluginInstances.settings.nodesColorColormap, PluginInstances.settings)) {
+            // If the old name matches AND the new name is valid, change the name
+            if (PluginInstances.settings.nodesColorColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
+                PluginInstances.settings.nodesColorColormap = newName;
+            }
+            // Otherwise, reset it
+            else {
+                PluginInstances.settings.nodesColorColormap = "rainbow";
+            }
+        }
+        this.nodesPaletteSetting.populateCustomOptions();
+        this.nodesPaletteSetting.setValue(PluginInstances.settings.nodesColorColormap);
 
+        // Check if the colormap is no longer in the settings
+        if (!getCMapData(PluginInstances.settings.linksColorColormap, PluginInstances.settings)) {
+            // If the old name matches AND the new name is valid, change the name
+            if (PluginInstances.settings.linksColorColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
+                PluginInstances.settings.linksColorColormap = newName;
+            }
+            // Otherwise, reset it
+            else {
+                PluginInstances.settings.linksColorColormap = "rainbow";
+            }
+        }
+        this.linksPaletteSetting.populateCustomOptions();
+        this.linksPaletteSetting.setValue(PluginInstances.settings.linksColorColormap);
+    }
 
 
 

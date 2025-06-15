@@ -31,7 +31,7 @@ export class ExcludeFoldersModal extends Modal {
     }
 
     private addFilters() {
-        this.filtersDiv.innerHTML = "";
+        this.filtersDiv.replaceChildren();
         for (const folder of this.folders) {
             this.addFilter(folder);
         }

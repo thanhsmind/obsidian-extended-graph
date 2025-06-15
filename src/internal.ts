@@ -131,6 +131,7 @@ export * from "./ui/graphControl/GCFolders";
 
 export * from "./ui/modals/excludeFoldersModal";
 export * from "./ui/modals/exportSVGOptionsModal";
+export * from "./ui/modals/gradientMakerModal";
 export * from "./ui/modals/gradientPickerModal";
 export * from "./ui/modals/interactivesSelectionModal";
 export * from "./ui/modals/newNameModal";

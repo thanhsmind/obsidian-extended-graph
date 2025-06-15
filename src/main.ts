@@ -109,6 +109,7 @@ export default class ExtendedGraphPlugin extends Plugin {
                 delete data[key];
             }
         }
+
         // Deep load default settings
         this.loadSettingsRec(DEFAULT_SETTINGS, data);
         PluginInstances.settings = data;

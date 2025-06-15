@@ -1,5 +1,6 @@
 export default class STRINGS {
 	static plugin = {
+		custom: "Custom",
 		default: "Default",
 		folder: "Folder",
 		filter: "Filter",
@@ -26,17 +27,20 @@ export default class STRINGS {
 		enabled: "Enabled",
 		enableAll: "Enable all",
 		hideRow: "Hide row",
+		interpolate: "Interpolate",
 		manage: "Manage",
 		moveUp: "Move up",
 		moveDown: "Move down",
 		no: "No",
 		openLegend: "Open legend (tags, links, properties)",
+		override: "Override",
 		page: "Page",
 		pageCurrent: "Current page",
 		pageFirst: "First page",
 		pageLast: "Last page",
 		pathRegexPlaceholder: "Enter path or \"/regex/\"...",
 		resetGraph: "Reset graph",
+		reverse: "Reverse",
 		save: "Save",
 		show: "Show",
 		toggle: "Toggle",
@@ -49,6 +53,7 @@ export default class STRINGS {
 	static errors = {
 		uri401: "Unauthorized URL (Code 401) while trying to get an image for a node. This probably means that the URL is invalid. No image will be loaded and this message can safely be ignored.",
 		issueNeedView: "There was an issue with the plugin " + STRINGS.plugin.name + ". Please close the graph view and open it again.",
+		paletteNameRequired: "You need to choose a name for this color map"
 	}
 
 	static beta = {
@@ -389,7 +394,8 @@ export default class STRINGS {
 
 	static UI = {
 		horizontalLegend: "Horizontal legend",
-		horizontalLegendDesc: "Use a horizontal layout for the legend container (with tags, properties and tags toggle buttons)"
+		horizontalLegendDesc: "Use a horizontal layout for the legend container (with tags, properties and tags toggle buttons)",
+		name: "Name",
 	}
 
 	static {

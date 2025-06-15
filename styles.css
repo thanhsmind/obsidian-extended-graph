@@ -939,6 +939,8 @@ body {
 }
 
 
+/* PALETTES */
+
 .graph-modal-palette-picker {
     .setting-item-heading {
         display: block;
@@ -948,31 +950,96 @@ body {
         border-top: 1px solid var(--background-modifier-border);
     }
 
-    .setting-item-heading>.setting-item-info {
+    .setting-item-heading:not(:last-child)>.setting-item-info {
         margin-bottom: 0.75em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .setting-item-heading>.setting-item-info>.setting-item-name {
+    .setting-item-heading:not(:last-child)>.setting-item-info>.setting-item-name {
         display: flex;
         gap: var(--size-4-2);
     }
 
-    .palette-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, 120px);
-        text-align: center;
-
-        .setting-item {
-            flex-direction: column-reverse;
-            gap: 5px;
-            border: 0;
-            padding: 10px;
-        }
-
-        .setting-item>* {
-            margin: 0;
-        }
+    .setting-item-heading:last-child .setting-item-info {
+        display: flex;
+        align-items: center;
+        gap: var(--size-4-2);
     }
+
+    .setting-item-name {
+        display: contents;
+    }
+}
+
+.graph-modal-palette-maker {
+    .canvas-gradient-maker-container {
+        --swatch-height: 100%;
+        position: relative;
+        height: 80px;
+        padding-block: 3px;
+    }
+
+    canvas {
+        height: 100%;
+        width: 100%;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+
+    input[type="color"] {
+        position: absolute;
+        display: inline;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--handle-position) * 100%);
+        transform: translateX(-50%);
+        width: 15px;
+        height: 100%;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+        border: 2px solid var(--background-secondary);
+    }
+
+    .error {
+        color: var(--color-red);
+    }
+}
+
+.palette-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 120px);
+    text-align: center;
+
+    .setting-item {
+        flex-direction: column-reverse;
+        gap: 5px;
+        border: 0;
+        padding: 10px;
+    }
+
+    .setting-item>* {
+        margin: 0;
+    }
+}
+
+.custom-palette {
+    .setting-item-info {
+        display: flex;
+        align-self: stretch;
+    }
+
+    :nth-child(1 of .clickable-icon) {
+        margin-left: auto;
+    }
+}
+
+.palette-canvas.reversed {
+    scale: -1 1;
 }
 
 @media (hover: hover) {

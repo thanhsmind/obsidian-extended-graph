@@ -1,10 +1,6 @@
 import { HexString } from 'obsidian';
-import * as cm from './colormaps';
-import { evaluate_cmap } from './colormaps';
-
-export function getColor(palette: string, x: number): Uint8Array {
-    return new Uint8Array(cm.evaluate_cmap(x, palette, false));
-}
+import { evaluateCMap, getSortedColorAndStopPoints, getCMapData, sampleColor } from './colormaps';
+import { ExtendedGraphSettings } from 'src/internal';
 
 export function rgb2int(rgb: Uint8Array): number {
     return rgb[0] * (256 * 256) + rgb[1] * 256 + rgb[2];
@@ -76,17 +72,73 @@ export function rgb2hex(rgb: Uint8Array): string {
     return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
 }
 
-export function plot_colormap(canvas: HTMLCanvasElement, name: string, reverse: boolean) {
+export function plotColorMapFromName(canvas: HTMLCanvasElement, name: string, settings: ExtendedGraphSettings) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    let data = getCMapData(name, settings);
+    if (!data) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    plotColorMap(canvas, data.reverse, data.interpolate, data.colors, data.stops);
+}
+
+/**
+ * 
+ * @param canvas 
+ * @param reverse 
+ * @param interpolate 
+ * @param colors - Between 0 and 1
+ * @param stops 
+ * @returns 
+ */
+export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interpolate: boolean, colors: number[][], stops?: number[]) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const { colors: sortedColors, stops: sortedStops } = getSortedColorAndStopPoints(colors, stops);
+
+    /*
+    // Display the values from the sampling algorithm rather than the canvas methods
     for (let x = 0; x <= 256; x++) {
-        const color = evaluate_cmap(x / 256, name, reverse);
+        const color = sampleColor(x / 256, interpolate, sortedColors, sortedStops, reverse);
         const r = color[0];
         const g = color[1];
         const b = color[2];
         ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
         ctx.fillRect(x * canvas.width / 256, 0, canvas.width / 256, canvas.height);
     }
+    return;
+    */
+
+    if (interpolate) {
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        for (let i = 0; i < sortedColors.length; ++i) {
+            const stop = sortedStops[i];
+            const r = Math.round(sortedColors[i][0] * 255);
+            const g = Math.round(sortedColors[i][1] * 255);
+            const b = Math.round(sortedColors[i][2] * 255);
+            gradient.addColorStop(stop, `rgb(${r} ${g} ${b})`);
+        }
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    else {
+        for (let i = 0; i < sortedColors.length; ++i) {
+            const stopPrevious = i === 0 ? 0 : sortedStops[i];
+            const stopNext = i === sortedColors.length - 1 ? 1 : sortedStops[Math.min(i + 1, sortedStops.length - 1)];
+            const r = Math.round(sortedColors[i][0] * 255);
+            const g = Math.round(sortedColors[i][1] * 255);
+            const b = Math.round(sortedColors[i][2] * 255);
+            ctx.fillStyle = `rgb(${r} ${g} ${b})`;
+            ctx.fillRect(stopPrevious * canvas.width, 0, stopNext * canvas.width, canvas.height);
+        }
+    }
+
+    canvas.addClass("palette-canvas");
+    canvas.toggleClass("reversed", reverse);
 }
 
 export function randomColor(): HexString {

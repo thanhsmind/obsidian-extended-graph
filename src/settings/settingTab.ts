@@ -29,20 +29,37 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     originalSettings: ExtendedGraphSettings;
     showResetModalToggle: ToggleComponent;
 
+    settingsWithPalettes: { onCustomPaletteModified: (oldName: string, newName: string) => void }[] = [];
+
     constructor(plugin: ExtendedGraphPlugin) {
         super(PluginInstances.app, plugin);
 
+        // We need to store those ones localy in order to interact with them
+        // when a custom color palette is created/edited/deleted
+        const settingsTags = new SettingTags(this);
+        const settingsProperties = new SettingPropertiesArray(this);
+        const settingLinks = new SettingLinks(this);
+        const settingFolders = new SettingFolders(this);
+        const settingElementsStats = new SettingElementsStats(this);
+        this.settingsWithPalettes.push(
+            settingsTags,
+            settingsProperties,
+            settingLinks,
+            settingFolders,
+            settingElementsStats
+        )
+
         this.sections.push(new SettingAutomation(this));
-        this.sections.push(new SettingTags(this));
-        this.sections.push(new SettingPropertiesArray(this));
-        this.sections.push(new SettingLinks(this));
+        this.sections.push(settingsTags);
+        this.sections.push(settingsProperties);
+        this.sections.push(settingLinks);
         this.sections.push(new SettingArrows(this));
-        this.sections.push(new SettingFolders(this));
+        this.sections.push(settingFolders);
         this.sections.push(new SettingImages(this));
         this.sections.push(new SettingIcons(this));
         this.sections.push(new SettingFocus(this));
         this.sections.push(new SettingShapes(this));
-        this.sections.push(new SettingElementsStats(this));
+        this.sections.push(settingElementsStats);
         this.sections.push(new SettingNames(this));
         this.sections.push(new SettingZoom(this));
         this.sections.push(new SettingDisplay(this));
@@ -50,7 +67,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingBeta(this));
     }
 
-    display(): void {
+    override display(): void {
         this.originalSettings = structuredClone(PluginInstances.settings);
         this.containerEl.empty();
         this.containerEl.addClass("extended-graph-settings");
@@ -84,7 +101,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             });
     }
 
-    hide(): void {
+    override hide(): void {
         if (PluginInstances.graphsManager && PluginInstances.settings.resetAfterChanges) {
             if (SettingQuery.needReload(this.originalSettings, 'graph')) {
                 PluginInstances.graphsManager.resetAllPlugins('graph');
@@ -96,4 +113,10 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         super.hide();
     }
 
+    onCustomPaletteModified(oldName: string, newName: string): void {
+        for (const setting of this.settingsWithPalettes) {
+            setting.onCustomPaletteModified(oldName, newName);
+        }
+        PluginInstances.plugin.saveSettings();
+    }
 }

@@ -3,10 +3,12 @@ import {
     ExtendedGraphSettingTab,
     Feature,
     FOLDER_KEY,
+    getCMapData,
     getFileInteractives,
     InteractivesColorSuggester,
     InteractivesSelectionModal,
     LINK_KEY,
+    plotColorMapFromName,
     PluginInstances,
     randomColor,
     SettingColorPalette,
@@ -23,7 +25,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     settingInteractiveColor: Setting;
     settingInteractiveFilter: Setting;
     selectionContainer: HTMLElement;
-    canvasPalette: HTMLCanvasElement;
+    settingColorPalette: SettingColorPalette;
     colors: SettingColor[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, title: string, icon: string, description: string) {
@@ -61,19 +63,21 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     }
 
     protected addColorPaletteSetting(): void {
-        const setting = new SettingColorPalette(this.containerEl, this.interactiveKey)
+        this.settingColorPalette = new SettingColorPalette(this.containerEl, this.settingTab, this.interactiveKey)
             .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
 
-        setting.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
+        this.settingColorPalette.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
 
-        setting.onPaletteChange((palette: string) => {
+        this.settingColorPalette.onPaletteChange((palette: string) => {
+            const oldName = PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap;
             PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = palette;
             PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
             PluginInstances.plugin.saveSettings();
+            this.settingTab.onCustomPaletteModified(oldName, palette);
         });
 
         // Push to body list
-        this.elementsBody.push(setting.settingEl);
+        this.elementsBody.push(this.settingColorPalette.settingEl);
     }
 
     protected addSpecificColorHeaderSetting(): void {
@@ -120,6 +124,22 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         let previous = this.colors.last() ?? this.settingInteractiveColor;
         this.containerEl.insertAfter(setting.settingEl, previous.settingEl);
         this.colors.push(setting);
+    }
+
+    onCustomPaletteModified(oldName: string, newName: string): void {
+        // Check if the colormap is no longer in the settings
+        if (!getCMapData(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap, PluginInstances.settings)) {
+            // If the old name matches AND the new name is valid, change the name
+            if (PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap === oldName && getCMapData(newName, PluginInstances.settings)) {
+                PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = newName;
+            }
+            // Otherwise, reset it
+            else {
+                PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = "rainbow";
+            }
+        }
+        this.settingColorPalette.populateCustomOptions();
+        this.settingColorPalette.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
     }
 
     protected abstract isValueValid(name: string): boolean;

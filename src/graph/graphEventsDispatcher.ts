@@ -12,6 +12,7 @@ import {
     getLinkID,
     getNodeTextStyle,
     getOutlinkTypes,
+    GradientMakerModal,
     Graph,
     GraphInstances,
     LegendUI,

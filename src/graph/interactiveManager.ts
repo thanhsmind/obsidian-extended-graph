@@ -1,6 +1,6 @@
 
 import { Component } from "obsidian";
-import { getColor, GraphInstances, GraphStateDataQuery, hex2rgb, int2rgb, INVALID_KEYS, LINK_KEY, NONE_COLOR, PluginInstances, SettingQuery } from "src/internal";
+import { evaluateCMap, GraphInstances, GraphStateDataQuery, hex2rgb, int2rgb, LINK_KEY, NONE_COLOR, SettingQuery } from "src/internal";
 
 class Interactive {
     type: string;
@@ -177,7 +177,7 @@ export class InteractiveManager extends Component {
     }
 
     private computeColorFromIndex(index: number, nColors: number) {
-        const x = index / nColors;
-        return getColor(this.instances.settings.interactiveSettings[this.name].colormap, x);
+        const x = index / (nColors - 1);
+        return evaluateCMap(x, this.instances.settings.interactiveSettings[this.name].colormap, this.instances.settings)
     }
 }

@@ -102,6 +102,12 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     protected override onExpand(): void {
         this.addButton?.buttonEl.show();
     }
+
+    onCustomPaletteModified(oldName: string, newName: string): void {
+        for (const setting of this.settingInteractives) {
+            setting.onCustomPaletteModified(oldName, newName);
+        }
+    }
 }
 
 export class SettingProperty extends SettingInteractives {

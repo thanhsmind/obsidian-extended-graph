@@ -984,7 +984,7 @@ export class GraphsManager extends Component {
 
     updateStatusBarItem(leaf: WorkspaceLeaf | null, numberOfNodes?: number) {
         // Change the number of nodes in the status bar
-        this.statusBarItem.innerHTML = "";
+        this.statusBarItem.replaceChildren();
         this.statusBarItem.removeClass("mod-clickable");
         if (leaf && (leaf.view.getViewType() === "graph" || leaf.view.getViewType() === "localgraph")) {
             if (numberOfNodes === undefined) numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
