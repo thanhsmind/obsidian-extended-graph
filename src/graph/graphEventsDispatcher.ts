@@ -586,10 +586,10 @@ export class GraphEventsDispatcher extends Component {
                 if (file) {
                     for (const [key, manager] of this.instances.nodesSet.managers) {
                         const interactives = getFileInteractives(key, file);
-                        if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
-                            nodesToRemove.push(id);
+                        if (interactives.size === 0) {
+                            interactives.add(this.instances.settings.interactiveSettings[key].noneType);
                         }
-                        if (interactives.size === 0 && !manager.isActive(this.instances.settings.interactiveSettings[key].noneType)) {
+                        if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
                             nodesToRemove.push(id);
                         }
                     }
@@ -598,7 +598,7 @@ export class GraphEventsDispatcher extends Component {
                 // Remove tag nodes
                 else if (node.type === 'tag' && this.instances.settings.enableFeatures[this.instances.type]['tags']) {
                     const manager = this.instances.interactiveManagers.get(TAG_KEY);
-                    if (manager && !manager.isActive(id.replace('#', ''))) {
+                    if (manager && !manager.isActiveBasedOnTypes([id.replace('#', '')])) {
                         nodesToRemove.push(id);
                     }
                 }
@@ -683,7 +683,7 @@ export class GraphEventsDispatcher extends Component {
                         }
                     }
 
-                    if (!manager.isActive(this.instances.settings.interactiveSettings[manager.name].noneType)) {
+                    if (!manager.isActiveBasedOnTypes([this.instances.settings.interactiveSettings[manager.name].noneType])) {
                         // @ts-ignore
                         const noneTargets = Object.keys(node.links).filter(target => !validTypedLinks.has(target));
                         for (const target of noneTargets) {

@@ -63,9 +63,9 @@ export class GraphStateData {
         this.toggleTypes[FOLDER_KEY] = [];
 
         this.logicTypes = {};
-        this.logicTypes[TAG_KEY] = "AND";
-        this.logicTypes[LINK_KEY] = "AND";
-        this.logicTypes[FOLDER_KEY] = "AND";
+        this.logicTypes[TAG_KEY] = "OR";
+        this.logicTypes[LINK_KEY] = "OR";
+        this.logicTypes[FOLDER_KEY] = "OR";
 
         this.pinNodes = {};
         this.hiddenLegendRows = [];
@@ -78,6 +78,6 @@ export class GraphStateData {
 export class GraphStateDataQuery {
     static getLogicType(instances: GraphInstances, key: string): CombinationLogic {
         return (instances.stateData && instances.stateData.logicTypes && instances.stateData.logicTypes[key])
-            ? instances.stateData.logicTypes[key] : "AND";
+            ? instances.stateData.logicTypes[key] : "OR";
     }
 }

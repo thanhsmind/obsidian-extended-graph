@@ -87,15 +87,15 @@ export class GraphState {
             hasChanged = true;
         }
         if (!this.data.logicTypes[TAG_KEY]) {
-            this.data.logicTypes[TAG_KEY] = "AND";
+            this.data.logicTypes[TAG_KEY] = "OR";
             hasChanged = true;
         }
         if (!this.data.logicTypes[LINK_KEY]) {
-            this.data.logicTypes[LINK_KEY] = "AND";
+            this.data.logicTypes[LINK_KEY] = "OR";
             hasChanged = true;
         }
         if (!this.data.logicTypes[FOLDER_KEY]) {
-            this.data.logicTypes[FOLDER_KEY] = "AND";
+            this.data.logicTypes[FOLDER_KEY] = "OR";
             hasChanged = true;
         }
 

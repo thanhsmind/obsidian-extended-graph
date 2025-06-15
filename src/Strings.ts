@@ -313,9 +313,9 @@ export default class STRINGS {
 
 	static query = {
 		AND: "AND",
-		ANDFilterDesc: "Keep visible when all values are active",
+		ANDFilterDesc: "Keep nodes with all selected values",
 		OR: "OR",
-		ORFilterDesc: "Keep visible when at least one value is active",
+		ORFilterDesc: "Keep nodes with at least one of the selected values",
 		combinationLogic: "Combination logic",
 		editShapeQuery: "Edit shape query",
 		excludeRegex: "Exclude regex",
