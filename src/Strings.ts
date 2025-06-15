@@ -1,11 +1,13 @@
 export default class STRINGS {
 	static plugin = {
 		custom: "Custom",
+		dark: "Dark",
 		default: "Default",
 		folder: "Folder",
 		filter: "Filter",
 		nodeName: "Node name",
 		info: "Info",
+		light: "Light",
 		name: "Extended graph",
 		nodes: "Nodes",
 		options: "Options",
@@ -96,6 +98,8 @@ export default class STRINGS {
 		autoResetDesc: "Reset the plugin in the graph views where it is enabled, if settings have changed after closing this tab",
 		borderUnresolved: "Border of unresolved nodes",
 		borderUnresolvedDesc: "If between 0 and 1 (excluded), unresolved nodes will only show an outside circle border instead of a full disk",
+		brightness: "Brightness factor",
+		brightnessDesc: "Multiply the brightness of tags, properties, and links by a factor depending on the theme",
 		disableNodes: "Disable nodes",
 		disableNodesDesc: "When all arcs are disabled on the node, remove it from the graph",
 		excludeSourceFolders: "Exclude source folders",

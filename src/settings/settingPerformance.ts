@@ -17,15 +17,17 @@ export class SettingPerformance extends SettingsSection {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.performanceDelay)
             .setDesc(STRINGS.features.performanceDelayDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.delay.toString())
-                .onChange(async (value) => {
-                    const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.delay = intValue;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                }));
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.delay.toString())
+                    .onChange(async (value) => {
+                        const intValue = parseInt(value);
+                        if (!isNaN(intValue)) {
+                            PluginInstances.settings.delay = intValue;
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                    })
+            });
 
         this.elementsBody.push(setting.settingEl);
     }
@@ -34,15 +36,17 @@ export class SettingPerformance extends SettingsSection {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.performanceMaxNodes)
             .setDesc(STRINGS.features.performanceMaxNodesDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.maxNodes.toString())
-                .onChange(async (value) => {
-                    const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.maxNodes = intValue;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                }));
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.maxNodes.toString())
+                    .onChange(async (value) => {
+                        const intValue = parseInt(value);
+                        if (!isNaN(intValue)) {
+                            PluginInstances.settings.maxNodes = intValue;
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                    })
+            });
 
         this.elementsBody.push(setting.settingEl);
     }

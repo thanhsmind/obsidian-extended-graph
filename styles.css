@@ -585,21 +585,6 @@ body {
 
 /* SETTINGS */
 
-.is-phone .extended-graph-settings .settings-colors-container {
-    input[type="color"] {
-        width: calc(var(--swatch-width) + 4px);
-        height: 100%;
-    }
-
-    button {
-        width: fit-content;
-    }
-
-    .preview {
-        display: none;
-    }
-}
-
 .extended-graph-settings {
 
     textarea {
@@ -811,6 +796,10 @@ body {
             color: var(--text-muted);
             font-size: var(--font-ui-smaller);
         }
+    }
+
+    input.number {
+        max-width: 5em;
     }
 }
 

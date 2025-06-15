@@ -13,6 +13,7 @@ export class SettingDisplay extends SettingsSection {
         this.addLinkSameColorAsNodes();
         this.addSpreadArcs();
         this.addWeightArcs();
+        this.addBrightness();
         this.addAnimateDotsOnLinks();
         this.addAnimationSpeedForDot();
         this.addHorizontalLegend();
@@ -23,19 +24,21 @@ export class SettingDisplay extends SettingsSection {
         this.elementsBody.push(new Setting(this.containerEl)
             .setName(STRINGS.features.borderUnresolved)
             .setDesc(STRINGS.features.borderUnresolvedDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.borderUnresolved.toString())
-                .onChange(async (value) => {
-                    if (value === '') {
-                        PluginInstances.settings.borderUnresolved = '';
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                    const intValue = parseFloat(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.borderUnresolved = Math.clamp(intValue, 0, 1);
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                })).settingEl);
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.borderUnresolved.toString())
+                    .onChange(async (value) => {
+                        if (value === '') {
+                            PluginInstances.settings.borderUnresolved = '';
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                        const floatValue = parseFloat(value);
+                        if (!isNaN(floatValue)) {
+                            PluginInstances.settings.borderUnresolved = Math.clamp(floatValue, 0, 1);
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                    })
+            }).settingEl);
     }
 
     private addLinkSameColorAsNodes() {
@@ -73,6 +76,45 @@ export class SettingDisplay extends SettingsSection {
             }).settingEl);
     }
 
+    private addBrightness() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(STRINGS.features.brightness)
+            .setDesc(STRINGS.features.brightnessDesc)
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.plugin.light);
+                cb.setValue(PluginInstances.settings.interactivesBrightness.light.toString());
+                cb.onChange(value => {
+                    if (value === '') {
+                        PluginInstances.settings.interactivesBrightness.light = 1;
+                        PluginInstances.plugin.saveSettings();
+                    }
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.interactivesBrightness.light = Math.max(floatValue, 0);
+                        PluginInstances.plugin.saveSettings();
+                    }
+                })
+            })
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.plugin.dark);
+                cb.setValue(PluginInstances.settings.interactivesBrightness.dark.toString());
+                cb.onChange(value => {
+                    if (value === '') {
+                        PluginInstances.settings.interactivesBrightness.dark = 1;
+                        PluginInstances.plugin.saveSettings();
+                    }
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.interactivesBrightness.dark = Math.max(floatValue, 0);
+                        PluginInstances.plugin.saveSettings();
+                    }
+                })
+            })
+            .settingEl);
+    }
+
     private addAnimateDotsOnLinks() {
         this.elementsBody.push(new Setting(this.containerEl)
             .setName(STRINGS.features.animateDotsOnLinks)
@@ -91,15 +133,17 @@ export class SettingDisplay extends SettingsSection {
         this.elementsBody.push(new Setting(this.containerEl)
             .setName(STRINGS.features.animateDotsOnLinksSpeed)
             .setDesc(STRINGS.features.animateDotsOnLinksSpeedDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.animationSpeedForDots.toString())
-                .onChange(async (value) => {
-                    const floatValue = parseFloat(value);
-                    if (!isNaN(floatValue) && floatValue > 0) {
-                        PluginInstances.settings.animationSpeedForDots = floatValue;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                })).settingEl);
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.animationSpeedForDots.toString())
+                    .onChange(async (value) => {
+                        const floatValue = parseFloat(value);
+                        if (!isNaN(floatValue) && floatValue > 0) {
+                            PluginInstances.settings.animationSpeedForDots = floatValue;
+                            await PluginInstances.plugin.saveSettings();
+                        }
+                    })
+            }).settingEl);
     }
 
     private addHorizontalLegend() {

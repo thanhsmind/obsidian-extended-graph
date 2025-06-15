@@ -471,9 +471,9 @@ export function sampleColor(x: number, interpolate: boolean, colors: number[][],
     }
 
     if (interpolate === true) {
-        return interpolated(x, colors, stops);
+        return adaptBrightness(interpolated(x, colors, stops));
     } else {
-        return qualitative(x, colors, stops);
+        return adaptBrightness(qualitative(x, colors, stops));
     }
 }
 
@@ -567,4 +567,13 @@ function qualitative(x: number, colors: number[][], stops: number[]): Uint8Array
     const g = Math.round(colors[idx][1] * 255);
     const b = Math.round(colors[idx][2] * 255);
     return new Uint8Array([r, g, b]);
+}
+
+function adaptBrightness(rgb: Uint8Array): Uint8Array {
+    const factor = PluginInstances.settings.interactivesBrightness[PluginInstances.app.vault.getConfig('theme') === "moonstone" ? "light" : "dark"];
+    return new Uint8Array([
+        Math.clamp(rgb[0] * factor, 0, 255),
+        Math.clamp(rgb[1] * factor, 0, 255),
+        Math.clamp(rgb[2] * factor, 0, 255),
+    ])
 }

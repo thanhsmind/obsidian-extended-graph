@@ -25,18 +25,20 @@ export class SettingNames extends SettingsSectionPerGraphType {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
             .setName(STRINGS.features.namesNumberOfCharacters)
             .setDesc(STRINGS.features.namesNumberOfCharactersDesc)
-            .addText(cb => cb
-                .setValue(PluginInstances.settings.numberOfCharacters?.toString() || '')
-                .onChange(async (value) => {
-                    const intValue = parseInt(value);
-                    if (!isNaN(intValue)) {
-                        PluginInstances.settings.numberOfCharacters = intValue;
-                    }
-                    else {
-                        PluginInstances.settings.numberOfCharacters = null;
-                    }
-                    await PluginInstances.plugin.saveSettings();
-                })).settingEl);
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.numberOfCharacters?.toString() || '')
+                    .onChange(async (value) => {
+                        const intValue = parseInt(value);
+                        if (!isNaN(intValue)) {
+                            PluginInstances.settings.numberOfCharacters = intValue;
+                        }
+                        else {
+                            PluginInstances.settings.numberOfCharacters = null;
+                        }
+                        await PluginInstances.plugin.saveSettings();
+                    })
+            }).settingEl);
     }
 
     private addOnlyFilename() {
@@ -115,6 +117,7 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(STRINGS.features.namesVerticalOffset)
             .setDesc(STRINGS.features.namesVerticalOffsetDesc)
             .addText(cb => {
+                cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.nameVerticalOffset.toString());
                 cb.onChange(value => {
                     const intValue = parseInt(value);

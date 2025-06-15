@@ -48,7 +48,7 @@ export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
         return result;
     }
     else {
-        if (PluginInstances.app.vault.getConfig('theme') === "moonstone ") {
+        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
             return new Uint8Array([255, 255, 255]);
         }
         else {
@@ -64,7 +64,7 @@ export function getPrimaryColor(renderer: GraphRenderer): Uint8Array {
         return result;
     }
     else {
-        if (PluginInstances.app.vault.getConfig('theme') === "moonstone ") {
+        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
             return new Uint8Array([255, 255, 255]);
         }
         else {

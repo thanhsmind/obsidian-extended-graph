@@ -68,6 +68,7 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setName(STRINGS.features.arrowsScale)
             .setDesc(STRINGS.features.arrowsScaleDesc)
             .addText(cb => {
+                cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.arrowScale.toString())
                     .onChange(async (value) => {
                         if (value === '') {

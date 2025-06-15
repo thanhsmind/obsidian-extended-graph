@@ -19,15 +19,17 @@ export class SettingFocus extends SettingsSectionPerGraphType {
             new Setting(this.settingTab.containerEl)
                 .setName(STRINGS.features.focusScale)
                 .setDesc(STRINGS.features.focusScaleDesc)
-                .addText(cb => cb
-                    .setValue(PluginInstances.settings.focusScaleFactor.toString())
-                    .onChange(async (value) => {
-                        const n = parseFloat(value);
-                        if (n) {
-                            PluginInstances.settings.focusScaleFactor = n;
-                            await PluginInstances.plugin.saveSettings();
-                        }
-                    })).settingEl
+                .addText(cb => {
+                    cb.inputEl.addClass("number");
+                    cb.setValue(PluginInstances.settings.focusScaleFactor.toString())
+                        .onChange(async (value) => {
+                            const n = parseFloat(value);
+                            if (n) {
+                                PluginInstances.settings.focusScaleFactor = n;
+                                await PluginInstances.plugin.saveSettings();
+                            }
+                        })
+                }).settingEl
         );
     }
 }
