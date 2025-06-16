@@ -200,11 +200,14 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         for (const [id, extendedElement] of this.extendedElementsMap) {
             // If the elment does not have this type, skip
             const elementTypes = extendedElement.getTypes(key);
-            if (!elementTypes.has(type)) {
-                continue;
+            if (elementTypes.has(type)) {
+                extendedElement.disableType(key, type);
             }
 
-            extendedElement.disableType(key, type);
+            if (extendedElement.isAnyManagerDisabled()) {
+                extendedElement.disable();
+            }
+
 
             if (extendedElement.isAnyManagerDisabled()) {
                 elementsToDisable.push(id);
@@ -218,11 +221,13 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         for (const [id, extendedElement] of this.extendedElementsMap) {
             // If the elment does not have this type, skip
             const elementTypes = extendedElement.getTypes(key);
-            if (!elementTypes.has(type)) {
-                continue;
+            if (elementTypes.has(type)) {
+                extendedElement.enableType(key, type);
             }
 
-            extendedElement.enableType(key, type);
+            if (extendedElement.isAnyManagerDisabled()) {
+                extendedElement.disable();
+            }
 
             if (!extendedElement.isAnyManagerDisabled()) {
                 elementsToEnable.push(id);
