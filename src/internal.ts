@@ -35,6 +35,7 @@ export * from "./graph/graphicElements/links/curveMultiTypes";
 export * from "./graph/graphicElements/links/curveLinkGraphicsWrapper";
 export * from "./graph/graphicElements/links/lineMultiTypes";
 export * from "./graph/graphicElements/links/lineLinkGraphicsWrapper";
+export * from "./graph/graphicElements/links/linkText";
 export * from "./graph/graphicElements/nodes/nodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/attachmentNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/fileNodeGraphicsWrapper";

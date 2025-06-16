@@ -73,10 +73,11 @@ export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
 
     connect(): void {
         const hanger = this.extendedElement.coreElement.renderer.hanger;
-        if (!hanger.getChildByName(this.pixiElement.name)) {
+        if (!hanger.getChildByName(this.pixiElement.name) && this.extendedElement.coreElement.px) {
             this.pixiElement.extendedLink = this.extendedElement;
             if (this.extendedElement.coreElement.arrow) this.extendedElement.coreElement.arrow.renderable = false;
-            hanger.addChild(this.pixiElement);
+            const index = hanger.getChildIndex(this.extendedElement.coreElement.px);
+            hanger.addChildAt(this.pixiElement, index);
         }
     }
 

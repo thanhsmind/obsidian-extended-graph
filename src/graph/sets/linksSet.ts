@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
-import { AbstractSet, ExtendedGraphLink, getFile, getLinkID, getOutlinkTypes, GraphInstances, InteractiveManager } from "src/internal";
+import { AbstractSet, ExtendedGraphLink, getBackgroundColor, getFile, getLinkID, getOutlinkTypes, GraphInstances, InteractiveManager } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
     extendedElementsMap: Map<string, ExtendedGraphLink>;
@@ -51,6 +51,14 @@ export class LinksSet extends AbstractSet<GraphLink> {
         return getFile(link.source.id);
     }
 
-    // ============================ TOGGLE ELEMENTS ============================
+
+    // ================================== CSS ==================================
+
+    onCSSChange(): void {
+        const color = getBackgroundColor(this.instances.renderer);
+        this.extendedElementsMap.forEach(extendedLink => {
+            extendedLink.text?.updateTextBackgroundColor(color);
+        });
+    }
 
 }

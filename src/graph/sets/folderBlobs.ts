@@ -31,7 +31,7 @@ export class FolderBlob {
 
     initTextStyle() {
         this.textStyle = new TextStyle({
-            fontSize: this.folderStyle.textStyle.fontSize,
+            fontSize: this.folderStyle.textStyle.textStyle.fontSize,
             fill: this.color,
             fontFamily: this.folderStyle.textStyle.textStyle.fontFamily,
             fontStyle: this.folderStyle.textStyle.textStyle.fontStyle,
@@ -119,7 +119,7 @@ export class FolderBlob {
 
     private placeText(scale: number) {
         const t = Math.min(scale, 5);
-        this.text.style.fontSize = this.folderStyle.textStyle.fontSize * t;
+        this.text.style.fontSize = this.folderStyle.textStyle.textStyle.fontSize * t;
         this.text.style.letterSpacing = this.folderStyle.textStyle.textStyle.letterSpacing * t;
         switch (this.folderStyle.textStyle.align) {
             case 'center':

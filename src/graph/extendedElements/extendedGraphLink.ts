@@ -1,16 +1,18 @@
 import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
-import { Container } from "pixi.js";
+import { Container, Text } from "pixi.js";
 import {
     AnimatedDotOnCurve,
     AnimatedDotOnLine,
     CurveLinkGraphicsWrapper,
     ExtendedGraphArrow,
     ExtendedGraphElement,
+    getNodeTextStyle,
     getPrimaryColor,
     LineLinkGraphicsWrapper,
     LINK_KEY,
     LinkCurveGraphics,
+    LinkText,
     PluginInstances,
     rgb2int,
     SettingQuery
@@ -35,12 +37,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
 
-    // ======================== MODIFYING CORE ELEMENT =========================
+    // ================================ LOADING ================================
 
     override init(): void {
         this.findSiblingLink();
         super.init();
         this.extendedArrow?.init();
+        this.displayText();
     }
 
     private findSiblingLink(): void {
@@ -65,6 +68,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
         this.removeContainer();
+    }
+
+    // =============================== UNLOADING ===============================
+
+    override unload(): void {
+        super.unload();
+        this.removeText();
     }
 
     // =============================== GRAPHICS ================================
@@ -372,6 +382,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (this.isAnyManagerDisabled()) {
             this.disable();
         }
+        else {
+            this.updateDisplayedText();
+        }
+    }
+
+    override enableType(key: string, type: string): void {
+        super.enableType(key, type);
+        this.updateDisplayedText();
     }
 
     override disable(): void {
@@ -380,6 +398,44 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (this.instances.settings.curvedLinks) {
             this.graphicsWrapper?.disconnect();
         }
+    }
+
+
+
+    text?: LinkText;
+    private displayText() {
+        if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
+        const type = this.getActiveType(LINK_KEY);
+        if (!type || type === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
+        if (this.text) {
+            this.text.setDisplayedText(type);
+        }
+        else {
+            this.text = new LinkText(type, this);
+        }
+        this.updateTextColor();
+        this.text.connect();
+        this.text.place();
+    }
+
+    private updateDisplayedText() {
+        if (!this.text) return;
+        const activeType = this.getActiveType(LINK_KEY);
+        if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
+        this.text.setDisplayedText(activeType);
+        this.updateTextColor();
+    }
+
+    private updateTextColor() {
+        if (!this.instances.settings.colorLinkTypeLabel || !this.text) return;
+        // @ts-ignore
+        this.text.text.style.fill = this.getStrokeColor() ?? this.coreElement.renderer.colors.text.rgb;
+    }
+
+    private removeText() {
+        this.text?.removeFromParent();
+        this.text?.destroy();
+        this.text = undefined;
     }
 }
 

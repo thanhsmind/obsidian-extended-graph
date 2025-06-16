@@ -72,6 +72,7 @@ export class ExtendedGraphText {
                 coreStyle.fontVariant = customStyle.fontVariant;
                 coreStyle.fontWeight = customStyle.fontWeight;
                 coreStyle.letterSpacing = customStyle.letterSpacing;
+                coreStyle.fontSize = customStyle.fontSize + this.coreElement.getSize() / 4;
                 if (customStyle.fill) {
                     coreStyle.fill = customStyle.fill;
                 }

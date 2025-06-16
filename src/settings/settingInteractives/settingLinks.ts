@@ -102,6 +102,28 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.interactives.displayLinkTypeLabel)
+            .setDesc(STRINGS.features.interactives.displayLinkTypeLabelDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.displayLinkTypeLabel);
+                cb.onChange(value => {
+                    PluginInstances.settings.displayLinkTypeLabel = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.interactives.colorLinkTypeLabel)
+            .setDesc(STRINGS.features.interactives.colorLinkTypeLabelDesc)
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.colorLinkTypeLabel);
+                cb.onChange(value => {
+                    PluginInstances.settings.colorLinkTypeLabel = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addCurvedLinks() {

@@ -119,6 +119,8 @@ export interface ExtendedGraphSettings {
     excludedTargetsFolder: string[];
     curvedLinks: boolean;
     outlineLinks: boolean;
+    displayLinkTypeLabel: boolean;
+    colorLinkTypeLabel: boolean;
 
     // Folders
     folderShowFullPath: boolean;
@@ -294,6 +296,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     excludedTargetsFolder: [],
     curvedLinks: false,
     outlineLinks: false,
+    displayLinkTypeLabel: false,
+    colorLinkTypeLabel: false,
 
     // Folders
     folderShowFullPath: true,
@@ -454,10 +458,10 @@ export class SettingQuery {
         // Links
         if (newFeatures['links']) {
             if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks',
-                'disableSource', 'disableTarget', 'outlineLinks'].some(key => !equals(key)))
+                'disableSource', 'disableTarget', 'outlineLinks', 'displayLinkTypeLabel',
+                'colorLinkTypeLabel'].some(key => !equals(key)))
                 return true;
         }
-
 
         // Image settings
         const imageFeatures: Feature[] = ['imagesForAttachments', 'imagesFromEmbeds', 'imagesFromProperty'];

@@ -526,14 +526,17 @@ export class GraphEventsDispatcher extends Component {
                     extendedLink.setCoreElement(l);
                 }
             }
+            // We can add the link only if the line AND the arrow (if needed) have been added
             const canAdd = (l: GraphLink) => {
                 return l.line && (!this.instances.renderer.fShowArrow || !!l.arrow);
             }
             if (canAdd(link)) {
                 add(link);
             }
-            else {
+            else if (link.px === child) {
+                // Check if "line" is added to the px
                 child.on('childAdded', (child2: DisplayObject, container2: Container<DisplayObject>, index2: number) => {
+                    if (child2 instanceof Text) return;
                     if (canAdd(link)) {
                         add(link);
                     }
@@ -818,7 +821,10 @@ export class GraphEventsDispatcher extends Component {
             )
         ) {
             for (const id of this.instances.linksSet.connectedIDs) {
-                this.instances.linksSet.extendedElementsMap.get(id)?.graphicsWrapper?.pixiElement.updateFrame();
+                const link = this.instances.linksSet.extendedElementsMap.get(id);
+                if (!link) continue;
+                link.graphicsWrapper?.pixiElement.updateFrame();
+                link.text?.place();
             }
         }
     }
@@ -1198,6 +1204,7 @@ export class GraphEventsDispatcher extends Component {
         this.computeStylingFromCSSBridge();
         if (this.instances.nodesSet) {
             this.instances.nodesSet.onCSSChange();
+            this.instances.linksSet.onCSSChange();
             if (this.instances.settings.enableCSS) {
                 this.instances.foldersSet?.onCSSChange();
             }

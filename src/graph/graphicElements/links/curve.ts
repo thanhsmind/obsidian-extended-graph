@@ -110,6 +110,10 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         return true;
     }
 
+    getMiddlePoint() {
+        return quadratic(0.5, this.bezier.P0, this.bezier.P1, this.bezier.P2);
+    }
+
     updateFrame(): void {
         if (this.destroyed) return;
 

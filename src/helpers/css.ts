@@ -5,6 +5,7 @@ import { GraphInstances, int2hex, PluginInstances } from "src/internal";
 
 export interface CSSTextStyle {
     fontFamily: string;
+    fontSize: number;
     fontStyle: TextStyleFontStyle;
     fontVariant: TextStyleFontVariant;
     fontWeight: TextStyleFontWeight;
@@ -14,7 +15,6 @@ export interface CSSTextStyle {
 
 export interface CSSFolderTextStyle {
     textStyle: CSSTextStyle;
-    fontSize: number;
     align: 'left' | 'center' | 'right';
 }
 
@@ -28,7 +28,8 @@ export interface CSSFolderStyle {
 }
 
 const DEFAULT_TEXT_STYLE: CSSTextStyle = {
-    fontFamily: "??",
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei Light", sans-serif',
+    fontSize: 14,
     fontStyle: 'normal',
     fontVariant: 'normal',
     fontWeight: 'normal',
@@ -41,7 +42,6 @@ export const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
     textStyle: {
         textStyle: DEFAULT_TEXT_STYLE,
         align: 'center',
-        fontSize: 14,
     },
     radius: 50,
     borderWidth: 2,
@@ -112,8 +112,10 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
 
     // First, add base styling with default values
     const css = `
-    .graph-view.node-text {
+    .graph-view.node-text,
+    .graph-view.link-text {
         font-family: ${DEFAULT_TEXT_STYLE.fontFamily};
+        font-size: ${DEFAULT_TEXT_STYLE.fontSize};
         font-style: ${DEFAULT_TEXT_STYLE.fontStyle};
         font-variant: ${DEFAULT_TEXT_STYLE.fontVariant};
         font-weight: ${DEFAULT_TEXT_STYLE.fontWeight};
@@ -121,11 +123,11 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
     }
     .graph-view.folder {
         font-family: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontFamily};
+        font-size: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontSize}px;
         font-style: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontStyle};
         font-variant: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontVariant};
         font-weight: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontWeight};
         letter-spacing: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.letterSpacing}px;
-        font-size: ${DEFAULT_FOLDER_STYLE.textStyle.fontSize}px;
         text-align: ${DEFAULT_FOLDER_STYLE.textStyle.align};
 
         border-radius: ${DEFAULT_FOLDER_STYLE.radius}px;
@@ -143,7 +145,7 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
     instances.extendedStyleEl.innerHTML = css + "\n" + snippet[1];
 }
 
-function getGraphComputedStyle(instances: GraphInstances, cssClass: string, path?: string): CSSStyleDeclaration {
+function getGraphComputedStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSStyleDeclaration {
     if (!instances.extendedStyleEl) return new CSSStyleDeclaration();
 
     detachCSSDiv(instances);
@@ -151,9 +153,9 @@ function getGraphComputedStyle(instances: GraphInstances, cssClass: string, path
     instances.extendedStyleEl.ownerDocument.body.appendChild(div);
     div.classList.add("graph-view", cssClass);
     div.id = cssDivId;
-    if (path) {
-        div.setAttribute('data-path', path);
-    }
+    if (data.path) div.setAttribute('data-path', data.path);
+    if (data.source) div.setAttribute('data-source', data.source);
+    if (data.target) div.setAttribute('data-target', data.target);
     div.style.borderStyle = 'solid';
     const style = getComputedStyle(div);
     return style;
@@ -163,12 +165,14 @@ function detachCSSDiv(instances: GraphInstances): void {
     instances.extendedStyleEl?.ownerDocument.getElementById(cssDivId)?.remove();
 }
 
-function getTextStyle(instances: GraphInstances, cssClass: string, path?: string): CSSTextStyle {
+function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSTextStyle {
     if (!instances.extendedStyleEl) return DEFAULT_TEXT_STYLE;
 
-    const style = getGraphComputedStyle(instances, cssClass, path);
+    const style = getGraphComputedStyle(instances, cssClass, data);
 
     const fontFamily = style.fontFamily;
+
+    const fontSize = getUnitlessPixel(style.fontSize, DEFAULT_TEXT_STYLE.fontSize);
 
     let fontStyle = style.fontStyle.toLowerCase();
     if (!['normal', 'italic', 'oblique'].contains(fontStyle)) {
@@ -187,10 +191,11 @@ function getTextStyle(instances: GraphInstances, cssClass: string, path?: string
 
     const letterSpacing = getUnitlessPixel(style.letterSpacing, DEFAULT_TEXT_STYLE.letterSpacing);
 
-    const fill = getGraphComputedStyle(instances, "color-text", path).color;
+    const fill = getGraphComputedStyle(instances, "color-text", data).color;
 
     const textStyle = {
         fontFamily: fontFamily,
+        fontSize: fontSize,
         fontStyle: fontStyle as TextStyleFontStyle,
         fontVariant: fontVariant as TextStyleFontVariant,
         fontWeight: fontWeight as TextStyleFontWeight,
@@ -203,7 +208,10 @@ function getTextStyle(instances: GraphInstances, cssClass: string, path?: string
 }
 
 export function getNodeTextStyle(instances: GraphInstances, path?: string): CSSTextStyle {
-    return getTextStyle(instances, "node-text", path);
+    return getTextStyle(instances, "node-text", { path: path });
+}
+export function getLinkTextStyle(instances: GraphInstances, data: { source?: string, target?: string } = {}): CSSTextStyle {
+    return getTextStyle(instances, "link-text", data);
 }
 
 export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
@@ -216,16 +224,15 @@ export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
 export function getFolderStyle(instances: GraphInstances, path?: string): CSSFolderStyle {
     if (!instances.extendedStyleEl) return DEFAULT_FOLDER_STYLE;
 
-    const textStyle = getTextStyle(instances, "folder", path);
+    const textStyle = getTextStyle(instances, "folder", { path });
 
-    const style = getGraphComputedStyle(instances, "folder", path);
+    const style = getGraphComputedStyle(instances, "folder", { path });
 
     let align = style.textAlign.toLowerCase();
     if (!['left', 'center', 'right'].contains(align)) {
         align = DEFAULT_FOLDER_STYLE.textStyle.align;
     }
 
-    const fontSize = getUnitlessPixel(style.fontSize, DEFAULT_FOLDER_STYLE.textStyle.fontSize);
     const radius = getUnitlessPixel(style.borderRadius, DEFAULT_FOLDER_STYLE.radius);
     const borderWidth = getUnitlessPixel(style.borderWidth, DEFAULT_FOLDER_STYLE.borderWidth);
     const padding = {
@@ -250,7 +257,6 @@ export function getFolderStyle(instances: GraphInstances, path?: string): CSSFol
     const folderStyle: CSSFolderStyle = {
         textStyle: {
             textStyle,
-            fontSize,
             align: align as 'left' | 'center' | 'right',
         },
         radius,
