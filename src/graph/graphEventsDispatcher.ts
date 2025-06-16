@@ -17,6 +17,7 @@ import {
     GraphInstances,
     LegendUI,
     LINK_KEY,
+    LinkText,
     Pinner,
     PluginInstances,
     RadialMenu,
@@ -537,7 +538,7 @@ export class GraphEventsDispatcher extends Component {
             else if (link.px === child) {
                 // Check if "line" is added to the px
                 child.on('childAdded', (child2: DisplayObject, container2: Container<DisplayObject>, index2: number) => {
-                    if (child2 instanceof Text) return;
+                    if (child2 instanceof LinkText) return;
                     if (canAdd(link)) {
                         add(link);
                     }
@@ -820,6 +821,7 @@ export class GraphEventsDispatcher extends Component {
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
             && (this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph
                 || this.instances.settings.curvedLinks
+                || this.instances.settings.displayLinkTypeLabel
             )
         ) {
             for (const id of this.instances.linksSet.connectedIDs) {
