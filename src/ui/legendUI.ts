@@ -91,6 +91,7 @@ class LegendRow extends Setting {
             }
             stateData.logicTypes[this.name] = logic;
             this.manager.instances.engine.render();
+            this.manager.instances.dispatcher.onInteractivesLogicChanged(this.name);
             PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
         }
 
