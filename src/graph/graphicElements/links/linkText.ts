@@ -1,10 +1,11 @@
 import { CSSTextStyle, ExtendedGraphLink, getBackgroundColor, getLinkTextStyle, LinkCurveGraphics } from "src/internal";
-import { ColorSource, Container, Sprite, Text, TextStyle, Texture } from "pixi.js";
+import { ColorSource, Container, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
     sprite: Sprite;
     text: Text;
+    color?: TextStyleFill | null;
     onCurve: boolean;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
@@ -60,6 +61,7 @@ export class LinkText extends Container {
                 source: this.extendedLink.coreElement.source.id,
                 target: this.extendedLink.coreElement.target.id
             });
+        this.color = style.fill ?? null;
         return style;
     }
 
@@ -73,8 +75,30 @@ export class LinkText extends Container {
             letterSpacing: customStyle.letterSpacing,
             fontSize: customStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             // @ts-ignore
-            fill: customStyle.fill ?? this.extendedLink.coreElement.renderer.colors.text.rgb,
+            fill: this.getColor(),
         });
+    }
+
+    private getColor(): TextStyleFill {
+        if (this.extendedLink.instances.settings.colorLinkTypeLabel) {
+            const color = this.extendedLink.getStrokeColor();
+            if (color) return color;
+        }
+
+        if (this.color === undefined) { // Undefined means not yet computed
+            const style = this.getCSSStyle();
+            if (style.fill) return style.fill;
+        }
+        else if (this.color !== null) { // Nulls means computed but no value
+            return this.color;
+        }
+
+        // @ts-ignore
+        return this.extendedLink.coreElement.renderer.colors.text.rgb;
+    }
+
+    updateTextColor() {
+        this.text.style.fill = this.getColor();
     }
 
     setDisplayedText(text: string): void {
@@ -85,7 +109,6 @@ export class LinkText extends Container {
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
         if (this.destroyed) return;
         this.sprite.tint = backgroundColor;
-        // @ts-ignore
-        this.text.style.fill = this.getCSSStyle().fill ?? this.extendedLink.coreElement.renderer.colors.text.rgb;
+        this.updateTextColor();
     }
 }

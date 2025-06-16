@@ -402,6 +402,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
 
+    // ================================== TEXT =================================
+
 
     private displayText() {
         if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
@@ -413,7 +415,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         else {
             this.text = new LinkText(type, this);
         }
-        this.updateTextColor();
         this.text.connect();
         this.text.updateFrame();
     }
@@ -423,13 +424,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         const activeType = this.getActiveType(LINK_KEY);
         if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
         this.text.setDisplayedText(activeType);
-        this.updateTextColor();
-    }
-
-    private updateTextColor() {
-        if (!this.instances.settings.colorLinkTypeLabel || !this.text) return;
-        // @ts-ignore
-        this.text.text.style.fill = this.getStrokeColor() ?? this.coreElement.renderer.colors.text.rgb;
+        this.text.updateTextColor();
     }
 
     private removeText() {
