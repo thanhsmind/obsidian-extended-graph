@@ -3,11 +3,10 @@ import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/intern
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
-    updateFrame(): void {
-        if (!this.computeMainBezier()) return;
+    updateFrame(): boolean {
+        if (!super.updateFrame()) return false;
 
         const renderer = this.extendedLink.coreElement.renderer;
-        const link = this.extendedLink.coreElement;
 
         let arrowColor: ColorSource | undefined = this.extendedLink.coreElement.arrow?.tint;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
@@ -58,42 +57,14 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
             }
         }
 
-        if (link.line) {
-            this.alpha = link.line.alpha;
-        }
-
-        let arrowAlpha: number = 1;
-        if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
-            && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
-            if (this.extendedLink.isHighlighted()
-                || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
-                arrowAlpha = 10;
-            }
-        }
 
         // Arrow
-        if (link.arrow && link.arrow.visible) {
-            if (!this.arrow) {
-                this.initArrow();
-                if (this.arrow) this.addChild(this.arrow);
-            }
-            if (this.arrow) {
-                this.arrow.tint = arrowColor ?? this.tint;
-                this.arrow.alpha = arrowAlpha;
-                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
-                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, P0_, P1, this.bezier.P2).m);
-                if (this.bezier.P1.x > this.bezier.P2.x) {
-                    this.arrow.rotation += Math.PI;
-                }
-                this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);
-            }
-        }
-        else {
-            this.arrow?.removeFromParent();
-            this.arrow?.clear();
-            this.arrow?.destroy();
-            this.arrow = null;
-        }
+        this.updateArrow(
+            arrowColor ?? this.tint,
+            -Math.atan(-tangentQuadratic(1, P0_, P1, this.bezier.P2).m)
+        );
+
+        return true;
     }
 
     private deCasteljau(points: { x: number, y: number }[], t: number): { x: number, y: number }[][] {

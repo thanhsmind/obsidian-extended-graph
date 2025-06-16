@@ -24,7 +24,6 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
             P2: { x: 0, y: 0 } // Center of target
         };
         this.updateValues();
-        if (this.extendedLink.coreElement.line) this.extendedLink.coreElement.line.renderable = false;
     }
 
     updateValues(): void {
@@ -113,7 +112,53 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         return quadratic(0.5, this.bezier.P0, this.bezier.P1, this.bezier.P2);
     }
 
-    abstract updateFrame(): void;
+    updateFrame(): boolean {
+        if (!this.computeMainBezier()) return false;
+
+        const link = this.extendedLink.coreElement;
+        if (link.line) {
+            this.alpha = link.line.alpha;
+        }
+
+        return true;
+    }
+
+    protected updateArrow(color: ColorSource, rotation: number) {
+        const renderer = this.extendedLink.coreElement.renderer;
+        const link = this.extendedLink.coreElement;
+        if (link.arrow && link.arrow.visible) {
+            let arrowAlpha: number = 1;
+            if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+                && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
+                if (this.extendedLink.isHighlighted()
+                    || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
+                    arrowAlpha = 10;
+                }
+            }
+
+            if (!this.arrow) {
+                this.initArrow();
+                if (this.arrow) this.addChild(this.arrow);
+            }
+            if (this.arrow) {
+                this.arrow.tint = color;
+                this.arrow.alpha = arrowAlpha;
+                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
+                this.arrow.rotation = rotation;
+                if (this.bezier.P1.x > this.bezier.P2.x) {
+                    this.arrow.rotation += Math.PI;
+                }
+                this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);
+            }
+        }
+        else {
+            this.arrow?.removeFromParent();
+            this.arrow?.clear();
+            this.arrow?.destroy();
+            this.arrow = null;
+        }
+
+    }
 
     override destroy(options?: IDestroyOptions): void {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = true;

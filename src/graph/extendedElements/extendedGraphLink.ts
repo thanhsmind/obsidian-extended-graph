@@ -45,6 +45,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         super.init();
         this.extendedArrow?.init();
         this.displayText();
+        if (this.isAnyManagerDisabled()) {
+            this.disable();
+        }
     }
 
     private findSiblingLink(): void {
@@ -62,6 +65,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.changeCoreLinkThickness();
         this.proxyLine();
         this.createContainer();
+        if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics && this.coreElement.line) this.coreElement.line.renderable = false;
     }
 
     override restoreCoreElement(): void {
@@ -69,6 +73,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
         this.removeContainer();
+        if (this.coreElement.line) this.coreElement.line.renderable = true;
     }
 
     // =============================== UNLOADING ===============================
@@ -380,12 +385,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override disableType(key: string, type: string): void {
         super.disableType(key, type);
-        if (this.isAnyManagerDisabled()) {
-            this.disable();
-        }
-        else {
-            this.updateDisplayedText();
-        }
+        this.updateDisplayedText();
     }
 
     override enableType(key: string, type: string): void {
@@ -407,7 +407,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
         const type = this.getActiveType(LINK_KEY);
         if (!type || type === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
-        if (this.text) {
+        if (this.text && !this.text.destroyed) {
             this.text.setDisplayedText(type);
         }
         else {
