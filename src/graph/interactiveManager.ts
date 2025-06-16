@@ -178,7 +178,7 @@ export class InteractiveManager extends Component {
     }
 
     private computeColorFromIndex(index: number, nColors: number) {
-        const x = index / (nColors - 1);
+        const x = nColors === 1 ? 0.5 : index / (nColors - 1);
         return evaluateCMap(x, this.instances.settings.interactiveSettings[this.name].colormap, this.instances.settings)
     }
 }
