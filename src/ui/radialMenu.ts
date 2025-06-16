@@ -182,8 +182,8 @@ export class RadialMenuManager {
             const nodePos = node.circle.getGlobalPosition();
             const scale = parseFloat(document.body.style.getPropertyValue("--zoom-factor"));
             this.menu.showAtPosition({
-                x: (nodePos.x / scale + canvasBound.left),
-                y: (nodePos.y / scale + canvasBound.top)
+                x: (nodePos.x / scale / window.devicePixelRatio + canvasBound.left),
+                y: (nodePos.y / scale / window.devicePixelRatio + canvasBound.top)
             });
             return;
         }
