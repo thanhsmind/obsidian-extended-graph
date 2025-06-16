@@ -25,6 +25,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     animatedDot?: AnimatedDotOnLine | AnimatedDotOnCurve;
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
+    text?: LinkText;
     siblingLink?: ExtendedGraphLink;
     firstSibling: boolean;
     container?: Container;
@@ -402,7 +403,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
 
 
-    text?: LinkText;
     private displayText() {
         if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
         const type = this.getActiveType(LINK_KEY);
@@ -415,7 +415,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
         this.updateTextColor();
         this.text.connect();
-        this.text.place();
+        this.text.updateFrame();
     }
 
     private updateDisplayedText() {

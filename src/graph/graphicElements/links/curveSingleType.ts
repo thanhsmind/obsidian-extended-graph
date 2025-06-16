@@ -27,8 +27,7 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
             this.tint = this.color;
         }
         if (link.line) {
-            this.alpha = link.line.alpha + this.targetAlpha;
-            link.line.alpha = -0.2;
+            this.alpha = link.line.alpha;
         }
 
         let arrowAlpha: number = 1;

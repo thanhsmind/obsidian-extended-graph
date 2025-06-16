@@ -6,7 +6,6 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
-    targetAlpha: number;
     color: ColorSource;
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
@@ -19,13 +18,13 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         this.types = types;
         this.name = "curve:" + name;
         this.extendedLink = link;
-        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading ? 1 : 0.6;
         this.bezier = {
             P0: { x: 0, y: 0 }, // Center of source
             P1: { x: 0, y: 0 }, // Control point, shifted along the normal
             P2: { x: 0, y: 0 } // Center of target
         };
         this.updateValues();
+        if (this.extendedLink.coreElement.line) this.extendedLink.coreElement.line.renderable = false;
     }
 
     updateValues(): void {
@@ -114,72 +113,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         return quadratic(0.5, this.bezier.P0, this.bezier.P1, this.bezier.P2);
     }
 
-    updateFrame(): void {
-        if (this.destroyed) return;
-
-        this.clear();
-        const renderer = this.extendedLink.coreElement.renderer;
-        const link = this.extendedLink.coreElement;
-
-        const inverted = this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] && this.extendedLink.instances.settings.invertArrows;
-        const target = inverted ? link.source : link.target;
-        const source = inverted ? link.target : link.source;
-
-        if (!target.circle || !source.circle) {
-            this.destroy();
-            this.extendedLink.disable();
-            return;
-        }
-
-        const f = renderer.nodeScale;
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-
-        this.bezier.P1 = { // Control point, shifted along the normal
-            x: (source.x + target.x) * 0.5 + dy * 0.2,
-            y: (source.y + target.y) * 0.5 - dx * 0.2
-        };
-
-        const L = lengthQuadratic(1, source, this.bezier.P1, target); // length of the arc between centers
-        this.bezier.P0 = quadratic(0.9 * source.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the source node, along the arc.
-        this.bezier.P2 = quadratic(1 - 0.9 * target.getSize() * f / L, source, this.bezier.P1, target); // point on the border of the target node, along the arc
-
-        this.lineStyle({ width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white" });
-        this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
-        if (this.extendedLink.isHighlighted()) {
-            this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
-        }
-        else {
-            this.tint = this.color;
-        }
-        if (link.line) {
-            this.alpha = link.line.alpha + this.targetAlpha;
-            link.line.alpha = -0.2;
-        }
-
-        // Arrow
-        if (link.arrow && link.arrow.visible) {
-            if (!this.arrow) {
-                this.initArrow();
-                if (this.arrow) this.addChild(this.arrow);
-            }
-            if (this.arrow) {
-                this.arrow.tint = this.tint;
-                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
-                this.arrow.rotation = -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m);
-                if (this.bezier.P1.x > this.bezier.P2.x) {
-                    this.arrow.rotation += Math.PI;
-                }
-                this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);
-            }
-        }
-        else {
-            this.arrow?.removeFromParent();
-            this.arrow?.clear();
-            this.arrow?.destroy();
-            this.arrow = null;
-        }
-    }
+    abstract updateFrame(): void;
 
     override destroy(options?: IDestroyOptions): void {
         if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = true;

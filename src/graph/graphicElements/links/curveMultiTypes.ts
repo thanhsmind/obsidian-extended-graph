@@ -59,8 +59,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         }
 
         if (link.line) {
-            this.alpha = link.line.alpha + this.targetAlpha;
-            link.line.alpha = -0.2;
+            this.alpha = link.line.alpha;
         }
 
         let arrowAlpha: number = 1;

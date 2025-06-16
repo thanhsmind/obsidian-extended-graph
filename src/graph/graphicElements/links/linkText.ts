@@ -5,6 +5,7 @@ export class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
     sprite: Sprite;
     text: Text;
+    onCurve: boolean;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
         super();
@@ -16,22 +17,37 @@ export class LinkText extends Container {
         this.sprite.height = this.text.height;
         this.addChild(this.sprite, this.text);
         this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
-        this.y = this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics ? -30 : 0;
     }
 
     connect() {
-        if (!this.extendedLink.coreElement.px) return;
-        this.extendedLink.coreElement.px.addChild(this);
+        if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
+            this.onCurve = true;
+            this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
+            this.alpha = 2;
+        }
+        else if (this.extendedLink.coreElement.px) {
+            this.extendedLink.coreElement.px.addChild(this);
+        }
     }
 
-    place() {
-        this.visible = this.extendedLink.coreElement.line?.visible ?? false;
-        if (this.visible) {
-            this.rotation = - this.parent.rotation;
+    updateFrame() {
+        if (this.onCurve) {
             if (this.extendedLink.coreElement.source.circle) {
                 this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
             }
-            this.position.x = this.parent.width * 0.5;
+            const middle = (this.extendedLink.graphicsWrapper?.pixiElement as LinkCurveGraphics).getMiddlePoint();
+            this.position.set(middle.x, middle.y);
+        }
+        else {
+            this.visible = this.extendedLink.coreElement.line?.visible ?? false;
+            if (this.visible) {
+                this.rotation = - this.parent.rotation;
+                if (this.extendedLink.coreElement.source.circle) {
+                    this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
+                }
+                this.position.x = this.parent.width * 0.5;
+                this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
+            }
         }
     }
 
