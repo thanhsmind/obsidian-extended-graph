@@ -654,7 +654,9 @@ export class GraphsManager extends Component {
     // ============================= ENABLE PLUGIN =============================
 
     enablePlugin(view: GraphView | LocalGraphView, stateID?: string): void {
-        this.backupOptions(view);
+        if (!this.isResetting) {
+            this.backupOptions(view);
+        }
 
         if (this.isPluginAlreadyEnabled(view)) return;
         if (this.isNodeLimitExceededForView(view)) return;
@@ -725,6 +727,10 @@ export class GraphsManager extends Component {
         }
     }
 
+    onPluginLoaded(view: GraphView | LocalGraphView): void {
+        this.isResetting = false;
+    }
+
 
     // ============================ DISABLE PLUGIN =============================
 
@@ -764,7 +770,7 @@ export class GraphsManager extends Component {
             if (view._loaded) {
                 this.applyNormalState(view);
             }
-            this.restoreBackup();
+            this.restoreBackupInGraphJson();
         }
 
         this.updateStatusBarItem(view.leaf);
@@ -780,6 +786,7 @@ export class GraphsManager extends Component {
     }
 
     resetPlugin(view: GraphView | LocalGraphView): void {
+        console.log("Start resetting");
         this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
         const stateID = instances?.statesUI.currentStateID;
@@ -790,7 +797,7 @@ export class GraphsManager extends Component {
         if (newDispatcher && scale) {
             newDispatcher.renderer.targetScale = scale;
         }
-        this.isResetting = false;
+        //this.isResetting = false;
     }
 
     // ===================== CHANGE CURRENT MARKDOWN FILE ======================
@@ -822,7 +829,7 @@ export class GraphsManager extends Component {
             if (this.localGraphID) {
                 const localInstances = this.allInstances.get(this.localGraphID);
                 if (localInstances) {
-                    // this.resetPlugin(localInstances.view);
+                    this.resetPlugin(localInstances.view);
                 }
             }
             if (file) {
@@ -885,7 +892,7 @@ export class GraphsManager extends Component {
         PluginInstances.plugin.saveSettings();
     }
 
-    restoreBackup() {
+    restoreBackupInGraphJson() {
         const backup = this.optionsBackup.get(this.lastBackup);
         const corePluginInstance = this.getCorePluginInstance();
         if (corePluginInstance && backup) {

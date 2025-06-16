@@ -133,8 +133,8 @@ export class GraphEventsDispatcher extends Component {
      */
     onload(): void {
         this.createStyleElementsForCSSBridge();
+        this.loadCurrentStateEngineOptions();
         this.createSetDataProxy();
-        //this.loadCurrentStateEngineOptions();
     }
 
     private loadCurrentStateEngineOptions(): void {
@@ -175,9 +175,12 @@ export class GraphEventsDispatcher extends Component {
             return;
         }
 
-
         this.preventDraggingPinnedNodes();
-        PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+        if (!PluginInstances.graphsManager.isResetting && this.instances.type === "localgraph") {
+            PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+        }
+
+        PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
     }
 
     private updateOpacityLayerColor(): void {
@@ -742,7 +745,6 @@ export class GraphEventsDispatcher extends Component {
                 return undefined;
             }
         }
-
 
         return data;
     }
