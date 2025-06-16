@@ -441,6 +441,7 @@ export class GraphEventsDispatcher extends Component {
         this.restoreArrowAlpha();
         this.restoreOnNodeClick();
         this.unregisterEventsForLastFilteringAction();
+        this.instances.engine.render();
     }
 
     private unbindStageEvents(): void {
@@ -790,6 +791,7 @@ export class GraphEventsDispatcher extends Component {
 
     private afterInitGraphics() {
         setTimeout(() => {
+            this.createStyleElementsForCSSBridge();
             for (const el of this.instances.linksSet.extendedElementsMap.values()) {
                 el.init();
             }
@@ -1182,6 +1184,9 @@ export class GraphEventsDispatcher extends Component {
         // Get the document inside the iframe
         const doc = this.instances.renderer.iframeEl.contentDocument;
         if (!doc) return;
+
+        // Remove existing styling, just in case
+        this.removeStylingForCSSBridge();
 
         // Add the styling elements
         this.instances.coreStyleEl = doc.createElement("style");
