@@ -539,6 +539,11 @@ body {
     z-index: 1;
 }
 
+.separator-exended-graph {
+    --hr-thickness: 1px;
+    margin-block: 0.5rem;
+}
+
 .graph-controls.is-close .mod-extended-graph-toggle {
     --icon-color-active: var(--text-normal);
     display: flex;
@@ -554,11 +559,6 @@ body {
 }
 
 
-.separator-exended-graph {
-    --hr-thickness: 1px;
-    margin-block: 0.5rem;
-}
-
 .graph-controls:not(.is-close) .separator-exended-graph {
     display: none;
 }
@@ -568,6 +568,13 @@ body {
 .graph-controls.is-close .graph-controls-button.mod-legend {
     display: flex;
     margin-top: var(--size-4-2);
+}
+
+.graph-controls.is-close .mod-extended-graph-toggle.is-disabled,
+.graph-controls.is-close .mod-extended-graph-reset.is-disabled {
+    --icon-color-active: var(--text-muted);
+    --icon-color: var(--text-faint);
+    pointer-events: none;
 }
 
 .graph-control-section:nth-last-child(1 of .graph-control-section) {

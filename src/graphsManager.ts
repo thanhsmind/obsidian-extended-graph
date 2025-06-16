@@ -661,10 +661,12 @@ export class GraphsManager extends Component {
         if (this.isPluginAlreadyEnabled(view)) return;
         if (this.isNodeLimitExceededForView(view)) return;
 
+        const globalUI = this.setGlobalUI(view);
+        globalUI.menu.disableUI();
+
         if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
         if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
         const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
-        const globalUI = this.setGlobalUI(view);
         globalUI.menu.setEnableUIState();
         globalUI.control.onPluginEnabled(instances);
         this.updateStatusBarItem(view.leaf);
@@ -729,6 +731,7 @@ export class GraphsManager extends Component {
 
     onPluginLoaded(view: GraphView | LocalGraphView): void {
         this.isResetting = false;
+        this.globalUIs.get(view.leaf.id)?.menu.enableUI();
     }
 
 
@@ -749,6 +752,7 @@ export class GraphsManager extends Component {
     private disableUI(leafID: string) {
         const globalUI = this.globalUIs.get(leafID);
         if (globalUI) {
+            globalUI.menu.disableUI();
             globalUI.menu.setDisableUIState();
             globalUI.control.onPluginDisabled();
         }
@@ -771,6 +775,7 @@ export class GraphsManager extends Component {
                 this.applyNormalState(view);
             }
             this.restoreBackupInGraphJson();
+            this.globalUIs.get(view.leaf.id)?.menu.enableUI();
         }
 
         this.updateStatusBarItem(view.leaf);

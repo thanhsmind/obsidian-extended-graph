@@ -68,4 +68,14 @@ export class MenuUI extends Component {
         this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, { placement: 'top' });
         this.buttonReset.extraSettingsEl.remove();
     }
+
+    enableUI() {
+        this.buttonEnable.setDisabled(false);
+        this.buttonReset.setDisabled(false);
+    }
+
+    disableUI() {
+        this.buttonEnable.setDisabled(true);
+        this.buttonReset.setDisabled(true);
+    }
 }
