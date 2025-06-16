@@ -499,7 +499,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         const color: ColorSource = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.color : link.line ? int2hex(Number(link.line.tint)) : "#000000";
         const colorStr = new Color(color).toHex();
         const width: number = this.instances.renderer.fLineSizeMult * 2;
-        const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.targetAlpha : link.line ? link.line.alpha : 0.6;
+        const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.alpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
