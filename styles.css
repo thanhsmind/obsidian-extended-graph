@@ -997,6 +997,16 @@ body {
     .error {
         color: var(--color-red);
     }
+
+    .setting-item-heading:last-child .setting-item-name {
+        display: flex;
+        align-items: center;
+        gap: var(--size-4-2);
+
+        svg {
+            vertical-align: bottom;
+        }
+    }
 }
 
 .palette-group {

@@ -403,6 +403,15 @@ export default class STRINGS {
 	static UI = {
 		horizontalLegend: "Horizontal legend",
 		horizontalLegendDesc: "Use a horizontal layout for the legend container (with tags, properties and tags toggle buttons)",
+		howToUse: "How to use",
+		howToUseGradientMaker: `<ul>
+    <li><strong>Drag handles</strong> to move color stops along the gradient</li>
+    <li><strong>Click a handle</strong> to change its color</li>
+    <li><strong>Double-click</strong> on the gradient to add a new color stop</li>
+    <li><strong>Backspace, Delete or Clear keys</strong> on a handle to remove it</li>
+    <li><strong>Interpolate</strong>: Creates smooth color transitions between stops</li>
+    <li><strong>Reverse</strong>: Flips the final palette order (left ↔ right)</li>
+</ul>`,
 		name: "Name",
 	}
 

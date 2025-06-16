@@ -1,4 +1,4 @@
-import { ButtonComponent, ColorComponent, KeymapContext, Modal, Setting } from "obsidian";
+import { ButtonComponent, ColorComponent, KeymapContext, Modal, setIcon, Setting } from "obsidian";
 import { hex2rgb, plotColorMap, rgb2hex } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
 import STRINGS from "src/Strings";
@@ -30,6 +30,7 @@ export class GradientMakerModal extends Modal {
         this.addCanvas();
         this.addHandles();
         this.addControls();
+        this.addInfo();
         this.addListeners();
         this.updateCanvas();
     }
@@ -178,6 +179,18 @@ export class GradientMakerModal extends Modal {
             }));
 
         this.onNameChanged();
+    }
+
+    private addInfo() {
+        const setting = new Setting(this.contentEl)
+            .setName(STRINGS.UI.howToUse)
+            .setHeading();
+
+        setting.descEl.innerHTML = STRINGS.UI.howToUseGradientMaker;
+
+        const iconEl = createDiv();
+        setting.nameEl.prepend(iconEl);
+        setIcon(iconEl, 'info');
     }
 
     private onNameChanged() {
