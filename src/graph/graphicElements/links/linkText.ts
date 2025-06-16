@@ -111,4 +111,8 @@ export class LinkText extends Container {
         this.sprite.tint = backgroundColor;
         this.updateTextColor();
     }
+
+    updateTextStyle(): void {
+        this.text.style = this.getTextStyle();
+    }
 }
