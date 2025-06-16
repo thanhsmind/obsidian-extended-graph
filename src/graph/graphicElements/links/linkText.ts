@@ -20,6 +20,7 @@ export class LinkText extends Container {
     }
 
     connect() {
+        if (this.destroyed) return;
         if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
             this.onCurve = true;
             this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
@@ -31,6 +32,7 @@ export class LinkText extends Container {
     }
 
     updateFrame() {
+        if (this.destroyed) return;
         if (this.onCurve) {
             if (this.extendedLink.coreElement.source.circle) {
                 this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
@@ -76,10 +78,12 @@ export class LinkText extends Container {
     }
 
     setDisplayedText(text: string): void {
+        if (this.destroyed) return;
         this.text.text = text;
     }
 
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
+        if (this.destroyed) return;
         this.sprite.tint = backgroundColor;
         // @ts-ignore
         this.text.style.fill = this.getCSSStyle().fill ?? this.extendedLink.coreElement.renderer.colors.text.rgb;
