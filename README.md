@@ -72,8 +72,7 @@ The plugin is completely free and will always stay that way, and open source. If
 
 # Related plugins
 
-If you don't need every features from this plugin and are looking for something simpler, have a look at those, you might find exactly what you are looking for. They are all the plugins related to the graph view that I could find.
-- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by _AlexW00_ and its fork [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru: a 3D Graph for Obsidian.
+If you don't need every features from this plugin and are looking for something simpler, or something else, have a look at those, you might find exactly what you are looking for. They are all the plugins related to the graph view that I could find.
 - [Custom Node Size](https://github.com/jackvonhouse/custom-node-size) by _jackvonhouse_: customize nodes size for improved graph understanding.
 - [Folders to Graph](https://github.com/Ratibus11/folders2graph) by _Ratibus11_: display your vault folder structure into your graphs.
 - [Export Graph View](https://github.com/seantiz/obsidian_egv_plugin) by _seantiz_: export your vault's graph view to mermaid and dot format.
@@ -85,6 +84,9 @@ If you don't need every features from this plugin and are looking for something 
 - [Node Factor](https://github.com/CalfMoon/node-factor) by _CalfMoon_: customize factors effecting node size in graph.
 - [Persistent Graph](https://github.com/Sanqui/obsidian-persistent-graph) by _Sanqui_: adds commands to save and restore the positions of nodes on the global graph view. (seems abandonned)
 - [Sync Graph Settings](https://github.com/Xallt/sync-graph-settings) by _Xallt_: for syncing various graph settings to Local Graphs.
+- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by _AlexW00_ and its fork [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru: a 3D Graph for Obsidian.
+- [Tags Routes](https://github.com/kctekn/obsidian-TagsRoutes) by _kctekn_: A powerful 3D graph viewer for managing and navigating notes and tags, with advanced visual effects, animations.
+- [New 3D Graph](https://github.com/Apoo711/obsidian-3d-graph) by _Apoo711_ (still in beta): Visualize your Vault in 3D with a powerful, highly customizable, and filterable graph.
 
 (if you know more, let me know)
 
