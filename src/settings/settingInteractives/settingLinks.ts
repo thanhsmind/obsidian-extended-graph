@@ -137,6 +137,23 @@ export class SettingLinks extends SettingInteractives {
                     PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(STRINGS.features.interactives.curvedFactor)
+            .setDesc(STRINGS.features.interactives.curvedFactorDesc)
+            .addSlider(cb => {
+                const preview = document.createTextNode(PluginInstances.settings.curvedFactor.toString());
+                if (preview) {
+                    cb.sliderEl.parentElement?.insertBefore(preview, cb.sliderEl);
+                }
+                cb.setLimits(-2, 2, 0.2)
+                    .setValue(PluginInstances.settings.curvedFactor)
+                    .onChange(value => {
+                        PluginInstances.settings.curvedFactor = value;
+                        PluginInstances.plugin.saveSettings();
+                        if (preview) preview.textContent = PluginInstances.settings.curvedFactor.toString();
+                    })
+            }).settingEl);
     }
 
     private addOutlineLinks() {

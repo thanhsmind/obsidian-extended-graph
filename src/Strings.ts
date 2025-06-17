@@ -161,6 +161,8 @@ export default class STRINGS {
 			colorLinksDesc: "Add colors to the link rendered in the graph view",
 			colorLinkTypeLabel: "Color label",
 			colorLinkTypeLabelDesc: "Color the type label (text) with the same color as the link",
+			curvedFactor: "Curvature factor",
+			curvedFactorDesc: "A negative value will inverse the shape, a greater absolute value will increase the curvature, while a value close to 0 will flatten it",
 			curvedLinks: "Curved links",
 			curvedLinksDesc: "Use curved links instead of straight lines",
 			displayLinkTypeLabel: "Display label",

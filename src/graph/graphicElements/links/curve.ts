@@ -97,8 +97,8 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         const dy = target.y - source.y;
 
         this.bezier.P1 = { // Control point, shifted along the normal
-            x: (source.x + target.x) * 0.5 + dy * 0.2,
-            y: (source.y + target.y) * 0.5 - dx * 0.2
+            x: (source.x + target.x) * 0.5 + dy * 0.2 * this.extendedLink.instances.settings.curvedFactor,
+            y: (source.y + target.y) * 0.5 - dx * 0.2 * this.extendedLink.instances.settings.curvedFactor
         };
 
         const L = lengthQuadratic(1, source, this.bezier.P1, target); // length of the arc between centers

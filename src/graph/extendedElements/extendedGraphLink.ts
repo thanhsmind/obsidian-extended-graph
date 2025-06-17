@@ -97,7 +97,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override createGraphicsWrapper(): void {
         if (!this.graphicsWrapper) {
-            this.graphicsWrapper = this.instances.settings.curvedLinks ? new CurveLinkGraphicsWrapper(this) : new LineLinkGraphicsWrapper(this);
+            this.graphicsWrapper = (this.instances.settings.curvedLinks && this.instances.settings.curvedFactor !== 0)
+                ? new CurveLinkGraphicsWrapper(this)
+                : new LineLinkGraphicsWrapper(this);
             this.graphicsWrapper.createGraphics();
         }
     }

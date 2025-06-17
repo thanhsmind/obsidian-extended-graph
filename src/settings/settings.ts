@@ -118,6 +118,7 @@ export interface ExtendedGraphSettings {
     excludedSourcesFolder: string[];
     excludedTargetsFolder: string[];
     curvedLinks: boolean;
+    curvedFactor: number;
     outlineLinks: boolean;
     displayLinkTypeLabel: boolean;
     colorLinkTypeLabel: boolean;
@@ -295,6 +296,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     excludedSourcesFolder: [],
     excludedTargetsFolder: [],
     curvedLinks: false,
+    curvedFactor: 1,
     outlineLinks: false,
     displayLinkTypeLabel: false,
     colorLinkTypeLabel: false,
@@ -457,7 +459,7 @@ export class SettingQuery {
 
         // Links
         if (newFeatures['links']) {
-            if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks',
+            if (['excludedSourcesFolder', 'excludedTargetsFolder', 'curvedLinks', 'curvedFactor',
                 'disableSource', 'disableTarget', 'outlineLinks', 'displayLinkTypeLabel',
                 'colorLinkTypeLabel'].some(key => !equals(key)))
                 return true;
