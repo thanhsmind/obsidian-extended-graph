@@ -176,7 +176,7 @@ export class GraphEventsDispatcher extends Component {
         }
 
         this.preventDraggingPinnedNodes();
-        if (!PluginInstances.graphsManager.isResetting && this.instances.type === "localgraph") {
+        if (!PluginInstances.graphsManager.isResetting && this.instances.type !== "localgraph") {
             PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
         }
 

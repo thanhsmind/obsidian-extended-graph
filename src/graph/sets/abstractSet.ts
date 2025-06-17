@@ -28,18 +28,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         this.#managersArray = managers;
     }
 
-    private initializeManagers(managers: InteractiveManager[]) {
-        for (const manager of managers) {
-            if (!this.managers.has(manager.name)) this.managers.set(manager.name, manager);
-        }
-    }
-
-    private initializeTypesMap() {
-        for (const key of this.managers.keys()) {
-            if (!this.typesMap.hasOwnProperty(key)) this.typesMap[key] = {};
-        }
-    }
-
     // ================================ LOADING ================================
 
     load(id?: string): Set<string> {
@@ -53,6 +41,18 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             this.handleMissingElements(addedElements);
         }
         return addedElements;
+    }
+
+    private initializeManagers(managers: InteractiveManager[]) {
+        for (const manager of managers) {
+            if (!this.managers.has(manager.name)) this.managers.set(manager.name, manager);
+        }
+    }
+
+    private initializeTypesMap() {
+        for (const key of this.managers.keys()) {
+            if (!this.typesMap.hasOwnProperty(key)) this.typesMap[key] = {};
+        }
     }
 
     /**
