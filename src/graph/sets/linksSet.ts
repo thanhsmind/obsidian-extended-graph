@@ -57,8 +57,8 @@ export class LinksSet extends AbstractSet<GraphLink> {
     onCSSChange(): void {
         const color = getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedLink => {
-            extendedLink.text?.updateTextStyle();
-            extendedLink.text?.updateTextBackgroundColor(color);
+            extendedLink.text?.computeCSSStyle();
+            extendedLink.text?.applyCSSChanges();
         });
     }
 

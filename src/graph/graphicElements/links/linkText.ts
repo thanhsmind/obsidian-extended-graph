@@ -1,23 +1,35 @@
-import { CSSTextStyle, ExtendedGraphLink, getBackgroundColor, getLinkTextStyle, LinkCurveGraphics } from "src/internal";
-import { ColorSource, Container, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
+import { CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics } from "src/internal";
+import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
-    sprite: Sprite;
+    background: Graphics | Sprite;
     text: Text;
-    color?: TextStyleFill | null;
+    textColor?: TextStyleFill | null;
     onCurve: boolean;
+    style: CSSLinkLabelStyle;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
         super();
         this.extendedLink = extendedLink;
+
+        this.computeCSSStyle();
+
         this.text = new Text(text, this.getTextStyle());
-        this.sprite = new Sprite(Texture.WHITE);
-        this.sprite.tint = getBackgroundColor(this.extendedLink.coreElement.renderer);
-        this.sprite.width = this.text.width;
-        this.sprite.height = this.text.height;
-        this.addChild(this.sprite, this.text);
-        this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
+        if (this.needsGraphicsBackground()) {
+            this.background = new Graphics();
+            this.addChild(this.background, this.text);
+        }
+        else {
+            this.background = new Sprite(Texture.WHITE);
+            this.addChild(this.background, this.text);
+        }
+
+        this.applyCSSChanges();
+    }
+
+    private needsGraphicsBackground(): boolean {
+        return (this.style.borderWidth > 0 && !!this.style.borderColor) || this.style.radius > 0;
     }
 
     connect() {
@@ -54,51 +66,42 @@ export class LinkText extends Container {
         }
     }
 
-    getCSSStyle(): CSSTextStyle {
-        const style = getLinkTextStyle(
+    computeCSSStyle() {
+        this.style = getLinkLabelStyle(
             this.extendedLink.instances,
             {
                 source: this.extendedLink.coreElement.source.id,
                 target: this.extendedLink.coreElement.target.id
             });
-        this.color = style.fill ?? null;
-        return style;
     }
 
     getTextStyle(): TextStyle {
-        const customStyle = this.getCSSStyle();
         return new TextStyle({
-            fontFamily: customStyle.fontFamily,
-            fontStyle: customStyle.fontStyle,
-            fontVariant: customStyle.fontVariant,
-            fontWeight: customStyle.fontWeight,
-            letterSpacing: customStyle.letterSpacing,
-            fontSize: customStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
-            // @ts-ignore
-            fill: this.getColor(),
+            fontFamily: this.style.textStyle.fontFamily,
+            fontStyle: this.style.textStyle.fontStyle,
+            fontVariant: this.style.textStyle.fontVariant,
+            fontWeight: this.style.textStyle.fontWeight,
+            letterSpacing: this.style.textStyle.letterSpacing,
+            fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
+            fill: this.getTextColor(),
         });
     }
 
-    private getColor(): TextStyleFill {
+    private getTextColor(): TextStyleFill {
         if (this.extendedLink.instances.settings.colorLinkTypeLabel) {
             const color = this.extendedLink.getStrokeColor();
             if (color) return color;
         }
 
-        if (this.color === undefined) { // Undefined means not yet computed
-            const style = this.getCSSStyle();
-            if (style.fill) return style.fill;
+        if (this.textColor === undefined) { // Undefined means not yet computed
+            if (this.style.textStyle.fill) return this.style.textStyle.fill;
         }
-        else if (this.color !== null) { // Nulls means computed but no value
-            return this.color;
+        else if (this.textColor !== null) { // Nulls means computed but no value
+            return this.textColor;
         }
 
         // @ts-ignore
         return this.extendedLink.coreElement.renderer.colors.text.rgb;
-    }
-
-    updateTextColor() {
-        this.text.style.fill = this.getColor();
     }
 
     setDisplayedText(text: string): void {
@@ -106,13 +109,66 @@ export class LinkText extends Container {
         this.text.text = text;
     }
 
+    updateTextColor() {
+        this.text.style.fill = this.getTextColor();
+    }
+
     updateTextBackgroundColor(backgroundColor: ColorSource): void {
         if (this.destroyed) return;
-        this.sprite.tint = backgroundColor;
+        if (this.background instanceof Sprite) {
+            this.background.tint = backgroundColor;
+        }
+        else {
+            this.drawGraphics(backgroundColor);
+        }
         this.updateTextColor();
     }
 
-    updateTextStyle(): void {
+    applyCSSChanges(): void {
         this.text.style = this.getTextStyle();
+        this.text.position.set(this.style.padding.left, this.style.padding.top);
+
+
+        if (this.needsGraphicsBackground()) {
+            this.drawGraphics(getBackgroundColor(this.extendedLink.coreElement.renderer));
+        }
+        else {
+            this.drawSprite(getBackgroundColor(this.extendedLink.coreElement.renderer));
+        }
+
+        this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
+    }
+
+    private getWidth(): number {
+        return this.text.width + this.style.padding.left + this.style.padding.right
+    }
+
+    private getHeight(): number {
+        return this.text.height + this.style.padding.top + this.style.padding.bottom;
+    }
+
+    private drawGraphics(backgroundColor: ColorSource): void {
+        if (this.background instanceof Sprite) {
+            this.background.removeFromParent();
+            this.background.destroy();
+            this.background = new Graphics();
+            this.addChildAt(this.background, 0);
+        }
+        this.background.clear();
+        this.background.lineStyle(this.style.borderWidth, this.style.borderColor ?? this.extendedLink.getStrokeColor() ?? this.extendedLink.coreElement.renderer.colors.line.rgb, 1, 1)
+            .beginFill(this.style.backgroundColor ?? backgroundColor)
+            .drawRoundedRect(0, 0, this.getWidth(), this.getHeight(), this.style.radius);
+    }
+
+    private drawSprite(backgroundColor: ColorSource): void {
+        if (this.background instanceof Graphics) {
+            this.background.removeFromParent();
+            this.background.destroy();
+            this.background = new Sprite(Texture.WHITE);
+            this.addChildAt(this.background, 0);
+        }
+        this.background.tint = this.style.backgroundColor ?? backgroundColor;
+        this.background.width = this.getWidth();
+        this.background.height = this.getHeight();
     }
 }

@@ -1,7 +1,9 @@
 
 import path from "path";
-import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
+import { ColorSource, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
 import { GraphInstances, int2hex, PluginInstances } from "src/internal";
+
+// =============================== Text Style =============================== //
 
 export interface CSSTextStyle {
     fontFamily: string;
@@ -12,6 +14,17 @@ export interface CSSTextStyle {
     letterSpacing: number;
     fill?: TextStyleFill;
 }
+
+const DEFAULT_TEXT_STYLE: CSSTextStyle = {
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei Light", sans-serif',
+    fontSize: 14,
+    fontStyle: 'normal',
+    fontVariant: 'normal',
+    fontWeight: 'normal',
+    letterSpacing: 0
+}
+
+// ============================== Folder Style ============================== //
 
 export interface CSSFolderTextStyle {
     textStyle: CSSTextStyle;
@@ -27,17 +40,6 @@ export interface CSSFolderStyle {
     padding: { left: number, top: number, right: number, bottom: number };
 }
 
-const DEFAULT_TEXT_STYLE: CSSTextStyle = {
-    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft YaHei Light", sans-serif',
-    fontSize: 14,
-    fontStyle: 'normal',
-    fontVariant: 'normal',
-    fontWeight: 'normal',
-    letterSpacing: 0
-}
-
-const cssDivId = "extended-graph-css-div";
-
 export const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
     textStyle: {
         textStyle: DEFAULT_TEXT_STYLE,
@@ -49,6 +51,30 @@ export const DEFAULT_FOLDER_STYLE: CSSFolderStyle = {
     strokeOpacity: 0.03 * 15,
     padding: { left: 0, top: 0, right: 0, bottom: 0 },
 }
+
+// ============================ Link Label Style ============================ //
+
+export interface CSSLinkLabelStyle {
+    textStyle: CSSTextStyle,
+    radius: number;
+    borderWidth: number;
+    borderColor?: ColorSource;
+    padding: { left: number, top: number, right: number, bottom: number };
+    backgroundColor?: ColorSource;
+}
+
+const DEFAULT_LINK_LABEL_STYLE: CSSLinkLabelStyle = {
+    textStyle: DEFAULT_TEXT_STYLE,
+    radius: 0,
+    borderWidth: 0,
+    padding: { left: 0, top: 0, right: 0, bottom: 0 },
+    borderColor: "transparent",
+    backgroundColor: "transparent"
+}
+
+// ==================== Creation of the <style> elements ==================== //
+
+const cssDivId = "extended-graph-css-div";
 
 export function applyCSSStyle(instances: GraphInstances): void {
     applyCoreCSSStyle(instances);
@@ -112,14 +138,27 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
 
     // First, add base styling with default values
     const css = `
-    .graph-view.node-text,
-    .graph-view.link-text {
+    .graph-view.node-text {
         font-family: ${DEFAULT_TEXT_STYLE.fontFamily};
         font-size: ${DEFAULT_TEXT_STYLE.fontSize};
         font-style: ${DEFAULT_TEXT_STYLE.fontStyle};
         font-variant: ${DEFAULT_TEXT_STYLE.fontVariant};
         font-weight: ${DEFAULT_TEXT_STYLE.fontWeight};
         letter-spacing: ${DEFAULT_TEXT_STYLE.letterSpacing}px;
+    }
+    .graph-view.link-text {
+        font-family: ${DEFAULT_LINK_LABEL_STYLE.textStyle.fontFamily};
+        font-size: ${DEFAULT_LINK_LABEL_STYLE.textStyle.fontSize};
+        font-style: ${DEFAULT_LINK_LABEL_STYLE.textStyle.fontStyle};
+        font-variant: ${DEFAULT_LINK_LABEL_STYLE.textStyle.fontVariant};
+        font-weight: ${DEFAULT_LINK_LABEL_STYLE.textStyle.fontWeight};
+        letter-spacing: ${DEFAULT_LINK_LABEL_STYLE.textStyle.letterSpacing}px;
+        
+        border-radius: ${DEFAULT_LINK_LABEL_STYLE.radius}px;
+        border-width: ${DEFAULT_LINK_LABEL_STYLE.borderWidth}px;
+        border-color: ${DEFAULT_LINK_LABEL_STYLE.borderColor};
+        padding: ${DEFAULT_LINK_LABEL_STYLE.padding.top}px ${DEFAULT_LINK_LABEL_STYLE.padding.right}px ${DEFAULT_LINK_LABEL_STYLE.padding.bottom}px ${DEFAULT_LINK_LABEL_STYLE.padding.left}px;
+        background-color: ${DEFAULT_LINK_LABEL_STYLE.backgroundColor};
     }
     .graph-view.folder {
         font-family: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontFamily};
@@ -145,6 +184,8 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
     instances.extendedStyleEl.innerHTML = css + "\n" + snippet[1];
 }
 
+// ============================ Helper functions ============================ //
+
 function getGraphComputedStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSStyleDeclaration {
     if (!instances.extendedStyleEl) return new CSSStyleDeclaration();
 
@@ -165,6 +206,18 @@ function detachCSSDiv(instances: GraphInstances): void {
     instances.extendedStyleEl?.ownerDocument.getElementById(cssDivId)?.remove();
 }
 
+function getUnitlessValue(valueString: string, fallback: number): number {
+    valueString = valueString.toLowerCase();
+    let value = fallback;
+    value = parseFloat(valueString.substring(0, valueString.length - 2));
+    if (isNaN(value)) {
+        value = fallback;
+    }
+    return value;
+}
+
+// ====================== Get style for a given element ===================== //
+
 function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSTextStyle {
     if (!instances.extendedStyleEl) return DEFAULT_TEXT_STYLE;
 
@@ -172,7 +225,7 @@ function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?
 
     const fontFamily = style.fontFamily;
 
-    const fontSize = getUnitlessPixel(style.fontSize, DEFAULT_TEXT_STYLE.fontSize);
+    const fontSize = getUnitlessValue(style.fontSize, DEFAULT_TEXT_STYLE.fontSize);
 
     let fontStyle = style.fontStyle.toLowerCase();
     if (!['normal', 'italic', 'oblique'].contains(fontStyle)) {
@@ -189,7 +242,7 @@ function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?
         fontWeight = DEFAULT_TEXT_STYLE.fontWeight;
     }
 
-    const letterSpacing = getUnitlessPixel(style.letterSpacing, DEFAULT_TEXT_STYLE.letterSpacing);
+    const letterSpacing = getUnitlessValue(style.letterSpacing, DEFAULT_TEXT_STYLE.letterSpacing);
 
     const fill = getGraphComputedStyle(instances, "color-text", data).color;
 
@@ -210,15 +263,29 @@ function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?
 export function getNodeTextStyle(instances: GraphInstances, path?: string): CSSTextStyle {
     return getTextStyle(instances, "node-text", { path: path });
 }
-export function getLinkTextStyle(instances: GraphInstances, data: { source?: string, target?: string } = {}): CSSTextStyle {
-    return getTextStyle(instances, "link-text", data);
-}
 
-export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
-    return style.fontStyle === 'normal'
-        && style.fontVariant === 'normal'
-        && style.fontWeight === 'normal'
-        && style.letterSpacing === 0;
+export function getLinkLabelStyle(instances: GraphInstances, data: { source?: string, target?: string } = {}): CSSLinkLabelStyle {
+    const textStyle = getTextStyle(instances, "link-text", data);
+
+    const style = getGraphComputedStyle(instances, "link-text", data);
+
+    const radius = getUnitlessValue(style.borderRadius, DEFAULT_LINK_LABEL_STYLE.radius);
+    const borderWidth = getUnitlessValue(style.borderWidth, DEFAULT_LINK_LABEL_STYLE.borderWidth);
+    const padding = {
+        left: getUnitlessValue(style.paddingLeft, DEFAULT_LINK_LABEL_STYLE.padding.left),
+        top: getUnitlessValue(style.paddingTop, DEFAULT_LINK_LABEL_STYLE.padding.top),
+        right: getUnitlessValue(style.paddingRight, DEFAULT_LINK_LABEL_STYLE.padding.right),
+        bottom: getUnitlessValue(style.paddingBottom, DEFAULT_LINK_LABEL_STYLE.padding.bottom),
+    }
+
+    return {
+        textStyle: textStyle,
+        borderWidth: borderWidth,
+        padding: padding,
+        radius: radius,
+        backgroundColor: style.backgroundColor === "rgba(0, 0, 0, 0)" ? undefined : style.backgroundColor,
+        borderColor: style.borderColor === "rgba(0, 0, 0, 0)" ? undefined : style.borderColor,
+    }
 }
 
 export function getFolderStyle(instances: GraphInstances, path?: string): CSSFolderStyle {
@@ -233,13 +300,13 @@ export function getFolderStyle(instances: GraphInstances, path?: string): CSSFol
         align = DEFAULT_FOLDER_STYLE.textStyle.align;
     }
 
-    const radius = getUnitlessPixel(style.borderRadius, DEFAULT_FOLDER_STYLE.radius);
-    const borderWidth = getUnitlessPixel(style.borderWidth, DEFAULT_FOLDER_STYLE.borderWidth);
+    const radius = getUnitlessValue(style.borderRadius, DEFAULT_FOLDER_STYLE.radius);
+    const borderWidth = getUnitlessValue(style.borderWidth, DEFAULT_FOLDER_STYLE.borderWidth);
     const padding = {
-        left: getUnitlessPixel(style.paddingLeft, DEFAULT_FOLDER_STYLE.padding.left),
-        top: getUnitlessPixel(style.paddingTop, DEFAULT_FOLDER_STYLE.padding.top),
-        right: getUnitlessPixel(style.paddingRight, DEFAULT_FOLDER_STYLE.padding.right),
-        bottom: getUnitlessPixel(style.paddingBottom, DEFAULT_FOLDER_STYLE.padding.bottom),
+        left: getUnitlessValue(style.paddingLeft, DEFAULT_FOLDER_STYLE.padding.left),
+        top: getUnitlessValue(style.paddingTop, DEFAULT_FOLDER_STYLE.padding.top),
+        right: getUnitlessValue(style.paddingRight, DEFAULT_FOLDER_STYLE.padding.right),
+        bottom: getUnitlessValue(style.paddingBottom, DEFAULT_FOLDER_STYLE.padding.bottom),
     }
 
     const opacityString = style.opacity.toLowerCase();
@@ -270,14 +337,11 @@ export function getFolderStyle(instances: GraphInstances, path?: string): CSSFol
     return folderStyle;
 }
 
-function getUnitlessPixel(valueString: string, fallback: number): number {
-    valueString = valueString.toLowerCase();
-    let value = fallback;
-    if (valueString.endsWith("px")) {
-        value = parseFloat(valueString);
-        if (isNaN(value)) {
-            value = fallback;
-        }
-    }
-    return value;
+// ======================== Other exported functions ======================== //
+
+export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
+    return style.fontStyle === 'normal'
+        && style.fontVariant === 'normal'
+        && style.fontWeight === 'normal'
+        && style.letterSpacing === 0;
 }
