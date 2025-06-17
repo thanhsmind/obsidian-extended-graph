@@ -126,6 +126,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     protected updateArrow(color: ColorSource, rotation: number) {
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
+
         if (link.arrow && link.arrow.visible) {
             let arrowAlpha: number = 1;
             if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']

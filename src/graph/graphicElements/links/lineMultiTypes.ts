@@ -1,5 +1,5 @@
 import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LINK_KEY, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
+import { ExtendedGraphLink, int2hex, InteractiveManager, lengthQuadratic, LINK_KEY, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
 
 
 export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraphics {
@@ -113,7 +113,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         }
 
 
-        let arrowColor: ColorSource | undefined = this.extendedLink.coreElement.arrow?.tint;
+        let arrowColor: ColorSource = this.color;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });

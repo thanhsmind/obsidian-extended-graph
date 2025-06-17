@@ -8,7 +8,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
 
         const renderer = this.extendedLink.coreElement.renderer;
 
-        let arrowColor: ColorSource | undefined = this.extendedLink.coreElement.arrow?.tint;
+        let arrowColor: ColorSource | undefined = this.color;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
 
 
