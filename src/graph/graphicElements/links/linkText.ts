@@ -1,4 +1,4 @@
-import { CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics } from "src/internal";
+import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics } from "src/internal";
 import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export class LinkText extends Container {
@@ -29,7 +29,7 @@ export class LinkText extends Container {
     }
 
     private needsGraphicsBackground(): boolean {
-        return (this.style.borderWidth > 0 && !!this.style.borderColor) || this.style.radius > 0;
+        return (this.style.borderWidth > 0 && this.style.borderColor.a > 0) || this.style.radius > 0;
     }
 
     connect() {
@@ -155,8 +155,13 @@ export class LinkText extends Container {
             this.addChildAt(this.background, 0);
         }
         this.background.clear();
-        this.background.lineStyle(this.style.borderWidth, this.style.borderColor ?? this.extendedLink.getStrokeColor() ?? this.extendedLink.coreElement.renderer.colors.line.rgb, 1, 1)
-            .beginFill(this.style.backgroundColor ?? backgroundColor)
+        console.log(this.style.borderColor);
+        const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.getStrokeColor() ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
+        if (this.style.backgroundColor.a > 0) {
+            backgroundColor = colorAttributes2hex(this.style.backgroundColor);
+        }
+        this.background.lineStyle(this.style.borderWidth, lineColor, 1, 1)
+            .beginFill(backgroundColor)
             .drawRoundedRect(0, 0, this.getWidth(), this.getHeight(), this.style.radius);
     }
 
@@ -167,7 +172,14 @@ export class LinkText extends Container {
             this.background = new Sprite(Texture.WHITE);
             this.addChildAt(this.background, 0);
         }
-        this.background.tint = this.style.backgroundColor ?? backgroundColor;
+        if (this.style.backgroundColor) {
+            this.background.tint = this.style.backgroundColor.a > 0 ? this.style.backgroundColor.rgb : backgroundColor;
+            this.background.alpha = this.style.backgroundColor.a > 0 ? this.style.backgroundColor.a : 1;
+        }
+        else {
+            this.background.tint = backgroundColor;
+            this.background.alpha = 1;
+        }
         this.background.width = this.getWidth();
         this.background.height = this.getHeight();
     }

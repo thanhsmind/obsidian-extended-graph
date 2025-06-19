@@ -26,6 +26,8 @@
 	},
 	"dependencies": {
 		"@pixi/filter-outline": "^5.2.0",
+		"@types/chroma-js": "^3.1.1",
+		"chroma-js": "^3.1.2",
 		"emoji-regex": "^10.4.0",
 		"graphology": "^0.25.4",
 		"graphology-components": "^1.5.4",

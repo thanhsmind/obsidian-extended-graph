@@ -1,7 +1,9 @@
 
+import chroma from "chroma-js";
+import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import path from "path";
-import { ColorSource, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
-import { GraphInstances, int2hex, PluginInstances } from "src/internal";
+import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
+import { GraphInstances, PluginInstances } from "src/internal";
 
 // =============================== Text Style =============================== //
 
@@ -58,9 +60,9 @@ export interface CSSLinkLabelStyle {
     textStyle: CSSTextStyle,
     radius: number;
     borderWidth: number;
-    borderColor?: ColorSource;
+    borderColor: GraphColorAttributes;
     padding: { left: number, top: number, right: number, bottom: number };
-    backgroundColor?: ColorSource;
+    backgroundColor: GraphColorAttributes;
 }
 
 const DEFAULT_LINK_LABEL_STYLE: CSSLinkLabelStyle = {
@@ -68,8 +70,8 @@ const DEFAULT_LINK_LABEL_STYLE: CSSLinkLabelStyle = {
     radius: 0,
     borderWidth: 0,
     padding: { left: 0, top: 0, right: 0, bottom: 0 },
-    borderColor: "transparent",
-    backgroundColor: "transparent"
+    borderColor: { rgb: 0, a: 0 },
+    backgroundColor: { rgb: 0, a: 0 }
 }
 
 // ==================== Creation of the <style> elements ==================== //
@@ -88,42 +90,42 @@ function applyCoreCSSStyle(instances: GraphInstances): void {
 
     const css = `
     .graph-view.color-fill {
-        color: ${int2hex(colors.fill.rgb)};
+        color: ${colorAttributes2hex(colors.fill)};
     }
     .graph-view.color-fill-focused {
-        color: ${int2hex(colors.fillFocused.rgb)};
+        color: ${colorAttributes2hex(colors.fillFocused)};
     }
     .graph-view.color-fill-tag {
-        color: ${int2hex(colors.fillTag.rgb)};
+        color: ${colorAttributes2hex(colors.fillTag)};
     }
     .graph-view.color-fill-attachment {
-        color: ${int2hex(colors.fillAttachment.rgb)};
+        color: ${colorAttributes2hex(colors.fillAttachment)};
     }
     .graph-view.color-fill-unresolved {
-        color: ${int2hex(colors.fillUnresolved.rgb)};
+        color: ${colorAttributes2hex(colors.fillUnresolved)};
         opacity: ${colors.fillUnresolved.a};
     }
     .graph-view.color-arrow {
-        color: ${int2hex(colors.arrow.rgb)};
+        color: ${colorAttributes2hex(colors.arrow)};
         opacity: ${colors.arrow.a};
     }
     .graph-view.color-circle {
-        color: ${int2hex(colors.fillFocused.rgb)};
+        color: ${colorAttributes2hex(colors.fillFocused)};
     }
     .graph-view.color-line {
-        color: ${int2hex(colors.line.rgb)};
+        color: ${colorAttributes2hex(colors.line)};
     }
     .graph-view.color-text {
         color: ${
         // @ts-ignore
-        int2hex(colors.text.rgb)
+        colorAttributes2hex(colors.text)
         };
     }
     .graph-view.color-fill-highlight {
-        color: ${int2hex(colors.fillHighlight.rgb)};
+        color: ${colorAttributes2hex(colors.fillHighlight)};
     }
     .graph-view.color-line-highlight {
-        color: ${int2hex(colors.lineHighlight.rgb)};
+        color: ${colorAttributes2hex(colors.lineHighlight)};
     }
     body {
         font-family: ${getComputedStyle(instances.renderer.interactiveEl).fontFamily};
@@ -156,9 +158,9 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
         
         border-radius: ${DEFAULT_LINK_LABEL_STYLE.radius}px;
         border-width: ${DEFAULT_LINK_LABEL_STYLE.borderWidth}px;
-        border-color: ${DEFAULT_LINK_LABEL_STYLE.borderColor};
+        border-color: ${colorAttributes2hex(DEFAULT_LINK_LABEL_STYLE.borderColor)};
         padding: ${DEFAULT_LINK_LABEL_STYLE.padding.top}px ${DEFAULT_LINK_LABEL_STYLE.padding.right}px ${DEFAULT_LINK_LABEL_STYLE.padding.bottom}px ${DEFAULT_LINK_LABEL_STYLE.padding.left}px;
-        background-color: ${DEFAULT_LINK_LABEL_STYLE.backgroundColor};
+        background-color: ${colorAttributes2hex(DEFAULT_LINK_LABEL_STYLE.backgroundColor)};
     }
     .graph-view.folder {
         font-family: ${DEFAULT_FOLDER_STYLE.textStyle.textStyle.fontFamily};
@@ -278,13 +280,16 @@ export function getLinkLabelStyle(instances: GraphInstances, data: { source?: st
         bottom: getUnitlessValue(style.paddingBottom, DEFAULT_LINK_LABEL_STYLE.padding.bottom),
     }
 
+    const backgroundColor = chroma(style.backgroundColor);
+    const borderColor = chroma(style.borderColor);
+
     return {
         textStyle: textStyle,
         borderWidth: borderWidth,
         padding: padding,
         radius: radius,
-        backgroundColor: style.backgroundColor === "rgba(0, 0, 0, 0)" ? undefined : style.backgroundColor,
-        borderColor: style.borderColor === "rgba(0, 0, 0, 0)" ? undefined : style.borderColor,
+        backgroundColor: { rgb: backgroundColor.num(), a: backgroundColor.alpha() },
+        borderColor: { rgb: borderColor.num(), a: borderColor.alpha() },
     }
 }
 
@@ -344,4 +349,50 @@ export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
         && style.fontVariant === 'normal'
         && style.fontWeight === 'normal'
         && style.letterSpacing === 0;
+}
+
+function cssColor2rgb(color: string): Uint8Array | undefined {
+    return new Uint8Array(chroma(color).rgb());
+}
+
+export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
+    let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
+    let el: Element = renderer.interactiveEl;
+    while (bg.startsWith("rgba(") && bg.endsWith(", 0)") && el.parentElement) {
+        el = el.parentElement as Element;
+        bg = window.getComputedStyle(el).backgroundColor;
+    }
+
+    const result = cssColor2rgb(bg);
+    if (result) {
+        return result;
+    }
+    else {
+        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
+            return new Uint8Array([255, 255, 255]);
+        }
+        else {
+            return new Uint8Array([0, 0, 0]);
+        }
+    }
+}
+
+export function getPrimaryColor(renderer: GraphRenderer): Uint8Array {
+    const variable = window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100');
+    const result = cssColor2rgb(variable);
+    if (result) {
+        return result;
+    }
+    else {
+        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
+            return new Uint8Array([255, 255, 255]);
+        }
+        else {
+            return new Uint8Array([0, 0, 0]);
+        }
+    }
+}
+
+export function colorAttributes2hex(color: GraphColorAttributes): string {
+    return chroma(color.rgb).alpha(color.a).hex();
 }
