@@ -1,3 +1,12 @@
+/** 
+ * All credits for this go to romgrk's color-bits code
+ * https://github.com/romgrk/color-bits
+ * 
+ * I just adapted it to remove the alpha channel from the numeric result in 
+ * order to comply with the {rgb: number, a: number} structure used in
+ * Obsidian and Pixi (which doesn't support alpha in decimal colors)
+ */
+
 
 // ========================================================================== //
 //                                     BIT                                  //
@@ -6,14 +15,6 @@
 import chroma from "chroma-js";
 import { GraphColorAttributes } from "obsidian-typings";
 
-const INT32_TO_UINT32_OFFSET = 2 ** 32;
-
-export function cast(n: number) {
-    if (n < 0) {
-        return n + INT32_TO_UINT32_OFFSET;
-    }
-    return n;
-}
 
 export function get(n: number, offset: number) {
     return (n >> offset) & 0xff;
@@ -57,13 +58,6 @@ export function from(color: number) {
     );
 }
 
-/**
- * Turns the color into its equivalent number representation.
- * This is essentially a cast from int32 to uint32.
- */
-export function toNumber(color: Color) {
-    return cast(color);
-}
 
 export function getRed(c: Color) { return get(c, OFFSET_R); }
 export function getGreen(c: Color) { return get(c, OFFSET_G); }
