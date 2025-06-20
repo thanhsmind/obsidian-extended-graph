@@ -1,5 +1,5 @@
 import { Setting, ToggleComponent } from "obsidian";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { FOLDER_KEY, GCSection, getCSSSplitRGB, GraphInstances, InteractiveManager, InteractiveUI } from "src/internal";
 import STRINGS from "src/Strings";
 

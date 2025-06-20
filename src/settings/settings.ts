@@ -1,4 +1,3 @@
-import * as Color from 'color-bits';
 import {
     DEFAULT_STATE_ID,
     EngineOptions,
@@ -59,7 +58,7 @@ export interface ExtendedGraphSettings {
 
     // Color palettes
     customColorMaps: Record<string, {
-        colors: number[][], // between 0 and 1
+        colors: string[], // Hex codes, so it's easier to human read
         stops: number[],
         reverse: boolean,
         interpolate: boolean,

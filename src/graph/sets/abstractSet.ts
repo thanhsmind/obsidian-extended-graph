@@ -1,6 +1,6 @@
 import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { ExtendedGraphElement, ExtendedGraphLink, ExtendedGraphNode, GraphInstances, InteractiveManager, INVALID_KEYS, SettingQuery, TAG_KEY } from "src/internal";
 
 

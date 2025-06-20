@@ -1,12 +1,12 @@
 import { HexString } from 'obsidian';
 import { getSortedColorAndStopPoints, getCMapData } from './colormaps';
 import { ExtendedGraphSettings } from 'src/internal';
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import chroma from 'chroma-js';
 import { Color as PixiColor, ColorSource } from "pixi.js";
 
 export function rgb2int(rgb: number[]): Color.Color {
-    return Color.setAlpha(Color.setBlue(Color.setGreen(Color.setRed(0, rgb[0]), rgb[1]), rgb[2]), 1);
+    return Color.newColor(rgb[0], rgb[1], rgb[2]);
 }
 
 export function int2hex(n: Color.Color): HexString {
@@ -14,7 +14,7 @@ export function int2hex(n: Color.Color): HexString {
 }
 
 export function hex2int(hex: string): Color.Color {
-    return Color.parseHex(hex);
+    return Color.parseHex(hex).rgb;
 }
 
 export function textColor(backgroundColor: Color.Color, dark: string = "black", light: string = "white"): string {
@@ -74,7 +74,7 @@ export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interp
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         for (let i = 0; i < sortedColors.length; ++i) {
             const stop = sortedStops[i];
-            gradient.addColorStop(stop, Color.formatRGBA(sortedColors[i]));
+            gradient.addColorStop(stop, Color.formatHEX(sortedColors[i]));
         }
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -83,7 +83,7 @@ export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interp
         for (let i = 0; i < sortedColors.length; ++i) {
             const stopPrevious = i === 0 ? 0 : sortedStops[i];
             const stopNext = i === sortedColors.length - 1 ? 1 : sortedStops[Math.min(i + 1, sortedStops.length - 1)];
-            ctx.fillStyle = Color.formatRGBA(sortedColors[i]);
+            ctx.fillStyle = Color.formatHEX(sortedColors[i]);
             ctx.fillRect(stopPrevious * canvas.width, 0, stopNext * canvas.width, canvas.height);
         }
     }

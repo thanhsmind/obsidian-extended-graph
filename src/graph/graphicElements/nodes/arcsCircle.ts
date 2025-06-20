@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { ExtendedGraphNode, getFile, getNumberOfFileInteractives, InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
 
 export class Arc {

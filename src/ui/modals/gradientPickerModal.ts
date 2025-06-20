@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { ButtonComponent, ExtraButtonComponent, Modal, setIcon, Setting } from "obsidian";
-import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, UIElements } from "src/internal";
+import * as Color from 'src/colors/color-bits';
+import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, rgb2int, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GradientPickerModal extends Modal {
@@ -109,7 +110,7 @@ export class GradientPickerModal extends Modal {
             id = existing[0];
         }
 
-        plotColorMap(this.customPalettes[id].canvas, data.reverse, data.interpolate, data.colors, data.stops);
+        plotColorMap(this.customPalettes[id].canvas, data.reverse, data.interpolate, data.colors.map(col => Color.parseHex(col).rgb), data.stops);
     }
 
     private editCustomPalette(id: string) {
@@ -145,7 +146,7 @@ export class GradientPickerModal extends Modal {
 
         this.customPalettes[id].name = newName;
         this.customPalettes[id].setting.setName(newName);
-        plotColorMap(this.customPalettes[id].canvas, data.reverse, data.interpolate, data.colors, data.stops);
+        plotColorMap(this.customPalettes[id].canvas, data.reverse, data.interpolate, data.colors.map(col => Color.parseHex(col).rgb), data.stops);
     }
 
     private deleteCustomPalette(id: string) {

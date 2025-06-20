@@ -1,5 +1,5 @@
 import { ButtonComponent, Component, ExtraButtonComponent, setIcon, Setting } from "obsidian";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import {
     CombinationLogic,
     FOLDER_KEY,

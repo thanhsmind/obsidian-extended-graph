@@ -133,7 +133,8 @@ export class LinkText extends Container {
             this.drawGraphics(getBackgroundColor(this.extendedLink.coreElement.renderer));
         }
         else {
-            this.drawSprite(getBackgroundColor(this.extendedLink.coreElement.renderer));
+            const bgColor = getBackgroundColor(this.extendedLink.coreElement.renderer);
+            this.drawSprite(bgColor);
         }
 
         this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
@@ -171,9 +172,9 @@ export class LinkText extends Container {
             this.background = new Sprite(Texture.WHITE);
             this.addChildAt(this.background, 0);
         }
-        if (this.style.backgroundColor) {
-            this.background.tint = this.style.backgroundColor.a > 0 ? this.style.backgroundColor.rgb : backgroundColor;
-            this.background.alpha = this.style.backgroundColor.a > 0 ? this.style.backgroundColor.a : 1;
+        if (this.style.backgroundColor.a > 0) {
+            this.background.tint = this.style.backgroundColor.rgb;
+            this.background.alpha = this.style.backgroundColor.a;
         }
         else {
             this.background.tint = backgroundColor;

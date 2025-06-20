@@ -1,5 +1,5 @@
 import { IDestroyOptions } from "pixi.js";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
 
 

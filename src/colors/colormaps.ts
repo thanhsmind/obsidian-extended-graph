@@ -7,7 +7,7 @@
 
 import { ExtendedGraphSettings, rgb2int } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 
 export const cmOptions = {
     "Perceptually Uniform Sequential": [
@@ -490,9 +490,8 @@ export function getCMapData(name: string, settings: ExtendedGraphSettings): { in
             return;
         }
         const data = settings.customColorMaps[name];
-        console.log(data.colors);
         return {
-            colors: data.colors.map(rgb => rgb2int([rgb[0] * 255, rgb[1] * 255, rgb[2] * 255])),
+            colors: data.colors.map(rgb => Color.parseHex(rgb).rgb),
             interpolate: data.interpolate,
             reverse: data.reverse,
             stops: data.stops
@@ -567,7 +566,7 @@ function interpolated(x: number, colors: Color.Color[], stops: number[]): Color.
     const r = Color.getRed(lowColor) * (1 - t) + Color.getRed(highColor) * t;
     const g = Color.getGreen(lowColor) * (1 - t) + Color.getGreen(highColor) * t;
     const b = Color.getBlue(lowColor) * (1 - t) + Color.getBlue(highColor) * t;
-    return Color.setAlpha(Color.setBlue(Color.setGreen(Color.setRed(16777215, r), g), b), 1);
+    return Color.newColor(r, g, b);
 }
 
 function qualitative(x: number, colors: Color.Color[], stops: number[]): Color.Color {

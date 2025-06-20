@@ -1,6 +1,6 @@
 
 import chroma from "chroma-js";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import path from "path";
 import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
@@ -352,7 +352,7 @@ export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
         && style.letterSpacing === 0;
 }
 
-function cssColor2rgb(color: string): Color.Color | undefined {
+function cssColor2int(color: string): Color.Color | undefined {
     return chroma(color).num();
 }
 
@@ -364,21 +364,20 @@ export function getBackgroundColor(renderer: GraphRenderer): Color.Color {
         bg = window.getComputedStyle(el).backgroundColor;
     }
 
-    return cssColor2rgb(bg)
-        ?? PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 16777215 : 0;
+    return (cssColor2int(bg)) ?? (PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 16777215 : 0);
 }
 
 export function getPrimaryColor(renderer: GraphRenderer): Color.Color {
-    return cssColor2rgb(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100'))
-        ?? PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 0 : 16777215
+    return (cssColor2int(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100')))
+        ?? (PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 0 : 16777215)
 }
 
 export function colorAttributes2hex(color: GraphColorAttributes): string {
-    return Color.formatHEX(Color.alpha(color.rgb, color.a));
+    return Color.formatHEX(color.rgb, color.a);
 }
 
 export function getThemeColor(renderer: GraphRenderer, color: string): Color.Color {
-    return cssColor2rgb(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-' + color))
+    return cssColor2int(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-' + color))
         ?? chroma(color).num();
 }
 

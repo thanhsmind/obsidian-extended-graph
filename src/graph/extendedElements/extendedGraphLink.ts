@@ -1,7 +1,7 @@
 import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
 import { Container } from "pixi.js";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import {
     AnimatedDotOnCurve,
     AnimatedDotOnLine,
@@ -237,7 +237,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             const manager = this.managers.get(LINK_KEY);
             const type = this.getActiveType(LINK_KEY);
             if (manager && type && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-                //console.log(Color.toRGBA(842150401 << 0));
                 return manager.getColor(type);
             }
         }

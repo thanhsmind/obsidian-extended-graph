@@ -1,7 +1,7 @@
 import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import {
     applyCSSStyle,
     ExtendedGraphSettings,

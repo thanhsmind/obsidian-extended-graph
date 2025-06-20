@@ -1,7 +1,7 @@
 
 import { Component } from "obsidian";
 import { evaluateCMap, GraphInstances, GraphStateDataQuery, hex2int, LINK_KEY, NONE_COLOR, SettingQuery } from "src/internal";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 
 class Interactive {
     type: string;

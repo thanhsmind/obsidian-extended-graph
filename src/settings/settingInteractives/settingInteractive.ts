@@ -1,5 +1,4 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
-import * as Color from 'color-bits';
 import {
     ExtendedGraphSettingTab,
     Feature,

@@ -1,5 +1,5 @@
 import { ButtonComponent, ColorComponent, KeymapContext, Modal, setIcon, Setting } from "obsidian";
-import * as Color from 'color-bits';
+import * as Color from 'src/colors/color-bits';
 import { plotColorMap, rgb2int } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
 import STRINGS from "src/Strings";
@@ -47,7 +47,7 @@ export class GradientMakerModal extends Modal {
             const data = PluginInstances.settings.customColorMaps[this.name];
             this.reverse = data.reverse;
             this.interpolate = data.interpolate;
-            const colorsStopsMap = data.colors.map((c, i) => { return { col: c, stop: data.stops[i] } });
+            const colorsStopsMap = data.colors.map((c, i) => { return { col: Color.parseHex(c).rgb, stop: data.stops[i] } });
             for (const { col, stop } of colorsStopsMap) {
                 this.addHandle(col, stop)
             }
@@ -71,7 +71,7 @@ export class GradientMakerModal extends Modal {
         colorComponent.onChange((hex) => {
             const data = this.cmapData.find(v => v.handle === colorComponent);
             if (data) {
-                data.color = Color.parseHex(hex);
+                data.color = Color.parseHex(hex).rgb;
                 this.updateCanvas();
             }
         })
@@ -225,7 +225,7 @@ export class GradientMakerModal extends Modal {
         if (this.name === "") return;
 
         PluginInstances.settings.customColorMaps[this.name] = {
-            colors: this.cmapData.map(v => v.color),
+            colors: this.cmapData.map(v => Color.formatHEX(v.color)),
             stops: this.cmapData.map(v => v.stop),
             interpolate: this.interpolate,
             reverse: this.reverse,
