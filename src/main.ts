@@ -12,6 +12,8 @@ import {
     LINK_KEY,
     PluginInstances,
     ProxysManager,
+    rgb2hex,
+    rgb2int,
     StatesManager,
     TAG_KEY
 } from './internal';
@@ -217,6 +219,25 @@ export default class ExtendedGraphPlugin extends Plugin {
             }
             else {
                 settings["interactiveSettings"] = {};
+            }
+        }
+
+        // 2.4.7 --> 2.4.8
+        if (typeof settings["customColorMaps"] === "object") {
+            for (const name in settings["customColorMaps"]) {
+                if (Array.isArray(settings["customColorMaps"][name]['colors'])) {
+                    for (const i in settings["customColorMaps"][name]['colors']) {
+                        const col = settings["customColorMaps"][name]['colors'][i];
+                        if (Array.isArray(col)) {
+                            if (col.every(c => typeof c === "number")) {
+                                settings["customColorMaps"][name]['colors'][i] = rgb2hex(col.map(c => Math.round(c * 255)));
+                            }
+                            else {
+                                settings["customColorMaps"][name]['colors'][i] = "#000000";
+                            }
+                        }
+                    }
+                }
             }
         }
 

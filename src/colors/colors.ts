@@ -9,6 +9,10 @@ export function rgb2int(rgb: number[]): Color.Color {
     return Color.newColor(rgb[0], rgb[1], rgb[2]);
 }
 
+export function rgb2hex(rgb: number[]): HexString {
+    return int2hex(rgb2int(rgb));
+}
+
 export function int2hex(n: Color.Color): HexString {
     return Color.formatHEX(n);
 }
