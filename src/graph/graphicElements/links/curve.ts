@@ -1,12 +1,13 @@
 import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
+import * as Color from 'color-bits';
+import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, pixiColor2int, quadratic } from "src/internal";
 
 
 export abstract class LinkCurveGraphics extends Graphics implements ManagerGraphics {
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
-    color: ColorSource;
+    color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
     activeType: string | undefined;
@@ -37,7 +38,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
             this.color = this.manager.getColor(this.activeType);
         }
         else if (this.extendedLink.coreElement.line) {
-            this.color = this.extendedLink.coreElement.line.tint
+            this.color = pixiColor2int(this.extendedLink.coreElement.line.tint)
         }
         else {
             this.color = this.extendedLink.coreElement.renderer.colors.line.rgb;
@@ -123,7 +124,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         return true;
     }
 
-    protected updateArrow(color: ColorSource, rotation: number) {
+    protected updateArrow(color: Color.Color, rotation: number) {
         const renderer = this.extendedLink.coreElement.renderer;
         const link = this.extendedLink.coreElement;
 

@@ -1,4 +1,4 @@
-
+import * as Color from 'color-bits';
 import {
     DEFAULT_STATE_ID,
     EngineOptions,

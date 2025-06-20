@@ -1,5 +1,6 @@
 
 import chroma from "chroma-js";
+import * as Color from 'color-bits';
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import path from "path";
 import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
@@ -351,11 +352,11 @@ export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
         && style.letterSpacing === 0;
 }
 
-function cssColor2rgb(color: string): Uint8Array | undefined {
-    return new Uint8Array(chroma(color).rgb());
+function cssColor2rgb(color: string): Color.Color | undefined {
+    return chroma(color).num();
 }
 
-export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
+export function getBackgroundColor(renderer: GraphRenderer): Color.Color {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
     let el: Element = renderer.interactiveEl;
     while (bg.startsWith("rgba(") && bg.endsWith(", 0)") && el.parentElement) {
@@ -363,36 +364,24 @@ export function getBackgroundColor(renderer: GraphRenderer): Uint8Array {
         bg = window.getComputedStyle(el).backgroundColor;
     }
 
-    const result = cssColor2rgb(bg);
-    if (result) {
-        return result;
-    }
-    else {
-        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
-            return new Uint8Array([255, 255, 255]);
-        }
-        else {
-            return new Uint8Array([0, 0, 0]);
-        }
-    }
+    return cssColor2rgb(bg)
+        ?? PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 16777215 : 0;
 }
 
-export function getPrimaryColor(renderer: GraphRenderer): Uint8Array {
-    const variable = window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100');
-    const result = cssColor2rgb(variable);
-    if (result) {
-        return result;
-    }
-    else {
-        if (PluginInstances.app.vault.getConfig('theme') === "moonstone") {
-            return new Uint8Array([255, 255, 255]);
-        }
-        else {
-            return new Uint8Array([0, 0, 0]);
-        }
-    }
+export function getPrimaryColor(renderer: GraphRenderer): Color.Color {
+    return cssColor2rgb(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100'))
+        ?? PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 0 : 16777215
 }
 
 export function colorAttributes2hex(color: GraphColorAttributes): string {
-    return chroma(color.rgb).alpha(color.a).hex();
+    return Color.formatHEX(Color.alpha(color.rgb, color.a));
+}
+
+export function getThemeColor(renderer: GraphRenderer, color: string): Color.Color {
+    return cssColor2rgb(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-' + color))
+        ?? chroma(color).num();
+}
+
+export function getCSSSplitRGB(color: Color.Color): string {
+    return `${Color.getRed(color)}, ${Color.getGreen(color)}, ${Color.getBlue(color)}`;
 }

@@ -1,5 +1,5 @@
 import { GraphColorAttributes, } from "obsidian-typings";
-import { ExtendedGraphNode, NodeShape, PluginInstances, rgb2int, SettingQuery, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
+import { ExtendedGraphNode, NodeShape, SettingQuery, TAG_KEY, TagNodeGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphTagNode extends ExtendedGraphNode {
     graphicsWrapper: TagNodeGraphicsWrapper;
@@ -23,8 +23,8 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {
-        const rgb = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
-        if (!rgb) return undefined;
-        return { rgb: rgb2int(rgb), a: 1 }
+        const color = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
+        if (!color) return undefined;
+        return { rgb: color, a: 1 }
     }
 }

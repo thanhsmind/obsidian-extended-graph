@@ -2,7 +2,8 @@ import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
-import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, INVALID_KEYS, PluginInstances, randomColor, rgb2hex, SettingQuery } from "src/internal";
+import * as Color from 'color-bits';
+import { CSSFolderStyle, DEFAULT_FOLDER_STYLE, FOLDER_KEY, getFile, getFileInteractives, GraphInstances, InteractiveManager, PluginInstances, randomColor, SettingQuery } from "src/internal";
 
 export class FolderBlob {
     readonly path: string;
@@ -11,10 +12,10 @@ export class FolderBlob {
     area: Graphics;
     text: Text;
     textStyle: TextStyle;
-    color: string;
+    color: Color.Color;
     BBox: { left: number, right: number, top: number, bottom: number };
 
-    constructor(path: string, folderStyle: CSSFolderStyle, color?: string) {
+    constructor(path: string, folderStyle: CSSFolderStyle, color?: Color.Color) {
         this.path = path;
         this.folderStyle = folderStyle;
         this.color = color ? color : randomColor();
@@ -248,7 +249,7 @@ export class FoldersSet {
             let blobExists = true;
             if (!blob) {
                 blobExists = false;
-                blob = new FolderBlob(path, this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE, manager ? rgb2hex(manager.getColor(path)) : undefined);
+                blob = new FolderBlob(path, this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE, manager ? manager.getColor(path) : undefined);
                 blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             else if (blob.area.destroyed || !blob.area.parent) {
@@ -300,7 +301,7 @@ export class FoldersSet {
         const manager = this.managers.get(key);
         const folderBlob = this.foldersMap.get(path);
         if (!folderBlob || !manager) return;
-        folderBlob.color = rgb2hex(manager.getColor(path));
+        folderBlob.color = manager.getColor(path);
         folderBlob.updateGraphics(this.instances.renderer.scale);
     }
 

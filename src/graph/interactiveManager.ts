@@ -1,19 +1,20 @@
 
 import { Component } from "obsidian";
-import { evaluateCMap, GraphInstances, GraphStateDataQuery, hex2rgb, int2rgb, LINK_KEY, NONE_COLOR, SettingQuery } from "src/internal";
+import { evaluateCMap, GraphInstances, GraphStateDataQuery, hex2int, LINK_KEY, NONE_COLOR, SettingQuery } from "src/internal";
+import * as Color from 'color-bits';
 
 class Interactive {
     type: string;
-    color: Uint8Array;
+    color: Color.Color;
     isActive: boolean;
 
-    constructor(type: string, color: Uint8Array) {
+    constructor(type: string, color: Color.Color) {
         this.type = type;
         this.color = color;
         this.isActive = true;
     }
 
-    setColor(color: Uint8Array) {
+    setColor(color: Color.Color) {
         this.color = color;
     }
 }
@@ -71,7 +72,7 @@ export class InteractiveManager extends Component {
         }
     }
 
-    setColor(type: string, color: Uint8Array): void {
+    setColor(type: string, color: Color.Color): void {
         const interactive = this.interactives.get(type);
         if (!interactive) return;
 
@@ -88,7 +89,7 @@ export class InteractiveManager extends Component {
     }
 
     addTypes(types: Set<string> | string[]): void {
-        const colorsMaps = new Map<string, Uint8Array>();
+        const colorsMaps = new Map<string, Color.Color>();
         const allTypes = new Set<string>([...this.interactives.keys(), ...types].sort());
         const allTypesWithoutNone = new Set<string>(allTypes);
         allTypesWithoutNone.delete(this.instances.settings.interactiveSettings[this.name].noneType);
@@ -115,9 +116,9 @@ export class InteractiveManager extends Component {
         }
     }
 
-    getColor(type: string): Uint8Array {
+    getColor(type: string): Color.Color {
         const interactive = this.interactives.get(type);
-        return interactive ? interactive.color : new Uint8Array([0, 0, 0]);
+        return interactive ? interactive.color : 0;
     }
 
     getTypes(): string[] {
@@ -149,15 +150,15 @@ export class InteractiveManager extends Component {
         if (color) this.setColor(type, color);
     }
 
-    private tryComputeColorFromType(type: string): Uint8Array | null {
-        let color: Uint8Array;
+    private tryComputeColorFromType(type: string): Color.Color | null {
+        let color: Color.Color;
         const colorSettings = this.instances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
         if (colorSettings) {
-            color = hex2rgb(colorSettings);
+            color = hex2int(colorSettings);
         }
         else if (type === this.instances.settings.interactiveSettings[this.name].noneType) {
             if (this.name === LINK_KEY) {
-                color = int2rgb(this.instances.renderer.colors.line.rgb);
+                color = this.instances.renderer.colors.line.rgb;
             }
             else {
                 color = NONE_COLOR;
@@ -177,8 +178,8 @@ export class InteractiveManager extends Component {
         return color;
     }
 
-    private computeColorFromIndex(index: number, nColors: number) {
+    private computeColorFromIndex(index: number, nColors: number): Color.Color {
         const x = nColors === 1 ? 0.5 : index / (nColors - 1);
-        return evaluateCMap(x, this.instances.settings.interactiveSettings[this.name].colormap, this.instances.settings)
+        return evaluateCMap(x, this.instances.settings.interactiveSettings[this.name].colormap, this.instances.settings);
     }
 }

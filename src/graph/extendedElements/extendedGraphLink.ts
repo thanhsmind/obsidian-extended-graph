@@ -1,20 +1,19 @@
 import { OutlineFilter } from "@pixi/filter-outline";
 import { GraphLink } from "obsidian-typings";
-import { Container, Text } from "pixi.js";
+import { Container } from "pixi.js";
+import * as Color from 'color-bits';
 import {
     AnimatedDotOnCurve,
     AnimatedDotOnLine,
     CurveLinkGraphicsWrapper,
     ExtendedGraphArrow,
     ExtendedGraphElement,
-    getNodeTextStyle,
     getPrimaryColor,
     LineLinkGraphicsWrapper,
     LINK_KEY,
     LinkCurveGraphics,
     LinkText,
     PluginInstances,
-    rgb2int,
     SettingQuery
 } from "src/internal";
 
@@ -170,7 +169,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             this.graphicsWrapper.pixiElement.addListener('destroyed', this.removeContainer);
         }
         container.filters = [new OutlineFilter(
-            1, rgb2int(getPrimaryColor(this.coreElement.renderer)), 0.1, 1, false
+            1, getPrimaryColor(this.coreElement.renderer), 0.1, 1, false
         )];
         this.coreElement.renderer.hanger.addChild(container);
     }
@@ -224,12 +223,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         return this.coreElement.source === this.coreElement.renderer.getHighlightNode() || this.coreElement.target === this.coreElement.renderer.getHighlightNode();
     }
 
-    getStrokeColor(overrideHighlight: boolean = false): number | undefined {
+    getStrokeColor(overrideHighlight: boolean = false): Color.Color | undefined {
         if (!overrideHighlight && this.isHighlighted()) {
             return;
         }
 
-        let color: number | undefined;
+        let color: Color.Color | undefined;
 
         // From type
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
@@ -238,8 +237,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             const manager = this.managers.get(LINK_KEY);
             const type = this.getActiveType(LINK_KEY);
             if (manager && type && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-                color = rgb2int(manager.getColor(type));
-                return color
+                //console.log(Color.toRGBA(842150401 << 0));
+                return manager.getColor(type);
             }
         }
 

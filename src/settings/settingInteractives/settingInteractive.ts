@@ -1,14 +1,16 @@
 import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
+import * as Color from 'color-bits';
 import {
     ExtendedGraphSettingTab,
     Feature,
     FOLDER_KEY,
     getCMapData,
     getFileInteractives,
+    hex2int,
+    int2hex,
     InteractivesColorSuggester,
     InteractivesSelectionModal,
     LINK_KEY,
-    plotColorMapFromName,
     PluginInstances,
     randomColor,
     SettingColorPalette,
@@ -87,7 +89,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
-                    this.addColor("", randomColor());
+                    this.addColor("", int2hex(randomColor()));
                 })
             });
         this.elementsBody.push(this.settingInteractiveColor.settingEl);
@@ -153,7 +155,7 @@ class SettingColor extends Setting {
     isValid: (type: string) => boolean;
     key: string;
     type: string;
-    color: string;
+    color: HexString;
 
     textComponent: TextComponent;
     colorComponent: ColorComponent;
@@ -197,7 +199,7 @@ class SettingColor extends Setting {
         this.addColorPicker(cb => {
             this.colorComponent = cb;
             cb.setValue(color);
-            cb.onChange((color: string) => {
+            cb.onChange((hex: string) => {
                 this.updateCSS();
                 this.save();
             })

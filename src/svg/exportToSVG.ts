@@ -1,5 +1,4 @@
-import { HexString } from "obsidian";
-import { Color, ColorSource } from 'pixi.js';
+import * as Color from 'color-bits';
 import { GraphEngine, GraphLink, GraphNode, GraphRenderer } from "obsidian-typings";
 import {
     CurveLinkGraphicsWrapper,
@@ -14,12 +13,12 @@ import {
     getLinkID,
     getSVGNode,
     GraphInstances,
-    hex2rgb,
     int2hex,
     NodeShape,
+    pixiColor2hex,
+    pixiColor2int,
     PluginInstances,
     polar2Cartesian,
-    rgb2hex,
     textColor
 } from "src/internal";
 import STRINGS from "src/Strings";
@@ -27,7 +26,8 @@ import STRINGS from "src/Strings";
 export abstract class ExportGraphToSVG {
     svg: SVGSVGElement;
     renderer: GraphRenderer;
-    backgroundColor: string;
+    backgroundColor: Color.Color;
+    backgroundColorHex: string;
 
     groupLinks: SVGElement;
     groupNodes: SVGElement;
@@ -40,7 +40,8 @@ export abstract class ExportGraphToSVG {
 
     constructor(renderer: GraphRenderer) {
         this.renderer = renderer;
-        this.backgroundColor = rgb2hex(getBackgroundColor(this.renderer));
+        this.backgroundColor = getBackgroundColor(this.renderer);
+        this.backgroundColorHex = int2hex(this.backgroundColor);
     }
 
     protected createSVG() {
@@ -81,7 +82,7 @@ export abstract class ExportGraphToSVG {
             height: h * 1.1,
             x: xMin - w * 0.05,
             y: yMin - h * 0.05,
-            fill: this.backgroundColor
+            fill: this.backgroundColorHex
         }));
 
         // Defs
@@ -151,7 +152,7 @@ export abstract class ExportGraphToSVG {
             id: 'text:' + node.id,
             x: coreNode.x,
             y: coreNode.y + coreNode.getSize() + this.fontSize + 4,
-            style: `font-size: ${this.fontSize}px; fill: ${coreNode.text?.style.fill ?? textColor(hex2rgb(this.backgroundColor))};`,
+            style: `font-size: ${this.fontSize}px; fill: ${coreNode.text?.style.fill ?? textColor(this.backgroundColor)};`,
             'text-anchor': "middle"
         });
         text.textContent = this.getText(coreNode);
@@ -249,7 +250,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
                 'id': 'textBackground'
             });
             const feFlood = getSVGNode('feFlood', {
-                'flood-color': this.backgroundColor,
+                'flood-color': this.backgroundColorHex,
                 'result': "bg"
             });
             const feMerge = getSVGNode('feMerge');
@@ -341,7 +342,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         if (extendedNode.icon?.svg && this.options.showIcons) {
             const shape = extendedNode.icon.svg;
             shape.style.stroke = int2hex(node.getFillColor().rgb);
-            shape.style.fill = this.backgroundColor;
+            shape.style.fill = this.backgroundColorHex;
             const g = getSVGNode('g', {
                 class: 'node-shape',
                 transform: `translate(${node.x - size} ${node.y - size}) scale(${size / shape.width.baseVal.value * 2})`,
@@ -419,7 +420,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
                         r: radius,
                         opacity: alpha,
                         'stroke-width': thickness,
-                        'stroke': rgb2hex(arc.color),
+                        'stroke': int2hex(arc.color),
                         'fill': 'none',
                     });
                     circleGroup.appendChild(arcSVG);
@@ -432,7 +433,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
                         d: path,
                         opacity: alpha,
                         'stroke-width': thickness,
-                        'stroke': rgb2hex(arc.color),
+                        'stroke': int2hex(arc.color),
                         'fill': 'none',
                     });
                     circleGroup.appendChild(arcSVG);
@@ -458,8 +459,8 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             height: BBox.bottom - BBox.top,
             width: BBox.right - BBox.left,
             rx: folderBlob.folderStyle.radius,
-            fill: folderBlob.color,
-            stroke: folderBlob.color,
+            fill: int2hex(folderBlob.color),
+            stroke: int2hex(folderBlob.color),
             'stroke-width': folderBlob.folderStyle.borderWidth,
             'fill-opacity': folderBlob.folderStyle.fillOpacity,
             'stroke-opacity': folderBlob.folderStyle.strokeOpacity,
@@ -469,7 +470,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
             class: 'folder-name',
             x: (BBox.left + BBox.right) / 2,
             y: BBox.top + fontSize + 2,
-            fill: folderBlob.color,
+            fill: int2hex(folderBlob.color),
             'text-anchor': "middle",
             style: `font-size: ${fontSize}px;`
         });
@@ -496,15 +497,14 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
         else {
             path = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
         }
-        const color: ColorSource = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.color : link.line ? int2hex(Number(link.line.tint)) : "#000000";
-        const colorStr = new Color(color).toHex();
+        const color: Color.Color = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.color : link.line ? pixiColor2int(link.line.tint) : 0;
         const width: number = this.instances.renderer.fLineSizeMult * 2;
         const opacity: number = extendedLink.graphicsWrapper ? extendedLink.graphicsWrapper.pixiElement.alpha : link.line ? link.line.alpha : 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
             d: path,
-            stroke: colorStr,
+            stroke: int2hex(color),
             'stroke-width': width,
             opacity: opacity,
             fill: 'none',
@@ -521,7 +521,7 @@ export class ExportExtendedGraphToSVG extends ExportGraphToSVG {
                 arrow = getSVGNode('path', {
                     id: `arrow:${extendedLink.id}`,
                     d: path,
-                    fill: color,
+                    fill: int2hex(color),
                     transform: `translate(${arrowGraphics.x}, ${arrowGraphics.y}) rotate(${arrowGraphics.rotation * 180 / Math.PI}) scale(${this.instances.engine.renderer.fLineSizeMult * 2})`,
                 });
             }
@@ -597,17 +597,13 @@ export class ExportCoreGraphToSVG extends ExportGraphToSVG {
     }
 
     protected override getSVGForLink(link: GraphLink): SVGElement {
-        const path: string = `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`;
-        const color: HexString = int2hex(Number(link.line?.tint)) ?? "#000000";
-        const width: number = (this.engine.options.lineSizeMultiplier ?? 1) * 4;
-        const opacity: number = link.line?.alpha ?? 0.6;
         const line = getSVGNode('path', {
             class: 'link',
             id: 'link:' + getLinkID(link),
-            d: path,
-            stroke: color,
-            'stroke-width': width,
-            opacity: opacity
+            d: `M ${link.source.x} ${link.source.y} L ${link.target.x} ${link.target.y}`,
+            stroke: pixiColor2hex(link.line?.tint ?? 0),
+            'stroke-width': (this.engine.options.lineSizeMultiplier ?? 1) * 4,
+            opacity: link.line?.alpha ?? 0.6
         });
 
         return line;

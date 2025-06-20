@@ -1,15 +1,16 @@
-import { ColorSource, IDestroyOptions } from "pixi.js";
-import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/internal";
+import { IDestroyOptions } from "pixi.js";
+import * as Color from 'color-bits';
+import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements ManagerGraphics {
-    arrowColor?: ColorSource;
+    arrowColor?: Color.Color;
 
     override updateValues(): void {
         this.arrowColor = this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
             && this.extendedLink.instances.settings.arrowColorBool
             && this.extendedLink.instances.settings.arrowColor !== ""
-            ? this.extendedLink.instances.settings.arrowColor : undefined
+            ? hex2int(this.extendedLink.instances.settings.arrowColor) : undefined
         super.updateValues();
     }
     updateFrame(): boolean {
@@ -28,7 +29,7 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
 
         // Arrow
         this.updateArrow(
-            this.arrowColor ?? this.tint,
+            this.arrowColor ?? pixiColor2int(this.tint),
             -Math.atan(-tangentQuadratic(1, this.bezier.P0, this.bezier.P1, this.bezier.P2).m)
         )
 

@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances, rgb2int } from "src/internal";
+import { evaluateCMap, GraphologySingleton, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
@@ -60,7 +60,7 @@ export abstract class NodeStatCalculator {
                 this.normalizeValues(0, 100);
                 this.cleanNanAndInfiniteValues(50);
                 this.filesStats.forEach(({ measure, value }, path) => {
-                    this.filesStats.set(path, { measure: measure, value: rgb2int(evaluateCMap(value / 100, PluginInstances.settings.nodesColorColormap, PluginInstances.settings)) });
+                    this.filesStats.set(path, { measure: measure, value: evaluateCMap(value / 100, PluginInstances.settings.nodesColorColormap, PluginInstances.settings) });
                 });
                 break;
 

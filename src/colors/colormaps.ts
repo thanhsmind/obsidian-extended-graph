@@ -5,8 +5,9 @@
     Modified to better fit in this project.
 */
 
-import { ExtendedGraphSettings } from "src/internal";
+import { ExtendedGraphSettings, rgb2int } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
+import * as Color from 'color-bits';
 
 export const cmOptions = {
     "Perceptually Uniform Sequential": [
@@ -444,10 +445,9 @@ data["winter"] = {
  * @param {boolean} reverse - Whether or not to reverse the colormap
  * @return {list} - A 3-tuple (R, G, B) containing the color assigned to `x`.
  */
-export function evaluateCMap(x: number, name: string, settings: ExtendedGraphSettings): Uint8Array {
+export function evaluateCMap(x: number, name: string, settings: ExtendedGraphSettings): number {
     const cmapData = getCMapData(name, settings);
-    if (!cmapData) return new Uint8Array([0, 0, 0]);
-
+    if (!cmapData) return 0;
     const { colors, stops } = getSortedColorAndStopPoints(cmapData.colors, cmapData.stops);
     return sampleColor(x, cmapData.interpolate, colors, stops, cmapData.reverse);
 }
@@ -461,7 +461,7 @@ export function evaluateCMap(x: number, name: string, settings: ExtendedGraphSet
  * @param {boolean} reverse - Whether or not to reverse the colormap
  * @returns The sampled color, with channels values between 0 and 255
  */
-export function sampleColor(x: number, interpolate: boolean, colors: number[][], stops: number[], reverse: boolean): Uint8Array {
+export function sampleColor(x: number, interpolate: boolean, colors: Color.Color[], stops: number[], reverse: boolean): number {
     // Ensure that the value of `x` is valid (i.e., 0 <= x <= 1)
     x = Math.clamp(x, 0, 1);
 
@@ -482,14 +482,21 @@ export function sampleColor(x: number, interpolate: boolean, colors: number[][],
  * @param {string} name - The name of the colormap (see matplotlib documentation)
  * @returns An object containing the interpolation and the color points (between 0 and 1)
  */
-export function getCMapData(name: string, settings: ExtendedGraphSettings): { interpolate: boolean, reverse: boolean, colors: number[][], stops?: number[] } | undefined {
+export function getCMapData(name: string, settings: ExtendedGraphSettings): { interpolate: boolean, reverse: boolean, colors: Color.Color[], stops?: number[] } | undefined {
     if (name.startsWith("custom:")) {
         name = name.slice(7);
         if (!(name in settings.customColorMaps)) {
             console.error('Custom colormap ' + name + ' does not exist!');
             return;
         }
-        return settings.customColorMaps[name];
+        const data = settings.customColorMaps[name];
+        console.log(data.colors);
+        return {
+            colors: data.colors.map(rgb => rgb2int([rgb[0] * 255, rgb[1] * 255, rgb[2] * 255])),
+            interpolate: data.interpolate,
+            reverse: data.reverse,
+            stops: data.stops
+        };
     }
     else {
         let reverse = false;
@@ -504,7 +511,7 @@ export function getCMapData(name: string, settings: ExtendedGraphSettings): { in
         return {
             interpolate: data[name].interpolate,
             reverse: reverse,
-            colors: data[name].colors
+            colors: data[name].colors.map(rgb => rgb2int([rgb[0] * 255, rgb[1] * 255, rgb[2] * 255]))
         };
     }
 }
@@ -515,7 +522,7 @@ export function getCMapData(name: string, settings: ExtendedGraphSettings): { in
  * @param {number[]} stops - Array of stop points (between 0 and 1)
  * @returns Color and stop points (filled), sorted by stop points
  */
-export function getSortedColorAndStopPoints(colors: number[][], stops?: number[]): { colors: number[][], stops: number[] } {
+export function getSortedColorAndStopPoints(colors: Color.Color[], stops?: number[]): { colors: Color.Color[], stops: number[] } {
     if (stops) {
         stops = stops;
         if (stops.length < colors.length) {
@@ -547,33 +554,27 @@ export function getSortedColorAndStopPoints(colors: number[][], stops?: number[]
  * @param {number[]} stops - Array of stop points (between 0 and 1)
  * @returns 
  */
-function interpolated(x: number, colors: number[][], stops: number[]): Uint8Array {
+function interpolated(x: number, colors: Color.Color[], stops: number[]): Color.Color {
     let lowIndex = stops.findLastIndex(stop => stop <= x);
     if (lowIndex === -1) lowIndex = 0;
     let highIndex = stops.findIndex(stop => stop > x);
     if (highIndex === -1) highIndex = colors.length - 1;
 
     const t = highIndex === lowIndex ? 1 : (x - stops[lowIndex]) / (stops[highIndex] - stops[lowIndex]);
+    const lowColor = colors[lowIndex];
+    const highColor = colors[highIndex];
 
-    const r = (colors[lowIndex][0] * (1 - t) + colors[highIndex][0] * t) * 255;
-    const g = (colors[lowIndex][1] * (1 - t) + colors[highIndex][1] * t) * 255;
-    const b = (colors[lowIndex][2] * (1 - t) + colors[highIndex][2] * t) * 255;
-    return new Uint8Array([r, g, b]);
+    const r = Color.getRed(lowColor) * (1 - t) + Color.getRed(highColor) * t;
+    const g = Color.getGreen(lowColor) * (1 - t) + Color.getGreen(highColor) * t;
+    const b = Color.getBlue(lowColor) * (1 - t) + Color.getBlue(highColor) * t;
+    return Color.setAlpha(Color.setBlue(Color.setGreen(Color.setRed(16777215, r), g), b), 1);
 }
 
-function qualitative(x: number, colors: number[][], stops: number[]): Uint8Array {
-    let idx = Math.max(0, stops.findLastIndex(stop => stop <= x));
-    const r = Math.round(colors[idx][0] * 255);
-    const g = Math.round(colors[idx][1] * 255);
-    const b = Math.round(colors[idx][2] * 255);
-    return new Uint8Array([r, g, b]);
+function qualitative(x: number, colors: Color.Color[], stops: number[]): Color.Color {
+    return colors[Math.max(0, stops.findLastIndex(stop => stop <= x))];
 }
 
-function adaptBrightness(rgb: Uint8Array): Uint8Array {
+function adaptBrightness(color: Color.Color): Color.Color {
     const factor = PluginInstances.settings.interactivesBrightness[PluginInstances.app.vault.getConfig('theme') === "moonstone" ? "light" : "dark"];
-    return new Uint8Array([
-        Math.clamp(rgb[0] * factor, 0, 255),
-        Math.clamp(rgb[1] * factor, 0, 255),
-        Math.clamp(rgb[2] * factor, 0, 255),
-    ])
+    return factor > 1 ? Color.lighten(color, factor - 1) : Color.darken(color, 1 - factor);
 }

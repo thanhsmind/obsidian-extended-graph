@@ -1,5 +1,6 @@
 import { ButtonComponent, ColorComponent, KeymapContext, Modal, setIcon, Setting } from "obsidian";
-import { hex2rgb, plotColorMap, rgb2hex } from "src/internal";
+import * as Color from 'color-bits';
+import { plotColorMap, rgb2int } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
 import STRINGS from "src/Strings";
 
@@ -10,7 +11,7 @@ export class GradientMakerModal extends Modal {
     targetHandle?: ColorComponent;
     cmapData: {
         handle: ColorComponent,
-        color: Uint8Array,
+        color: Color.Color,
         stop: number
     }[] = [];
     interpolate: boolean = true;
@@ -48,17 +49,17 @@ export class GradientMakerModal extends Modal {
             this.interpolate = data.interpolate;
             const colorsStopsMap = data.colors.map((c, i) => { return { col: c, stop: data.stops[i] } });
             for (const { col, stop } of colorsStopsMap) {
-                this.addHandle(new Uint8Array([col[0] * 255, col[1] * 255, col[2] * 255]), stop)
+                this.addHandle(col, stop)
             }
         }
         else {
-            this.addHandle(new Uint8Array([255, 0, 0]), 0);
-            this.addHandle(new Uint8Array([0, 255, 0]), 0.5);
-            this.addHandle(new Uint8Array([0, 0, 255]), 1);
+            this.addHandle(16711680, 0);
+            this.addHandle(65280, 0.5);
+            this.addHandle(255, 1);
         }
     }
 
-    private addHandle(color: Uint8Array, stop: number) {
+    private addHandle(color: Color.Color, stop: number) {
         const colorComponent = new ColorComponent(this.canvasContainer);
         this.cmapData.push({
             handle: colorComponent,
@@ -66,11 +67,11 @@ export class GradientMakerModal extends Modal {
             stop: stop
         });
 
-        colorComponent.setValue(rgb2hex(color));
-        colorComponent.onChange((value) => {
+        colorComponent.setValue(Color.formatHEX(color));
+        colorComponent.onChange((hex) => {
             const data = this.cmapData.find(v => v.handle === colorComponent);
             if (data) {
-                data.color = hex2rgb(value);
+                data.color = Color.parseHex(hex);
                 this.updateCanvas();
             }
         })
@@ -98,7 +99,7 @@ export class GradientMakerModal extends Modal {
         if (!imageData) return;
         const data = imageData.data;
 
-        this.addHandle(new Uint8Array([data[0], data[1], data[2]]), left);
+        this.addHandle(rgb2int([data[0], data[1], data[2]]), left);
     }
 
     private onDeleteHandle(evt: KeyboardEvent, ctx: KeymapContext) {
@@ -215,7 +216,7 @@ export class GradientMakerModal extends Modal {
             this.canvasGradient,
             false,  // always display the non-reversed gradient
             this.interpolate,
-            this.cmapData.map(v => [v.color[0] / 255, v.color[1] / 255, v.color[2] / 255]),
+            this.cmapData.map(v => v.color),
             this.cmapData.map(v => v.stop)
         );
     }
@@ -224,7 +225,7 @@ export class GradientMakerModal extends Modal {
         if (this.name === "") return;
 
         PluginInstances.settings.customColorMaps[this.name] = {
-            colors: this.cmapData.map(v => [v.color[0] / 255, v.color[1] / 255, v.color[2] / 255]),
+            colors: this.cmapData.map(v => v.color),
             stops: this.cmapData.map(v => v.stop),
             interpolate: this.interpolate,
             reverse: this.reverse,

@@ -143,7 +143,6 @@ export * from "./ui/modals/pinMultipleNodesModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 
-export * from "./helpers/color";
 export * from "./helpers/css";
 export * from "./helpers/graph";
 export * from "./helpers/html";

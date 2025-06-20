@@ -1,4 +1,4 @@
-export const NONE_COLOR: Uint8Array = new Uint8Array([125, 125, 125]);
+export const NONE_COLOR: number = 8224125;
 export const DEFAULT_STATE_ID: string = "default-vault";
 
 export const TAG_KEY: string = "tag";

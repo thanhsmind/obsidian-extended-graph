@@ -1,11 +1,12 @@
 import { Graphics } from "pixi.js";
+import * as Color from 'color-bits';
 import { ExtendedGraphNode, getFile, getNumberOfFileInteractives, InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
 
 export class Arc {
     type: string;
     index: number;
     graphic: Graphics;
-    color: Uint8Array;
+    color: Color.Color;
     startAngle: number;
     endAngle: number;
     size: number;
@@ -103,7 +104,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         }
     }
 
-    private redrawType(type: string, color?: Uint8Array) {
+    private redrawType(type: string, color?: Color.Color) {
         const arc = this.graphics.get(type);
         if (!arc) return;
 

@@ -1,75 +1,32 @@
 import { HexString } from 'obsidian';
-import { evaluateCMap, getSortedColorAndStopPoints, getCMapData, sampleColor } from './colormaps';
+import { getSortedColorAndStopPoints, getCMapData } from './colormaps';
 import { ExtendedGraphSettings } from 'src/internal';
+import * as Color from 'color-bits';
+import chroma from 'chroma-js';
+import { Color as PixiColor, ColorSource } from "pixi.js";
 
-export function rgb2int(rgb: Uint8Array): number {
-    return rgb[0] * (256 * 256) + rgb[1] * 256 + rgb[2];
+export function rgb2int(rgb: number[]): Color.Color {
+    return Color.setAlpha(Color.setBlue(Color.setGreen(Color.setRed(0, rgb[0]), rgb[1]), rgb[2]), 1);
 }
 
-export function int2hex(n: number): HexString {
-    return "#" + n.toString(16);
+export function int2hex(n: Color.Color): HexString {
+    return Color.formatHEX(n);
 }
 
-export function int2rgb(n: number): Uint8Array {
-    return hex2rgb(int2hex(n));
+export function hex2int(hex: string): Color.Color {
+    return Color.parseHex(hex);
 }
 
-/**
- * Convert HSV to RGB
- * @param hsv h: 0-360, s: 0-100, v: 0-100
- * @returns RGB 8 bit array
- */
-export function hsv2rgb(hsv: { h: number, s: number, v: number }): Uint8Array {
-    hsv.h /= 360; hsv.s /= 100; hsv.v /= 100;
-    let r, g, b;
-
-    const i = Math.floor(hsv.h * 6);
-    const f = hsv.h * 6 - i;
-    const p = hsv.v * (1 - hsv.s);
-    const q = hsv.v * (1 - f * hsv.s);
-    const t = hsv.v * (1 - (1 - f) * hsv.s);
-
-    switch (i % 6) {
-        case 0: r = hsv.v, g = t, b = p; break;
-        case 1: r = q, g = hsv.v, b = p; break;
-        case 2: r = p, g = hsv.v, b = t; break;
-        case 3: r = p, g = q, b = hsv.v; break;
-        case 4: r = t, g = p, b = hsv.v; break;
-        default: r = hsv.v, g = p, b = q; break;
-    }
-
-    return new Uint8Array([r * 255, g * 255, b * 255]);
+export function textColor(backgroundColor: Color.Color, dark: string = "black", light: string = "white"): string {
+    return (Color.getRed(backgroundColor) * 0.299 + Color.getGreen(backgroundColor) * 0.587 + Color.getBlue(backgroundColor) * 0.114 > 150) ? dark : light;
 }
 
-export function hex2int(hex: string): number {
-    return rgb2int(hex2rgb(hex));
+export function pixiColor2int(color: ColorSource): Color.Color {
+    return new PixiColor(color).toNumber();
 }
 
-/**
- * Convert a hex color to an RGB array
- * @param hex format: #RRGGBB
- * @returns RGB 8 bit array
- */
-export function hex2rgb(hex: string): Uint8Array {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!result) return new Uint8Array([0, 0, 0]);
-    return new Uint8Array([
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16)
-    ]);
-}
-
-export function componentToHex(c: number): string {
-    let result = c.toString(16);
-    if (result.length === 1) {
-        result = '0' + result;
-    }
-    return result;
-}
-
-export function rgb2hex(rgb: Uint8Array): string {
-    return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+export function pixiColor2hex(color: ColorSource): HexString {
+    return new PixiColor(color).toHex();
 }
 
 export function plotColorMapFromName(canvas: HTMLCanvasElement, name: string, settings: ExtendedGraphSettings) {
@@ -92,7 +49,7 @@ export function plotColorMapFromName(canvas: HTMLCanvasElement, name: string, se
  * @param stops 
  * @returns 
  */
-export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interpolate: boolean, colors: number[][], stops?: number[]) {
+export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interpolate: boolean, colors: Color.Color[], stops?: number[]) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -117,10 +74,7 @@ export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interp
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         for (let i = 0; i < sortedColors.length; ++i) {
             const stop = sortedStops[i];
-            const r = Math.round(sortedColors[i][0] * 255);
-            const g = Math.round(sortedColors[i][1] * 255);
-            const b = Math.round(sortedColors[i][2] * 255);
-            gradient.addColorStop(stop, `rgb(${r} ${g} ${b})`);
+            gradient.addColorStop(stop, Color.formatRGBA(sortedColors[i]));
         }
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -129,10 +83,7 @@ export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interp
         for (let i = 0; i < sortedColors.length; ++i) {
             const stopPrevious = i === 0 ? 0 : sortedStops[i];
             const stopNext = i === sortedColors.length - 1 ? 1 : sortedStops[Math.min(i + 1, sortedStops.length - 1)];
-            const r = Math.round(sortedColors[i][0] * 255);
-            const g = Math.round(sortedColors[i][1] * 255);
-            const b = Math.round(sortedColors[i][2] * 255);
-            ctx.fillStyle = `rgb(${r} ${g} ${b})`;
+            ctx.fillStyle = Color.formatRGBA(sortedColors[i]);
             ctx.fillRect(stopPrevious * canvas.width, 0, stopNext * canvas.width, canvas.height);
         }
     }
@@ -141,7 +92,7 @@ export function plotColorMap(canvas: HTMLCanvasElement, reverse: boolean, interp
     canvas.toggleClass("reversed", reverse);
 }
 
-export function randomColor(): HexString {
+export function randomColor(): Color.Color {
     return GoldenColor.random(50, 95);
 }
 
@@ -151,10 +102,10 @@ class GoldenColor {
 
     private constructor() { }
 
-    public static random(s: number = 50, v: number = 95): string {
+    public static random(s: number = 50, v: number = 95): Color.Color {
         GoldenColor.h += GoldenColor.goldenRatioConjugate;
         GoldenColor.h %= 1;
-        const color = hsv2rgb({ h: Math.floor(GoldenColor.h * 360), s: s, v: v });
-        return rgb2hex(color);
+        const color = chroma.hsl(Math.floor(GoldenColor.h * 360), s, v);
+        return color.num();
     }
 }

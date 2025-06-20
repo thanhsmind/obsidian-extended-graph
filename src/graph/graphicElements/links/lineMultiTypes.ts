@@ -1,5 +1,6 @@
 import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
-import { ExtendedGraphLink, int2hex, InteractiveManager, lengthQuadratic, LINK_KEY, ManagerGraphics, quadratic, tangentQuadratic } from "src/internal";
+import * as Color from 'color-bits';
+import { ExtendedGraphLink, hex2int, InteractiveManager, LINK_KEY, ManagerGraphics, pixiColor2int } from "src/internal";
 
 
 export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraphics {
@@ -7,7 +8,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     types: Set<string>;
     name: string;
     targetAlpha: number;
-    color: ColorSource;
+    color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: Graphics | null;
     activeType: string | undefined;
@@ -33,7 +34,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             this.color = this.manager.getColor(this.activeType);
         }
         else if (this.extendedLink.coreElement.line) {
-            this.color = this.extendedLink.coreElement.line.tint
+            this.color = pixiColor2int(this.extendedLink.coreElement.line.tint);
         }
         else {
             this.color = this.extendedLink.coreElement.renderer.colors.line.rgb;
@@ -113,7 +114,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         }
 
 
-        let arrowColor: ColorSource = this.color;
+        let arrowColor: Color.Color = this.color;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
@@ -158,7 +159,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                     if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
                         && this.extendedLink.instances.settings.arrowColorBool
                         && this.extendedLink.instances.settings.arrowColor !== "") {
-                        arrowColor = this.extendedLink.instances.settings.arrowColor;
+                        arrowColor = hex2int(this.extendedLink.instances.settings.arrowColor);
                     }
                     else {
                         arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);

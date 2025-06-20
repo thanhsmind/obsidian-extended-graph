@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances, rgb2int } from "src/internal";
+import { evaluateCMap, GraphologySingleton, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 import { Attributes, EdgeEntry } from "graphology-types";
 
@@ -91,7 +91,7 @@ export abstract class LinkStatCalculator {
                 this.cleanNanAndInfiniteValues(50);
                 Object.entries(this.linksStats).forEach(([source, targets]) => {
                     Object.entries(targets).forEach(([target, { measure, value }]) => {
-                        this.linksStats[source][target].value = rgb2int(evaluateCMap(value / 100, PluginInstances.settings.linksColorColormap, PluginInstances.settings));
+                        this.linksStats[source][target].value = evaluateCMap(value / 100, PluginInstances.settings.linksColorColormap, PluginInstances.settings);
                     })
                 });
                 break;

@@ -1,5 +1,6 @@
 import { TAbstractFile, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
+import * as Color from 'color-bits';
 import { ExtendedGraphElement, ExtendedGraphLink, ExtendedGraphNode, GraphInstances, InteractiveManager, INVALID_KEYS, SettingQuery, TAG_KEY } from "src/internal";
 
 
@@ -279,7 +280,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     // ================================ COLORS =================================
 
-    updateTypeColor(key: string, type: string, color: Uint8Array): void {
+    updateTypeColor(key: string, type: string, color: Color.Color): void {
         const ids = this.getElementsByTypes(key, [type]);
         for (const id of ids) {
             const extendedElement = this.extendedElementsMap.get(id);

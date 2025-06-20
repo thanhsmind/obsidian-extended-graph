@@ -1,6 +1,7 @@
 import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
+import * as Color from 'color-bits';
 import {
     applyCSSStyle,
     ExtendedGraphSettings,
@@ -909,7 +910,7 @@ export class GraphEventsDispatcher extends Component {
      * @param name - The name of the interactive element type.
      * @param colorMaps - A map of types to their corresponding colors.
      */
-    onInteractivesAdded(name: string, colorMaps: Map<string, Uint8Array>) {
+    onInteractivesAdded(name: string, colorMaps: Map<string, Color.Color>) {
         if (name === LINK_KEY) {
             this.onLinkTypesAdded(colorMaps);
         } else if (name === FOLDER_KEY) {
@@ -940,7 +941,7 @@ export class GraphEventsDispatcher extends Component {
      * @param type - The type of the interactive element.
      * @param color - The new color of the interactive element.
      */
-    onInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
+    onInteractiveColorChanged(key: string, type: string, color: Color.Color) {
         if (key === LINK_KEY) {
             this.onLinkColorChanged(type, color);
         } else if (key === FOLDER_KEY) {
@@ -1008,7 +1009,7 @@ export class GraphEventsDispatcher extends Component {
 
     // TAGS
 
-    private onNodeInteractiveTypesAdded(key: string, colorMaps: Map<string, Uint8Array>) {
+    private onNodeInteractiveTypesAdded(key: string, colorMaps: Map<string, Color.Color>) {
         // Update UI
         if (this.instances.legendUI) {
             for (const [type, color] of colorMaps) {
@@ -1028,7 +1029,7 @@ export class GraphEventsDispatcher extends Component {
         this.instances.renderer.changed();
     }
 
-    private onNodeInteractiveColorChanged(key: string, type: string, color: Uint8Array) {
+    private onNodeInteractiveColorChanged(key: string, type: string, color: Color.Color) {
         this.instances.nodesSet.updateTypeColor(key, type, color);
         this.instances.legendUI?.update(key, type, color);
         this.instances.renderer.changed();
@@ -1036,7 +1037,7 @@ export class GraphEventsDispatcher extends Component {
 
     // ================================= LINKS =================================
 
-    private onLinkTypesAdded(colorMaps: Map<string, Uint8Array>) {
+    private onLinkTypesAdded(colorMaps: Map<string, Color.Color>) {
         // Update UI
         if (this.instances.legendUI) {
             for (const [type, color] of colorMaps) {
@@ -1056,7 +1057,7 @@ export class GraphEventsDispatcher extends Component {
         this.instances.legendUI?.remove(LINK_KEY, types);
     }
 
-    private onLinkColorChanged(type: string, color: Uint8Array) {
+    private onLinkColorChanged(type: string, color: Color.Color) {
         this.instances.linksSet.updateTypeColor(LINK_KEY, type, color);
         this.instances.legendUI?.update(LINK_KEY, type, color);
         this.instances.renderer.changed();
@@ -1064,7 +1065,7 @@ export class GraphEventsDispatcher extends Component {
 
     // ================================ FOLDERS ================================
 
-    private onFoldersAdded(colorMaps: Map<string, Uint8Array>) {
+    private onFoldersAdded(colorMaps: Map<string, Color.Color>) {
         // Update UI
         if (this.instances.foldersUI) {
             for (const [path, color] of colorMaps) {
@@ -1088,7 +1089,7 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    private onFolderColorChanged(path: string, color: Uint8Array) {
+    private onFolderColorChanged(path: string, color: Color.Color) {
         if (!this.instances.foldersSet) return;
         this.instances.foldersSet.updateColor(FOLDER_KEY, path);
         this.instances.foldersUI?.update(FOLDER_KEY, path, color);

@@ -1,7 +1,9 @@
 import { ButtonComponent, Component, ExtraButtonComponent, setIcon, Setting } from "obsidian";
+import * as Color from 'color-bits';
 import {
     CombinationLogic,
     FOLDER_KEY,
+    getCSSSplitRGB,
     GraphInstances,
     GraphStateData,
     GraphStateDataQuery,
@@ -110,7 +112,7 @@ class LegendRow extends Setting {
         }
     }
 
-    addLegend(type: string, color: Uint8Array): void {
+    addLegend(type: string, color: Color.Color): void {
         const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
         if (button) return;
         this.addButton(cb => {
@@ -122,7 +124,7 @@ class LegendRow extends Setting {
                     this.toggle(type);
                 })
                 .then(cb => {
-                    cb.buttonEl.style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
+                    cb.buttonEl.style.setProperty(this.cssBGColorVariable, getCSSSplitRGB(color));
                     cb.buttonEl.style.setProperty(this.cssTextColorVariable, textColor(color));
                     if (type === this.manager.instances.settings.interactiveSettings[this.name].noneType) {
                         cb.buttonEl.addClass("graph-legend-none");
@@ -140,13 +142,13 @@ class LegendRow extends Setting {
         }
     }
 
-    updateLegend(type: string, color: Uint8Array): void {
+    updateLegend(type: string, color: Color.Color): void {
         const button = this.controlEl.getElementsByClassName(this.getClassName(type))[0];
         if (!button) {
             this.addLegend(type, color)
         }
         else {
-            (button as HTMLElement).style.setProperty(this.cssBGColorVariable, `${color[0]}, ${color[1]}, ${color[2]}`);
+            (button as HTMLElement).style.setProperty(this.cssBGColorVariable, getCSSSplitRGB(color));
             (button as HTMLElement).style.setProperty(this.cssTextColorVariable, textColor(color));
         }
     }
@@ -379,11 +381,11 @@ export class LegendUI extends Component implements InteractiveUI {
         this.toggleButton.extraSettingsEl.remove();
     }
 
-    update(row: string, type: string, color: Uint8Array) {
+    update(row: string, type: string, color: Color.Color) {
         this.legendRows.get(row)?.row.updateLegend(type, color);
     }
 
-    add(row: string, type: string, color: Uint8Array) {
+    add(row: string, type: string, color: Color.Color) {
         this.legendRows.get(row)?.row.addLegend(type, color);
     }
 

@@ -1,5 +1,6 @@
-import { IDestroyOptions, ColorSource } from "pixi.js";
-import { LinkCurveGraphics, ManagerGraphics, tangentQuadratic } from "src/internal";
+import { IDestroyOptions } from "pixi.js";
+import * as Color from 'color-bits';
+import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -8,7 +9,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
 
         const renderer = this.extendedLink.coreElement.renderer;
 
-        let arrowColor: ColorSource | undefined = this.color;
+        let arrowColor: Color.Color | undefined = this.color;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
 
 
@@ -49,7 +50,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                 if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
                     && this.extendedLink.instances.settings.arrowColorBool
                     && this.extendedLink.instances.settings.arrowColor !== "") {
-                    arrowColor = this.extendedLink.instances.settings.arrowColor;
+                    arrowColor = hex2int(this.extendedLink.instances.settings.arrowColor);
                 }
                 else {
                     arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
@@ -60,7 +61,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
 
         // Arrow
         this.updateArrow(
-            arrowColor ?? this.tint,
+            arrowColor ?? pixiColor2int(this.tint),
             -Math.atan(-tangentQuadratic(1, P0_, P1, this.bezier.P2).m)
         );
 

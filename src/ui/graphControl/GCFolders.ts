@@ -1,6 +1,6 @@
-import { ExtraButtonComponent, Setting, ToggleComponent } from "obsidian";
-import { GraphView, LocalGraphView } from "obsidian-typings";
-import { FOLDER_KEY, GCSection, GraphInstances, InteractiveManager, InteractiveUI } from "src/internal";
+import { Setting, ToggleComponent } from "obsidian";
+import * as Color from 'color-bits';
+import { FOLDER_KEY, GCSection, getCSSSplitRGB, GraphInstances, InteractiveManager, InteractiveUI } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCFolders extends GCSection implements InteractiveUI {
@@ -79,11 +79,11 @@ export class GCFolders extends GCSection implements InteractiveUI {
 
     // ================================ SET UP =================================
 
-    update(key: string, path: string, color: Uint8Array): void {
-        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", `${color[0]}, ${color[1]}, ${color[2]}`);
+    update(key: string, path: string, color: Color.Color): void {
+        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", getCSSSplitRGB(color));
     }
 
-    add(key: string, path: string, color: Uint8Array): void {
+    add(key: string, path: string, color: Color.Color): void {
         const setting = new Setting(this.treeItemChildren);
         setting.setName(path)
             .addToggle(cb => {
