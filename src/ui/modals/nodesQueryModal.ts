@@ -1,5 +1,18 @@
 import { ButtonComponent, DropdownComponent, Modal, SearchComponent, Setting } from "obsidian";
-import { CombinationLogic, InteractivesSuggester, LogicKey, logicKeyLabel, PluginInstances, QueryData, QueryMatcher, QueryMatchesModal, RuleQuery, SourceKey, sourceKeyLabels, UIElements } from "src/internal";
+import {
+    CombinationLogic,
+    InteractivesSuggester,
+    LogicKey,
+    logicKeyLabel,
+    PluginInstances,
+    QueryData,
+    QueryMatcher,
+    QueryMatchesModal,
+    RuleQuery,
+    SourceKey,
+    sourceKeyLabels,
+    UIElements
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 export class NodesQueryModal extends Modal {

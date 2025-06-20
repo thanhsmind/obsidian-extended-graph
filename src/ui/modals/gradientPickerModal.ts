@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { ButtonComponent, ExtraButtonComponent, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, rgb2int, UIElements } from "src/internal";
+import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, UIElements } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GradientPickerModal extends Modal {

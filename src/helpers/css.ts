@@ -1,5 +1,4 @@
 
-import chroma from "chroma-js";
 import * as Color from 'src/colors/color-bits';
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import path from "path";
@@ -281,16 +280,13 @@ export function getLinkLabelStyle(instances: GraphInstances, data: { source?: st
         bottom: getUnitlessValue(style.paddingBottom, DEFAULT_LINK_LABEL_STYLE.padding.bottom),
     }
 
-    const backgroundColor = chroma(style.backgroundColor);
-    const borderColor = chroma(style.borderColor);
-
     return {
         textStyle: textStyle,
         borderWidth: borderWidth,
         padding: padding,
         radius: radius,
-        backgroundColor: { rgb: backgroundColor.num(), a: backgroundColor.alpha() },
-        borderColor: { rgb: borderColor.num(), a: borderColor.alpha() },
+        backgroundColor: Color.parseCSS(style.backgroundColor),
+        borderColor: Color.parseCSS(style.borderColor),
     }
 }
 
@@ -352,10 +348,6 @@ export function isNodeTextStyleDefault(style: CSSTextStyle): boolean {
         && style.letterSpacing === 0;
 }
 
-function cssColor2int(color: string): Color.Color | undefined {
-    return chroma(color).num();
-}
-
 export function getBackgroundColor(renderer: GraphRenderer): Color.Color {
     let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
     let el: Element = renderer.interactiveEl;
@@ -364,12 +356,11 @@ export function getBackgroundColor(renderer: GraphRenderer): Color.Color {
         bg = window.getComputedStyle(el).backgroundColor;
     }
 
-    return (cssColor2int(bg)) ?? (PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 16777215 : 0);
+    return Color.parseCSS(bg).rgb;
 }
 
 export function getPrimaryColor(renderer: GraphRenderer): Color.Color {
-    return (cssColor2int(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100')))
-        ?? (PluginInstances.app.vault.getConfig('theme') === "moonstone" ? 0 : 16777215)
+    return Color.parseCSS(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-base-100')).rgb;
 }
 
 export function colorAttributes2hex(color: GraphColorAttributes): string {
@@ -377,8 +368,7 @@ export function colorAttributes2hex(color: GraphColorAttributes): string {
 }
 
 export function getThemeColor(renderer: GraphRenderer, color: string): Color.Color {
-    return cssColor2int(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-' + color))
-        ?? chroma(color).num();
+    return Color.parseCSS(window.getComputedStyle(renderer.interactiveEl).getPropertyValue('--color-' + color)).rgb;
 }
 
 export function getCSSSplitRGB(color: Color.Color): string {

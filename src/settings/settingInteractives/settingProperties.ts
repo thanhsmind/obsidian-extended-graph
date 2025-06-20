@@ -1,5 +1,16 @@
-import { ButtonComponent, ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, AddPropertyInteractiveModal, SettingInteractives, SettingsSectionPerGraphType, TAG_KEY, UIElements } from "src/internal";
+import { ButtonComponent, Setting } from "obsidian";
+import {
+    ExtendedGraphSettingTab,
+    FOLDER_KEY,
+    isPropertyKeyValid,
+    LINK_KEY,
+    PluginInstances,
+    AddPropertyInteractiveModal,
+    SettingInteractives,
+    SettingsSectionPerGraphType,
+    TAG_KEY,
+    UIElements
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionPerGraphType {

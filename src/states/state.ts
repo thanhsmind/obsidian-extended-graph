@@ -1,4 +1,12 @@
-import { EngineOptions, FOLDER_KEY, GraphInstances, GraphStateData, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import {
+    EngineOptions,
+    FOLDER_KEY,
+    GraphInstances,
+    GraphStateData,
+    LINK_KEY,
+    PluginInstances,
+    TAG_KEY
+} from "src/internal";
 
 export class GraphState {
     data = new GraphStateData();

@@ -1,5 +1,24 @@
 import { App } from "obsidian";
-import { ExtendedGraphSettings, FoldersSet, GCFolders, getEngine, Graph, GraphEventsDispatcher, GraphsManager, GraphType, InteractiveManager, LegendUI, LinksSet, NodesSet, CSSTextStyle, ProxysManager, StatesManager, StatesUI, CSSFolderStyle, GraphStateData } from "./internal";
+import {
+    ExtendedGraphSettings,
+    FoldersSet,
+    GCFolders,
+    getEngine,
+    Graph,
+    GraphEventsDispatcher,
+    GraphsManager,
+    GraphType,
+    InteractiveManager,
+    LegendUI,
+    LinksSet,
+    NodesSet,
+    CSSTextStyle,
+    ProxysManager,
+    StatesManager,
+    StatesUI,
+    CSSFolderStyle,
+    GraphStateData
+} from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 

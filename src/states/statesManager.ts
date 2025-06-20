@@ -1,4 +1,3 @@
-import { stat } from "fs";
 import { DEFAULT_STATE_ID, FOLDER_KEY, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 

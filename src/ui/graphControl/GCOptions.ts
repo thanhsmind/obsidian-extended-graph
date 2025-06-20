@@ -1,6 +1,16 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, GCSection, getEngine, GraphStateModal, RendererNodeNamesSuggester, PinMultipleNodesModal, Pinner, PluginInstances } from "src/internal";
+import {
+    DEFAULT_STATE_ID,
+    EngineOptions,
+    GCSection,
+    getEngine,
+    GraphStateModal,
+    RendererNodeNamesSuggester,
+    PinMultipleNodesModal,
+    Pinner,
+    PluginInstances
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {

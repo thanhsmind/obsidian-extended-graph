@@ -1,7 +1,21 @@
 import { TFile } from "obsidian";
 import { Assets, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
-import { AbstractSet, ExtendedGraphAttachmentNode, ExtendedGraphFileNode, ExtendedGraphNode, ExtendedGraphUnresolvedNode, FileNodeGraphicsWrapper, getBackgroundColor, getFile, getFileInteractives, GraphInstances, InteractiveManager, Media, PluginInstances } from "src/internal";
+import {
+    AbstractSet,
+    ExtendedGraphAttachmentNode,
+    ExtendedGraphFileNode,
+    ExtendedGraphNode,
+    ExtendedGraphUnresolvedNode,
+    FileNodeGraphicsWrapper,
+    getBackgroundColor,
+    getFile,
+    getFileInteractives,
+    GraphInstances,
+    InteractiveManager,
+    Media,
+    PluginInstances
+} from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
 

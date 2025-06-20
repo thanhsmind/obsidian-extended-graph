@@ -54,7 +54,8 @@ import {
     LinksStatCalculatorFactory,
     linkStatFunctionNeedsGraphAnalysis,
     LinkStat,
-    SettingQuery
+    SettingQuery,
+    getGraphAnalysis
 } from "./internal";
 import STRINGS from "./Strings";
 
@@ -223,7 +224,7 @@ export class GraphsManager extends Component {
     }
 
     private canUseLinkStatFunction(stat: LinkStat): boolean {
-        const ga = this.getGraphAnalysis();
+        const ga = getGraphAnalysis();
         const fn = stat === 'color' ? PluginInstances.settings.linksColorFunction : PluginInstances.settings.linksSizeFunction;
 
         if (!ga["graph-analysis"] && linkStatFunctionNeedsGraphAnalysis[fn]) {
@@ -709,24 +710,6 @@ export class GraphsManager extends Component {
             return true;
         }
         return false;
-    }
-
-    getGraphAnalysis(): { "graph-analysis": Plugin | null, "nlp": Plugin | null } {
-        const ga = PluginInstances.app.plugins.getPlugin("graph-analysis");
-        if (ga && ga._loaded) {
-            let nlp = PluginInstances.app.plugins.getPlugin("nlp");
-            return {
-                "graph-analysis": ga,
-                // @ts-ignore
-                "nlp": nlp && nlp.settings?.refreshDocsOnLoad ? nlp : null
-            };
-        }
-        else {
-            return {
-                "graph-analysis": null,
-                "nlp": null
-            };
-        }
     }
 
     onPluginLoaded(view: GraphView | LocalGraphView): void {

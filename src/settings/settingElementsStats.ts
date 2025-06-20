@@ -2,6 +2,7 @@ import { DropdownComponent, setIcon, Setting } from "obsidian";
 import {
     ExtendedGraphSettingTab,
     getCMapData,
+    getGraphAnalysis,
     LinksStatCalculatorFactory,
     LinkStatFunction,
     linkStatFunctionLabels,
@@ -156,7 +157,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(STRINGS.features.linkSizesFunctionDesc)
             .addDropdown(cb => {
                 this.linksSizeFunctionDropdown = cb;
-                const ga = PluginInstances.graphsManager.getGraphAnalysis();
+                const ga = getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
                         .filter(entry => {
@@ -184,7 +185,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(STRINGS.features.linkColorsFunctionDesc + " ⚠️ " + STRINGS.features.linksFeatureRequired)
             .addDropdown(cb => {
                 this.linksColorFunctionDropdown = cb;
-                const ga = PluginInstances.graphsManager.getGraphAnalysis();
+                const ga = getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
                         .filter(entry => {
@@ -295,7 +296,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {
-        const ga = PluginInstances.graphsManager.getGraphAnalysis();
+        const ga = getGraphAnalysis();
         if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
             return;
         }
@@ -321,7 +322,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeLinksColors(functionKey: LinkStatFunction): void {
-        const ga = PluginInstances.graphsManager.getGraphAnalysis();
+        const ga = getGraphAnalysis();
         if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
             return;
         }

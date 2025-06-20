@@ -1,4 +1,4 @@
-import { Modal, Setting, TextComponent } from "obsidian";
+import { Modal, Setting } from "obsidian";
 import { PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 

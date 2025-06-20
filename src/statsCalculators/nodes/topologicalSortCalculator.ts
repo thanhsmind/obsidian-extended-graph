@@ -1,4 +1,3 @@
-import { TFile } from "obsidian";
 import { GraphologySingleton } from "../graphology";
 import { NodeStatCalculator } from "src/internal";
 import { stronglyConnectedComponents } from "graphology-components";

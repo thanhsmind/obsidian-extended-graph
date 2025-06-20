@@ -1,6 +1,15 @@
 import { ButtonComponent, Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { canonicalizeVarName, ExcludeFoldersModal, ExtendedGraphSettingTab, graphTypeLabels, INVALID_KEYS, isPropertyKeyValid, LINK_KEY, PluginInstances, SettingInteractives } from "src/internal";
+import {
+    canonicalizeVarName,
+    ExcludeFoldersModal,
+    ExtendedGraphSettingTab,
+    INVALID_KEYS,
+    isPropertyKeyValid,
+    LINK_KEY,
+    PluginInstances,
+    SettingInteractives
+} from "src/internal";
 import STRINGS from "src/Strings";
 
 

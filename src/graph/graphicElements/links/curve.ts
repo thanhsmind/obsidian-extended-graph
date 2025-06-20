@@ -1,4 +1,4 @@
-import { IDestroyOptions, Graphics, ColorSource } from "pixi.js";
+import { IDestroyOptions, Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, pixiColor2int, quadratic } from "src/internal";
 

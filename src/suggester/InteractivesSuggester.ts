@@ -1,4 +1,4 @@
-import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, getOutlinkTypes, LINK_KEY, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;

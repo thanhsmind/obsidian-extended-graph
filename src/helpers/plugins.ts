@@ -1,6 +1,27 @@
-import { getIcon, View } from "obsidian";
+import { getIcon, Plugin } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
 import { GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, PluginInstances } from "src/internal";
+
+
+// ======================== Graph Analysis
+
+export function getGraphAnalysis(): { "graph-analysis": Plugin | null, "nlp": Plugin | null } {
+    const ga = PluginInstances.app.plugins.getPlugin("graph-analysis");
+    if (ga && ga._loaded) {
+        let nlp = PluginInstances.app.plugins.getPlugin("nlp");
+        return {
+            "graph-analysis": ga,
+            // @ts-ignore
+            "nlp": nlp && nlp.settings?.refreshDocsOnLoad ? nlp : null
+        };
+    }
+    else {
+        return {
+            "graph-analysis": null,
+            "nlp": null
+        };
+    }
+}
 
 
 // ======================== Iconic

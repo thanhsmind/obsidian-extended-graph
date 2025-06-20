@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, isPropertyKeyValid, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
 import STRINGS from "src/Strings";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 

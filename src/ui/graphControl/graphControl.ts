@@ -1,4 +1,4 @@
-import { Component, WorkspaceLeaf } from "obsidian";
+import { Component } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
 import { GCOptions, GraphInstances } from "src/internal";
 

@@ -5,7 +5,6 @@ import {
     FOLDER_KEY,
     getCMapData,
     getFileInteractives,
-    hex2int,
     int2hex,
     InteractivesColorSuggester,
     InteractivesSelectionModal,

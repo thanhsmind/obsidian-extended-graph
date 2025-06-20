@@ -1,6 +1,6 @@
 import { getIcon } from "obsidian";
-import { GraphColorAttributes, GraphLink, GraphNode } from "obsidian-typings";
-import { FederatedPointerEvent, Graphics } from "pixi.js";
+import { GraphColorAttributes, GraphNode } from "obsidian-typings";
+import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     ExtendedGraphElement,
