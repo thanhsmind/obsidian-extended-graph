@@ -181,6 +181,11 @@ export class GraphEventsDispatcher extends Component {
         else {
             this.instances.engine.render();
         }
+        // Make sure to render one frame in order to render every changes made by the plugin
+        if (this.instances.renderer.idleFrames > 60) {
+            this.instances.renderer.idleFrames = 60;
+            this.instances.renderer.queueRender();
+        }
 
         PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
     }
