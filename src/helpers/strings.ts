@@ -18,10 +18,6 @@ export function isPropertyKeyValid(key: string): boolean {
     return (key.length > 0);
 }
 
-export function isTagValid(name: string): boolean {
-    return /^[a-zA-Z/]+$/.test(name);
-}
-
 export function getLinkDestination(link: string): string {
     return link.replace("[[", "").replace("]]", "");
 }
