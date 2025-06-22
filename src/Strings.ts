@@ -108,7 +108,7 @@ export default class STRINGS {
 		excludeTargetFoldersDesc: "Exclude backward links with target inside some folders (i.e. links going in one of these folders)",
 		excludedFolders: "Excluded folders",
 		noExclusionFilter: "No excluded filter is applied right now. Add one below.",
-		withExclusionFilter: "Files matching the following filters are currently excluded:",
+		withExclusionFilter: "Files matching the following filters won't show have back/forward links:",
 		focus: "Focus",
 		focusDesc: "Scale up the node corresponding to the active note",
 		focusScale: "Scale factor",
