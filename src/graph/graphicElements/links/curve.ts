@@ -1,6 +1,6 @@
 import { IDestroyOptions, Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, ManagerGraphics, pixiColor2int, quadratic } from "src/internal";
+import { ExtendedGraphLink, InteractiveManager, lengthQuadratic, LinkArrow, ManagerGraphics, pixiColor2int, quadratic } from "src/internal";
 
 
 export abstract class LinkCurveGraphics extends Graphics implements ManagerGraphics {
@@ -9,7 +9,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     name: string;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;
-    arrow: Graphics | null;
+    arrow: LinkArrow | null;
     activeType: string | undefined;
     bezier: { P0: { x: number, y: number }, P1: { x: number, y: number }, P2: { x: number, y: number } };
 
@@ -48,23 +48,8 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
 
     protected initArrow() {
         if (this.destroyed) return;
-
-        this.arrow = new Graphics();
-        this.arrow.beginFill("white");
-        this.arrow.moveTo(0, 0);
-        this.arrow.lineTo(-4, -2);
-        if (!this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows'] || !this.extendedLink.instances.settings.flatArrows) {
-            this.arrow.lineTo(-3, 0);
-        }
-        this.arrow.lineTo(-4, 2);
-        this.arrow.lineTo(0, 0);
-        this.arrow.endFill();
-        this.arrow.name = "arrow";
-        this.arrow.eventMode = "none";
-        this.arrow.zIndex = 1;
-        this.arrow.pivot.set(0, 0);
-        this.arrow.alpha = this.extendedLink.coreElement.renderer.colors.arrow.a;
-        if (this.extendedLink.coreElement.arrow) this.extendedLink.coreElement.arrow.renderable = false;
+        this.arrow = new LinkArrow(this.extendedLink);
+        this.addChild(this.arrow);
     }
 
     protected redraw(): void {
@@ -125,37 +110,16 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     }
 
     protected updateArrow(color: Color.Color, rotation: number) {
-        const renderer = this.extendedLink.coreElement.renderer;
-        const link = this.extendedLink.coreElement;
-
-        if (link.arrow && link.arrow.visible) {
-            let arrowAlpha: number = 1;
-            if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
-                && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
-                if (this.extendedLink.isHighlighted()
-                    || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
-                    arrowAlpha = 10;
-                }
-            }
-
+        if (this.extendedLink.coreElement.arrow && this.extendedLink.coreElement.arrow.visible) {
             if (!this.arrow) {
                 this.initArrow();
-                if (this.arrow) this.addChild(this.arrow);
             }
-            if (this.arrow) {
-                this.arrow.tint = color;
-                this.arrow.alpha = arrowAlpha;
-                this.arrow.position.set(this.bezier.P2.x, this.bezier.P2.y);
-                this.arrow.rotation = rotation;
-                if (this.bezier.P1.x > this.bezier.P2.x) {
-                    this.arrow.rotation += Math.PI;
-                }
-                this.arrow.scale.set((this.extendedLink.instances.settings.arrowFixedSize
-                    ? 2 * Math.sqrt(link.renderer.fLineSizeMult) * link.renderer.nodeScale
-                    : 2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale)
-                    * this.extendedLink.instances.settings.arrowScale
-                );
-            }
+
+            this.arrow?.update(
+                color,
+                this.bezier.P2,
+                rotation + (this.bezier.P1.x > this.bezier.P2.x ? Math.PI : 0)
+            )
         }
         else {
             this.arrow?.removeFromParent();

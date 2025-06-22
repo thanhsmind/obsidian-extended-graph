@@ -9,7 +9,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
 
         const renderer = this.extendedLink.coreElement.renderer;
 
-        let arrowColor: Color.Color | undefined = this.color;
+        let arrowColor: Color.Color | undefined;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
 
 
@@ -22,6 +22,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
         }
         else {
+            arrowColor = this.color;
             // Compute one bezier curve for each type
             // with the De Casteljau algorithm, considering the full
             // curbe with control points P0_, P1, P2_.
