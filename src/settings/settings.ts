@@ -483,6 +483,12 @@ export class SettingQuery {
         if (newFeatures['elements-stats']) {
             if (['nodesSizeProperties', 'nodesSizeFunction', 'linksSizeFunction'].some(key => !equals(key)))
                 return true;
+            if (oldSettings.nodesColorFunction === "default" && newSettings.nodesColorFunction !== "default")
+                return true;
+            if (oldSettings.linksColorFunction === "default" && newSettings.linksColorFunction !== "default")
+                return true;
+            if (!equals('invertNodeStats') && (['nodesSizeFunction', 'nodesColorFunction', 'linksSizeFunction', 'linksColorFunction'].some(key => newSettings[key as keyof ExtendedGraphSettings] !== "default")))
+                return true;
         }
 
         // Shapes
