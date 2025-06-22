@@ -317,9 +317,9 @@ export function darken(color: Color, coefficient: number): Color {
     const factor = 1 - coefficient
 
     return newColor(
-        r * factor,
-        g * factor,
-        b * factor
+        Math.clamp(r * factor, 0, 255),
+        Math.clamp(g * factor, 0, 255),
+        Math.clamp(b * factor, 0, 255)
     )
 }
 
@@ -334,9 +334,17 @@ export function lighten(color: Color, coefficient: number): Color {
     const b = getBlue(color)
 
     return newColor(
-        r + (255 - r) * coefficient,
-        g + (255 - g) * coefficient,
-        b + (255 - b) * coefficient
+        Math.clamp(r + (255 - r) * coefficient, 0, 255),
+        Math.clamp(g + (255 - g) * coefficient, 0, 255),
+        Math.clamp(b + (255 - b) * coefficient, 0, 255)
+    )
+}
+
+export function multiply(color: Color, coefficient: number): Color {
+    return newColor(
+        Math.clamp(getRed(color) * coefficient, 0, 255),
+        Math.clamp(getGreen(color) * coefficient, 0, 255),
+        Math.clamp(getBlue(color) * coefficient, 0, 255)
     )
 }
 
