@@ -665,12 +665,21 @@ export class GraphsManager extends Component {
         const globalUI = this.setGlobalUI(view);
         globalUI.menu.disableUI();
 
-        if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
-        if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
-        const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
-        globalUI.menu.setEnableUIState();
-        globalUI.control.onPluginEnabled(instances);
-        this.updateStatusBarItem(view.leaf);
+        const actuallyEnablePlugin = () => {
+            if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
+            if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
+            const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
+            globalUI.menu.setEnableUIState();
+            globalUI.control.onPluginEnabled(instances);
+            this.updateStatusBarItem(view.leaf);
+        }
+
+        if (PluginInstances.settings.syncDefaultState) {
+            PluginInstances.statesManager.saveForDefaultState(view).then(() => actuallyEnablePlugin());
+        }
+        else {
+            actuallyEnablePlugin();
+        }
     }
 
     private addGraph(view: GraphView | LocalGraphView, stateID: string): GraphInstances {

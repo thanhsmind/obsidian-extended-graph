@@ -54,6 +54,7 @@ export interface ExtendedGraphSettings {
     backupGraphOptions: EngineOptions;
     states: GraphStateData[];
     startingStateID: string;
+    syncDefaultState: boolean;
     openInNewTab: boolean;
 
     // Color palettes
@@ -226,6 +227,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     backupGraphOptions: new EngineOptions(),
     states: [DEFAULT_STATE_SETTINGS],
     startingStateID: DEFAULT_STATE_ID,
+    syncDefaultState: false,
     openInNewTab: false,
 
     // Color palettes

@@ -371,6 +371,8 @@ export default class STRINGS {
 		startingState: "Starting state",
 		startingStateDesc: "Select which state should be used to initiate the plugin",
 		states: "States",
+		syncDefaultState: "Synchronize default state",
+		syncDefaultStateDesc: "Always open the default state with the current options used by the core plugin without the need to manually save them"
 	};
 
 	static statsFunctions = {

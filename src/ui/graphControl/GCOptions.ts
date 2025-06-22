@@ -47,7 +47,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-up-to-line");
                 cb.onClick(() => {
-                    this.saveForDefaultState();
+                    PluginInstances.statesManager.saveForDefaultState(this.view);
                 });
             });
     }
@@ -134,14 +134,6 @@ export class GCOptions extends GCSection {
     }
 
     // =============================== CALLBACKS ===============================
-
-    private saveForDefaultState() {
-        const stateData = PluginInstances.settings.states.find(v => v.id === DEFAULT_STATE_ID);
-        if (!stateData) return;
-        const engine = getEngine(this.view);
-        stateData.engineOptions = new EngineOptions(engine.getOptions());
-        PluginInstances.statesManager.onStateNeedsSaving(stateData);
-    }
 
     private saveForNormalState() {
         const instance = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;

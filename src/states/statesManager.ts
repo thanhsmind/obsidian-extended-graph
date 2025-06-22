@@ -1,4 +1,5 @@
-import { DEFAULT_STATE_ID, FOLDER_KEY, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
+import { GraphView, LocalGraphView } from "obsidian-typings";
+import { DEFAULT_STATE_ID, EngineOptions, FOLDER_KEY, getEngine, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
 import STRINGS from "src/Strings";
 
 
@@ -132,22 +133,30 @@ export class StatesManager {
      * @param graph - The current graph.
      * @param id - The ID of the state to save.
      */
-    saveState(instance: GraphInstances, id: string): void {
+    async saveState(instance: GraphInstances, id: string): Promise<void> {
         if (id === DEFAULT_STATE_ID) return;
         const stateData = PluginInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
         const state = new GraphState(stateData?.name);
         state.setID(id);
         state.saveGraph(instance);
-        this.onStateNeedsSaving(state.data);
+        await this.onStateNeedsSaving(state.data);
     }
 
-    onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false) {
+    async onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false): Promise<void> {
         this.updateStateArray(stateData);
-        PluginInstances.plugin.saveSettings().then(() => {
+        await PluginInstances.plugin.saveSettings().then(() => {
             if (notice) new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
             this.updateAllStates();
         });
+    }
+
+    async saveForDefaultState(view: GraphView | LocalGraphView): Promise<void> {
+        const stateData = this.getStateDataById(DEFAULT_STATE_ID);
+        if (!stateData) return;
+        const engine = getEngine(view);
+        stateData.engineOptions = new EngineOptions(engine.getOptions());
+        await this.onStateNeedsSaving(stateData);
     }
 
     // ============================= UPDATE STATE ==============================
