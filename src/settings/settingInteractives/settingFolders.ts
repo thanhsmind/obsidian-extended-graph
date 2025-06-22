@@ -5,7 +5,7 @@ import STRINGS from "src/Strings";
 export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'folders', FOLDER_KEY, STRINGS.features.folders, 'folder', STRINGS.features.foldersDesc);
+        super(settingTab, 'folders', FOLDER_KEY, STRINGS.features.folders, 'folder', STRINGS.features.foldersDesc, true);
     }
 
     protected override addBody(): void {

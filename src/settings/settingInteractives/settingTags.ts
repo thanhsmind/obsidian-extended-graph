@@ -1,11 +1,11 @@
-import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingInteractives, TAG_KEY } from "src/internal";
+import { HexString, Setting } from "obsidian";
+import { ExtendedGraphSettingTab, PluginInstances, SettingColor, SettingInteractives, TAG_KEY } from "src/internal";
 import STRINGS from "src/Strings";
 
 export class SettingTags extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'tags', TAG_KEY, STRINGS.features.interactives.tags, 'tags', STRINGS.features.interactives.tagsDesc);
+        super(settingTab, 'tags', TAG_KEY, STRINGS.features.interactives.tags, 'tags', STRINGS.features.interactives.tagsDesc, true);
     }
 
     protected override addBody(): void {

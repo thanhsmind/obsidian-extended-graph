@@ -125,7 +125,7 @@ export class SettingProperty extends SettingInteractives {
     array: SettingPropertiesArray;
 
     constructor(key: string, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
-        super(settingTab, 'property-key', key, STRINGS.features.interactives.property + ": " + key, '', STRINGS.features.interactives.propertyDesc + key);
+        super(settingTab, 'property-key', key, STRINGS.features.interactives.property + ": " + key, '', STRINGS.features.interactives.propertyDesc + key, false);
         this.array = array;
     }
 

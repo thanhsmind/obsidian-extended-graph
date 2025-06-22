@@ -255,6 +255,7 @@ export default class STRINGS {
 		performanceDelayDesc: "Because of asynchronous mechanics, it can be needed to wait a time before starting initializing the extended features",
 		performanceMaxNodes: "Maximum number of nodes",
 		performanceMaxNodesDesc: "If the graph contains more nodes than this setting, the plugin will be disabled",
+		recursive: "Recursive",
 		removeSources: "Remove sources",
 		removeSourcesDesc: "When disabling a link type, also disable the source nodes",
 		removeTargets: "Remove targets",

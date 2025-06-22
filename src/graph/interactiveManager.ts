@@ -152,10 +152,14 @@ export class InteractiveManager extends Component {
 
     private tryComputeColorFromType(type: string): Color.Color | null {
         let color: Color.Color;
-        const colorSettings = this.instances.settings.interactiveSettings[this.name].colors.find(p => p.type === type)?.color;
+        // Check if the type has a specific color set from the user
+        const colorSettings = this.instances.settings.interactiveSettings[this.name].colors.find(
+            p => p.type === type || (p.recursive && type.startsWith(p.type.endsWith("/") ? p.type : (p.type + "/")))
+        )?.color;
         if (colorSettings) {
             color = hex2int(colorSettings);
         }
+        // Else, check if it's the "none" type
         else if (type === this.instances.settings.interactiveSettings[this.name].noneType) {
             if (this.name === LINK_KEY) {
                 color = this.instances.renderer.colors.line.rgb;
@@ -164,6 +168,7 @@ export class InteractiveManager extends Component {
                 color = NONE_COLOR;
             }
         }
+        // Else, apply the palette
         else {
             const allTypesWithoutNone = [...this.interactives.keys()];
             allTypesWithoutNone.remove(this.instances.settings.interactiveSettings[this.name].noneType);

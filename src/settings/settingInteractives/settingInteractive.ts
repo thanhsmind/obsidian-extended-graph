@@ -1,4 +1,4 @@
-import { ColorComponent, HexString, setIcon, Setting, TextComponent } from "obsidian";
+import { ColorComponent, HexString, setIcon, Setting, TextComponent, ToggleComponent } from "obsidian";
 import {
     ExtendedGraphSettingTab,
     Feature,
@@ -27,9 +27,11 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     selectionContainer: HTMLElement;
     settingColorPalette: SettingColorPalette;
     colors: SettingColor[] = [];
+    canBeRecursive: boolean;
 
-    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, title: string, icon: string, description: string) {
+    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, title: string, icon: string, description: string, canBeRecursive: boolean) {
         super(settingTab, feature, interactiveKey, title, icon, description);
+        this.canBeRecursive = canBeRecursive;
     }
 
     protected override addBody(): void {
@@ -38,7 +40,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         this.addColorPaletteSetting();
         this.addSpecificColorHeaderSetting();
         PluginInstances.settings.interactiveSettings[this.interactiveKey].colors.forEach((interactive) => {
-            this.addColor(interactive.type, interactive.color);
+            this.addColor(interactive.type, interactive.color, this.canBeRecursive ? (interactive.recursive ?? false) : undefined);
         })
         this.addFilterTypeSetting();
     }
@@ -87,7 +89,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
-                    this.addColor("", int2hex(randomColor()));
+                    this.addColor("", int2hex(randomColor()), this.canBeRecursive ? false : undefined);
                 })
             });
         this.elementsBody.push(this.settingInteractiveColor.settingEl);
@@ -116,14 +118,15 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         return [...allTypes].sort();
     }
 
-    protected addColor(type: string, color: HexString): void {
-        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this));
+    protected addColor(type: string, color: HexString, recursive?: boolean): SettingColor {
+        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this), recursive);
         this.elementsBody.push(setting.settingEl);
 
         this.colors = this.colors.filter(setting => setting.settingEl.parentElement);
         let previous = this.colors.last() ?? this.settingInteractiveColor;
         this.containerEl.insertAfter(setting.settingEl, previous.settingEl);
         this.colors.push(setting);
+        return setting;
     }
 
     onCustomPaletteModified(oldName: string, newName: string): void {
@@ -147,7 +150,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 }
 
 
-class SettingColor extends Setting {
+export class SettingColor extends Setting {
     plugin: ExtendedGraphPlugin;
 
     isValid: (type: string) => boolean;
@@ -157,8 +160,17 @@ class SettingColor extends Setting {
 
     textComponent: TextComponent;
     colorComponent: ColorComponent;
+    recursiveCompotnent?: ToggleComponent;
 
-    constructor(containerEl: HTMLElement, plugin: ExtendedGraphPlugin, key: string, type: string, color: HexString, isValid: (type: string) => boolean) {
+    constructor(
+        containerEl: HTMLElement,
+        plugin: ExtendedGraphPlugin,
+        key: string,
+        type: string,
+        color: HexString,
+        isValid: (type: string) => boolean,
+        recursive?: boolean
+    ) {
         super(containerEl);
 
         this.plugin = plugin;
@@ -205,10 +217,21 @@ class SettingColor extends Setting {
 
         this.addButton(cb => {
             setIcon(cb.buttonEl, 'x');
-            cb.onClick((() => {
+            cb.onClick(() => {
                 this.remove();
-            }))
+            })
         });
+
+        if (recursive !== undefined) {
+            this.addToggle(cb => {
+                this.recursiveCompotnent = cb;
+                cb.toggleEl.insertAdjacentText("afterend", STRINGS.features.recursive)
+                cb.setValue(recursive);
+                cb.onChange((value) => {
+                    this.save();
+                });
+            });
+        }
 
         this.updateCSS();
         this.settingEl.addClass('setting-color');
@@ -217,6 +240,7 @@ class SettingColor extends Setting {
     private save() {
         const newType = this.textComponent.getValue().trim();
         const newColor = this.colorComponent.getValue();
+        const newRecursive = this.recursiveCompotnent?.getValue();
 
         if (!this.isValid(newType)) return;
 
@@ -232,10 +256,10 @@ class SettingColor extends Setting {
         const newIndex = colors.findIndex(c => c.type === newType);
 
         if (newIndex === -1) {
-            colors.push({ type: newType, color: newColor });
+            colors.push({ type: newType, color: newColor, recursive: newRecursive });
         }
         else {
-            colors[newIndex] = { type: newType, color: newColor };
+            colors[newIndex] = { type: newType, color: newColor, recursive: newRecursive };
         }
 
         this.plugin.saveSettings();

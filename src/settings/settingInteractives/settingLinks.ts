@@ -16,7 +16,7 @@ import STRINGS from "src/Strings";
 export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'links', LINK_KEY, STRINGS.features.interactives.links, 'link', STRINGS.features.interactives.linksDesc);
+        super(settingTab, 'links', LINK_KEY, STRINGS.features.interactives.links, 'link', STRINGS.features.interactives.linksDesc, false);
     }
 
     protected override addBody(): void {

@@ -19,7 +19,7 @@ import {
 
 type InteractiveSettings = {
     colormap: string;
-    colors: { type: string, color: string }[];
+    colors: { type: string, color: string, recursive?: boolean }[];
     unselected: string[];
     excludeRegex: { regex: string, flags: string };
     noneType: string;

@@ -1,4 +1,4 @@
-import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
+import { getAllTags, getLinkpath, TagCache, TFile, TFolder } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import path from "path";
 import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
@@ -33,6 +33,8 @@ export function getNumberOfFileInteractives(interactive: string, file: TFile, ty
     }
 }
 
+// ================================== TAGS ================================== //
+
 function getTags(file: TFile): Set<string> {
     const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return new Set<string>();
@@ -58,6 +60,8 @@ function getNumberOfTags(file: TFile, tag: string): number {
 
     return frontmatterTags.length + contentTags.length;
 }
+
+// =============================== PROPERTIES =============================== //
 
 function recursiveGetProperties(value: any, types: Set<string>): void {
     if (!value) return;
@@ -157,11 +161,15 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
     return 1;
 }
 
+// ================================ FOLDERS ================================= //
+
 function getFolderPath(file: TFile): Set<string> {
     const set = new Set<string>();
     file.parent ? set.add(file.parent.path) : '';
     return set;
 }
+
+// ================================= LINKS ================================== //
 
 export function getOutlinkTypes(settings: ExtendedGraphSettings, file: TFile): Map<string, Set<string>> {
     const dv = getDataviewAPI(PluginInstances.app);
