@@ -156,14 +156,12 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                         );
                         ++i;
                     }
-                    if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
-                        && this.extendedLink.instances.settings.arrowColorBool
-                        && this.extendedLink.instances.settings.arrowColor !== "") {
-                        arrowColor = hex2int(this.extendedLink.instances.settings.arrowColor);
-                    }
-                    else {
-                        arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
-                    }
+                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                }
+                if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
+                    && this.extendedLink.instances.settings.arrowColorBool
+                    && this.extendedLink.instances.settings.arrowColor !== "") {
+                    arrowColor = hex2int(this.extendedLink.instances.settings.arrowColor);
                 }
             }
         }
