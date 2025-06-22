@@ -196,7 +196,11 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                 if (P0.x > P2_.x) {
                     this.arrow.rotation += Math.PI;
                 }
-                this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);
+                this.arrow.scale.set((this.extendedLink.instances.settings.arrowFixedSize
+                    ? 2 * Math.sqrt(link.renderer.fLineSizeMult) * link.renderer.nodeScale
+                    : 2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale)
+                    * this.extendedLink.instances.settings.arrowScale
+                );
             }
         }
         else {

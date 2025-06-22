@@ -150,7 +150,11 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
                 if (this.bezier.P1.x > this.bezier.P2.x) {
                     this.arrow.rotation += Math.PI;
                 }
-                this.arrow.scale.set(2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale);
+                this.arrow.scale.set((this.extendedLink.instances.settings.arrowFixedSize
+                    ? 2 * Math.sqrt(link.renderer.fLineSizeMult) * link.renderer.nodeScale
+                    : 2 * Math.sqrt(renderer.fLineSizeMult) / renderer.scale)
+                    * this.extendedLink.instances.settings.arrowScale
+                );
             }
         }
         else {
