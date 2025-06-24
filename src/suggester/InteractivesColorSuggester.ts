@@ -4,8 +4,11 @@ import { InteractivesSuggester } from "./InteractivesSuggester";
 export class InteractivesColorSuggester extends InteractivesSuggester {
     typeToInclude?: string;
 
-    protected override getStringSuggestions(query: string): string[] {
-        const values = super.getStringSuggestions(query);
+    override renderSuggestion(value: HTMLElement, el: HTMLElement): void {
+        super.renderSuggestion(value, el);
+
+        const type = el.textContent ?? "";
+
         let alreadyExistingValues: string[] = [];
         if (this.key && this.key !== 'property') {
             alreadyExistingValues = PluginInstances.settings.interactiveSettings[this.key].colors.map(c => c.type);
@@ -13,6 +16,9 @@ export class InteractivesColorSuggester extends InteractivesSuggester {
         else if (this.key === 'property' && this.propertyKey) {
             alreadyExistingValues = PluginInstances.settings.interactiveSettings[this.propertyKey].colors.map(c => c.type);
         }
-        return values.filter(type => (type === this.typeToInclude) || !alreadyExistingValues.includes(type));
+
+        if (type !== this.typeToInclude && alreadyExistingValues.contains(type)) {
+            el.addClass("extended-graph-duplicate");
+        }
     }
 }

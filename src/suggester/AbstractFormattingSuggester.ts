@@ -6,7 +6,7 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
         super(PluginInstances.app, textInputEl);
     }
 
-    protected getSuggestions(query: string): HTMLElement[] {
+    protected override getSuggestions(query: string): HTMLElement[] {
         return this.getStringSuggestions(query).sort().map(value => {
             const match = new RegExp(query, "i").exec(value);
             const el = createDiv();
@@ -28,7 +28,7 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
 
     protected abstract getStringSuggestions(query: string): string[];
 
-    renderSuggestion(value: HTMLElement, el: HTMLElement): void {
+    override renderSuggestion(value: HTMLElement, el: HTMLElement): void {
         for (const suggestionNode of Array.from(value.childNodes)) {
             el.appendChild(suggestionNode.cloneNode(true));
         }

@@ -1279,3 +1279,9 @@ svg.shape-svg {
         transform: translateX(50%);
     }
 }
+
+/* SUGGESTERS */
+
+.suggestion-container .extended-graph-duplicate {
+    color: var(--text-faint);
+}
