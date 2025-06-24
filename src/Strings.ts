@@ -150,6 +150,7 @@ export default class STRINGS {
 		imageBorderWidth: "Border width (%)",
 		imageBorderWidthDesc: "Percentage of the node's background that will stay visible as a border",
 		interactives: {
+			alreadyExists: "Already exists",
 			arcsAdd: "Add arcs",
 			arcsAddPropertyDesc: "Add arcs around the nodes to visualize the property values",
 			arcsAddTagDesc: "Add arcs around the nodes to visualize the tags",

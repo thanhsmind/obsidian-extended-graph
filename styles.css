@@ -758,7 +758,7 @@ body {
             align-items: center;
         }
 
-        .setting-item-name {
+        svg {
             color: var(--color-orange);
         }
 
@@ -768,6 +768,26 @@ body {
 
         .setting-item-control {
             display: none;
+        }
+
+        &.is-hidden {
+            display: none;
+        }
+    }
+
+    .control-warning {
+        --icon-size: var(--icon-xs);
+        margin-inline-start: auto;
+        display: flex;
+        align-items: center;
+        gap: var(--size-4-2);
+        color: var(--text-muted);
+        font-size: var(--font-ui-smaller);
+        padding-top: var(--size-4-1);
+        line-height: var(--line-height-tight);
+
+        svg {
+            color: var(--color-orange);
         }
 
         &.is-hidden {

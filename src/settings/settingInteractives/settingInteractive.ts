@@ -39,9 +39,12 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         this.addNoneTypeSetting();
         this.addColorPaletteSetting();
         this.addSpecificColorHeaderSetting();
-        PluginInstances.settings.interactiveSettings[this.interactiveKey].colors.forEach((interactive) => {
-            this.addColor(interactive.type, interactive.color, this.canBeRecursive ? (interactive.recursive ?? false) : undefined);
-        })
+        for (const interactive of PluginInstances.settings.interactiveSettings[this.interactiveKey].colors) {
+            if (this.canBeRecursive && interactive.recursive === undefined) {
+                interactive.recursive = false;
+            }
+            this.addColor(interactive);
+        }
         this.addFilterTypeSetting();
     }
 
@@ -89,7 +92,9 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
-                    this.addColor("", int2hex(randomColor()), this.canBeRecursive ? false : undefined);
+                    const data = { type: "", color: int2hex(randomColor()), recursive: this.canBeRecursive ? false : undefined };
+                    PluginInstances.settings.interactiveSettings[this.interactiveKey].colors.push(data);
+                    this.addColor(data);
                 })
             });
         this.elementsBody.push(this.settingInteractiveColor.settingEl);
@@ -118,8 +123,8 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         return [...allTypes].sort();
     }
 
-    protected addColor(type: string, color: HexString, recursive?: boolean): SettingColor {
-        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, type, color, this.isValueValid.bind(this), recursive);
+    protected addColor(data: { type: string, color: HexString, recursive?: boolean }): SettingColor {
+        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, data, this.isValueValid.bind(this));
         this.elementsBody.push(setting.settingEl);
 
         this.colors = this.colors.filter(setting => setting.settingEl.parentElement);
@@ -155,36 +160,44 @@ export class SettingColor extends Setting {
 
     isValid: (type: string) => boolean;
     key: string;
-    type: string;
-    color: HexString;
+    data: {
+        type: string,
+        color: HexString,
+        recursive?: boolean
+    }
 
     textComponent: TextComponent;
     colorComponent: ColorComponent;
     recursiveCompotnent?: ToggleComponent;
+    warningDiv: HTMLDivElement;
 
     constructor(
         containerEl: HTMLElement,
         plugin: ExtendedGraphPlugin,
         key: string,
-        type: string,
-        color: HexString,
+        data: {
+            type: string,
+            color: HexString,
+            recursive?: boolean
+        },
         isValid: (type: string) => boolean,
-        recursive?: boolean
     ) {
         super(containerEl);
 
         this.plugin = plugin;
         this.isValid = isValid;
         this.key = key;
-        this.type = type;
-        this.color = color;
+        this.data = data;
 
+        // Input
         this.addSearch(cb => {
             this.textComponent = cb;
             const suggester = new InteractivesColorSuggester(cb.inputEl, (value) => {
-                cb.setValue(value);
-                this.save()
+                this.toggleWarning();
+                this.save();
+                suggester.typeToInclude = this.data.type;
             });
+            suggester.typeToInclude = this.data.type;
             switch (key) {
                 case LINK_KEY:
                     suggester.setKey('link');
@@ -200,21 +213,25 @@ export class SettingColor extends Setting {
                     break;
             }
             cb.setPlaceholder(key);
-            cb.setValue(type);
+            cb.setValue(data.type);
             cb.onChange((name: string) => {
+                this.toggleWarning();
                 this.save();
+                suggester.typeToInclude = this.data.type;
             })
         });
 
+        // Color picker
         this.addColorPicker(cb => {
             this.colorComponent = cb;
-            cb.setValue(color);
+            cb.setValue(data.color);
             cb.onChange((hex: string) => {
                 this.updateCSS();
                 this.save();
             })
         });
 
+        // Delete button
         this.addButton(cb => {
             setIcon(cb.buttonEl, 'x');
             cb.onClick(() => {
@@ -222,6 +239,8 @@ export class SettingColor extends Setting {
             })
         });
 
+        // Recursive toggle
+        const recursive = data.recursive;
         if (recursive !== undefined) {
             this.addToggle(cb => {
                 this.recursiveCompotnent = cb;
@@ -233,8 +252,19 @@ export class SettingColor extends Setting {
             });
         }
 
+        // Already used warning
+        this.warningDiv = this.controlEl.createDiv("control-warning");
+        setIcon(this.warningDiv.createDiv(), 'triangle-alert');
+        this.warningDiv.appendText(STRINGS.features.interactives.alreadyExists);
+        this.warningDiv.addClass("is-hidden");
+
         this.updateCSS();
         this.settingEl.addClass('setting-color');
+    }
+
+    private toggleWarning() {
+        const newType = this.textComponent.getValue().trim();
+        this.warningDiv.toggleClass("is-hidden", !PluginInstances.settings.interactiveSettings[this.key].colors.find(data => data.type === newType && data !== this.data));
     }
 
     private save() {
@@ -244,32 +274,18 @@ export class SettingColor extends Setting {
 
         if (!this.isValid(newType)) return;
 
-        const colors = PluginInstances.settings.interactiveSettings[this.key].colors;
+        // Modify the correct data through pointer
+        const oldType = this.data.type;
+        this.data.type = newType;
+        this.data.color = newColor;
+        this.data.recursive = newRecursive;
 
-        // Remove old data
-        const oldIndex = colors.findIndex(c => c.type === this.type);
-        if (oldIndex !== -1) {
-            colors.remove(colors[oldIndex]);
-        }
-
-        // Add new data
-        const newIndex = colors.findIndex(c => c.type === newType);
-
-        if (newIndex === -1) {
-            colors.push({ type: newType, color: newColor, recursive: newRecursive });
-        }
-        else {
-            colors[newIndex] = { type: newType, color: newColor, recursive: newRecursive };
-        }
-
-        this.plugin.saveSettings();
-        if (this.type !== newType) {
-            this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
-        }
-        this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, newType);
-
-        this.type = newType;
-        this.color = newColor;
+        this.plugin.saveSettings().then(() => {
+            if (oldType !== newType) {
+                this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, oldType);
+            }
+            this.plugin.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, newType);
+        });
     }
 
     private updateCSS() {
@@ -277,13 +293,10 @@ export class SettingColor extends Setting {
     }
 
     protected remove() {
-        const colors = PluginInstances.settings.interactiveSettings[this.key].colors;
-        const oldIndex = colors.findIndex(c => c.type === this.type);
-        if (oldIndex !== -1) {
-            colors.remove(colors[oldIndex]);
-        }
-        PluginInstances.plugin.saveSettings();
-        PluginInstances.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.type);
+        PluginInstances.settings.interactiveSettings[this.key].colors.remove(this.data);
+        PluginInstances.plugin.saveSettings().then(() => {
+            PluginInstances.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.data.type);
+        });
 
         this.settingEl.remove();
     }
