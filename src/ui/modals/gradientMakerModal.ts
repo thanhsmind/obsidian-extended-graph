@@ -230,9 +230,10 @@ export class GradientMakerModal extends Modal {
             interpolate: this.interpolate,
             reverse: this.reverse,
         }
-        PluginInstances.plugin.saveSettings();
-        if (this.saveCallback) this.saveCallback(this.name);
-        this.close();
+        PluginInstances.plugin.saveSettings().then(() => {
+            if (this.saveCallback) this.saveCallback(this.name);
+            this.close();
+        });
     }
 
     onSave(callback: (name: string) => void) {

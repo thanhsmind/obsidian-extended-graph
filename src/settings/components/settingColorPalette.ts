@@ -74,7 +74,9 @@ export class SettingColorPalette extends Setting {
 
     private onSelectedFromModal(name: string) {
         if (name === "") return;
+        plotColorMapFromName(this.canvasPalette, name, PluginInstances.settings);
         if (this.onPaletteChanged) this.onPaletteChanged(name);
+        this.dropdown.setValue(name);
     }
 
     setValue(palette: string) {

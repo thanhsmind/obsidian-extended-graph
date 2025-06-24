@@ -114,34 +114,36 @@ export class GradientPickerModal extends Modal {
     }
 
     private editCustomPalette(id: string) {
-        const name = this.customPalettes[id].name;
+        let name = this.customPalettes[id].name;
         const modal = new GradientMakerModal(name);
         modal.onSave(newName => {
             this.onCustomPaletteEdited(id, name, newName);
+            name = newName;
         });
         modal.open();
     }
 
-    private onCustomPaletteEdited(id: string, oldName: string, newName: string) {
-        const data = PluginInstances.settings.customColorMaps[newName];
+    private async onCustomPaletteEdited(id: string, oldName: string, newName: string) {
+        const customNewName = "custom:" + newName;
+        const data = PluginInstances.settings.customColorMaps[customNewName];
         if (!data) return;
 
-        if (oldName !== newName) {
+        if (oldName !== customNewName) {
             delete PluginInstances.settings.customColorMaps[oldName];
             for (const key in PluginInstances.settings.interactiveSettings) {
                 if (PluginInstances.settings.interactiveSettings[key].colormap === oldName) {
-                    PluginInstances.settings.interactiveSettings[key].colormap = newName;
+                    PluginInstances.settings.interactiveSettings[key].colormap = customNewName;
                 }
             }
             if (PluginInstances.settings.nodesColorColormap === oldName) {
-                PluginInstances.settings.nodesColorColormap = newName;
+                PluginInstances.settings.nodesColorColormap = customNewName;
             }
             if (PluginInstances.settings.linksColorColormap === oldName) {
-                PluginInstances.settings.linksColorColormap = newName;
+                PluginInstances.settings.linksColorColormap = customNewName;
             }
-            PluginInstances.plugin.saveSettings();
+            await PluginInstances.plugin.saveSettings();
         }
-        this.selectedPalette = "custom:" + newName;
+        this.selectedPalette = customNewName;
         this.callback(this.selectedPalette);
 
         this.customPalettes[id].name = newName;
