@@ -122,25 +122,7 @@ export class ExtendedGraphText {
     private changeText() {
         if (!this.coreElement.text) return;
 
-        let text = this.coreElement.getDisplayText();
-
-        if (this.instances.settings.usePropertiesForName) {
-            const file = getFile(this.coreElement.id);
-            if (file) {
-                let found = false;
-                for (const property of this.instances.settings.usePropertiesForName) {
-                    const values = getFileInteractives(property, file);
-                    for (const value of values) {
-                        if (value !== undefined && value !== null) {
-                            text = value.toString();
-                            found = true;
-                            break;
-                        }
-                        if (found) break;
-                    }
-                }
-            }
-        }
+        let text = this.getPropertyName() ?? this.coreElement.getDisplayText();
 
         if (this.instances.settings.showOnlyFileName) {
             text = text.split("/").last() || text;
@@ -160,9 +142,23 @@ export class ExtendedGraphText {
         }
     }
 
+    private getPropertyName(): string | undefined {
+        if (!this.instances.settings.usePropertiesForName) return;
+        const file = getFile(this.coreElement.id);
+        if (!file) return;
+        for (const property of this.instances.settings.usePropertiesForName) {
+            const values = getFileInteractives(property, file);
+            for (const value of values) {
+                if (value !== undefined && value !== null) {
+                    return value.toString();
+                }
+            }
+        }
+    }
+
     private restoreText() {
         if (!this.coreElement.text) return;
-        const newText = this.coreElement.getDisplayText();
+        const newText = this.getPropertyName() ?? this.coreElement.getDisplayText();
         if (this.coreElement.text.text !== newText) {
             this.coreElement.text.text = this.coreElement.getDisplayText();
             this.graphicsWrapper?.updateBackgroundAfterTextChange();
