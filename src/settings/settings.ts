@@ -422,11 +422,25 @@ export class SettingQuery {
         return false;
     }
 
+    static needToChangeArrowShape(instances: GraphInstances): boolean {
+        if (instances.settings.enableFeatures[instances.type]['arrows']
+            && instances.settings.flatArrows
+        ) return true;
+
+        return false;
+    }
+
     static needToChangeArrow(instances: GraphInstances): boolean {
-        return SettingQuery.needToChangeArrowRotation(instances)
-            || SettingQuery.needToChangeArrowScale(instances)
-            || SettingQuery.needToChangeArrowColor(instances)
-            || SettingQuery.needToChangeArrowAlpha(instances);
+        return instances.settings.enableFeatures[instances.type]['arrows'] && (
+            instances.settings.invertArrows
+            || instances.settings.arrowScale !== 1
+            || instances.settings.arrowFixedSize
+            || (instances.settings.arrowColorBool
+                && instances.settings.arrowColor != "")
+            || SettingQuery.needToChangeLinkColor(instances)
+            || instances.settings.alwaysOpaqueArrows
+            || instances.settings.flatArrows
+        );
     }
 
     static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
@@ -547,6 +561,10 @@ export class SettingQuery {
 
         // Color palettes
         if (['customColorMaps'].some(key => !equals(key)))
+            return true;
+
+        // Other
+        if (['enableCSS', 'useRadialMenu'].some(key => !equals(key)))
             return true;
 
         return false;
