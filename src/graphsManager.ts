@@ -755,6 +755,9 @@ export class GraphsManager extends Component {
         if (instances) {
             instances.dispatcher.unload();
         }
+        else {
+            this.globalUIs.get(leafID)?.menu.enableUI();
+        }
     }
 
     onPluginUnloaded(view: GraphView | LocalGraphView): void {
