@@ -137,7 +137,8 @@ export class StatesManager {
         if (id === DEFAULT_STATE_ID) return;
         const stateData = PluginInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
-        const state = new GraphState(stateData?.name);
+        const state = new GraphState(stateData.name);
+        state.saveState(stateData);
         state.setID(id);
         state.saveGraph(instance);
         await this.onStateNeedsSaving(state.data);

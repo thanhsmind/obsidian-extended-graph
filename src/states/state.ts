@@ -11,7 +11,7 @@ import {
 export class GraphState {
     data = new GraphStateData();
 
-    constructor(name: string) {
+    constructor(name: string, data?: GraphStateData) {
         this.data.name = name;
     }
 
@@ -20,18 +20,7 @@ export class GraphState {
     }
 
     saveGraph(instances: GraphInstances) {
-        // Disable types
-        this.data.toggleTypes = {};
-
-        const linksManager = instances.linksSet.managers.get(LINK_KEY);
-        this.data.toggleTypes[LINK_KEY] = linksManager?.getTypes()
-            .filter(type => PluginInstances.settings.interactiveSettings[LINK_KEY].enableByDefault !== linksManager.isActive(type)) ?? [];
-
-        const folderManager = instances.foldersSet?.managers.get(FOLDER_KEY);
-        this.data.toggleTypes[FOLDER_KEY] = folderManager?.getTypes()
-            .filter(type => PluginInstances.settings.interactiveSettings[FOLDER_KEY].enableByDefault !== folderManager.isActive(type)) ?? [];
-
-        for (const [key, manager] of instances.nodesSet.managers) {
+        for (const [key, manager] of instances.interactiveManagers) {
             this.data.toggleTypes[key] = manager.getTypes()
                 .filter(type => PluginInstances.settings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
         }
