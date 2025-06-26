@@ -68,7 +68,6 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
         const arcSize = Math.min(2 * Math.PI / nTags, ArcsCircle.maxArcSize);
         this.radius = (0.5 + (ArcsCircle.thickness + ArcsCircle.inset) * this.circleLayer) * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
         this.thickness = ArcsCircle.thickness * NodeShape.getSizeFactor(this.shape) * NodeShape.RADIUS * 2;
-        const weightedArcs = true;
 
         for (const type of this.types) {
             if (type === this.manager.instances.settings.interactiveSettings[this.manager.name].noneType) continue;
@@ -117,12 +116,20 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
             arc.size = arc.weight * 2 * Math.PI / totalWeight;
             arc.index = typesBefore.reduce((acc, t) => acc + (this.graphics.get(t)?.weight || 0), 0);
             const addGap = [...this.types].some(t => t !== type && this.manager.isActive(t));
-            arc.startAngle = 2 * Math.PI / totalWeight * arc.index + (addGap ? ArcsCircle.gap * 0.5 : 0);
-            arc.endAngle = arc.startAngle + arc.size - (addGap ? ArcsCircle.gap * 0.5 : 0);
+            arc.startAngle = 2 * Math.PI / totalWeight * arc.index;
+            arc.endAngle = arc.startAngle + arc.size;
+            if (addGap) {
+                const length = arc.endAngle - arc.startAngle;
+                arc.startAngle += Math.min(length * 0.1, ArcsCircle.gap * 0.5);
+                arc.endAngle -= Math.min(length * 0.1, ArcsCircle.gap * 0.5);
+            }
         }
         else {
-            arc.startAngle = arc.size * arc.index + ArcsCircle.gap * 0.5;
-            arc.endAngle = arc.size * (arc.index + 1) - ArcsCircle.gap * 0.5;
+            arc.startAngle = arc.size * arc.index;// + ArcsCircle.gap * 0.5;
+            arc.endAngle = arc.size * (arc.index + 1);// - ArcsCircle.gap * 0.5;
+            const length = arc.endAngle - arc.startAngle;
+            arc.startAngle += Math.min(length * 0.1, ArcsCircle.gap * 0.5);
+            arc.endAngle -= Math.min(length * 0.1, ArcsCircle.gap * 0.5);
         }
 
         arc.graphic.clear();
