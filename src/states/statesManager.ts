@@ -195,6 +195,7 @@ export class StatesManager {
      * @param id - The ID of the state to delete.
      */
     deleteState(id: string): void {
+        if (id === DEFAULT_STATE_ID) return;
         const state = this.getStateDataById(id);
         if (!state) return;
         PluginInstances.settings.states.remove(state);

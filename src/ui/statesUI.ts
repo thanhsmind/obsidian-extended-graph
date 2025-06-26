@@ -161,6 +161,7 @@ export class StatesUI extends Component {
         else {
             this.currentStateID = this.select.getValue();
             this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+            this.displaySaveDeleteButton();
         }
     }
 
