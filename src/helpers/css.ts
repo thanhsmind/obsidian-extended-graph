@@ -188,8 +188,8 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
 
 // ============================ Helper functions ============================ //
 
-function getGraphComputedStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSStyleDeclaration {
-    if (!instances.extendedStyleEl) return new CSSStyleDeclaration();
+function getGraphComputedStyle(instances: GraphInstances, cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSStyleDeclaration | undefined {
+    if (!instances.extendedStyleEl) return;
 
     detachCSSDiv(instances);
     const div = instances.extendedStyleEl.ownerDocument.createElement("div", {});
@@ -224,6 +224,7 @@ function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?
     if (!instances.extendedStyleEl) return DEFAULT_TEXT_STYLE;
 
     const style = getGraphComputedStyle(instances, cssClass, data);
+    if (!style) return DEFAULT_TEXT_STYLE;
 
     const fontFamily = style.fontFamily;
 
@@ -246,7 +247,7 @@ function getTextStyle(instances: GraphInstances, cssClass: string, data: { path?
 
     const letterSpacing = getUnitlessValue(style.letterSpacing, DEFAULT_TEXT_STYLE.letterSpacing);
 
-    const fill = getGraphComputedStyle(instances, "color-text", data).color;
+    const fill = getGraphComputedStyle(instances, "color-text", data)?.color ?? DEFAULT_TEXT_STYLE.fill;
 
     const textStyle = {
         fontFamily: fontFamily,
@@ -270,6 +271,7 @@ export function getLinkLabelStyle(instances: GraphInstances, data: { source?: st
     const textStyle = getTextStyle(instances, "link-text", data);
 
     const style = getGraphComputedStyle(instances, "link-text", data);
+    if (!style) return DEFAULT_LINK_LABEL_STYLE;
 
     const radius = getUnitlessValue(style.borderRadius, DEFAULT_LINK_LABEL_STYLE.radius);
     const borderWidth = getUnitlessValue(style.borderWidth, DEFAULT_LINK_LABEL_STYLE.borderWidth);
@@ -291,11 +293,9 @@ export function getLinkLabelStyle(instances: GraphInstances, data: { source?: st
 }
 
 export function getFolderStyle(instances: GraphInstances, path?: string): CSSFolderStyle {
-    if (!instances.extendedStyleEl) return DEFAULT_FOLDER_STYLE;
-
     const textStyle = getTextStyle(instances, "folder", { path });
-
     const style = getGraphComputedStyle(instances, "folder", { path });
+    if (!style) return DEFAULT_FOLDER_STYLE;
 
     let align = style.textAlign.toLowerCase();
     if (!['left', 'center', 'right'].contains(align)) {
