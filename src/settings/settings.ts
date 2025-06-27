@@ -1,6 +1,7 @@
 import {
     DEFAULT_STATE_ID,
     EngineOptions,
+    ExtendedGraphLink,
     Feature,
     FOLDER_KEY,
     GraphInstances,
@@ -390,12 +391,25 @@ export class SettingQuery {
         return false;
     }
 
-    static needToChangeArrowColor(instances: GraphInstances): boolean {
-        return SettingQuery.needToChangeLinkColor(instances)
-            || (instances.settings.enableFeatures[instances.type]['arrows']
-                && instances.settings.arrowColorBool
-                && instances.settings.arrowColor != ""
-            );
+    static needToChangeArrowColor(instances: GraphInstances, extendedLink: ExtendedGraphLink): boolean {
+        if (instances.settings.enableFeatures[instances.type]['arrows']
+            && instances.settings.arrowColorBool
+            && instances.settings.arrowColor != ""
+        ) return true;
+
+        if (instances.settings.enableFeatures[instances.type]['links']
+            && instances.settings.interactiveSettings[LINK_KEY].showOnGraph
+            && !extendedLink.hasType(LINK_KEY, instances.settings.interactiveSettings[LINK_KEY].noneType)
+        ) return true;
+
+        if (instances.settings.enableFeatures[instances.type]['elements-stats']
+            && instances.settings.linksColorFunction !== "default"
+        ) return true;
+
+        if (instances.settings.enableFeatures[instances.type]['linksSameColorAsNode'])
+            return true;
+
+        return false;
     }
 
     static needToChangeArrowScale(instances: GraphInstances): boolean {
@@ -437,10 +451,10 @@ export class SettingQuery {
             || instances.settings.arrowFixedSize
             || (instances.settings.arrowColorBool
                 && instances.settings.arrowColor != "")
-            || SettingQuery.needToChangeLinkColor(instances)
             || instances.settings.alwaysOpaqueArrows
             || instances.settings.flatArrows
-        );
+        )
+            || SettingQuery.needToChangeLinkColor(instances);
     }
 
     static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {

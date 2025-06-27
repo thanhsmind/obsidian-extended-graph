@@ -1,5 +1,5 @@
 import { ColorSource, Graphics } from "pixi.js"
-import { ExtendedGraphLink, GraphInstances, PluginInstances, SettingQuery } from "src/internal";
+import { ExtendedGraphLink, GraphInstances, LINK_KEY, PluginInstances, SettingQuery } from "src/internal";
 
 export class ExtendedGraphArrow {
     extendedLink: ExtendedGraphLink;
@@ -32,18 +32,15 @@ export class ExtendedGraphArrow {
     // ============================= ARROW PROXY ==============================
 
     private proxyArrow(): void {
-        const needToColorArrows = SettingQuery.needToChangeArrowColor(this.instances);
+        const needToColorArrows = SettingQuery.needToChangeArrowColor(this.instances, this.extendedLink);
         const needToChangeArrowAlpha = SettingQuery.needToChangeArrowAlpha(this.instances);
         if (!this.instances.settings.invertArrows
             && !needToColorArrows
             && !needToChangeArrowAlpha
         ) return;
 
-
         const link = this.extendedLink.coreElement;
         if (link.arrow) {
-
-
             const modifyingFunctions: ((target: Graphics, prop: string | symbol, value: any) => boolean)[] = [];
             if (this.instances.settings.invertArrows) modifyingFunctions.push(this.invertArrow.bind(this));
             if (needToColorArrows) modifyingFunctions.push(this.colorArrow.bind(this));
