@@ -22,7 +22,6 @@ import {
 // https://pixijs.download/v7.4.2/docs/index.html
 
 export default class ExtendedGraphPlugin extends Plugin {
-    waitingTime: number = 0;
 
     // ================================ LOADING ================================
 
@@ -38,10 +37,10 @@ export default class ExtendedGraphPlugin extends Plugin {
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this));
 
-        this.registerEvent(this.app.workspace.on('layout-ready', () => {
+        this.app.workspace.onLayoutReady(() => {
             this.loadGraphsManager();
             this.onLayoutChange();
-        }));
+        });
 
         this.registerEvent(
             this.app.workspace.on('file-open', async (file) => {
@@ -304,57 +303,19 @@ export default class ExtendedGraphPlugin extends Plugin {
 
     async onLayoutChange() {
         if (!this.app.internalPlugins.getPluginById("graph")?._loaded) return;
-        this.waitingTime = 0;
-
-        try {
-            const found = await this.waitForRenderer();
-            const leaves = found ? this.getAllGraphLeaves() : [];
-            PluginInstances.graphsManager.syncWithLeaves(leaves);
-            leaves.forEach(leaf => {
-                PluginInstances.graphsManager.onNewLeafOpen(leaf);
-            });
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    private waitForRenderer(): Promise<boolean> {
-        return new Promise((resolve) => {
-            const intervalId = setInterval(() => {
-                this.waitingTime += 200;
-                if (this.isGraphOpen()) {
-                    this.clearWaitInterval(intervalId, resolve, true);
-                }
-                else if (this.waitingTime > 500) {
-                    this.clearWaitInterval(intervalId, resolve, false);
-                }
-            }, 100);
+        const leaves = this.getGraphLeaves();
+        PluginInstances.graphsManager.syncWithLeaves(leaves);
+        leaves.forEach(leaf => {
+            PluginInstances.graphsManager.initLeaf(leaf);
         });
     }
 
-    private clearWaitInterval(intervalId: NodeJS.Timeout, resolve: (value: boolean) => void, result: boolean): void {
-        clearInterval(intervalId);
-        this.waitingTime = 0;
-        resolve(result);
-    }
-
-    private isGraphOpen(): boolean {
-        if (this.app.workspace.getLeavesOfType('graph').find(leaf => this.isGraph(leaf))) return true;
-        if (this.app.workspace.getLeavesOfType('localgraph').find(leaf => this.isGraph(leaf))) return true;
-        if (getGraphBannerPlugin()?.graphViews.find(v => this.isGraph(v.leaf))) return true;
-        return false;
-    }
-
-    private getAllGraphLeaves(): WorkspaceLeaf[] {
+    private getGraphLeaves(): WorkspaceLeaf[] {
         let leaves: WorkspaceLeaf[] = [];
-        leaves = leaves.concat(this.app.workspace.getLeavesOfType('graph').filter(leaf => this.isGraph(leaf)));
-        leaves = leaves.concat(this.app.workspace.getLeavesOfType('localgraph').filter(leaf => this.isGraph(leaf)));
+        leaves = leaves.concat(this.app.workspace.getLeavesOfType('graph'));
+        leaves = leaves.concat(this.app.workspace.getLeavesOfType('localgraph'));
         leaves = leaves.concat(getGraphBannerPlugin()?.graphViews.map(v => v.leaf) || []);
         return [...(new Set(leaves))];
-    }
-
-    private isGraph(leaf: WorkspaceLeaf): boolean {
-        return leaf.view instanceof View && leaf.view._loaded && hasEngine(leaf);
     }
 
     private onMarkdownViewOpen(view: MarkdownView): void {

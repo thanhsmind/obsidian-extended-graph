@@ -520,7 +520,7 @@ export class GraphsManager extends Component {
 
     // ================================ LAYOUT =================================
 
-    onNewLeafOpen(leaf: WorkspaceLeaf): void {
+    initLeaf(leaf: WorkspaceLeaf): void {
         const view = getGraphView(leaf);
         if (!view) return;
 
@@ -567,6 +567,7 @@ export class GraphsManager extends Component {
                 this.disablePluginFromLeafID(leafID);
             }
         }
+
         // Remove options backups, but keep one
         const optionsBackupIDs = [...this.optionsBackup.keys()];
         for (const leafID of optionsBackupIDs) {
@@ -574,6 +575,7 @@ export class GraphsManager extends Component {
                 this.optionsBackup.delete(leafID);
             }
         }
+
         // Remove UI from closed leaves
         const globalUIsIDs = [...this.globalUIs.keys()];
         for (const leafID of globalUIsIDs) {
