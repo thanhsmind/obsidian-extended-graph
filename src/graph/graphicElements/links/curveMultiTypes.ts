@@ -1,6 +1,6 @@
 import { IDestroyOptions } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
+import { hex2int, lengthQuadratic, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -34,12 +34,10 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
             }
             else if (activeTypes.length > 0) {
                 this.tint = "white";
-                const step = 1 / activeTypes.length;
                 let i = 0;
                 this.moveTo(this.bezier.P0.x, this.bezier.P0.y);
                 for (const type of activeTypes) {
-                    const t = step * (1 + i);
-                    const [bezierA, bezierB] = this.deCasteljau([P0_, P1, this.bezier.P2], t);
+                    const [bezierA, bezierB] = this.deCasteljau([P0_, P1, this.bezier.P2], 1 / (activeTypes.length - i));
                     P0_ = bezierB[0];
                     P1 = bezierB[1];
 
