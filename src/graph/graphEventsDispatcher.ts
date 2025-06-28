@@ -279,9 +279,6 @@ export class GraphEventsDispatcher extends Component {
         if (!this.instances.settings.enableFeatures[this.instances.type]['arrows']
             || !this.instances.settings.opaqueArrowsButKeepFading
         ) return;
-        if (this.instances.settings.enableFeatures[this.instances.type]['links']
-            && this.instances.settings.curvedLinks
-        ) return;
 
         this.coreArrowAlpha = this.instances.renderer.colors.arrow.a;
         this.instances.renderer.colors.arrow.a = 1;

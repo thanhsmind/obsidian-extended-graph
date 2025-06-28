@@ -37,7 +37,7 @@ export class LinkArrow extends Graphics {
             && this.extendedLink.instances.settings.alwaysOpaqueArrows) {
             if (this.extendedLink.isHighlighted()
                 || !this.extendedLink.coreElement.renderer.getHighlightNode()) {
-                alpha = 10;
+                alpha = 1;
             }
         }
 

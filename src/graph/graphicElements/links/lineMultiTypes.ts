@@ -19,7 +19,8 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         this.types = types;
         this.name = "line:" + name;
         this.extendedLink = link;
-        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading ? 1 : 0.6;
+        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading
+            ? 1 : this.extendedLink.instances.renderer.colors.arrow.a;
         this.updateValues();
     }
 
