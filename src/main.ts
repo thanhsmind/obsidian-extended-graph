@@ -1,4 +1,5 @@
-import { addIcon, getIcon, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { addIcon, getIcon, ItemView, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { GraphView, LocalGraphView } from "obsidian-typings";
 import {
     DEFAULT_SETTINGS,
     ExtendedGraphSettingTab,
@@ -17,6 +18,7 @@ import {
     StatesManager,
     TAG_KEY
 } from './internal';
+import STRINGS from './Strings';
 
 
 // https://pixijs.download/v7.4.2/docs/index.html
@@ -54,6 +56,8 @@ export default class ExtendedGraphPlugin extends Plugin {
                 this.onMarkdownViewOpen(view);
             }),
         );
+
+        this.addCommands();
     }
 
     private initializeInvalidKeys(): void {
@@ -84,6 +88,59 @@ export default class ExtendedGraphPlugin extends Plugin {
             const s = new XMLSerializer();
             PluginInstances.pinSVGDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
         }
+    }
+
+    private addCommands() {
+        this.addCommand({
+            id: 'enable-in-graph-view',
+            name: STRINGS.controls.enableInGraphView,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
+                if (itemView
+                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
+                    && !PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                    if (!checking) {
+                        PluginInstances.graphsManager.enablePlugin(itemView as GraphView | LocalGraphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'disable-in-graph-view',
+            name: STRINGS.controls.disableInGraphView,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
+                if (itemView
+                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
+                    && PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                    if (!checking) {
+                        PluginInstances.graphsManager.disablePlugin(itemView as GraphView | LocalGraphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'reset-in-graph-view',
+            name: STRINGS.controls.resetInGraphView,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
+                if (itemView
+                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
+                    && PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                    if (!checking) {
+                        PluginInstances.graphsManager.resetPlugin(itemView as GraphView | LocalGraphView);
+                    }
+                    return true;
+                }
+            }
+        });
     }
 
     // =============================== UNLOADING ===============================

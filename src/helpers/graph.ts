@@ -22,7 +22,7 @@ export function hasEngine(leaf: WorkspaceLeaf): boolean {
     }
 }
 
-export function getEngine(view: GraphView | LocalGraphView): GraphEngine {
+export function getEngine(view: GraphView | LocalGraphView): GraphEngine | undefined {
     if (view.getViewType() === "graph") {
         return (view as GraphView).dataEngine;
     }

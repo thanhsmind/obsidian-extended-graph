@@ -529,8 +529,8 @@ export class GraphsManager extends Component {
         }
         catch (e) {
             // UI not set, probably because the graph is in a closed sidebar
-            console.error("ERROR: could not set global UI.");
-            console.error(e);
+            console.warn("WARNING: could not set global UI.");
+            console.warn(e);
         }
         if (this.isPluginAlreadyEnabled(view)) return;
 
@@ -543,7 +543,7 @@ export class GraphsManager extends Component {
         }
     }
 
-    private isPluginAlreadyEnabled(view: GraphView | LocalGraphView): boolean {
+    isPluginAlreadyEnabled(view: GraphView | LocalGraphView): boolean {
         return this.allInstances.has(view.leaf.id);
     }
 
@@ -885,6 +885,7 @@ export class GraphsManager extends Component {
 
     backupOptions(view: GraphView | LocalGraphView) {
         const engine = getEngine(view);
+        if (!engine) return;
         const options = structuredClone(engine.getOptions());
         this.optionsBackup.set(view.leaf.id, options);
         delete options.search;
@@ -952,7 +953,9 @@ export class GraphsManager extends Component {
             exportToSVG = new ExportExtendedGraphToSVG(instances);
         }
         else {
-            exportToSVG = new ExportCoreGraphToSVG(getEngine(view));
+            const engine = getEngine(view);
+            if (!engine) return;
+            exportToSVG = new ExportCoreGraphToSVG(engine);
         }
         exportToSVG.toClipboard();
     }
