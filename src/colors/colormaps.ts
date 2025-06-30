@@ -574,6 +574,6 @@ function qualitative(x: number, colors: Color.Color[], stops: number[]): Color.C
 }
 
 function adaptBrightness(color: Color.Color): Color.Color {
-    const factor = PluginInstances.settings.interactivesBrightness[PluginInstances.app.vault.getConfig('theme') === "moonstone" ? "light" : "dark"];
+    const factor = PluginInstances.settings.interactivesBrightness[PluginInstances.app.getTheme() === "moonstone" ? "light" : "dark"];
     return Color.multiply(color, factor);
 }
