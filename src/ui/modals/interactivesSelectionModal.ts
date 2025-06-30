@@ -24,7 +24,7 @@ export class InteractivesSelectionModal extends Modal {
 
     private addRegexArea() {
         if (!("excludeRegex" in PluginInstances.settings.interactiveSettings[this.key])) {
-            PluginInstances.settings.interactiveSettings[this.key]["excludeRegex"] = { regex: "", flags: "" };
+            PluginInstances.settings.interactiveSettings[this.key].excludeRegex = { regex: "", flags: "" };
         }
         this.regexSetting = new Setting(this.contentEl)
             .setName(STRINGS.query.excludeRegex)

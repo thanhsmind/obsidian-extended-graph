@@ -26,6 +26,7 @@ import {
     TAG_KEY
 } from "src/internal";
 import STRINGS from "src/Strings";
+import { GraphFilter } from "./graphFilter";
 
 interface LastFilteringAction {
     id: 'core-search' | 'core-tags' | 'core-attachments' | 'core-hide-unresolved' | 'core-orphans'
@@ -81,6 +82,7 @@ export class GraphEventsDispatcher extends Component {
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
+        this.instances.filter = new GraphFilter(this.instances);
         instances.dispatcher = this;
         this.initializeGraph();
         this.initializeUI();
@@ -590,149 +592,7 @@ export class GraphEventsDispatcher extends Component {
 
     private updateData(data: GraphData): GraphData | undefined {
         // Filter out nodes
-        let nodesToRemove: string[] = [];
-        if (!this.instances.settings.fadeOnDisable) {
-            for (const [id, node] of Object.entries(data.nodes)) {
-                // Remove file nodes
-                const file = getFile(id);
-                if (file) {
-                    for (const [key, manager] of this.instances.nodesSet.managers) {
-                        const interactives = getFileInteractives(key, file);
-                        if (interactives.size === 0) {
-                            interactives.add(this.instances.settings.interactiveSettings[key].noneType);
-                        }
-                        if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
-                            nodesToRemove.push(id);
-                        }
-                    }
-                }
-
-                // Remove tag nodes
-                else if (node.type === 'tag' && this.instances.settings.enableFeatures[this.instances.type]['tags']) {
-                    const manager = this.instances.interactiveManagers.get(TAG_KEY);
-                    if (manager && !manager.isActiveBasedOnTypes([id.replace('#', '')])) {
-                        nodesToRemove.push(id);
-                    }
-                }
-            }
-        }
-
-        for (const id of nodesToRemove) {
-            delete data.nodes[id];
-        }
-        nodesToRemove = [];
-
-        // Filter out links
-        const matchFolder = (file: string, folder: string): boolean => {
-            return regExpFromString(folder)?.test(file) ?? file.startsWith(folder);
-        };
-
-        const potentialOrphans: string[] = [];
-        let dataNodesEntries = Object.entries(data.nodes);
-        for (const [source, node] of dataNodesEntries) {
-            // @ts-ignore
-            if (Object.keys(node.links).length === 0) {
-                if (!this.instances.engine.options.showOrphans) {
-                    potentialOrphans.push(source);
-                }
-                continue;
-            }
-
-            const file = getFile(source);
-            if (file) {
-                // Filter out based on source folders
-                if (this.instances.settings.enableFeatures[this.instances.type]['links']
-                    && this.instances.settings.excludedSourcesFolder.find(folder => matchFolder(source, folder))) {
-                    // @ts-ignore
-                    node.links = {};
-                    continue;
-                }
-                // Filter out based on target folders
-                // @ts-ignore
-                const targets = Object.keys(node.links);
-                for (const target of targets) {
-                    if (this.instances.settings.enableFeatures[this.instances.type]['links']
-                        && this.instances.settings.excludedTargetsFolder.find(folder => matchFolder(target, folder))) {
-                        // @ts-ignore
-                        delete node.links[target];
-                    }
-                }
-                // @ts-ignore
-                if (Object.keys(node.links).length === 0) {
-                    if (!this.instances.engine.options.showOrphans) {
-                        potentialOrphans.push(source);
-                    }
-                    continue;
-                }
-
-                // Filter out based on types
-                for (const [key, manager] of this.instances.linksSet.managers) {
-                    const typedLinks = getOutlinkTypes(this.instances.settings, file); // id -> types
-                    const validTypedLinks = new Map([...typedLinks.entries()].reduce((acc: [string, Set<string>][], curr: [string, Set<string>]) => {
-                        curr[1] = new Set([...curr[1]].filter(type => manager.getTypes().includes(type)));
-                        if (curr[1].size > 0) {
-                            acc.push(curr);
-                        }
-                        return acc;
-                    }, []));
-
-                    for (const [target, types] of validTypedLinks) {
-                        // @ts-ignore
-                        if (!(target in node.links)) continue;
-
-                        if (types.size > 0 && !manager.isActiveBasedOnTypes([...types])) {
-                            // We can remove directly from the record since we are not iterating over the record
-                            // @ts-ignore
-                            delete node.links[target];
-
-                            // Remove source or target if settings enabled
-                            if (this.instances.settings.disableSource) {
-                                nodesToRemove.push(source);
-                            }
-                            if (this.instances.settings.disableTarget) {
-                                nodesToRemove.push(target);
-                            }
-                        }
-                    }
-
-                    if (!manager.isActiveBasedOnTypes([this.instances.settings.interactiveSettings[manager.name].noneType])) {
-                        // @ts-ignore
-                        const noneTargets = Object.keys(node.links).filter(target => !validTypedLinks.has(target));
-                        for (const target of noneTargets) {
-                            // @ts-ignore
-                            delete node.links[target];
-                        }
-                    }
-                }
-
-                // @ts-ignore
-                if (Object.keys(node.links).length === 0) {
-                    if (!this.instances.engine.options.showOrphans) {
-                        potentialOrphans.push(source);
-                    }
-                    continue;
-                }
-            }
-
-            // Actually remove source and targets
-            for (const id of nodesToRemove) {
-                delete data.nodes[id];
-            }
-            nodesToRemove = [];
-        }
-
-        // Remove orphans
-        if (!this.instances.engine.options.showOrphans) {
-            const remainingNodes = Object.values(data.nodes);
-            for (const source of potentialOrphans) {
-                // @ts-ignore
-                if (!remainingNodes.find(n => source in n.links)) {
-                    delete data.nodes[source];
-                }
-            }
-        }
-
-        PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
+        data = this.instances.filter.filterNodes(data);
 
         const showNotice = this.lastFilteringAction?.userChange || true;
         if (this.lastFilteringAction) this.lastFilteringAction.userChange = false;

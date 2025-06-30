@@ -139,6 +139,9 @@ export class GCOptions extends GCSection {
         const instance = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
 
         const engine = getEngine(this.view);
+        if (!engine) {
+            return;
+        }
         instance.options = engine.getOptions();
         instance.saveOptions();
         PluginInstances.graphsManager.backupOptions(this.view);

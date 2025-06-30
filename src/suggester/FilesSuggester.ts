@@ -1,20 +1,20 @@
-import { TFolder } from "obsidian";
+import { TAbstractFile } from "obsidian";
 import { AbstractFormattingSuggester, PluginInstances } from "src/internal";
 
-export class FoldersSuggester extends AbstractFormattingSuggester {
+export class FilesSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
-    folders: TFolder[] = [];
+    files: TAbstractFile[] = [];
 
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, callback: (value: string) => void) {
         super(textInputEl);
         this.callback = callback;
-        this.folders = PluginInstances.app.vault.getAllFolders();
+        this.files = PluginInstances.app.vault.getAllLoadedFiles();
     }
 
     protected override getStringSuggestions(query: string): string[] {
-        return this.folders.reduce((acc: string[], folder) => {
-            if (folder.path.toLowerCase().includes(query.toLowerCase())) {
-                acc.push(folder.path);
+        return this.files.reduce((acc: string[], file) => {
+            if (file.path.toLowerCase().includes(query.toLowerCase())) {
+                acc.push(file.path);
             }
             return acc;
         }, []);

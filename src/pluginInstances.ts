@@ -21,6 +21,7 @@ import {
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
+import { GraphFilter } from "./graph/graphFilter";
 
 export class PluginInstances {
     static plugin: ExtendedGraphPlugin; // init in main.ts
@@ -42,6 +43,7 @@ export class GraphInstances {
     readonly interactiveManagers = new Map<string, InteractiveManager>();
 
     dispatcher: GraphEventsDispatcher; // init in graphEventsDispatcher.ts (constructor)
+    filter: GraphFilter; // init in graphEventsDispatcher.ts (constructor)
     graph: Graph; // init in graph.ts (constructor)
     stateData?: GraphStateData; // graphsManager.ts (addGraph) and changed in statesUI.ts
 
@@ -68,7 +70,9 @@ export class GraphInstances {
         this.view = view;
         this.settings = structuredClone(PluginInstances.settings);
         this.type = this.view.getViewType() === "graph" ? "graph" : "localgraph";
-        this.engine = getEngine(this.view);
+        const engine = getEngine(this.view);
+        if (!engine) throw new Error("Graph engine is not initialized");
+        this.engine = engine;
         this.renderer = this.view.renderer;
     }
 }

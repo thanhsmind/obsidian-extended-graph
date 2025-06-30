@@ -675,6 +675,7 @@ body {
     .setting-item-heading.setting-elements-stats.is-collapsed~.setting-elements-stats,
     .setting-item-heading.setting-zoom.is-collapsed~.setting-zoom,
     .setting-item-heading.setting-display.is-collapsed~.setting-display,
+    .setting-item-heading.setting-filter.is-collapsed~.setting-filter,
     .setting-item-heading.setting-performances.is-collapsed~.setting-performances,
     .setting-item-heading.setting-beta.is-collapsed~.setting-beta {
         display: none;

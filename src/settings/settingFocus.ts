@@ -3,8 +3,6 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType }
 import STRINGS from "src/Strings";
 
 export class SettingFocus extends SettingsSectionPerGraphType {
-    allTopElements: HTMLElement[] = [];
-
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'focus', '', STRINGS.features.focus, 'telescope', STRINGS.features.focusDesc);
     }

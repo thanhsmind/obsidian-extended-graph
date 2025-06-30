@@ -157,6 +157,9 @@ export interface ExtendedGraphSettings {
     horizontalLegend: boolean;
     useRadialMenu: boolean;
 
+    // Filters
+    filterAbstractFiles: { regex: string, flag: string }[];
+
     // Internal settings (not set by the user)
     collapseState: boolean;
     collapseLegend: boolean;
@@ -335,6 +338,9 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // UI
     horizontalLegend: false,
     useRadialMenu: false,
+
+    // Filters
+    filterAbstractFiles: [],
 
     // Internal settings (not set by the user)
     collapseState: true,
@@ -575,6 +581,10 @@ export class SettingQuery {
 
         // Color palettes
         if (['customColorMaps'].some(key => !equals(key)))
+            return true;
+
+        // FIlters
+        if (['filterAbstractFiles'].some(key => !equals(key)))
             return true;
 
         // Other

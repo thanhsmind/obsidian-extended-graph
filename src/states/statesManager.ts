@@ -156,6 +156,7 @@ export class StatesManager {
         const stateData = this.getStateDataById(DEFAULT_STATE_ID);
         if (!stateData) return;
         const engine = getEngine(view);
+        if (!engine) return;
         stateData.engineOptions = new EngineOptions(engine.getOptions());
         await this.onStateNeedsSaving(stateData);
     }
