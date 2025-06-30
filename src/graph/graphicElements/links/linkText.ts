@@ -16,6 +16,7 @@ export class LinkText extends Container {
         this.computeCSSStyle();
 
         this.text = new Text(text, this.getTextStyle());
+        this.text.resolution = 2;
         if (this.needsGraphicsBackground()) {
             this.background = new Graphics();
             this.addChild(this.background, this.text);

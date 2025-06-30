@@ -38,6 +38,7 @@ export class FolderBlob {
 
         this.initTextStyle();
         this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
+        this.text.resolution = 2;
         this.area.addChild(this.text);
     }
 
