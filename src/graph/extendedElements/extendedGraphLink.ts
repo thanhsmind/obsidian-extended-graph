@@ -12,6 +12,7 @@ import {
     LineLinkGraphicsWrapper,
     LINK_KEY,
     LinkCurveGraphics,
+    LinkLineMultiTypesGraphics,
     LinkText,
     PluginInstances,
     SettingQuery
@@ -64,7 +65,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.changeCoreLinkThickness();
         this.proxyLine();
         this.createContainer();
-        if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics && this.coreElement.line) this.coreElement.line.renderable = false;
+        if ((this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics
+            || this.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics
+        ) && this.coreElement.line) this.coreElement.line.renderable = false;
     }
 
     override restoreCoreElement(): void {

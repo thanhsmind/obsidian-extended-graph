@@ -1,4 +1,4 @@
-import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics } from "src/internal";
+import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics, LinkLineMultiTypesGraphics } from "src/internal";
 import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export class LinkText extends Container {
@@ -7,6 +7,7 @@ export class LinkText extends Container {
     text: Text;
     textColor?: TextStyleFill | null;
     onCurve: boolean;
+    onCustomLine: boolean;
     style: CSSLinkLabelStyle;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
@@ -40,6 +41,9 @@ export class LinkText extends Container {
             this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
             this.alpha = 2;
         }
+        else if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics) {
+            this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
+        }
         else if (this.extendedLink.coreElement.px) {
             this.extendedLink.coreElement.px.addChild(this);
         }
@@ -47,10 +51,10 @@ export class LinkText extends Container {
 
     updateFrame() {
         if (this.destroyed) return;
+        if (this.extendedLink.coreElement.source.circle) {
+            this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
+        }
         if (this.onCurve) {
-            if (this.extendedLink.coreElement.source.circle) {
-                this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
-            }
             const middle = (this.extendedLink.graphicsWrapper?.pixiElement as LinkCurveGraphics).getMiddlePoint();
             this.position.set(middle.x, middle.y);
         }
@@ -58,10 +62,13 @@ export class LinkText extends Container {
             this.visible = this.extendedLink.coreElement.line?.visible ?? false;
             if (this.visible) {
                 this.rotation = - this.parent.rotation;
-                if (this.extendedLink.coreElement.source.circle) {
-                    this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
+                if (this.extendedLink.graphicsWrapper?.pixiElement === this.parent) {
+                    this.position.x = ((this.extendedLink.coreElement.source.circle?.x ?? 0) + (this.extendedLink.coreElement.target.circle?.x ?? 0)) * 0.5;
+                    this.position.y = ((this.extendedLink.coreElement.source.circle?.y ?? 0) + (this.extendedLink.coreElement.target.circle?.y ?? 0)) * 0.5;
                 }
-                this.position.x = this.parent.width * 0.5;
+                else {
+                    this.position.x = this.parent.width * 0.5;
+                }
                 this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
             }
         }
