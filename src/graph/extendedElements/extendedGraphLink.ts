@@ -408,8 +408,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     private displayText() {
         if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
-        const type = this.getActiveType(LINK_KEY);
-        if (!type || type === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
+        const type = this.getDisplayedText();
+        if (!type) return;
         if (this.text && !this.text.destroyed) {
             this.text.setDisplayedText(type);
         }
@@ -420,10 +420,26 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.text.updateFrame();
     }
 
+    private getDisplayedText(): string | undefined {
+        let activeType = this.getActiveType(LINK_KEY);
+        if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
+            if (this.text?.onCurve) {
+                return;
+            }
+            activeType = this.siblingLink?.getActiveType(LINK_KEY);
+            if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
+                return;
+            }
+        }
+        return activeType;
+    }
+
     private updateDisplayedText() {
         if (!this.text) return;
-        const activeType = this.getActiveType(LINK_KEY);
-        if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) return;
+        let activeType = this.getDisplayedText();
+        if (!activeType) {
+            return;
+        }
         this.text.setDisplayedText(activeType);
         this.text.updateTextColor();
     }
