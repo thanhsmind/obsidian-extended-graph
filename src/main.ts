@@ -7,24 +7,16 @@ import {
     getGraphBannerClass,
     getGraphBannerPlugin,
     GraphsManager,
-    hasEngine,
     INVALID_KEYS,
     isGraphBannerLoaded,
     LINK_KEY,
     PluginInstances,
     ProxysManager,
     rgb2hex,
-    rgb2int,
     StatesManager,
     t,
     TAG_KEY
 } from './internal';
-
-
-import * as en from 'I18n/en.json';
-import * as fr from 'i18n/fr.json';
-import * as zh from 'I18n/zh.json';
-
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -33,8 +25,6 @@ export default class ExtendedGraphPlugin extends Plugin {
     // ================================ LOADING ================================
 
     async onload(): Promise<void> {
-        this.initI18n();
-
         PluginInstances.plugin = this;
         PluginInstances.app = this.app;
         PluginInstances.configurationDirectory = normalizePath(this.manifest.dir + "/configs/");
@@ -66,12 +56,6 @@ export default class ExtendedGraphPlugin extends Plugin {
         );
 
         this.addCommands();
-    }
-
-    private initI18n() {
-        i18next.addResourceBundle('en', 'extended-graph', en);
-        i18next.addResourceBundle('fr', 'extended-graph', fr);
-        i18next.addResourceBundle('zh', 'extended-graph', zh);
     }
 
     private initializeInvalidKeys(): void {
