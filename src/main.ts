@@ -21,8 +21,9 @@ import {
 } from './internal';
 
 
-import * as fr from 'i18n/fr.json';
 import * as en from 'I18n/en.json';
+import * as fr from 'i18n/fr.json';
+import * as zh from 'I18n/zh.json';
 
 
 // https://pixijs.download/v7.4.2/docs/index.html
@@ -70,6 +71,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     private initI18n() {
         i18next.addResourceBundle('en', 'extended-graph', en);
         i18next.addResourceBundle('fr', 'extended-graph', fr);
+        i18next.addResourceBundle('zh', 'extended-graph', zh);
     }
 
     private initializeInvalidKeys(): void {
