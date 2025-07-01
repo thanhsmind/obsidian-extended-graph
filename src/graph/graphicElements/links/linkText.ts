@@ -97,7 +97,7 @@ export class LinkText extends Container {
 
     private getTextColor(): TextStyleFill {
         if (this.extendedLink.instances.settings.colorLinkTypeLabel) {
-            const color = this.extendedLink.getStrokeColor() ?? this.extendedLink.siblingLink?.getStrokeColor();
+            const color = this.extendedLink.getStrokeColor() ?? (this.onCurve ? undefined : this.extendedLink.siblingLink?.getStrokeColor());
             if (color) return color;
         }
 

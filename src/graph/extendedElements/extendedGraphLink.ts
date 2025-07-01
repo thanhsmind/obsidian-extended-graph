@@ -423,7 +423,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     private getDisplayedText(): string | undefined {
         let activeType = this.getActiveType(LINK_KEY);
         if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-            if (this.text?.onCurve) {
+            if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
                 return;
             }
             activeType = this.siblingLink?.getActiveType(LINK_KEY);
