@@ -1,6 +1,5 @@
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances, t } from "src/internal";
 
 export class StatesUI extends Component {
     instances: GraphInstances;
@@ -27,7 +26,7 @@ export class StatesUI extends Component {
         // TOGGLE BUTTON
         const graphControls = this.instances.view.contentEl.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
-            .setTooltip(STRINGS.states.openSettings)
+            .setTooltip(t("states.openSettings"))
             .setIcon("eye")
             .onClick(() => {
                 if (this.isOpen) {
@@ -43,7 +42,7 @@ export class StatesUI extends Component {
 
         // STATE PANE
         this.statePane = new Setting(this.root)
-            .setName(STRINGS.states.states)
+            .setName(t("states.states"))
             .addDropdown(cb => {
                 this.select = cb;
                 cb.onChange(value => {
@@ -103,7 +102,7 @@ export class StatesUI extends Component {
 
     private openModalToAddState() {
         const modal = new NewNameModal(
-            STRINGS.states.newStateName,
+            t("states.newStateName"),
             this.newState.bind(this)
         );
         modal.open();
@@ -113,7 +112,7 @@ export class StatesUI extends Component {
         const stateData = this.instances.stateData;
         if (stateData) {
             const modal = new NewNameModal(
-                STRINGS.states.editStateName,
+                t("states.editStateName"),
                 this.renameState.bind(this),
                 stateData.name
             );

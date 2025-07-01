@@ -1,5 +1,8 @@
 import { PluginSettingTab, Setting, ToggleComponent } from "obsidian";
 import {
+    ExportConfigModal,
+    ImportConfigModal,
+    PluginInstances,
     SettingFocus,
     SettingFolders,
     SettingImages,
@@ -11,7 +14,6 @@ import {
     SettingsSection,
     SettingTags,
     SettingZoom,
-    PluginInstances,
     SettingNames,
     SettingIcons,
     SettingArrows,
@@ -21,12 +23,9 @@ import {
     SettingDisplay,
     SettingBeta,
     SettingFilter,
-    NewNameModal,
-    ImportConfigModal,
-    ExportConfigModal
+    t
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import STRINGS from "src/Strings";
 
 export class ExtendedGraphSettingTab extends PluginSettingTab {
     sections: SettingsSection[] = [];
@@ -90,9 +89,9 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     private addImportExport(): void {
         new Setting(this.containerEl)
             .addExtraButton(cb => {
-                cb.extraSettingsEl.insertAdjacentText('beforebegin', STRINGS.controls.export)
+                cb.extraSettingsEl.insertAdjacentText('beforebegin', t("controls.export"))
                 cb.setIcon("upload");
-                cb.setTooltip(STRINGS.controls.exportSettings);
+                cb.setTooltip(t("controls.exportSettings"));
                 cb.onClick(() => {
                     const modal = new ExportConfigModal((name: string) => {
                         if (name.trim() === "") {
@@ -106,9 +105,9 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 });
             })
             .addExtraButton(cb => {
-                cb.extraSettingsEl.insertAdjacentText('beforebegin', STRINGS.controls.import)
+                cb.extraSettingsEl.insertAdjacentText('beforebegin', t("controls.import"))
                 cb.setIcon("download");
-                cb.setTooltip(STRINGS.controls.importSettings);
+                cb.setTooltip(t("controls.importSettings"));
                 cb.onClick(() => {
                     const modal = new ImportConfigModal((filepath: string) => {
                         if (filepath.trim() === "") {
@@ -133,8 +132,8 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
 
     private addDisableNodes() {
         new Setting(this.containerEl)
-            .setName(STRINGS.features.disableNodes)
-            .setDesc(STRINGS.features.disableNodesDesc)
+            .setName(t("features.disableNodes"))
+            .setDesc(t("features.disableNodesDesc"))
             .addToggle(cb => {
                 cb.setValue(!PluginInstances.settings.fadeOnDisable);
                 cb.onChange(value => {

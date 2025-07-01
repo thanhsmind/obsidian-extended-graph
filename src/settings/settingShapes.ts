@@ -1,12 +1,11 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionPerGraphType, ShapeEnum, ShapeQueryModal } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionPerGraphType, ShapeEnum, ShapeQueryModal, t } from "src/internal";
 
 export class SettingShapes extends SettingsSectionPerGraphType {
     settingsShape: SettingShape[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'shapes', '', STRINGS.features.shapes, 'shapes', STRINGS.features.shapesDesc)
+        super(settingTab, 'shapes', '', t("features.shapes"), 'shapes', t("features.shapesDesc"))
     }
 
     protected override addBody() {
@@ -67,7 +66,7 @@ class SettingShape extends Setting {
         this.moveDown = moveDown;
         this.moveUp = moveUp;
 
-        this.setName(STRINGS.features.shapesNames[shape])
+        this.setName(t(`features.shapesNames.${shape}`))
             .addMoveButtons()
             .addQueryStringDiv()
             .addSVG()
@@ -89,7 +88,7 @@ class SettingShape extends Setting {
 
     private addEditButton(): SettingShape {
         this.addExtraButton(cb => {
-            cb.setTooltip(STRINGS.query.editShapeQuery);
+            cb.setTooltip(t("query.editShapeQuery"));
             cb.onClick(() => {
                 const modal = new ShapeQueryModal(
                     this.shape,
@@ -107,14 +106,14 @@ class SettingShape extends Setting {
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-up')
-            .setTooltip(STRINGS.controls.moveUp)
+            .setTooltip(t("controls.moveUp"))
             .onClick(() => {
                 this.moveUp(this)
             });
 
         new ExtraButtonComponent(container)
             .setIcon('chevron-down')
-            .setTooltip(STRINGS.controls.moveDown)
+            .setTooltip(t("controls.moveDown"))
             .onClick(() => {
                 this.moveDown(this)
             });

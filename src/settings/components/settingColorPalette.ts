@@ -1,6 +1,5 @@
 import { DropdownComponent, Setting } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, GradientPickerModal, plotColorMapFromName, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { cmOptions, ExtendedGraphSettingTab, GradientPickerModal, plotColorMapFromName, PluginInstances, t } from "src/internal";
 
 export class SettingColorPalette extends Setting {
     canvasPalette: HTMLCanvasElement;
@@ -12,7 +11,7 @@ export class SettingColorPalette extends Setting {
     constructor(containerEl: HTMLElement, settingTab: ExtendedGraphSettingTab, uniqueKey: string) {
         super(containerEl);
         this.settingTab = settingTab;
-        this.setName(STRINGS.features.interactives.palette);
+        this.setName(t("features.interactives.palette"));
         this.controlEl.addClass("color-palette");
 
         // Canvas
@@ -63,7 +62,7 @@ export class SettingColorPalette extends Setting {
         const groupEl = (this.dropdown.selectEl.querySelector(".custom-optgroup") as HTMLOptGroupElement)
             ?? this.dropdown.selectEl.createEl("optgroup", { cls: "custom-optgroup" });
 
-        groupEl.label = STRINGS.plugin.custom;
+        groupEl.label = t("plugin.custom");
         groupEl.replaceChildren();
         for (const value in PluginInstances.settings.customColorMaps) {
             const option = groupEl.createEl("option");

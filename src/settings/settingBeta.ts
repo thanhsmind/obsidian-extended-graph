@@ -1,11 +1,10 @@
 import { Setting } from "obsidian";
-import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'beta', STRINGS.beta.beta, 'hourglass', "");
+        super(settingTab, 'beta', t("beta.beta"), 'hourglass', "");
     }
 
     protected override addBody() {
@@ -16,8 +15,8 @@ export class SettingBeta extends SettingsSection {
 
     private addRevertAction() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.beta.revertAction)
-            .setDesc(STRINGS.beta.revertActionDesc)
+            .setName(t("beta.revertAction"))
+            .setDesc(t("beta.revertActionDesc"))
             .addToggle(cb => cb
                 .setValue(PluginInstances.settings.revertAction)
                 .onChange(async (value) => {
@@ -30,8 +29,8 @@ export class SettingBeta extends SettingsSection {
 
     private addEnableCSS() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.beta.enableCSS)
-            .setDesc(STRINGS.beta.enableCSSDesc)
+            .setName(t("beta.enableCSS"))
+            .setDesc(t("beta.enableCSSDesc"))
             .addToggle(cb => cb
                 .setValue(PluginInstances.settings.enableCSS)
                 .onChange(value => {
@@ -50,8 +49,8 @@ export class SettingBeta extends SettingsSection {
 
     private addRadialMenu() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.beta.radialMenu)
-            .setDesc(STRINGS.beta.radialMenuDesc)
+            .setName(t("beta.radialMenu"))
+            .setDesc(t("beta.radialMenuDesc"))
             .addToggle(cb => cb
                 .setValue(PluginInstances.settings.useRadialMenu)
                 .onChange(async (value) => {

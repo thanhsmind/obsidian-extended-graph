@@ -1,7 +1,6 @@
 import { Component, ExtraButtonComponent, setIcon } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { PluginInstances, t } from "src/internal";
 
 export class MenuUI extends Component {
     view: GraphView | LocalGraphView;
@@ -25,7 +24,7 @@ export class MenuUI extends Component {
 
     createEnableButton() {
         this.buttonEnable = new ExtraButtonComponent(this.graphControlsEl)
-            .setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, { placement: 'top' })
+            .setTooltip(`${t("controls.enable")} ${t("plugin.name")}`, { placement: 'top' })
             //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
@@ -42,7 +41,7 @@ export class MenuUI extends Component {
 
     createResetButton() {
         this.buttonReset = new ExtraButtonComponent(this.graphControlsEl)
-            .setTooltip(STRINGS.controls.resetGraph)
+            .setTooltip(t("controls.resetGraph"))
             .setIcon("rotate-ccw")
             .onClick(() => {
                 if (this.enabled) {
@@ -58,14 +57,14 @@ export class MenuUI extends Component {
     setEnableUIState() {
         this.enabled = true;
         this.buttonEnable.extraSettingsEl.addClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.disable} ${STRINGS.plugin.name}`, { placement: 'top' });
+        this.buttonEnable.setTooltip(`${t("controls.disable")} ${t("plugin.name")}`, { placement: 'top' });
         this.graphControlsEl.insertAfter(this.buttonReset.extraSettingsEl, this.buttonEnable.extraSettingsEl);
     }
 
     setDisableUIState() {
         this.enabled = false;
         this.buttonEnable.extraSettingsEl.removeClass("is-active");
-        this.buttonEnable.setTooltip(`${STRINGS.controls.enable} ${STRINGS.plugin.name}`, { placement: 'top' });
+        this.buttonEnable.setTooltip(`${t("controls.enable")} ${t("plugin.name")}`, { placement: 'top' });
         this.buttonReset.extraSettingsEl.remove();
     }
 

@@ -1,6 +1,5 @@
 import { arrayBufferToBase64, MarkdownRenderer, Platform } from "obsidian";
-import { getFile, getLinkDestination, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { getFile, getLinkDestination, PluginInstances, t } from "src/internal";
 
 export class Media {
     static async getImageUriFromProperty(keyProperty: string, id: string): Promise<string | null> {
@@ -197,7 +196,7 @@ export class Media {
         }
         request.onreadystatechange = function () {
             if (request.status === 401) {
-                console.warn(STRINGS.errors.uri401);
+                console.warn(t("errors.uri401"));
             }
         }
         try {

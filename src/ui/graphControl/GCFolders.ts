@@ -1,7 +1,6 @@
 import { Setting, ToggleComponent } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { FOLDER_KEY, GCSection, getCSSSplitRGB, GraphInstances, InteractiveManager, InteractiveUI } from "src/internal";
-import STRINGS from "src/Strings";
+import { FOLDER_KEY, GCSection, getCSSSplitRGB, GraphInstances, InteractiveManager, InteractiveUI, t } from "src/internal";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;
@@ -9,7 +8,7 @@ export class GCFolders extends GCSection implements InteractiveUI {
     settingsMap = new Map<string, { setting: Setting, toggle: ToggleComponent }>();
 
     constructor(instances: GraphInstances, foldersManager: InteractiveManager) {
-        super(instances.view, "folders", STRINGS.features.folders);
+        super(instances.view, "folders", t("features.folders"));
 
         this.foldersManager = foldersManager;
         this.instances = instances;
@@ -32,17 +31,17 @@ export class GCFolders extends GCSection implements InteractiveUI {
 
     private addToggleAllButton(): void {
         new Setting(this.treeItemChildren)
-            .setName(STRINGS.controls.toggleAll)
+            .setName(t("controls.toggleAll"))
             .addExtraButton(cb => {
                 cb.setIcon("x")
-                    .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
+                    .setTooltip(t("controls.disableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
                         this.disableAll();
                     });
             })
             .addExtraButton(cb => {
                 cb.setIcon("check-check")
-                    .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
+                    .setTooltip(t("controls.enableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
                         this.enableAll();
                     });
@@ -51,17 +50,17 @@ export class GCFolders extends GCSection implements InteractiveUI {
 
     private addToggleAllWithAtLeastOneNodeButton(): void {
         new Setting(this.treeItemChildren)
-            .setName(STRINGS.controls.toggleAllWithAtLeastOneNode)
+            .setName(t("controls.toggleAllWithAtLeastOneNode"))
             .addExtraButton(cb => {
                 cb.setIcon("x")
-                    .setTooltip(STRINGS.controls.disableAll + ": " + STRINGS.plugin.folder)
+                    .setTooltip(t("controls.disableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
                         this.disableAllWithAtLeastOneNode();
                     });
             })
             .addExtraButton(cb => {
                 cb.setIcon("check-check")
-                    .setTooltip(STRINGS.controls.enableAll + ": " + STRINGS.plugin.folder)
+                    .setTooltip(t("controls.enableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
                         this.enableAllWithAtLeastOneNode();
                     });

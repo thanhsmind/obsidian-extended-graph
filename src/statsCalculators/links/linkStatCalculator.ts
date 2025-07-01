@@ -1,20 +1,19 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { evaluateCMap, GraphologySingleton, PluginInstances, t } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 
 export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
 
 export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
-    'default': STRINGS.plugin.default,
-    'Adamic Adar': STRINGS.statsFunctions.AdamicAdar,
-    'BoW': STRINGS.statsFunctions.BoW,
-    'Co-Citations': STRINGS.statsFunctions.coCitations,
-    'Clustering Coefficient': STRINGS.statsFunctions.clusteringCoefficient,
-    'Jaccard': STRINGS.statsFunctions.Jaccard,
-    'Ocurences': STRINGS.statsFunctions.Occurences,
-    'Otsuka-Ochiai': STRINGS.statsFunctions.OtsukaOchiai,
-    'Overlap': STRINGS.statsFunctions.overlap,
-    'Sentiment': STRINGS.statsFunctions.sentiment,
+    'default': t("plugin.default"),
+    'Adamic Adar': t("statsFunctions.AdamicAdar"),
+    'BoW': t("statsFunctions.BoW"),
+    'Co-Citations': t("statsFunctions.coCitations"),
+    'Clustering Coefficient': t("statsFunctions.clusteringCoefficient"),
+    'Jaccard': t("statsFunctions.Jaccard"),
+    'Ocurences': t("statsFunctions.Occurences"),
+    'Otsuka-Ochiai': t("statsFunctions.OtsukaOchiai"),
+    'Overlap': t("statsFunctions.overlap"),
+    'Sentiment': t("statsFunctions.sentiment"),
 };
 
 export const linkStatFunctionNeedsGraphAnalysis: Record<LinkStatFunction, boolean> = {

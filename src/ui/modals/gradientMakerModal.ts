@@ -1,8 +1,7 @@
 import { ButtonComponent, ColorComponent, KeymapContext, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { plotColorMap, rgb2int } from "src/internal";
+import { plotColorMap, rgb2int, t } from "src/internal";
 import { PluginInstances } from "src/pluginInstances";
-import STRINGS from "src/Strings";
 
 export class GradientMakerModal extends Modal {
     canvasContainer: HTMLDivElement;
@@ -142,7 +141,7 @@ export class GradientMakerModal extends Modal {
 
     private addControls() {
         new Setting(this.contentEl)
-            .setName(STRINGS.controls.interpolate)
+            .setName(t("controls.interpolate"))
             .addToggle(cb => {
                 cb.setValue(this.interpolate);
                 cb.onChange(value => {
@@ -152,7 +151,7 @@ export class GradientMakerModal extends Modal {
             });
 
         new Setting(this.contentEl)
-            .setName(STRINGS.controls.reverse)
+            .setName(t("controls.reverse"))
             .addToggle(cb => {
                 cb.setValue(this.reverse);
                 cb.onChange(value => {
@@ -162,7 +161,7 @@ export class GradientMakerModal extends Modal {
             });
 
         this.nameSetting = new Setting(this.contentEl)
-            .setName(STRINGS.UI.name)
+            .setName(t("UI.name"))
             .addText(cb => {
                 cb.setValue(this.name);
                 cb.onChange(name => {
@@ -174,7 +173,7 @@ export class GradientMakerModal extends Modal {
         new Setting(this.contentEl)
             .addButton((cb => {
                 this.saveButton = cb;
-                cb.setButtonText(STRINGS.controls.save);
+                cb.setButtonText(t("controls.save"));
                 cb.setCta();
                 cb.onClick(this.save.bind(this));
             }));
@@ -184,10 +183,10 @@ export class GradientMakerModal extends Modal {
 
     private addInfo() {
         const setting = new Setting(this.contentEl)
-            .setName(STRINGS.UI.howToUse)
+            .setName(t("UI.howToUse"))
             .setHeading();
 
-        setting.descEl.innerHTML = STRINGS.UI.howToUseGradientMaker;
+        setting.descEl.innerHTML = t("UI.howToUseGradientMaker");
 
         const iconEl = createDiv();
         setting.nameEl.prepend(iconEl);
@@ -196,7 +195,7 @@ export class GradientMakerModal extends Modal {
 
     private onNameChanged() {
         if (this.name === "") {
-            this.nameSetting.setDesc(STRINGS.errors.paletteNameRequired);
+            this.nameSetting.setDesc(t("errors.paletteNameRequired"));
             this.nameSetting.descEl.toggleClass("error", true);
         }
         else {
@@ -204,10 +203,10 @@ export class GradientMakerModal extends Modal {
             this.nameSetting.descEl.toggleClass("error", true);
         }
         if (this.name in PluginInstances.settings.customColorMaps) {
-            this.saveButton.setButtonText(STRINGS.controls.override);
+            this.saveButton.setButtonText(t("controls.override"));
         }
         else {
-            this.saveButton.setButtonText(STRINGS.controls.save);
+            this.saveButton.setButtonText(t("controls.save"));
         }
     }
 

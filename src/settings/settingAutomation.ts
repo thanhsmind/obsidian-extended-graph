@@ -1,11 +1,10 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingAutomation extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'automation', STRINGS.features.automation, 'workflow', "");
+        super(settingTab, 'automation', t("features.automation"), 'workflow', "");
     }
 
     protected override addBody() {
@@ -19,16 +18,16 @@ export class SettingAutomation extends SettingsSection {
     private addAutoEnable(): void {
         this.elementsBody.push(new FeatureSetting(
             this.containerEl,
-            STRINGS.features.autoEnable,
-            STRINGS.features.autoEnableDesc,
+            t("features.autoEnable"),
+            t("features.autoEnableDesc"),
             'auto-enabled'
         ).settingEl);
     }
 
     private addStartingState() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.states.startingState)
-            .setDesc(STRINGS.states.startingStateDesc)
+            .setName(t("states.startingState"))
+            .setDesc(t("states.startingStateDesc"))
             .addDropdown(cb => {
                 cb.addOptions(Object.fromEntries(Object.values(PluginInstances.settings.states).map(data => {
                     return [data.id, data.name]
@@ -44,8 +43,8 @@ export class SettingAutomation extends SettingsSection {
 
     private addSyncDefaultState() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.states.syncDefaultState)
-            .setDesc(STRINGS.states.syncDefaultStateDesc)
+            .setName(t("states.syncDefaultState"))
+            .setDesc(t("states.syncDefaultStateDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.syncDefaultState);
                 cb.onChange((value) => {
@@ -58,8 +57,8 @@ export class SettingAutomation extends SettingsSection {
 
     private addOpenInNewTab() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.openInNewTab)
-            .setDesc(STRINGS.features.openInNewTabDesc)
+            .setName(t("features.openInNewTab"))
+            .setDesc(t("features.openInNewTabDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.openInNewTab);
                 cb.onChange((value) => {
@@ -72,8 +71,8 @@ export class SettingAutomation extends SettingsSection {
 
     private addResetAfterChanges() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.autoReset)
-            .setDesc(STRINGS.features.autoResetDesc)
+            .setName(t("features.autoReset"))
+            .setDesc(t("features.autoResetDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.resetAfterChanges);
                 cb.onChange((value) => {

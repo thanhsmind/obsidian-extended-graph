@@ -8,10 +8,10 @@ import {
     AddPropertyInteractiveModal,
     SettingInteractives,
     SettingsSectionPerGraphType,
+    t,
     TAG_KEY,
     UIElements
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     settingInteractives: SettingInteractives[] = [];
@@ -20,7 +20,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     addButton?: ButtonComponent;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'properties', '', STRINGS.features.interactives.properties, 'archive', STRINGS.features.interactives.propertiesDesc);
+        super(settingTab, 'properties', '', t("features.interactives.properties"), 'archive', t("features.interactives.propertiesDesc"));
 
         for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
@@ -62,19 +62,19 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
 
     isKeyValid(key: string) {
         if (PluginInstances.settings.additionalProperties.hasOwnProperty(key)) {
-            new Notice(STRINGS.features.interactives.propertyAlreadyExists);
+            new Notice(t("features.interactives.propertyAlreadyExists"));
             return false;
         }
         else if (key === LINK_KEY) {
-            new Notice(STRINGS.features.interactives.propertyReservedLinks);
+            new Notice(t("features.interactives.propertyReservedLinks"));
             return false;
         }
         else if (key === FOLDER_KEY) {
-            new Notice(STRINGS.features.interactives.propertyReservedFolders);
+            new Notice(t("features.interactives.propertyReservedFolders"));
             return false;
         }
         else if (key === TAG_KEY) {
-            new Notice(STRINGS.features.interactives.propertyReservedTags);
+            new Notice(t("features.interactives.propertyReservedTags"));
             return false;
         }
         return isPropertyKeyValid(key);
@@ -125,7 +125,7 @@ export class SettingProperty extends SettingInteractives {
     array: SettingPropertiesArray;
 
     constructor(key: string, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
-        super(settingTab, 'property-key', key, STRINGS.features.interactives.property + ": " + key, '', STRINGS.features.interactives.propertyDesc + key, false);
+        super(settingTab, 'property-key', key, t("features.interactives.property") + ": " + key, '', t("features.interactives.propertyDesc") + key, false);
         this.array = array;
     }
 
@@ -148,8 +148,8 @@ export class SettingProperty extends SettingInteractives {
 
         // Show on graph
         this.elementsBody.push(new Setting(this.array.propertiesContainer)
-            .setName(STRINGS.features.interactives.arcsAdd)
-            .setDesc(STRINGS.features.interactives.arcsAddPropertyDesc)
+            .setName(t("features.interactives.arcsAdd"))
+            .setDesc(t("features.interactives.arcsAddPropertyDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {

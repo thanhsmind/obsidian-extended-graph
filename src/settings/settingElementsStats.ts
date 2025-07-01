@@ -13,9 +13,9 @@ import {
     nodeStatFunctionLabels,
     PluginInstances,
     SettingColorPalette,
-    SettingsSectionPerGraphType
+    SettingsSectionPerGraphType,
+    t
 } from "src/internal";
-import STRINGS from "src/Strings";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingElementsStats extends SettingsSectionPerGraphType {
@@ -27,7 +27,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     linksPaletteSetting: SettingColorPalette;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'elements-stats', '', STRINGS.features.elementsStats, 'chart-pie', STRINGS.features.elementsStatsDesc);
+        super(settingTab, 'elements-stats', '', t("features.elementsStats"), 'chart-pie', t("features.elementsStatsDesc"));
     }
 
     protected override addBody(): void {
@@ -48,14 +48,14 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addNodeSizeProperties(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.nodeSizeProperties)
-            .setDesc(STRINGS.features.nodeSizePropertiesDesc)
+            .setName(t("features.nodeSizeProperties"))
+            .setDesc(t("features.nodeSizePropertiesDesc"))
             .addExtraButton(cb => {
                 cb.setIcon('mouse-pointer-click');
                 cb.onClick(() => {
                     const modal = new SettingMultiPropertiesModal(
-                        STRINGS.features.nodeSizeProperties,
-                        STRINGS.features.nodeSizePropertiesAdd,
+                        t("features.nodeSizeProperties"),
+                        t("features.nodeSizePropertiesAdd"),
                         PluginInstances.settings.nodesSizeProperties
                     );
                     modal.open();
@@ -67,8 +67,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addNodeSizeFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.nodeSizesFunction)
-            .setDesc(STRINGS.features.nodeSizesFunctionDesc)
+            .setName(t("features.nodeSizesFunction"))
+            .setDesc(t("features.nodeSizesFunctionDesc"))
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(PluginInstances.settings.nodesSizeFunction);
@@ -94,8 +94,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addNodeColorFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.nodeColorsFunction)
-            .setDesc(STRINGS.features.nodeColorsFunctionDesc)
+            .setName(t("features.nodeColorsFunction"))
+            .setDesc(t("features.nodeColorsFunctionDesc"))
             .addDropdown(cb => {
                 cb.addOptions(nodeStatFunctionLabels);
                 cb.setValue(PluginInstances.settings.nodesColorFunction);
@@ -121,8 +121,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addInvertNodeStats(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.nodeStatsInvert)
-            .setDesc(STRINGS.features.nodeStatsInvertDesc)
+            .setName(t("features.nodeStatsInvert"))
+            .setDesc(t("features.nodeStatsInvertDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.invertNodeStats);
                 cb.onChange((value) => {
@@ -136,7 +136,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addColorPaletteSettingForNodes(): void {
         this.nodesPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-nodes')
-            .setDesc(STRINGS.features.nodeColorsPaletteDesc);
+            .setDesc(t("features.nodeColorsPaletteDesc"));
 
         this.nodesPaletteSetting.setValue(PluginInstances.settings.nodesColorColormap);
 
@@ -153,8 +153,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addLinkSizeFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.linkSizesFunction)
-            .setDesc(STRINGS.features.linkSizesFunctionDesc)
+            .setName(t("features.linkSizesFunction"))
+            .setDesc(t("features.linkSizesFunctionDesc"))
             .addDropdown(cb => {
                 this.linksSizeFunctionDropdown = cb;
                 const ga = getGraphAnalysis();
@@ -181,8 +181,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addLinkColorFunction(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.linkColorsFunction)
-            .setDesc(STRINGS.features.linkColorsFunctionDesc + " ⚠️ " + STRINGS.features.linksFeatureRequired)
+            .setName(t("features.linkColorsFunction"))
+            .setDesc(t("features.linkColorsFunctionDesc") + " ⚠️ " + t("features.linksFeatureRequired"))
             .addDropdown(cb => {
                 this.linksColorFunctionDropdown = cb;
                 const ga = getGraphAnalysis();
@@ -209,7 +209,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     private addColorPaletteSettingForLinks(): void {
         this.linksPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-links')
-            .setDesc(STRINGS.features.linkColorsPaletteDesc);
+            .setDesc(t("features.linkColorsPaletteDesc"));
 
         this.linksPaletteSetting.setValue(PluginInstances.settings.linksColorColormap);
 
@@ -301,7 +301,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             return;
         }
         else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${functionKey})`);
+            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
             functionKey = 'default';
             this.linksSizeFunctionDropdown?.setValue(functionKey);
         }
@@ -327,7 +327,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             return;
         }
         else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${functionKey})`);
+            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
             functionKey = 'default';
             this.linksColorFunctionDropdown?.setValue(functionKey);
         }

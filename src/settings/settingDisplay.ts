@@ -1,11 +1,10 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingDisplay extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'display', STRINGS.features.otherDisplay, 'monitor', "");
+        super(settingTab, 'display', t("features.otherDisplay"), 'monitor', "");
     }
 
     protected override addBody() {
@@ -22,8 +21,8 @@ export class SettingDisplay extends SettingsSection {
 
     private addBorderUnresolved() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.borderUnresolved)
-            .setDesc(STRINGS.features.borderUnresolvedDesc)
+            .setName(t("features.borderUnresolved"))
+            .setDesc(t("features.borderUnresolvedDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.borderUnresolved.toString())
@@ -44,16 +43,16 @@ export class SettingDisplay extends SettingsSection {
     private addLinkSameColorAsNodes() {
         this.elementsBody.push(new FeatureSetting(
             this.containerEl,
-            STRINGS.features.linksSameColorAsNode,
-            STRINGS.features.linksSameColorAsNodeDesc,
+            t("features.linksSameColorAsNode"),
+            t("features.linksSameColorAsNodeDesc"),
             'linksSameColorAsNode'
         ).settingEl);
     }
 
     private addSpreadArcs() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.interactives.arcsSpread)
-            .setDesc(STRINGS.features.interactives.arcsSpreadDesc)
+            .setName(t("features.interactives.arcsSpread"))
+            .setDesc(t("features.interactives.arcsSpreadDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.spreadArcs || false);
                 cb.onChange(value => {
@@ -65,8 +64,8 @@ export class SettingDisplay extends SettingsSection {
 
     private addWeightArcs() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.interactives.arcWeight)
-            .setDesc(STRINGS.features.interactives.arcWeightDesc)
+            .setName(t("features.interactives.arcWeight"))
+            .setDesc(t("features.interactives.arcWeightDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.weightArcs || false);
                 cb.onChange(value => {
@@ -78,11 +77,11 @@ export class SettingDisplay extends SettingsSection {
 
     private addBrightness() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.brightness)
-            .setDesc(STRINGS.features.brightnessDesc)
+            .setName(t("features.brightness"))
+            .setDesc(t("features.brightnessDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.plugin.light);
+                cb.inputEl.insertAdjacentText('beforebegin', t("plugin.light"));
                 cb.setValue(PluginInstances.settings.interactivesBrightness.light.toString());
                 cb.onChange(value => {
                     if (value === '') {
@@ -98,7 +97,7 @@ export class SettingDisplay extends SettingsSection {
             })
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.plugin.dark);
+                cb.inputEl.insertAdjacentText('beforebegin', t("plugin.dark"));
                 cb.setValue(PluginInstances.settings.interactivesBrightness.dark.toString());
                 cb.onChange(value => {
                     if (value === '') {
@@ -117,8 +116,8 @@ export class SettingDisplay extends SettingsSection {
 
     private addAnimateDotsOnLinks() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.animateDotsOnLinks)
-            .setDesc(STRINGS.features.animateDotsOnLinksDesc)
+            .setName(t("features.animateDotsOnLinks"))
+            .setDesc(t("features.animateDotsOnLinksDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.animateDotsOnLinks || false);
                 cb.onChange(value => {
@@ -131,8 +130,8 @@ export class SettingDisplay extends SettingsSection {
 
     private addAnimationSpeedForDot() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.features.animateDotsOnLinksSpeed)
-            .setDesc(STRINGS.features.animateDotsOnLinksSpeedDesc)
+            .setName(t("features.animateDotsOnLinksSpeed"))
+            .setDesc(t("features.animateDotsOnLinksSpeedDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.animationSpeedForDots.toString())
@@ -148,8 +147,8 @@ export class SettingDisplay extends SettingsSection {
 
     private addHorizontalLegend() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(STRINGS.UI.horizontalLegend)
-            .setDesc(STRINGS.UI.horizontalLegendDesc)
+            .setName(t("UI.horizontalLegend"))
+            .setDesc(t("UI.horizontalLegendDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.horizontalLegend);
                 cb.onChange(value => {

@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingIcons extends SettingsSectionPerGraphType {
@@ -8,7 +7,7 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     parentSetting: Setting | undefined;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'icons', '', STRINGS.features.icons, 'origami', STRINGS.features.iconsDesc);
+        super(settingTab, 'icons', '', t("features.icons"), 'origami', t("features.iconsDesc"));
     }
 
     protected override addBody(): void {
@@ -19,14 +18,14 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     private addProperty(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)
-                .setName(STRINGS.features.iconProperties)
-                .setDesc(STRINGS.features.iconPropertiesDesc)
+                .setName(t("features.iconProperties"))
+                .setDesc(t("features.iconPropertiesDesc"))
                 .addExtraButton(cb => {
                     cb.setIcon('mouse-pointer-click');
                     cb.onClick(() => {
                         const modal = new SettingMultiPropertiesModal(
-                            STRINGS.features.iconProperties,
-                            STRINGS.features.iconPropertiesAdd,
+                            t("features.iconProperties"),
+                            t("features.iconPropertiesAdd"),
                             PluginInstances.settings.iconProperties
                         );
                         modal.open();
@@ -39,8 +38,8 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     private addSupportForPlugins(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)
-                .setName(STRINGS.features.iconUsePlugin)
-                .setDesc(STRINGS.features.iconUsePluginDesc)
+                .setName(t("features.iconUsePlugin"))
+                .setDesc(t("features.iconUsePluginDesc"))
                 .addToggle(cb => {
                     cb.setValue(PluginInstances.settings.usePluginForIcon);
                     cb.onChange((value) => {
@@ -53,8 +52,8 @@ export class SettingIcons extends SettingsSectionPerGraphType {
         );
 
         this.colorSetting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.iconUsePluginColor)
-            .setDesc(STRINGS.features.iconUsePluginColorDesc)
+            .setName(t("features.iconUsePluginColor"))
+            .setDesc(t("features.iconUsePluginColorDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.usePluginForIconColor);
                 cb.onChange((value) => {
@@ -66,8 +65,8 @@ export class SettingIcons extends SettingsSectionPerGraphType {
         this.elementsBody.push(this.colorSetting.settingEl);
 
         this.parentSetting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.iconUseParentIcon)
-            .setDesc(STRINGS.features.iconUseParentIconDesc)
+            .setName(t("features.iconUseParentIcon"))
+            .setDesc(t("features.iconUseParentIconDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.useParentIcon);
                 cb.onChange((value) => {

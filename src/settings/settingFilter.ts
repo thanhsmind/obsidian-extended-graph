@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FilesSuggester, PluginInstances, SettingsSection, UIElements } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, FilesSuggester, PluginInstances, SettingsSection, t, UIElements } from "src/internal";
 
 export class SettingFilter extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -15,7 +14,7 @@ export class SettingFilter extends SettingsSection {
     }
 
     private addNewFilterSetting() {
-        const setting = new Setting(this.settingTab.containerEl).setName(STRINGS.query.excludeRegex);
+        const setting = new Setting(this.settingTab.containerEl).setName(t("query.excludeRegex"));
         setting.addExtraButton(cb => {
             UIElements.setupExtraButton(cb, 'add');
             cb.onClick(async () => {

@@ -16,10 +16,13 @@ import {
     rgb2hex,
     rgb2int,
     StatesManager,
+    t,
     TAG_KEY
 } from './internal';
-import * as fsPromises from 'fs/promises';
-import STRINGS from './Strings';
+
+
+import * as fr from 'i18n/fr.json';
+import * as en from 'I18n/en.json';
 
 
 // https://pixijs.download/v7.4.2/docs/index.html
@@ -29,6 +32,8 @@ export default class ExtendedGraphPlugin extends Plugin {
     // ================================ LOADING ================================
 
     async onload(): Promise<void> {
+        this.initI18n();
+
         PluginInstances.plugin = this;
         PluginInstances.app = this.app;
         PluginInstances.configurationDirectory = normalizePath(this.manifest.dir + "/configs/");
@@ -60,6 +65,11 @@ export default class ExtendedGraphPlugin extends Plugin {
         );
 
         this.addCommands();
+    }
+
+    private initI18n() {
+        i18next.addResourceBundle('en', 'extended-graph', en);
+        i18next.addResourceBundle('fr', 'extended-graph', fr);
     }
 
     private initializeInvalidKeys(): void {
@@ -95,7 +105,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     private addCommands() {
         this.addCommand({
             id: 'enable-in-graph-view',
-            name: STRINGS.controls.enableInGraphView,
+            name: t("controls.enableInGraphView"),
             checkCallback: (checking: boolean) => {
                 // Conditions to check
                 const itemView = this.app.workspace.getActiveViewOfType(ItemView);
@@ -112,7 +122,7 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         this.addCommand({
             id: 'disable-in-graph-view',
-            name: STRINGS.controls.disableInGraphView,
+            name: t("controls.disableInGraphView"),
             checkCallback: (checking: boolean) => {
                 // Conditions to check
                 const itemView = this.app.workspace.getActiveViewOfType(ItemView);
@@ -129,7 +139,7 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         this.addCommand({
             id: 'reset-in-graph-view',
-            name: STRINGS.controls.resetInGraphView,
+            name: t("controls.resetInGraphView"),
             checkCallback: (checking: boolean) => {
                 // Conditions to check
                 const itemView = this.app.workspace.getActiveViewOfType(ItemView);

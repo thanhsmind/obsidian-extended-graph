@@ -1,6 +1,5 @@
 import { Modal, Setting, TFile } from "obsidian";
-import { PluginInstances, QueryData, QueryMatcher } from "src/internal";
-import STRINGS from "src/Strings";
+import { PluginInstances, QueryData, QueryMatcher, t } from "src/internal";
 
 export class QueryMatchesModal extends Modal {
     matcher: QueryMatcher;
@@ -11,7 +10,7 @@ export class QueryMatchesModal extends Modal {
         this.matcher = new QueryMatcher(queryData);
         const files = this.matcher.getMatches();
 
-        this.setTitle(STRINGS.query.matchingFiles);
+        this.setTitle(t("query.matchingFiles"));
 
         this.addQueryStringHeader();
         this.addQueryString();
@@ -24,7 +23,7 @@ export class QueryMatchesModal extends Modal {
 
     private addQueryStringHeader(): void {
         new Setting(this.contentEl)
-            .setName(STRINGS.query.query)
+            .setName(t("query.query"))
             .setHeading();
     }
 
@@ -35,7 +34,7 @@ export class QueryMatchesModal extends Modal {
 
     private addFilesHeader(n: number): void {
         new Setting(this.contentEl)
-            .setName(`${STRINGS.query.files} (${n})`)
+            .setName(`${t("query.files")} (${n})`)
             .setHeading();
     }
 

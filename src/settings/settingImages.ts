@@ -1,11 +1,10 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingImages extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'images', STRINGS.features.image, 'image', STRINGS.features.imageDesc);
+        super(settingTab, 'images', t("features.image"), 'image', t("features.imageDesc"));
     }
 
     protected override addBody() {
@@ -19,21 +18,21 @@ export class SettingImages extends SettingsSection {
     private addImagesFromProperties() {
         this.elementsBody.push(new FeatureSetting(
             this.settingTab.containerEl,
-            STRINGS.features.imagesFromProperty,
-            STRINGS.features.imagesFromPropertyDesc,
+            t("features.imagesFromProperty"),
+            t("features.imagesFromPropertyDesc"),
             'imagesFromProperty'
         ).settingEl);
 
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imageProperties)
-            .setDesc(STRINGS.features.imagePropertiesDesc)
+            .setName(t("features.imageProperties"))
+            .setDesc(t("features.imagePropertiesDesc"))
             .addExtraButton(cb => {
                 cb.setIcon('mouse-pointer-click');
                 cb.onClick(() => {
                     const modal = new SettingMultiPropertiesModal(
-                        STRINGS.features.imageProperties,
-                        STRINGS.features.imagePropertiesAdd,
+                        t("features.imageProperties"),
+                        t("features.imagePropertiesAdd"),
                         PluginInstances.settings.imageProperties
                     );
                     modal.open();
@@ -45,8 +44,8 @@ export class SettingImages extends SettingsSection {
     private addImagesFromEmbeds() {
         this.elementsBody.push(new FeatureSetting(
             this.settingTab.containerEl,
-            STRINGS.features.imagesFromEmbeds,
-            STRINGS.features.imagesFromEmbedsDesc,
+            t("features.imagesFromEmbeds"),
+            t("features.imagesFromEmbedsDesc"),
             'imagesFromEmbeds'
         ).settingEl);
     }
@@ -54,16 +53,16 @@ export class SettingImages extends SettingsSection {
     private addImagesForAttachments() {
         this.elementsBody.push(new FeatureSetting(
             this.settingTab.containerEl,
-            STRINGS.features.imagesForAttachments,
-            STRINGS.features.imagesForAttachmentsDesc,
+            t("features.imagesForAttachments"),
+            t("features.imagesForAttachmentsDesc"),
             'imagesForAttachments'
         ).settingEl);
     }
 
     private addBorderFactor() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imageBorderWidth)
-            .setDesc(STRINGS.features.imageBorderWidthDesc)
+            .setName(t("features.imageBorderWidth"))
+            .setDesc(t("features.imageBorderWidthDesc"))
             .addSlider(cb => {
                 const preview = document.createTextNode(PluginInstances.settings.borderFactor.toString() + "%");
                 if (preview) {
@@ -84,8 +83,8 @@ export class SettingImages extends SettingsSection {
 
     private addAllowExternal() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imagesAllowExternal)
-            .setDesc(STRINGS.features.imagesAllowExternalDesc)
+            .setName(t("features.imagesAllowExternal"))
+            .setDesc(t("features.imagesAllowExternalDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.allowExternalImages);
                 cb.onChange(value => {
@@ -95,8 +94,8 @@ export class SettingImages extends SettingsSection {
             }).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.imagesAllowExternalLocal)
-            .setDesc(STRINGS.features.imagesAllowExternalLocalDesc)
+            .setName(t("features.imagesAllowExternalLocal"))
+            .setDesc(t("features.imagesAllowExternalLocalDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.allowExternalLocalImages);
                 cb.onChange(value => {

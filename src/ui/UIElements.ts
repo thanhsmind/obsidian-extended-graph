@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent } from "obsidian";
-import STRINGS from "src/Strings";
+import { t } from "src/internal";
 
 const BUTTON_DELETE_CLASS: string = "extended-graph-delete-button";
 const BUTTON_ADD_CLASS: string = "extended-graph-add-button";
@@ -12,20 +12,20 @@ export class UIElements {
             case 'add':
                 button.setClass(BUTTON_ADD_CLASS);
                 button.setIcon('plus');
-                button.setTooltip(STRINGS.controls.add);
+                button.setTooltip(t("controls.add"));
                 break;
             case 'delete':
                 button.setClass(BUTTON_DELETE_CLASS);
                 button.setIcon('trash-2');
-                button.setTooltip(STRINGS.controls.delete);
+                button.setTooltip(t("controls.delete"));
                 break;
             case 'edit':
                 button.setIcon('pencil');
-                button.setTooltip(STRINGS.controls.edit);
+                button.setTooltip(t("controls.edit"));
                 break;
             case 'save':
                 button.setIcon('save');
-                button.setTooltip(STRINGS.controls.save);
+                button.setTooltip(t("controls.save"));
                 break;
 
             default:
@@ -38,20 +38,20 @@ export class UIElements {
             case 'add':
                 extraButton.extraSettingsEl.addClass(BUTTON_ADD_CLASS);
                 extraButton.setIcon('plus');
-                extraButton.setTooltip(STRINGS.controls.add);
+                extraButton.setTooltip(t("controls.add"));
                 break;
             case 'delete':
                 extraButton.extraSettingsEl.addClass(BUTTON_DELETE_CLASS);
                 extraButton.setIcon('trash-2');
-                extraButton.setTooltip(STRINGS.controls.delete);
+                extraButton.setTooltip(t("controls.delete"));
                 break;
             case 'edit':
                 extraButton.setIcon('pencil');
-                extraButton.setTooltip(STRINGS.controls.edit);
+                extraButton.setTooltip(t("controls.edit"));
                 break;
             case 'save':
                 extraButton.setIcon('save');
-                extraButton.setTooltip(STRINGS.controls.save);
+                extraButton.setTooltip(t("controls.save"));
                 break;
 
             default:

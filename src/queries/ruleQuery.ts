@@ -1,32 +1,31 @@
 import { TFile, TFolder } from "obsidian";
-import { getFileInteractives, LINK_KEY, PluginInstances, TAG_KEY } from "src/internal";
-import STRINGS from "src/Strings";
+import { getFileInteractives, LINK_KEY, PluginInstances, t, TAG_KEY } from "src/internal";
 
 export type SourceKey = 'all' | 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec' | 'path';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot' | 'isEmpty' | 'isEmptyNot';
 
 export const sourceKeyLabels: Record<SourceKey, string> = {
-    'all': STRINGS.query.source.all,
-    'tag': STRINGS.query.source.tag,
-    'link': STRINGS.query.source.link,
-    'property': STRINGS.query.source.property,
-    'file': STRINGS.query.source.file,
-    'folder': STRINGS.query.source.folder,
-    'folderRec': STRINGS.query.source.folderRec,
-    'path': STRINGS.query.source.path
+    'all': t("query.source.all"),
+    'tag': t("query.source.tag"),
+    'link': t("query.source.link"),
+    'property': t("query.source.property"),
+    'file': t("query.source.file"),
+    'folder': t("query.source.folder"),
+    'folderRec': t("query.source.folderRec"),
+    'path': t("query.source.path")
 }
 
 export const logicKeyLabel: Record<LogicKey, string> = {
-    'contains': STRINGS.query.logicKey.contains,
-    'containsNot': STRINGS.query.logicKey.containsNot,
-    'is': STRINGS.query.logicKey.is,
-    'isNot': STRINGS.query.logicKey.isNot,
-    'containsRegex': STRINGS.query.logicKey.containsRegex,
-    'containsRegexNot': STRINGS.query.logicKey.containsRegexNot,
-    'matchesRegex': STRINGS.query.logicKey.matchesRegex,
-    'matchesRegexNot': STRINGS.query.logicKey.matchesRegexNot,
-    'isEmpty': STRINGS.query.logicKey.isEmpty,
-    'isEmptyNot': STRINGS.query.logicKey.isEmptyNot,
+    'contains': t("query.logicKey.contains"),
+    'containsNot': t("query.logicKey.containsNot"),
+    'is': t("query.logicKey.is"),
+    'isNot': t("query.logicKey.isNot"),
+    'containsRegex': t("query.logicKey.containsRegex"),
+    'containsRegexNot': t("query.logicKey.containsRegexNot"),
+    'matchesRegex': t("query.logicKey.matchesRegex"),
+    'matchesRegexNot': t("query.logicKey.matchesRegexNot"),
+    'isEmpty': t("query.logicKey.isEmpty"),
+    'isEmptyNot': t("query.logicKey.isEmptyNot"),
 }
 
 export class RuleQuery {

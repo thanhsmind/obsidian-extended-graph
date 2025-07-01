@@ -55,9 +55,9 @@ import {
     linkStatFunctionNeedsGraphAnalysis,
     LinkStat,
     SettingQuery,
-    getGraphAnalysis
+    getGraphAnalysis,
+    t
 } from "./internal";
-import STRINGS from "./Strings";
 
 
 
@@ -174,7 +174,7 @@ export class GraphsManager extends Component {
             console.error(error);
             PluginInstances.settings.nodesSizeFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            new Notice(`${STRINGS.notices.nodeStatSizeFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${STRINGS.notices.functionToDefault}`);
+            new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
             this.nodesSizeCalculator = undefined;
         }
         this.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
@@ -187,7 +187,7 @@ export class GraphsManager extends Component {
             console.error(error);
             PluginInstances.settings.nodesColorFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            new Notice(`${STRINGS.notices.nodeStatColorFailed} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${STRINGS.notices.functionToDefault}`);
+            new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
             this.nodesColorCalculator = undefined;
         }
         this.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
@@ -202,7 +202,7 @@ export class GraphsManager extends Component {
             console.error(error);
             PluginInstances.settings.linksSizeFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            new Notice(`${STRINGS.notices.linkStatSizeFailed} (${linkStatFunctionLabels[PluginInstances.settings.linksSizeFunction]}). ${STRINGS.notices.functionToDefault}`);
+            new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[PluginInstances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
             this.linksSizeCalculator = undefined;
         }
         this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
@@ -217,7 +217,7 @@ export class GraphsManager extends Component {
             console.error(error);
             PluginInstances.settings.linksColorFunction = 'default';
             PluginInstances.plugin.saveSettings();
-            new Notice(`${STRINGS.notices.linkStatColorFailed} (${linkStatFunctionLabels[PluginInstances.settings.linksColorFunction]}). ${STRINGS.notices.functionToDefault}`);
+            new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[PluginInstances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
             this.linksColorCalculator = undefined;
         }
         this.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction);
@@ -238,7 +238,7 @@ export class GraphsManager extends Component {
         }
 
         if (!ga.nlp && linkStatFunctionNeedsNLP[fn]) {
-            new Notice(`${STRINGS.notices.nlpPluginRequired} (${fn})`);
+            new Notice(`${t("notices.nlpPluginRequired")} (${fn})`);
             if (stat === 'color') {
                 this.linksColorCalculator = undefined;
                 PluginInstances.settings.linksColorFunction = 'default';
@@ -708,7 +708,7 @@ export class GraphsManager extends Component {
 
     isNodeLimitExceededForView(view: GraphView | LocalGraphView): boolean {
         if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
-            new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${view.renderer.nodes.length}). ${STRINGS.notices.nodeLimitIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.notices.changeInSettings}.`);
+            new Notice(`${t("notices.nodeLimiteExceeded")} (${view.renderer.nodes.length}). ${t("notices.nodeLimitIs")} ${PluginInstances.settings.maxNodes}. ${t("notices.changeInSettings")}.`);
             return true;
         }
         return false;
@@ -717,7 +717,7 @@ export class GraphsManager extends Component {
     isNodeLimitExceededForData(data: GraphData, notice: boolean = true): boolean {
         if (Object.keys(data.nodes).length > PluginInstances.settings.maxNodes) {
             if (notice)
-                new Notice(`${STRINGS.notices.nodeLimiteExceeded} (${Object.keys(data.nodes).length}). ${STRINGS.notices.nodeLimitIs} ${PluginInstances.settings.maxNodes}. ${STRINGS.plugin.name} ${STRINGS.notices.disabled}. ${STRINGS.notices.changeInSettings}.`);
+                new Notice(`${t("notices.nodeLimiteExceeded")} (${Object.keys(data.nodes).length}). ${t("notices.nodeLimitIs")} ${PluginInstances.settings.maxNodes}. ${t("plugin.name")} ${t("notices.disabled")}. ${t("notices.changeInSettings")}.`);
             return true;
         }
         return false;
@@ -1000,7 +1000,7 @@ export class GraphsManager extends Component {
         if (leaf && (leaf.view.getViewType() === "graph" || leaf.view.getViewType() === "localgraph")) {
             if (numberOfNodes === undefined) numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
             if (numberOfNodes !== undefined) {
-                this.statusBarItem.createSpan({ text: numberOfNodes.toString() + " " + STRINGS.plugin.nodes, cls: "status-bar-item-segment" });
+                this.statusBarItem.createSpan({ text: numberOfNodes.toString() + " " + t("plugin.nodes"), cls: "status-bar-item-segment" });
             }
 
             const instances = this.allInstances.get(leaf.id);

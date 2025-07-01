@@ -1,11 +1,10 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingPerformance extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'performances', STRINGS.features.performance, 'cpu', "");
+        super(settingTab, 'performances', t("features.performance"), 'cpu', "");
     }
 
     protected override addBody() {
@@ -15,8 +14,8 @@ export class SettingPerformance extends SettingsSection {
 
     private addDelay() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.performanceDelay)
-            .setDesc(STRINGS.features.performanceDelayDesc)
+            .setName(t("features.performanceDelay"))
+            .setDesc(t("features.performanceDelayDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.delay.toString())
@@ -34,8 +33,8 @@ export class SettingPerformance extends SettingsSection {
 
     private addNumberOfNodes() {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.performanceMaxNodes)
-            .setDesc(STRINGS.features.performanceMaxNodesDesc)
+            .setName(t("features.performanceMaxNodes"))
+            .setDesc(t("features.performanceMaxNodesDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.maxNodes.toString())

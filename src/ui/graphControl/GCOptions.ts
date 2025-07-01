@@ -1,24 +1,22 @@
 import { setIcon, Setting } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
 import {
-    DEFAULT_STATE_ID,
-    EngineOptions,
     GCSection,
     getEngine,
     GraphStateModal,
+    ImportConfigModal,
     RendererNodeNamesSuggester,
     PinMultipleNodesModal,
     Pinner,
     PluginInstances,
-    ImportConfigModal
+    t
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 export class GCOptions extends GCSection {
     suggester: RendererNodeNamesSuggester;
 
     constructor(view: GraphView | LocalGraphView) {
-        super(view, "options", STRINGS.plugin.options);
+        super(view, "options", t("plugin.options"));
 
         this.treeItemChildren = this.root.createDiv("tree-item-children");
         this.display(true);
@@ -43,10 +41,10 @@ export class GCOptions extends GCSection {
 
     private createImportConfig(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.controls.importSettingsAndReload)
+            .setName(t("controls.importSettingsAndReload"))
             .addExtraButton(cb => {
                 cb.setIcon("settings");
-                cb.setTooltip(STRINGS.controls.importSettings);
+                cb.setTooltip(t("controls.importSettings"));
                 cb.onClick(() => {
                     const modal = new ImportConfigModal((filepath: string) => {
                         if (filepath.trim() === "") {
@@ -63,8 +61,8 @@ export class GCOptions extends GCSection {
 
     private createSaveForDefaultState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.states.saveForDefaultState)
-            .setTooltip(STRINGS.states.saveForDefaultStateDesc)
+            .setName(t("states.saveForDefaultState"))
+            .setTooltip(t("states.saveForDefaultStateDesc"))
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-up-to-line");
@@ -76,8 +74,8 @@ export class GCOptions extends GCSection {
 
     private createSaveForNormalState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.states.saveForNormalState)
-            .setTooltip(STRINGS.states.saveForNormalStateDesc)
+            .setName(t("states.saveForNormalState"))
+            .setTooltip(t("states.saveForNormalStateDesc"))
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
@@ -89,7 +87,7 @@ export class GCOptions extends GCSection {
 
     private createScreenshot(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.features.svgScreenshotCopy)
+            .setName(t("features.svgScreenshotCopy"))
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("screenshot-button");
                 setIcon(cb.extraSettingsEl, "image");
@@ -101,7 +99,7 @@ export class GCOptions extends GCSection {
 
     private createZoomOnNode(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.features.zoomOnNode)
+            .setName(t("features.zoomOnNode"))
             .addSearch(cb => {
                 const callback = (value: string) => {
                     PluginInstances.graphsManager.zoomOnNode(this.view, value);
@@ -112,7 +110,7 @@ export class GCOptions extends GCSection {
 
     private createButtonViewState(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.states.showGraphState)
+            .setName(t("states.showGraphState"))
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
@@ -126,7 +124,7 @@ export class GCOptions extends GCSection {
 
     private createPinMultipleNodes(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.features.pinMultipleNodes)
+            .setName(t("features.pinMultipleNodes"))
             .addExtraButton(cb => {
                 cb.setIcon('pin');
                 cb.onClick(() => {
@@ -143,7 +141,7 @@ export class GCOptions extends GCSection {
 
     private createUnpinAllNodes(): Setting {
         return new Setting(this.treeItemChildren)
-            .setName(STRINGS.features.unpinAllNodes)
+            .setName(t("features.unpinAllNodes"))
             .addExtraButton(cb => {
                 cb.setIcon('pin-off');
                 cb.onClick(() => {
@@ -167,7 +165,7 @@ export class GCOptions extends GCSection {
         instance.options = engine.getOptions();
         instance.saveOptions();
         PluginInstances.graphsManager.backupOptions(this.view);
-        new Notice(STRINGS.notices.normalStateSave);
+        new Notice(t("notices.normalStateSave"));
     }
 
     private getSVGScreenshot() {

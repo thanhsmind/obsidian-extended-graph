@@ -1,10 +1,9 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
 
 export class SettingFocus extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'focus', '', STRINGS.features.focus, 'telescope', STRINGS.features.focusDesc);
+        super(settingTab, 'focus', '', t("features.focus"), 'telescope', t("features.focusDesc"));
     }
 
     protected override addHeader(): void {
@@ -15,8 +14,8 @@ export class SettingFocus extends SettingsSectionPerGraphType {
     protected override addBody(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)
-                .setName(STRINGS.features.focusScale)
-                .setDesc(STRINGS.features.focusScaleDesc)
+                .setName(t("features.focusScale"))
+                .setDesc(t("features.focusScaleDesc"))
                 .addText(cb => {
                     cb.inputEl.addClass("number");
                     cb.setValue(PluginInstances.settings.focusScaleFactor.toString())

@@ -1,12 +1,11 @@
-import { NodeShape, NodesQueryModal, QueryData, ShapeEnum } from "src/internal";
-import STRINGS from "src/Strings";
+import { NodeShape, NodesQueryModal, QueryData, ShapeEnum, t } from "src/internal";
 
 export class ShapeQueryModal extends NodesQueryModal {
     saveShapeQueryCallback: (shape: ShapeEnum, queryData: QueryData) => void;
     shape: ShapeEnum;
 
     constructor(shape: ShapeEnum, queryData: QueryData, saveShapeQueryCallback: (shape: ShapeEnum, queryData: QueryData) => void) {
-        super(STRINGS.query.setShapeQueryFor + ": " + STRINGS.features.shapesNames[shape],
+        super(t("query.setShapeQueryFor") + ": " + t(`features.shapesNames.${shape}`),
             queryData,
             (queryData) => { this.saveShapeQueryCallback(this.shape, queryData); }
         );

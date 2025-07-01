@@ -1,7 +1,6 @@
 import { DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
 import path from "path";
-import { PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { PluginInstances, t } from "src/internal";
 
 export class ExportConfigModal extends Modal {
     callback: (name: string) => boolean;
@@ -11,7 +10,7 @@ export class ExportConfigModal extends Modal {
 
     constructor(callback: (name: string) => boolean) {
         super(PluginInstances.app);
-        this.setTitle(STRINGS.controls.setConfigName);
+        this.setTitle(t("controls.setConfigName"));
         this.modalEl.addClass("graph-modal-export-config");
         this.callback = callback;
 
@@ -24,7 +23,7 @@ export class ExportConfigModal extends Modal {
 
     onOpen() {
         new Setting(this.contentEl)
-            .setName(STRINGS.controls.overrideConfig)
+            .setName(t("controls.overrideConfig"))
             .addDropdown(async (cb) => {
                 this.dropdown = cb;
                 const dir = PluginInstances.configurationDirectory;
@@ -45,7 +44,7 @@ export class ExportConfigModal extends Modal {
             });
 
         new Setting(this.contentEl)
-            .setName(STRINGS.controls.orCreateCongig)
+            .setName(t("controls.orCreateCongig"))
             .addText((text) => {
                 this.input = text;
             })

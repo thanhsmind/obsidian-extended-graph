@@ -1,10 +1,9 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
 
 export class SettingArrows extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'arrows', '', STRINGS.features.arrows, 'mouse-pointer-2', STRINGS.features.arrowsDesc);
+        super(settingTab, 'arrows', '', t("features.arrows"), 'mouse-pointer-2', t("features.arrowsDesc"));
     }
 
     protected override addBody() {
@@ -17,8 +16,8 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
     private addInvertArrows() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsInvert)
-            .setDesc(STRINGS.features.arrowsInvertDesc)
+            .setName(t("features.arrowsInvert"))
+            .setDesc(t("features.arrowsInvertDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.invertArrows);
                 cb.onChange(value => {
@@ -30,8 +29,8 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
     private addFlatArrows() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsFlat)
-            .setDesc(STRINGS.features.arrowsFlatDesc)
+            .setName(t("features.arrowsFlat"))
+            .setDesc(t("features.arrowsFlatDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.flatArrows);
                 cb.onChange(value => {
@@ -43,10 +42,10 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
     private addOpaqueArrows() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsOpaque)
-            .setDesc(STRINGS.features.arrowsOpaqueDesc)
+            .setName(t("features.arrowsOpaque"))
+            .setDesc(t("features.arrowsOpaqueDesc"))
             .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', STRINGS.features.arrowsOpaqueKeepFading);
+                cb.toggleEl.insertAdjacentText('beforebegin', t("features.arrowsOpaqueKeepFading"));
                 cb.setValue(PluginInstances.settings.opaqueArrowsButKeepFading);
                 cb.onChange(value => {
                     PluginInstances.settings.opaqueArrowsButKeepFading = value;
@@ -54,7 +53,7 @@ export class SettingArrows extends SettingsSectionPerGraphType {
                 })
             })
             .addToggle(cb => {
-                cb.toggleEl.insertAdjacentText('beforebegin', STRINGS.features.arrowsOpaqueAlways);
+                cb.toggleEl.insertAdjacentText('beforebegin', t("features.arrowsOpaqueAlways"));
                 cb.setValue(PluginInstances.settings.alwaysOpaqueArrows);
                 cb.onChange(value => {
                     PluginInstances.settings.alwaysOpaqueArrows = value;
@@ -65,8 +64,8 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
     private addScaleArrow() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsScale)
-            .setDesc(STRINGS.features.arrowsScaleDesc)
+            .setName(t("features.arrowsScale"))
+            .setDesc(t("features.arrowsScaleDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.arrowScale.toString())
@@ -85,8 +84,8 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsFixedSize)
-            .setDesc(STRINGS.features.arrowsFixedSizeDesc)
+            .setName(t("features.arrowsFixedSize"))
+            .setDesc(t("features.arrowsFixedSizeDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.arrowFixedSize);
                 cb.onChange(value => {
@@ -98,8 +97,8 @@ export class SettingArrows extends SettingsSectionPerGraphType {
 
     private addColorArrow() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.arrowsColor)
-            .setDesc(STRINGS.features.arrowsColorDesc)
+            .setName(t("features.arrowsColor"))
+            .setDesc(t("features.arrowsColorDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.arrowColorBool);
                 cb.onChange(value => {

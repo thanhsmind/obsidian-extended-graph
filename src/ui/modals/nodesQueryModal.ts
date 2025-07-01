@@ -11,9 +11,9 @@ import {
     RuleQuery,
     SourceKey,
     sourceKeyLabels,
+    t,
     UIElements
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 export class NodesQueryModal extends Modal {
     callback: (queryData: QueryData) => void;
@@ -50,10 +50,10 @@ export class NodesQueryModal extends Modal {
 
     private addCombinationLogic() {
         new Setting(this.contentEl)
-            .setName(STRINGS.query.combinationLogic)
+            .setName(t("query.combinationLogic"))
             .addButton(cb => {
                 this.combinationLogicButtons['AND'] = cb;
-                cb.setButtonText(STRINGS.query.AND);
+                cb.setButtonText(t("query.AND"));
                 cb.onClick(ev => {
                     this.queryData.combinationLogic = 'AND';
                     this.combinationLogicButtons['AND']?.setCta();
@@ -62,7 +62,7 @@ export class NodesQueryModal extends Modal {
             })
             .addButton(cb => {
                 this.combinationLogicButtons['OR'] = cb;
-                cb.setButtonText(STRINGS.query.OR);
+                cb.setButtonText(t("query.OR"));
                 cb.onClick(ev => {
                     this.queryData.combinationLogic = 'OR';
                     this.combinationLogicButtons['AND']?.removeCta();
@@ -76,7 +76,7 @@ export class NodesQueryModal extends Modal {
 
     private addRulesHeader() {
         this.ruleHeader = new Setting(this.contentEl)
-            .setName(STRINGS.query.rules)
+            .setName(t("query.rules"))
             .setHeading()
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
@@ -106,15 +106,15 @@ export class NodesQueryModal extends Modal {
         const container = this.modalEl.createDiv({ cls: 'buttons-container' });
 
         new ButtonComponent(container)
-            .setButtonText(STRINGS.controls.cancel)
+            .setButtonText(t("controls.cancel"))
             .onClick(() => this.close());
 
         this.viewMatchesButton = new ButtonComponent(container)
-            .setButtonText(STRINGS.query.viewMatches)
+            .setButtonText(t("query.viewMatches"))
             .onClick(() => this.viewMatches());
 
         this.applyButton = new ButtonComponent(container)
-            .setButtonText(STRINGS.controls.save)
+            .setButtonText(t("controls.save"))
             .setIcon('save')
             .onClick(() => this.save())
             .setCta();
@@ -123,7 +123,7 @@ export class NodesQueryModal extends Modal {
     onChange(ruleQuery?: RuleQuery) {
         const matcher = this.getMatcher();
         const files = matcher.getMatches();
-        this.viewMatchesButton.setButtonText(`${STRINGS.query.viewMatches} (${files.length})`);
+        this.viewMatchesButton.setButtonText(`${t("query.viewMatches")} (${files.length})`);
         this.viewMatchesButton.setDisabled(files.length === 0);
     }
 
@@ -266,7 +266,7 @@ class RuleSetting extends Setting {
     private addValueText(): RuleSetting {
         return this.addSearch(cb => {
             this.valueText = cb;
-            cb.setPlaceholder(STRINGS.plugin.valuePlaceholder);
+            cb.setPlaceholder(t("plugin.valuePlaceholder"));
             cb.inputEl.setAttr('required', true);
             this.suggester = new InteractivesSuggester(this.valueText.inputEl, (value: string) => {
                 this.onChange();

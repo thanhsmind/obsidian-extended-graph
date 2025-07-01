@@ -1,8 +1,7 @@
 import { randomUUID } from "crypto";
 import { ButtonComponent, ExtraButtonComponent, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, UIElements } from "src/internal";
-import STRINGS from "src/Strings";
+import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, t, UIElements } from "src/internal";
 
 export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;
@@ -11,7 +10,7 @@ export class GradientPickerModal extends Modal {
 
     constructor() {
         super(PluginInstances.app);
-        this.setTitle(STRINGS.features.interactives.palettePickGradient);
+        this.setTitle(t("features.interactives.palettePickGradient"));
         this.modalEl.addClass("graph-modal-palette-picker");
     }
 
@@ -52,7 +51,7 @@ export class GradientPickerModal extends Modal {
 
     private addCustomPalettesGroup() {
         const group = new Setting(this.contentEl)
-            .setName(STRINGS.plugin.custom)
+            .setName(t("plugin.custom"))
             .setHeading();
         new ButtonComponent(group.infoEl)
             .then(cb => {
@@ -181,9 +180,9 @@ export class GradientPickerModal extends Modal {
 
     private addInfo() {
         new Setting(this.contentEl)
-            .setName(STRINGS.plugin.info)
+            .setName(t("plugin.info"))
             .setHeading()
-            .setDesc(STRINGS.features.interactives.paletteMatplotlibDesc)
+            .setDesc(t("features.interactives.paletteMatplotlibDesc"))
             .then(setting => {
                 const iconEl = createDiv();
                 setting.nameEl.prepend(iconEl);

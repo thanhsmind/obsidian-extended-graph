@@ -8,15 +8,15 @@ import {
     isPropertyKeyValid,
     LINK_KEY,
     PluginInstances,
-    SettingInteractives
+    SettingInteractives,
+    t
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 
 export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'links', LINK_KEY, STRINGS.features.interactives.links, 'link', STRINGS.features.interactives.linksDesc, false);
+        super(settingTab, 'links', LINK_KEY, t("features.interactives.links"), 'link', t("features.interactives.linksDesc"), false);
     }
 
     protected override addBody(): void {
@@ -33,8 +33,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addExcludeFolders() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.excludeSourceFolders)
-            .setDesc(STRINGS.features.excludeSourceFoldersDesc)
+            .setName(t("features.excludeSourceFolders"))
+            .setDesc(t("features.excludeSourceFoldersDesc"))
             .addButton(cb => {
                 this.setManageNumber(cb, PluginInstances.settings.excludedSourcesFolder.length);
                 cb.onClick(() => {
@@ -45,8 +45,8 @@ export class SettingLinks extends SettingInteractives {
             }).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.excludeTargetFolders)
-            .setDesc(STRINGS.features.excludeTargetFoldersDesc)
+            .setName(t("features.excludeTargetFolders"))
+            .setDesc(t("features.excludeTargetFoldersDesc"))
             .addButton(cb => {
                 this.setManageNumber(cb, PluginInstances.settings.excludedTargetsFolder.length);
                 cb.onClick(() => {
@@ -58,13 +58,13 @@ export class SettingLinks extends SettingInteractives {
     }
 
     private setManageNumber(cb: ButtonComponent, n: number): void {
-        cb.setButtonText(`${STRINGS.controls.manage} (${n})`);
+        cb.setButtonText(`${t("controls.manage")} (${n})`);
     }
 
     private addMultipleTypes() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.linksAllowMultipleTypes)
-            .setDesc(STRINGS.features.linksAllowMultipleTypesDesc)
+            .setName(t("features.linksAllowMultipleTypes"))
+            .setDesc(t("features.linksAllowMultipleTypesDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.allowMultipleLinkTypes);
                 cb.onChange(value => {
@@ -76,8 +76,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addDisableSources() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.removeSources)
-            .setDesc(STRINGS.features.removeSourcesDesc)
+            .setName(t("features.removeSources"))
+            .setDesc(t("features.removeSourcesDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.disableSource);
                 cb.onChange(value => {
@@ -89,8 +89,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addDisableTargets() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.removeTargets)
-            .setDesc(STRINGS.features.removeTargetsDesc)
+            .setName(t("features.removeTargets"))
+            .setDesc(t("features.removeTargetsDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.disableTarget);
                 cb.onChange(value => {
@@ -102,8 +102,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addShowOnGraph() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.colorLinks)
-            .setDesc(STRINGS.features.interactives.colorLinksDesc)
+            .setName(t("features.interactives.colorLinks"))
+            .setDesc(t("features.interactives.colorLinksDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
@@ -113,8 +113,8 @@ export class SettingLinks extends SettingInteractives {
             }).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.displayLinkTypeLabel)
-            .setDesc(STRINGS.features.interactives.displayLinkTypeLabelDesc)
+            .setName(t("features.interactives.displayLinkTypeLabel"))
+            .setDesc(t("features.interactives.displayLinkTypeLabelDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.displayLinkTypeLabel);
                 cb.onChange(value => {
@@ -124,8 +124,8 @@ export class SettingLinks extends SettingInteractives {
             }).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.colorLinkTypeLabel)
-            .setDesc(STRINGS.features.interactives.colorLinkTypeLabelDesc)
+            .setName(t("features.interactives.colorLinkTypeLabel"))
+            .setDesc(t("features.interactives.colorLinkTypeLabelDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.colorLinkTypeLabel);
                 cb.onChange(value => {
@@ -137,8 +137,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addCurvedLinks() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.curvedLinks)
-            .setDesc(STRINGS.features.interactives.curvedLinksDesc)
+            .setName(t("features.interactives.curvedLinks"))
+            .setDesc(t("features.interactives.curvedLinksDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.curvedLinks);
                 cb.onChange(value => {
@@ -148,8 +148,8 @@ export class SettingLinks extends SettingInteractives {
             }).settingEl);
 
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.curvedFactor)
-            .setDesc(STRINGS.features.interactives.curvedFactorDesc)
+            .setName(t("features.interactives.curvedFactor"))
+            .setDesc(t("features.interactives.curvedFactorDesc"))
             .addSlider(cb => {
                 const preview = document.createTextNode(PluginInstances.settings.curvedFactor.toString());
                 if (preview) {
@@ -167,8 +167,8 @@ export class SettingLinks extends SettingInteractives {
 
     private addOutlineLinks() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.linksOutline)
-            .setDesc(STRINGS.features.linksOutlineDesc)
+            .setName(t("features.linksOutline"))
+            .setDesc(t("features.linksOutlineDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.outlineLinks);
                 cb.onChange(value => {

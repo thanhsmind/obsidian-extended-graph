@@ -1,6 +1,6 @@
-import STRINGS from "src/Strings";
 import P from "parsimmon";
 import emojiRegex from "emoji-regex";
+import { t } from "src/internal";
 
 export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -12,7 +12,7 @@ export function isNumber(value: string): boolean {
 
 export function isPropertyKeyValid(key: string): boolean {
     if (key.contains(":")) {
-        new Notice(STRINGS.notices.invalidCharacter + " ':'");
+        new Notice(t("notices.invalidCharacter") + " ':'");
         return false;
     }
     return (key.length > 0);

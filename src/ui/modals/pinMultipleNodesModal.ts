@@ -1,6 +1,5 @@
 import { Setting } from "obsidian";
-import { NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, PluginInstances, QueryData, RuleQuery } from "src/internal";
-import STRINGS from "src/Strings";
+import { NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, PluginInstances, QueryData, RuleQuery, t } from "src/internal";
 
 export class PinMultipleNodesModal extends NodesQueryModal {
     pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void;
@@ -8,7 +7,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
     gridSetting: Setting | null;
 
     constructor(pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
-        super(STRINGS.features.pinMultipleNodes,
+        super(t("features.pinMultipleNodes"),
             PluginInstances.settings.multipleNodesData.queryData ?? { combinationLogic: 'AND', rules: [] },
             (queryData) => { this.pinCallback(this.shapeData, queryData); }
         );
@@ -27,7 +26,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
         this.addCenter();
         this.changeType(this.shapeData.type);
         this.applyButton
-            .setButtonText(STRINGS.controls.apply)
+            .setButtonText(t("controls.apply"))
             .setIcon('check');
 
         if (this.rulesSettings.length === 0) {
@@ -38,7 +37,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
 
     private addShapeType() {
         new Setting(this.contentEl)
-            .setName(STRINGS.features.pinMultipleShape)
+            .setName(t("features.pinMultipleShape"))
             .addDropdown(cb => {
                 cb.addOptions(PinShapeLabels);
                 cb.setValue(this.shapeData.type);
@@ -51,7 +50,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
 
     private addStep() {
         new Setting(this.contentEl)
-            .setName(STRINGS.features.pinMultipleGap)
+            .setName(t("features.pinMultipleGap"))
             .addText(cb => {
                 cb.setValue(this.shapeData.step.toString());
                 cb.onChange((value) => {
@@ -66,7 +65,7 @@ export class PinMultipleNodesModal extends NodesQueryModal {
 
     private addCenter() {
         new Setting(this.contentEl)
-            .setName(STRINGS.features.pinMultipleCenter)
+            .setName(t("features.pinMultipleCenter"))
             .addText(cb => {
                 cb.inputEl.insertAdjacentText('beforebegin', "X");
                 cb.setValue(this.shapeData.center.x.toString());
@@ -95,8 +94,8 @@ export class PinMultipleNodesModal extends NodesQueryModal {
         if (this.gridSetting) return;
         // grid size
         this.gridSetting = new Setting(this.contentEl)
-            .setName(STRINGS.features.pinMultipleGridSize)
-            .setDesc(STRINGS.features.pinMultipleGridSizeDesc)
+            .setName(t("features.pinMultipleGridSize"))
+            .setDesc(t("features.pinMultipleGridSizeDesc"))
             .addText(cb => {
                 cb.setValue(this.shapeData.columns?.toString() ?? '');
                 cb.onChange((value) => {

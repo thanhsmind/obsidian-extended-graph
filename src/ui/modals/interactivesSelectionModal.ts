@@ -1,6 +1,5 @@
 import { Modal, Setting } from "obsidian";
-import { PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { PluginInstances, t } from "src/internal";
 
 export class InteractivesSelectionModal extends Modal {
     key: string;
@@ -12,7 +11,7 @@ export class InteractivesSelectionModal extends Modal {
         super(PluginInstances.app);
         this.key = key;
         this.types = types;
-        this.setTitle(STRINGS.features.interactives.selectionFor + ": " + this.key);
+        this.setTitle(t("features.interactives.selectionFor") + ": " + this.key);
         this.modalEl.addClass("graph-modal-interactives-selection");
     }
 
@@ -27,7 +26,7 @@ export class InteractivesSelectionModal extends Modal {
             PluginInstances.settings.interactiveSettings[this.key].excludeRegex = { regex: "", flags: "" };
         }
         this.regexSetting = new Setting(this.contentEl)
-            .setName(STRINGS.query.excludeRegex)
+            .setName(t("query.excludeRegex"))
             .addTextArea(cb => {
                 cb.setValue(PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex);
                 cb.onChange((value) => this.changeExcludeRegex(value, PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags));
@@ -72,7 +71,7 @@ export class InteractivesSelectionModal extends Modal {
                 label.show();
             }
         }
-        this.regexSetting.setName(`${STRINGS.query.excludeRegex} (${nHidden} ${nHidden > 1 ? STRINGS.query.matches : STRINGS.query.match})`);
+        this.regexSetting.setName(`${t("query.excludeRegex")} (${nHidden} ${nHidden > 1 ? t("query.matches") : t("query.match")})`);
     }
 
     private changeExcludeRegex(regex: string, flags: string) {
@@ -90,7 +89,7 @@ export class InteractivesSelectionModal extends Modal {
     private updateRegexDesc() {
         const regex = PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex;
         const flags = PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags;
-        this.regexSetting.descEl.innerHTML = STRINGS.query.excludeRegexDesc +
+        this.regexSetting.descEl.innerHTML = t("query.excludeRegexDesc") +
             "<ul>" + regex.split("\n").map(r => `<li>/${r}/${flags}</li>`).join("") + "</ul>";
     }
 

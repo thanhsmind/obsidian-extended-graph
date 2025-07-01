@@ -19,9 +19,9 @@ import {
     pixiColor2int,
     PluginInstances,
     polar2Cartesian,
+    t,
     textColor
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 export abstract class ExportGraphToSVG {
     svg: SVGSVGElement;
@@ -210,7 +210,7 @@ export abstract class ExportGraphToSVG {
                     await navigator.clipboard.writeText(svgString);
                 }
 
-                new Notice(STRINGS.notices.svgCopied);
+                new Notice(t("notices.svgCopied"));
             }).bind(this);
 
             modal.open();

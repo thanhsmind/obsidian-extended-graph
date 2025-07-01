@@ -8,3 +8,6 @@ export const INVALID_KEYS: { [interactive: string]: string[] } = {};
 INVALID_KEYS[TAG_KEY] = [];
 INVALID_KEYS[LINK_KEY] = ["tags", "file"];
 INVALID_KEYS[FOLDER_KEY] = [];
+
+
+export const t = i18next.getFixedT(null, "extended-graph");

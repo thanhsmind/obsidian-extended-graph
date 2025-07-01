@@ -1,5 +1,4 @@
-import { getFile, NodeStatCalculator } from "src/internal";
-import STRINGS from "src/Strings";
+import { getFile, NodeStatCalculator, t } from "src/internal";
 
 export class ModifiedTimeCalculator extends NodeStatCalculator {
 
@@ -8,6 +7,6 @@ export class ModifiedTimeCalculator extends NodeStatCalculator {
     }
 
     override getWarning(): string {
-        return STRINGS.statsFunctions.warningUnreliableOS;
+        return t("statsFunctions.warningUnreliableOS");
     }
 }

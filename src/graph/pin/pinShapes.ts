@@ -1,11 +1,10 @@
-import { ExtendedGraphNode, GraphInstances, Pinner } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphNode, GraphInstances, Pinner, t } from "src/internal";
 
 export type PinShapeType = 'grid' | 'circle';
 
 export const PinShapeLabels: Record<PinShapeType, string> = {
-    'circle': STRINGS.features.shapesNames.circle,
-    'grid': STRINGS.features.shapesNames.grid,
+    'circle': t("features.shapesNames.circle"),
+    'grid': t("features.shapesNames.grid"),
 }
 
 export type PinShapeData = {

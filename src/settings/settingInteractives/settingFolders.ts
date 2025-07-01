@@ -1,11 +1,10 @@
 import { Setting, TFile } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, PluginInstances, SettingInteractives } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, FOLDER_KEY, PluginInstances, SettingInteractives, t } from "src/internal";
 
 export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'folders', FOLDER_KEY, STRINGS.features.folders, 'folder', STRINGS.features.foldersDesc, true);
+        super(settingTab, 'folders', FOLDER_KEY, t("features.folders"), 'folder', t("features.foldersDesc"), true);
     }
 
     protected override addBody(): void {
@@ -16,8 +15,8 @@ export class SettingFolders extends SettingInteractives {
 
     private addShowFullPath() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.folderShowFullPath)
-            .setDesc(STRINGS.features.folderShowFullPathDesc)
+            .setName(t("features.folderShowFullPath"))
+            .setDesc(t("features.folderShowFullPathDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.folderShowFullPath)
                     .onChange(async (value) => {

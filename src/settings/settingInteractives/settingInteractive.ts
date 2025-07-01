@@ -13,11 +13,11 @@ import {
     randomColor,
     SettingColorPalette,
     SettingsSectionPerGraphType,
+    t,
     TAG_KEY,
     UIElements
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
-import STRINGS from "src/Strings";
 
 export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     noneType: string = "";
@@ -51,8 +51,8 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     protected addNoneTypeSetting() {
         this.noneType = PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType;
         const setting = new Setting(this.containerEl)
-            .setName(STRINGS.features.interactives.noneTypeID)
-            .setDesc(STRINGS.features.interactives.noneTypeIDDesc + this.interactiveKey)
+            .setName(t("features.interactives.noneTypeID"))
+            .setDesc(t("features.interactives.noneTypeIDDesc") + this.interactiveKey)
             .addText(cb => cb
                 .setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType)
                 .onChange(async (value) => {
@@ -69,7 +69,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 
     protected addColorPaletteSetting(): void {
         this.settingColorPalette = new SettingColorPalette(this.containerEl, this.settingTab, this.interactiveKey)
-            .setDesc(STRINGS.features.interactives.paletteDesc + this.interactiveKey);
+            .setDesc(t("features.interactives.paletteDesc") + this.interactiveKey);
 
         this.settingColorPalette.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
 
@@ -87,8 +87,8 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 
     protected addSpecificColorHeaderSetting(): void {
         this.settingInteractiveColor = new Setting(this.containerEl)
-            .setName(STRINGS.features.interactives.specificColors)
-            .setDesc(STRINGS.features.interactives.specificColorsDesc)
+            .setName(t("features.interactives.specificColors"))
+            .setDesc(t("features.interactives.specificColorsDesc"))
             .addButton(cb => {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
@@ -102,8 +102,8 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 
     protected addFilterTypeSetting(): void {
         this.settingInteractiveFilter = new Setting(this.containerEl)
-            .setName(STRINGS.features.interactives.selection)
-            .setDesc(STRINGS.features.interactives.selectionDesc)
+            .setName(t("features.interactives.selection"))
+            .setDesc(t("features.interactives.selectionDesc"))
             .addExtraButton(cb => {
                 cb.setIcon('mouse-pointer-click');
                 cb.onClick(() => {
@@ -244,7 +244,7 @@ export class SettingColor extends Setting {
         if (recursive !== undefined) {
             this.addToggle(cb => {
                 this.recursiveCompotnent = cb;
-                cb.toggleEl.insertAdjacentText("afterend", STRINGS.features.recursive)
+                cb.toggleEl.insertAdjacentText("afterend", t("features.recursive"))
                 cb.setValue(recursive);
                 cb.onChange((value) => {
                     this.save();
@@ -255,7 +255,7 @@ export class SettingColor extends Setting {
         // Already used warning
         this.warningDiv = this.controlEl.createDiv("control-warning");
         setIcon(this.warningDiv.createDiv(), 'triangle-alert');
-        this.warningDiv.appendText(STRINGS.features.interactives.alreadyExists);
+        this.warningDiv.appendText(t("features.interactives.alreadyExists"));
         this.warningDiv.addClass("is-hidden");
 
         this.updateCSS();

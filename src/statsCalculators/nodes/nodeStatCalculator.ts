@@ -1,26 +1,25 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { evaluateCMap, GraphologySingleton, PluginInstances, t } from "src/internal";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
-    'default': STRINGS.plugin.default,
-    'constant': STRINGS.statsFunctions.constant,
-    'backlinksCount': STRINGS.statsFunctions.backlinksCount,
-    'forwardlinksCount': STRINGS.statsFunctions.forwardlinksCount,
-    'forwardUniquelinksCount': STRINGS.statsFunctions.forwardUniquelinksCount,
-    'filenameLength': STRINGS.statsFunctions.filenameLength,
-    'tagsCount': STRINGS.statsFunctions.tagsCount,
-    'creationTime': STRINGS.statsFunctions.creationTime,
-    'modifiedTime': STRINGS.statsFunctions.modifiedTime,
-    'eccentricity': STRINGS.statsFunctions.eccentricity,
-    'betweenness': STRINGS.statsFunctions.betweenness,
-    'closeness': STRINGS.statsFunctions.closeness,
-    'degree': STRINGS.statsFunctions.degree,
-    'eigenvector': STRINGS.statsFunctions.eigenvector,
-    'hub': STRINGS.statsFunctions.hub,
-    'authority': STRINGS.statsFunctions.authority,
-    'topological': STRINGS.statsFunctions.topological,
+    'default': t("plugin.default"),
+    'constant': t("statsFunctions.constant"),
+    'backlinksCount': t("statsFunctions.backlinksCount"),
+    'forwardlinksCount': t("statsFunctions.forwardlinksCount"),
+    'forwardUniquelinksCount': t("statsFunctions.forwardUniquelinksCount"),
+    'filenameLength': t("statsFunctions.filenameLength"),
+    'tagsCount': t("statsFunctions.tagsCount"),
+    'creationTime': t("statsFunctions.creationTime"),
+    'modifiedTime': t("statsFunctions.modifiedTime"),
+    'eccentricity': t("statsFunctions.eccentricity"),
+    'betweenness': t("statsFunctions.betweenness"),
+    'closeness': t("statsFunctions.closeness"),
+    'degree': t("statsFunctions.degree"),
+    'eigenvector': t("statsFunctions.eigenvector"),
+    'hub': t("statsFunctions.hub"),
+    'authority': t("statsFunctions.authority"),
+    'topological': t("statsFunctions.topological"),
 }
 
 export type NodeStat = 'size' | 'color';

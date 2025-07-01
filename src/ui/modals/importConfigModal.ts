@@ -1,7 +1,6 @@
 import { DropdownComponent, Modal, Setting } from "obsidian";
 import path from "path";
-import { PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { PluginInstances, t } from "src/internal";
 
 export class ImportConfigModal extends Modal {
     callback: (filepath: string) => void;
@@ -9,7 +8,7 @@ export class ImportConfigModal extends Modal {
 
     constructor(callback: (filepath: string) => void) {
         super(PluginInstances.app);
-        this.setTitle(STRINGS.controls.selectConfigToImport);
+        this.setTitle(t("controls.selectConfigToImport"));
         this.modalEl.addClass("graph-modal-import-config");
         this.callback = callback;
     }

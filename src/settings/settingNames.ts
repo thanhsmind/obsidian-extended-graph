@@ -1,13 +1,12 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingNames extends SettingsSectionPerGraphType {
     verticalOffset: Setting;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'names', '', STRINGS.features.names, 'case-sensitive', STRINGS.features.namesDesc);
+        super(settingTab, 'names', '', t("features.names"), 'case-sensitive', t("features.namesDesc"));
     }
 
     protected override addBody() {
@@ -23,8 +22,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addNumberOfCharacters() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesNumberOfCharacters)
-            .setDesc(STRINGS.features.namesNumberOfCharactersDesc)
+            .setName(t("features.namesNumberOfCharacters"))
+            .setDesc(t("features.namesNumberOfCharactersDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.numberOfCharacters?.toString() || '')
@@ -43,8 +42,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addOnlyFilename() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesShowOnlyFileName)
-            .setDesc(STRINGS.features.namesShowOnlyFileNameDesc)
+            .setName(t("features.namesShowOnlyFileName"))
+            .setDesc(t("features.namesShowOnlyFileNameDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.showOnlyFileName);
                 cb.onChange(value => {
@@ -56,8 +55,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addNoExtension() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesNoExtension)
-            .setDesc(STRINGS.features.namesNoExtensionDesc)
+            .setName(t("features.namesNoExtension"))
+            .setDesc(t("features.namesNoExtensionDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.noExtension);
                 cb.onChange(value => {
@@ -69,14 +68,14 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addUseProperty() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesUseProperties)
-            .setDesc(STRINGS.features.namesUsePropertiesDesc)
+            .setName(t("features.namesUseProperties"))
+            .setDesc(t("features.namesUsePropertiesDesc"))
             .addExtraButton(cb => {
                 cb.setIcon('mouse-pointer-click');
                 cb.onClick(() => {
                     const modal = new SettingMultiPropertiesModal(
-                        STRINGS.features.namesUseProperties,
-                        STRINGS.features.namesUsePropertiesAdd,
+                        t("features.namesUseProperties"),
+                        t("features.namesUsePropertiesAdd"),
                         PluginInstances.settings.usePropertiesForName
                     );
                     modal.open();
@@ -87,8 +86,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addBackground() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesBackground)
-            .setDesc(STRINGS.features.namesBackgroundDesc)
+            .setName(t("features.namesBackground"))
+            .setDesc(t("features.namesBackgroundDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.addBackgroundToName);
                 cb.onChange(value => {
@@ -100,8 +99,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addDynamicVerticalOffset() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesDynamicVerticalOffset)
-            .setDesc(STRINGS.features.namesDynamicVerticalOffsetDesc)
+            .setName(t("features.namesDynamicVerticalOffset"))
+            .setDesc(t("features.namesDynamicVerticalOffsetDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.dynamicVerticalOffset);
                 cb.onChange(value => {
@@ -114,8 +113,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addVerticalOffset() {
         this.verticalOffset = new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesVerticalOffset)
-            .setDesc(STRINGS.features.namesVerticalOffsetDesc)
+            .setName(t("features.namesVerticalOffset"))
+            .setDesc(t("features.namesVerticalOffsetDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.nameVerticalOffset.toString());
@@ -132,8 +131,8 @@ export class SettingNames extends SettingsSectionPerGraphType {
 
     private addShowWhenNeighborHighlighted() {
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.namesShowWhenNeighborHighlighted)
-            .setDesc(STRINGS.features.namesShowWhenNeighborHighlightedDesc)
+            .setName(t("features.namesShowWhenNeighborHighlighted"))
+            .setDesc(t("features.namesShowWhenNeighborHighlightedDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.showNamesWhenNeighborHighlighted);
                 cb.onChange(value => {

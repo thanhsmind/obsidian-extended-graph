@@ -1,19 +1,18 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingZoom extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'zoom', STRINGS.features.zoomOnNode, 'scan-search', "");
+        super(settingTab, 'zoom', t("features.zoomOnNode"), 'scan-search', "");
     }
 
     protected override addBody() {
         const containerEl = this.settingTab.containerEl;
 
         const setting = new Setting(containerEl)
-            .setName(STRINGS.features.zoomScale)
-            .setDesc(STRINGS.features.zoomScaleDesc)
+            .setName(t("features.zoomScale"))
+            .setDesc(t("features.zoomScaleDesc"))
             .addSlider(cb => {
                 const preview = document.createTextNode(PluginInstances.settings.zoomFactor.toString());
                 if (preview) {

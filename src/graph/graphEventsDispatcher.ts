@@ -21,11 +21,9 @@ import {
     Pinner,
     PluginInstances,
     RadialMenuManager,
-    regExpFromString,
     StatesUI,
-    TAG_KEY
+    t
 } from "src/internal";
-import STRINGS from "src/Strings";
 import { GraphFilter } from "./graphFilter";
 
 interface LastFilteringAction {
@@ -998,11 +996,11 @@ export class GraphEventsDispatcher extends Component {
         menu.addItem(cb => {
             cb.setIcon("pin");
             if (this.instances.nodesSet.isNodePinned(file.path)) {
-                cb.setTitle(STRINGS.features.unpinNode);
+                cb.setTitle(t("features.unpinNode"));
                 cb.onClick(() => { this.unpinNode(file); });
             }
             else {
-                cb.setTitle(STRINGS.features.pinNode);
+                cb.setTitle(t("features.pinNode"));
                 cb.onClick(() => { this.pinNode(file); });
             }
         })

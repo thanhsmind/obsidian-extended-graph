@@ -1,11 +1,10 @@
-import { HexString, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingColor, SettingInteractives, TAG_KEY } from "src/internal";
-import STRINGS from "src/Strings";
+import { Setting } from "obsidian";
+import { ExtendedGraphSettingTab, PluginInstances, SettingInteractives, t, TAG_KEY } from "src/internal";
 
 export class SettingTags extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'tags', TAG_KEY, STRINGS.features.interactives.tags, 'tags', STRINGS.features.interactives.tagsDesc, true);
+        super(settingTab, 'tags', TAG_KEY, t("features.interactives.tags"), 'tags', t("features.interactives.tagsDesc"), true);
     }
 
     protected override addBody(): void {
@@ -13,8 +12,8 @@ export class SettingTags extends SettingInteractives {
 
         // Show on graph
         this.elementsBody.push(new Setting(this.settingTab.containerEl)
-            .setName(STRINGS.features.interactives.arcsAdd)
-            .setDesc(STRINGS.features.interactives.arcsAddTagDesc)
+            .setName(t("features.interactives.arcsAdd"))
+            .setDesc(t("features.interactives.arcsAddTagDesc"))
             .addToggle(cb => {
                 cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {

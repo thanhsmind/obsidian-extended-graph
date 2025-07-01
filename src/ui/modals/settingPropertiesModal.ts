@@ -1,7 +1,6 @@
 import { re } from "mathjs";
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, TextComponent } from "obsidian";
-import { isPropertyKeyValid, PluginInstances, PropertiesSuggester, UIElements } from "src/internal";
-import STRINGS from "src/Strings";
+import { isPropertyKeyValid, PluginInstances, PropertiesSuggester, t, UIElements } from "src/internal";
 
 export class SettingMultiPropertiesModal extends Modal {
     inputs: TextComponent[] = [];

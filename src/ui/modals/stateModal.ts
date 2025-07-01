@@ -1,6 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting, TFile } from "obsidian";
-import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, PluginInstances, t } from "src/internal";
 
 type TableType = 'nodes' | 'links' | 'pinned';
 
@@ -27,7 +26,7 @@ export class GraphStateModal extends Modal {
         this.instances = instances;
         this.state = new GraphState("");
         this.state.saveGraph(instances);
-        this.setTitle(STRINGS.states.graphState);
+        this.setTitle(t("states.graphState"));
         this.modalEl.addClass("graph-modal-graph-state");
     }
 
@@ -50,7 +49,7 @@ export class GraphStateModal extends Modal {
     private addNodes() {
         const hasRows = this.instances.nodesSet.extendedElementsMap.size > 0;
 
-        this.createHeading(STRINGS.plugin.nodes, "nodes", hasRows);
+        this.createHeading(t("plugin.nodes"), "nodes", hasRows);
 
         const table = this.contentEl.createEl("table");
         const colgroup = table.createEl("colgroup");
@@ -59,22 +58,22 @@ export class GraphStateModal extends Modal {
         const tr_thead = thead.insertRow();
 
         let cell: HTMLTableCellElement;
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
+        cell = tr_thead.insertCell(); cell.setText(t("plugin.folder"));
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.nodeName);
+        cell = tr_thead.insertCell(); cell.setText(t("plugin.nodeName"));
         colgroup.createEl("col").addClass("col-filename");
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
+        cell = tr_thead.insertCell(); cell.setText(t("controls.enabled"));
         colgroup.createEl("col").addClass("col-enabled");
         for (const [key, manager] of this.instances.nodesSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
         if (this.instances.settings.enableFeatures[this.instances.type]['shapes']) {
-            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.shape);
+            cell = tr_thead.insertCell(); cell.setText(t("features.shape"));
             colgroup.createEl("col").addClass("col-shape");
         }
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
-            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
+            cell = tr_thead.insertCell(); cell.setText(t("features.size"));
             colgroup.createEl("col").addClass("col-size");
         }
 
@@ -133,22 +132,22 @@ export class GraphStateModal extends Modal {
         const tr_thead = thead.insertRow();
         let cell: HTMLTableCellElement;
 
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.source})`);
+        cell = tr_thead.insertCell(); cell.setText(`${t("plugin.folder")} (${t("plugin.source")})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-source"]);
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.nodeName} (${STRINGS.plugin.source})`);
+        cell = tr_thead.insertCell(); cell.setText(`${t("plugin.nodeName")} (${t("plugin.source")})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-source"]);
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.folder} (${STRINGS.plugin.target})`);
+        cell = tr_thead.insertCell(); cell.setText(`${t("plugin.folder")} (${t("plugin.target")})`);
         colgroup.createEl("col").addClasses(["col-folder", "col-folder-target"]);
-        cell = tr_thead.insertCell(); cell.setText(`${STRINGS.plugin.nodeName} (${STRINGS.plugin.target})`);
+        cell = tr_thead.insertCell(); cell.setText(`${t("plugin.nodeName")} (${t("plugin.target")})`);
         colgroup.createEl("col").addClasses(["col-filename", "col-filename-target"]);
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.controls.enabled);
+        cell = tr_thead.insertCell(); cell.setText(t("controls.enabled"));
         colgroup.createEl("col").addClass("col-enabled");
         for (const [key, manager] of this.instances.linksSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
         }
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
-            cell = tr_thead.insertCell(); cell.setText(STRINGS.features.size);
+            cell = tr_thead.insertCell(); cell.setText(t("features.size"));
             colgroup.createEl("col").addClass("col-size");
         }
 
@@ -196,7 +195,7 @@ export class GraphStateModal extends Modal {
     private addPinnedNodes() {
         const hasRows = this.state.data.pinNodes && Object.entries(this.state.data.pinNodes).length > 0;
 
-        this.createHeading(STRINGS.features.pinnedNodes, "pinned", hasRows);
+        this.createHeading(t("features.pinnedNodes"), "pinned", hasRows);
 
         const table = this.contentEl.createEl("table");
         const colgroup = table.createEl("colgroup");
@@ -204,9 +203,9 @@ export class GraphStateModal extends Modal {
         const thead = table.createTHead();
         const tr_thead = thead.insertRow();
         let cell;
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.folder);
+        cell = tr_thead.insertCell(); cell.setText(t("plugin.folder"));
         colgroup.createEl("col").addClass("col-folder");
-        cell = tr_thead.insertCell(); cell.setText(STRINGS.plugin.nodeName);
+        cell = tr_thead.insertCell(); cell.setText(t("plugin.nodeName"));
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText("X");
         colgroup.createEl("col").addClass("col-pos-x");
@@ -240,7 +239,7 @@ export class GraphStateModal extends Modal {
 
         if (hasTable) {
             h.addText(cb => {
-                cb.inputEl.insertAdjacentText('beforebegin', STRINGS.controls.show);
+                cb.inputEl.insertAdjacentText('beforebegin', t("controls.show"));
                 cb.setValue(this.defaultMaxRows.toString())
                     .onChange((value) => {
                         const table = this.sortableTables[key];
@@ -256,7 +255,7 @@ export class GraphStateModal extends Modal {
                             this.showPageRows(key);
                         }
                     });
-                cb.inputEl.insertAdjacentText('afterend', STRINGS.controls.rows);
+                cb.inputEl.insertAdjacentText('afterend', t("controls.rows"));
             });
 
             if (key === 'nodes' || key === 'pinned') {
@@ -346,7 +345,7 @@ export class GraphStateModal extends Modal {
         if (table.page !== 0) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-left")
-                .setTooltip(STRINGS.controls.pageFirst)
+                .setTooltip(t("controls.pageFirst"))
                 .setClass("first-page")
                 .onClick(() => {
                     this.showFirstPage(key);
@@ -363,7 +362,7 @@ export class GraphStateModal extends Modal {
         for (let i = Math.max(0, table.page - nShow); i < table.page; ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
-                .setTooltip(STRINGS.controls.page + " " + i.toString())
+                .setTooltip(t("controls.page") + " " + i.toString())
                 .onClick(() => {
                     this.showPreviousPage(key, table.page - i);
                 });
@@ -373,13 +372,13 @@ export class GraphStateModal extends Modal {
         new ButtonComponent(paginationInner)
             .setButtonText(table.page.toString())
             .setCta()
-            .setTooltip(STRINGS.controls.pageCurrent);
+            .setTooltip(t("controls.pageCurrent"));
 
         // Following pages
         for (let i = table.page + 1; i < Math.min(table.page + nShow + 1, this.numberOfPages(key)); ++i) {
             new ButtonComponent(paginationInner)
                 .setButtonText(i.toString())
-                .setTooltip(STRINGS.controls.page + " " + i.toString())
+                .setTooltip(t("controls.page") + " " + i.toString())
                 .onClick(() => {
                     this.showNextPage(key, i - table.page);
                 });
@@ -393,7 +392,7 @@ export class GraphStateModal extends Modal {
         if (table.page !== this.numberOfPages(key) - 1) {
             new ButtonComponent(pagination)
                 .setIcon("chevrons-right")
-                .setTooltip(STRINGS.controls.pageLast)
+                .setTooltip(t("controls.pageLast"))
                 .setClass("last-page")
                 .onClick(() => {
                     this.showLastPage(key);

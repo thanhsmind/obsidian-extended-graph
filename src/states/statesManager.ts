@@ -1,6 +1,17 @@
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { DEFAULT_STATE_ID, EngineOptions, FOLDER_KEY, getEngine, GraphInstances, GraphState, GraphStateData, InteractiveManager, InteractiveUI, PluginInstances } from "src/internal";
-import STRINGS from "src/Strings";
+import {
+    DEFAULT_STATE_ID,
+    EngineOptions,
+    FOLDER_KEY,
+    getEngine,
+    GraphInstances,
+    GraphState,
+    GraphStateData,
+    InteractiveManager,
+    InteractiveUI,
+    PluginInstances,
+    t
+} from "src/internal";
 
 
 
@@ -147,7 +158,7 @@ export class StatesManager {
     async onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false): Promise<void> {
         this.updateStateArray(stateData);
         await PluginInstances.plugin.saveSettings().then(() => {
-            if (notice) new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateSaved} (${stateData.name})`);
+            if (notice) new Notice(`${t("plugin.name")}: ${t("notices.stateSaved")} (${stateData.name})`);
             this.updateAllStates();
         });
     }
@@ -184,7 +195,7 @@ export class StatesManager {
         if (!stateData || stateData.name === newName) return;
         stateData.name = newName;
         PluginInstances.plugin.saveSettings().then(() => {
-            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateRenamed} (${newName})`);
+            new Notice(`${t("plugin.name")}: ${t("notices.stateRenamed")} (${newName})`);
             this.updateAllStates();
         });
     }
@@ -201,7 +212,7 @@ export class StatesManager {
         if (!state) return;
         PluginInstances.settings.states.remove(state);
         PluginInstances.plugin.saveSettings().then(() => {
-            new Notice(`${STRINGS.plugin.name}: ${STRINGS.notices.stateDeleted} (${state.name})`);
+            new Notice(`${t("plugin.name")}: ${t("notices.stateDeleted")} (${state.name})`);
             this.updateAllStates();
         });
     }

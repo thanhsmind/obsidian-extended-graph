@@ -11,9 +11,9 @@ import {
     InteractiveUI,
     makeCompatibleForClass,
     PluginInstances,
+    t,
     textColor
 } from "src/internal";
-import STRINGS from "src/Strings";
 
 class LegendRow extends Setting {
     name: string;
@@ -40,7 +40,7 @@ class LegendRow extends Setting {
             .addExtraButton(cb => {
                 this.disableAllButton = cb;
                 cb.setIcon("x")
-                    .setTooltip(STRINGS.controls.disableAll + ": " + this.name)
+                    .setTooltip(t("controls.disableAll") + ": " + this.name)
                     .onClick(() => {
                         this.disableAll();
                     });
@@ -48,7 +48,7 @@ class LegendRow extends Setting {
             .addExtraButton(cb => {
                 this.enableAllButton = cb;
                 cb.setIcon("check-check")
-                    .setTooltip(STRINGS.controls.enableAll + ": " + this.name)
+                    .setTooltip(t("controls.enableAll") + ": " + this.name)
                     .onClick(() => {
                         this.enableAll();
                     })
@@ -59,12 +59,12 @@ class LegendRow extends Setting {
             .then(cb => {
                 const andOrDiv = createDiv("and-or-group");
                 this.andButton = new ButtonComponent(andOrDiv)
-                    .setButtonText(STRINGS.query.AND)
-                    .setTooltip(STRINGS.query.ANDFilterDesc)
+                    .setButtonText(t("query.AND"))
+                    .setTooltip(t("query.ANDFilterDesc"))
                     .onClick(() => this.changeCombinationLogic("AND"));
                 this.orButton = new ButtonComponent(andOrDiv)
-                    .setButtonText(STRINGS.query.OR)
-                    .setTooltip(STRINGS.query.ORFilterDesc)
+                    .setButtonText(t("query.OR"))
+                    .setTooltip(t("query.ORFilterDesc"))
                     .onClick(() => this.changeCombinationLogic("OR"));
                 (GraphStateDataQuery.getLogicType(this.manager.instances, this.name) === "AND") ? this.andButton.setCta() : this.orButton.setCta();
                 this.controlEl.insertAdjacentElement("afterbegin", andOrDiv);
@@ -288,7 +288,7 @@ export class LegendUI extends Component implements InteractiveUI {
     private createToggleButton() {
         const graphControls = this.instances.view.contentEl.querySelector(".graph-controls") as HTMLDivElement;
         this.toggleButton = new ExtraButtonComponent(graphControls)
-            .setTooltip(STRINGS.controls.openLegend)
+            .setTooltip(t("controls.openLegend"))
             .setIcon("tags")
             .onClick(() => {
                 if (this.isOpen) {
@@ -326,7 +326,7 @@ export class LegendUI extends Component implements InteractiveUI {
             this.legendRows.set(key, row);
 
             hideRowButton.setButtonText(key)
-                .setTooltip(STRINGS.controls.hideRow + ": " + key, { placement: 'top' })
+                .setTooltip(t("controls.hideRow") + ": " + key, { placement: 'top' })
                 .onClick(() => {
                     this.toggleVisibility(row, stateData);
                 })
