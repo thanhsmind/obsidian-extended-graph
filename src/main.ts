@@ -1,4 +1,4 @@
-import { addIcon, getIcon, ItemView, MarkdownView, Plugin, View, WorkspaceLeaf } from 'obsidian';
+import { addIcon, getIcon, ItemView, MarkdownView, normalizePath, Plugin, WorkspaceLeaf } from 'obsidian';
 import { GraphView, LocalGraphView } from "obsidian-typings";
 import {
     DEFAULT_SETTINGS,
@@ -18,6 +18,7 @@ import {
     StatesManager,
     TAG_KEY
 } from './internal';
+import * as fsPromises from 'fs/promises';
 import STRINGS from './Strings';
 
 
@@ -30,6 +31,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     async onload(): Promise<void> {
         PluginInstances.plugin = this;
         PluginInstances.app = this.app;
+        PluginInstances.configurationDirectory = normalizePath(this.manifest.dir + "/configs/");
         PluginInstances.proxysManager = new ProxysManager();
         await this.loadSettings();
 
@@ -161,12 +163,6 @@ export default class ExtendedGraphPlugin extends Plugin {
         else {
             data = DEFAULT_SETTINGS;
         }
-        // Remove invalid shallow keys
-        for (const key in data) {
-            if (!DEFAULT_SETTINGS.hasOwnProperty(key)) {
-                delete data[key];
-            }
-        }
 
         // Deep load default settings
         this.loadSettingsRec(DEFAULT_SETTINGS, data);
@@ -176,6 +172,13 @@ export default class ExtendedGraphPlugin extends Plugin {
     private migrateSettings(settings: any): any {
         if (!settings) return DEFAULT_SETTINGS;
         if (typeof settings !== "object") return DEFAULT_SETTINGS;
+
+        // Remove invalid shallow keys
+        for (const key in settings) {
+            if (!DEFAULT_SETTINGS.hasOwnProperty(key)) {
+                delete settings[key];
+            }
+        }
 
         // 2.2.3 --> 2.2.4
         if ("additionalProperties" in settings && typeof settings["additionalProperties"] === "object") {
@@ -354,6 +357,35 @@ export default class ExtendedGraphPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(PluginInstances.settings);
+    }
+
+    async importSettings(filepath: string): Promise<void> {
+        filepath = normalizePath(filepath);
+        const data = await this.app.vault.adapter.read(filepath);
+        let json = JSON.parse(data);
+
+        json = this.migrateSettings(json);
+        this.loadSettingsRec(PluginInstances.settings, json);
+
+        PluginInstances.settings = json;
+        await this.saveSettings();
+    }
+
+    async exportSettings(filepath: string): Promise<void> {
+        this.app.vault.adapter.mkdir(PluginInstances.configurationDirectory);
+        filepath = normalizePath(filepath);
+
+        const settings = structuredClone(PluginInstances.settings) as Partial<typeof PluginInstances.settings>;
+
+        // Remove settings that are internal (not set by the user)
+        delete settings.collapseState;
+        delete settings.collapseLegend;
+        delete settings.resetAfterChanges;
+        delete settings.collapsedSettings;
+        delete settings.multipleNodesData;
+
+        const data = JSON.stringify(PluginInstances.settings, null, 2);
+        await this.app.vault.adapter.write(filepath, data);
     }
 
     // ============================= LAYOUT CHANGE =============================

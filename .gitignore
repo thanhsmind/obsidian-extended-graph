@@ -26,6 +26,7 @@ debug/
 logs.txt
 *.xcf
 git-filter-repo
+configs/
 
 # Stat plot
 .venv/

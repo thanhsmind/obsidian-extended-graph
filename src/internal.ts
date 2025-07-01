@@ -133,16 +133,18 @@ export * from "./ui/graphControl/GCSection";
 export * from "./ui/graphControl/GCOptions";
 export * from "./ui/graphControl/GCFolders";
 
+export * from "./ui/modals/addPropertyInteractiveModal";
 export * from "./ui/modals/excludeFoldersModal";
+export * from "./ui/modals/exportConfigModal";
 export * from "./ui/modals/exportSVGOptionsModal";
 export * from "./ui/modals/gradientMakerModal";
 export * from "./ui/modals/gradientPickerModal";
+export * from "./ui/modals/importConfigModal";
 export * from "./ui/modals/interactivesSelectionModal";
 export * from "./ui/modals/newNameModal";
-export * from "./ui/modals/addPropertyInteractiveModal";
-export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/nodesQueryModal";
 export * from "./ui/modals/pinMultipleNodesModal";
+export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 

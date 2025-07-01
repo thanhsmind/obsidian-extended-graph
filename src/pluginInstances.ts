@@ -31,6 +31,7 @@ export class PluginInstances {
     static statesManager: StatesManager; // init in main.ts
     static proxysManager: ProxysManager; // init in main.ts
     static pinSVGDataUrl: string; // init in main.ts
+    static configurationDirectory: string; // init in main.ts
 }
 
 export class GraphInstances {

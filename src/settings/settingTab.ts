@@ -20,7 +20,10 @@ import {
     SettingAutomation,
     SettingDisplay,
     SettingBeta,
-    SettingFilter
+    SettingFilter,
+    NewNameModal,
+    ImportConfigModal,
+    ExportConfigModal
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 import STRINGS from "src/Strings";
@@ -74,6 +77,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.containerEl.empty();
         this.containerEl.addClass("extended-graph-settings");
 
+        this.addImportExport();
         this.addNav();
         this.addDisableNodes();
 
@@ -81,6 +85,43 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         for (const section of this.sections) {
             section.display();
         }
+    }
+
+    private addImportExport(): void {
+        new Setting(this.containerEl)
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.insertAdjacentText('beforebegin', STRINGS.controls.export)
+                cb.setIcon("upload");
+                cb.setTooltip(STRINGS.controls.exportSettings);
+                cb.onClick(() => {
+                    const modal = new ExportConfigModal((name: string) => {
+                        if (name.trim() === "") {
+                            return false;
+                        }
+                        let filepath = PluginInstances.configurationDirectory + "/" + name + ".json";
+                        PluginInstances.plugin.exportSettings(filepath);
+                        return true;
+                    });
+                    modal.open();
+                });
+            })
+            .addExtraButton(cb => {
+                cb.extraSettingsEl.insertAdjacentText('beforebegin', STRINGS.controls.import)
+                cb.setIcon("download");
+                cb.setTooltip(STRINGS.controls.importSettings);
+                cb.onClick(() => {
+                    const modal = new ImportConfigModal((filepath: string) => {
+                        if (filepath.trim() === "") {
+                            new Notice("Configuration name cannot be empty");
+                            return;
+                        }
+                        PluginInstances.plugin.importSettings(filepath).then(() => {
+                            this.display();
+                        });
+                    });
+                    modal.open();
+                });
+            });
     }
 
     private addNav(): void {

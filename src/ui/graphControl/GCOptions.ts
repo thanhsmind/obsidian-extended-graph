@@ -9,7 +9,8 @@ import {
     RendererNodeNamesSuggester,
     PinMultipleNodesModal,
     Pinner,
-    PluginInstances
+    PluginInstances,
+    ImportConfigModal
 } from "src/internal";
 import STRINGS from "src/Strings";
 
@@ -30,6 +31,7 @@ export class GCOptions extends GCSection {
     override display(enable: boolean) {
         this.treeItemChildren.replaceChildren();
 
+        if (enable) this.createImportConfig();
         this.createSaveForDefaultState();
         if (enable) this.createSaveForNormalState();
         this.createZoomOnNode();
@@ -37,6 +39,26 @@ export class GCOptions extends GCSection {
         if (enable) this.createButtonViewState();
         if (enable) this.createPinMultipleNodes();
         if (enable) this.createUnpinAllNodes();
+    }
+
+    private createImportConfig(): Setting {
+        return new Setting(this.treeItemChildren)
+            .setName(STRINGS.controls.importSettingsAndReload)
+            .addExtraButton(cb => {
+                cb.setIcon("settings");
+                cb.setTooltip(STRINGS.controls.importSettings);
+                cb.onClick(() => {
+                    const modal = new ImportConfigModal((filepath: string) => {
+                        if (filepath.trim() === "") {
+                            return;
+                        }
+                        PluginInstances.plugin.importSettings(filepath).then(() => {
+                            PluginInstances.graphsManager.resetPlugin(this.view);
+                        });
+                    });
+                    modal.open();
+                });
+            });
     }
 
     private createSaveForDefaultState(): Setting {
