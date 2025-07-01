@@ -12,7 +12,6 @@ import {
     getFolderStyle,
     getLinkID,
     getNodeTextStyle,
-    getOutlinkTypes,
     Graph,
     GraphInstances,
     LegendUI,

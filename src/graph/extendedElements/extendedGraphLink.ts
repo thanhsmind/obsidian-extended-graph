@@ -399,9 +399,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     override disable(): void {
         super.disable();
         this.extendedArrow?.unload();
-        if (this.instances.settings.curvedLinks) {
-            this.graphicsWrapper?.disconnect();
-        }
+        this.graphicsWrapper?.disconnect();
     }
 
 
