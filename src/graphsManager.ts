@@ -790,7 +790,7 @@ export class GraphsManager extends Component {
     resetPlugin(view: GraphView | LocalGraphView): void {
         this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
-        const stateID = instances?.statesUI.currentStateID;
+        const stateID = instances?.stateData?.id;
         const scale = instances?.renderer.targetScale ?? false;
         this.disablePlugin(view);
         this.enablePlugin(view, stateID);
@@ -830,7 +830,11 @@ export class GraphsManager extends Component {
             if (this.localGraphID) {
                 const localInstances = this.allInstances.get(this.localGraphID);
                 if (localInstances) {
-                    this.resetPlugin(localInstances.view);
+                    const instances = this.allInstances.get(localInstances.view.leaf.id);
+                    if (instances) {
+                        this.isResetting = true;
+                        instances.dispatcher.reloadLocalDispatcher();
+                    }
                 }
             }
             if (file) {

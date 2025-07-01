@@ -63,6 +63,7 @@ export class GraphEventsDispatcher extends Component {
     lastFilteringAction: LastFilteringAction | undefined;
     lastCheckboxContainerToggled: HTMLDivElement | undefined;
 
+    isLocalResetting: boolean = false;
     listenStage: boolean = true;
     coreArrowAlpha?: number;
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
@@ -150,10 +151,10 @@ export class GraphEventsDispatcher extends Component {
      * Called when the graph is ready.
      */
     onGraphReady(): void {
-        this.updateOpacityLayerColor();
-        this.bindStageEvents();
-
         try {
+            this.updateOpacityLayerColor();
+            this.bindStageEvents();
+
             this.createRenderCallbackProxy();
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
@@ -161,6 +162,16 @@ export class GraphEventsDispatcher extends Component {
             this.changeNodeOnClick();
             this.loadLastFilteringAction();
             this.registerEventsForLastFilteringAction();
+
+            this.preventDraggingPinnedNodes();
+            PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+            PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
+
+            // Make sure to render one frame in order to render every changes made by the plugin
+            if (this.instances.renderer.idleFrames > 60) {
+                this.instances.renderer.idleFrames = 60;
+                this.instances.renderer.queueRender();
+            }
         }
         catch (error) {
             this.listenStage = false;
@@ -172,21 +183,6 @@ export class GraphEventsDispatcher extends Component {
             PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
-
-        this.preventDraggingPinnedNodes();
-        if (!PluginInstances.graphsManager.isResetting || this.instances.type !== "localgraph") {
-            PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
-        }
-        else {
-            this.instances.engine.render();
-        }
-        // Make sure to render one frame in order to render every changes made by the plugin
-        if (this.instances.renderer.idleFrames > 60) {
-            this.instances.renderer.idleFrames = 60;
-            this.instances.renderer.queueRender();
-        }
-
-        PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
     }
 
     private updateOpacityLayerColor(): void {
@@ -429,6 +425,15 @@ export class GraphEventsDispatcher extends Component {
 
     private updateLastCheckboxToggled(ev: MouseEvent) {
         this.lastCheckboxContainerToggled = ev.currentTarget as HTMLDivElement;
+    }
+
+    // =============================== RESETTING ===============================
+
+    reloadLocalDispatcher(): void {
+        if (this.instances.type !== "localgraph") return;
+
+        this.instances.graph.unload();
+        this.instances.graph.load();
     }
 
     // =============================== UNLOADING ===============================
