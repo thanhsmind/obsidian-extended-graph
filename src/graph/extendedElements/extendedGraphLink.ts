@@ -45,7 +45,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         super.init();
         this.extendedArrow?.init();
         this.displayText();
-        if (this.isAnyManagerDisabled()) {
+        if (this.isEnabled && this.isAnyManagerDisabled()) {
             this.disable();
         }
     }

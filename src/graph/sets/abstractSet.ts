@@ -206,12 +206,13 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             }
 
             if (extendedElement.isAnyManagerDisabled()) {
-                extendedElement.disable();
+                if (extendedElement.isEnabled) {
+                    extendedElement.disable();
+                    elementsToDisable.push(id);
+                }
             }
-
-
-            if (extendedElement.isAnyManagerDisabled()) {
-                elementsToDisable.push(id);
+            else if (!extendedElement.isEnabled) {
+                extendedElement.enable();
             }
         }
         return elementsToDisable;
@@ -227,10 +228,12 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             }
 
             if (extendedElement.isAnyManagerDisabled()) {
-                extendedElement.disable();
+                if (extendedElement.isEnabled) {
+                    extendedElement.disable();
+                }
             }
-
-            if (!extendedElement.isAnyManagerDisabled()) {
+            else if (!extendedElement.isEnabled) {
+                extendedElement.enable();
                 elementsToEnable.push(id);
             }
         }
@@ -250,7 +253,9 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         this.disconnectedIDs[cause].add(id);
         this.connectedIDs.delete(id);
 
-        extendedElement.disable();
+        if (extendedElement.isEnabled) {
+            extendedElement.disable();
+        }
         extendedElement.coreElement.clearGraphics();
         this.coreCollection.remove(extendedElement.coreElement);
 
@@ -273,7 +278,9 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         if (!extendedElement.getCoreCollection().includes(extendedElement.coreElement))
             extendedElement.getCoreCollection().push(extendedElement.coreElement);
         extendedElement.coreElement.initGraphics();
-        extendedElement.enable();
+        if (!extendedElement.isEnabled) {
+            extendedElement.enable();
+        }
 
         return true;
     }

@@ -9,6 +9,7 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     coreElement: T;
     graphicsWrapper?: GraphicsWrapper;
     id: string;
+    isEnabled: boolean = true;
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -148,9 +149,12 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
         this.graphicsWrapper?.managerGraphicsMap?.get(key)?.toggleType(type, true);
     }
 
-    disable() { }
+    disable() {
+        this.isEnabled = false;
+    }
 
     enable() {
+        this.isEnabled = true;
         this.init();
     }
 }

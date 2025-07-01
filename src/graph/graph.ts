@@ -141,8 +141,9 @@ export class Graph extends Component {
         }
         else if (nodesToDisable.length > 0) {
             const links = [...this.instances.linksSet.extendedElementsMap.values()]
-                .filter(link => nodesToDisable.includes(link.coreElement.source.id)
-                    || nodesToDisable.includes(link.coreElement.target.id)
+                .filter(link => (nodesToDisable.includes(link.coreElement.source.id)
+                    || nodesToDisable.includes(link.coreElement.target.id))
+                    && link.isEnabled
                 );
             for (const link of links) {
                 link.disable();

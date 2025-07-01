@@ -855,7 +855,7 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesLogicChanged(key: string) {
         if (key === LINK_KEY) {
             for (const [id, extendedLink] of this.instances.linksSet.extendedElementsMap) {
-                if (extendedLink.isAnyManagerDisabled()) {
+                if (extendedLink.isEnabled && extendedLink.isAnyManagerDisabled()) {
                     extendedLink.disable();
                 }
             }
