@@ -15,6 +15,7 @@ import {
     Graph,
     GraphInstances,
     LegendUI,
+    lengthSegment,
     LINK_KEY,
     LinkText,
     Pinner,
@@ -696,7 +697,34 @@ export class GraphEventsDispatcher extends Component {
                 const link = this.instances.linksSet.extendedElementsMap.get(id);
                 if (!link) continue;
                 link.graphicsWrapper?.pixiElement.updateFrame();
-                link.texts?.forEach(text => text.updateFrame());
+                if (link.texts) {
+                    const linkLength = lengthSegment(
+                        1,
+                        link.coreElement.source.circle?.position ?? { x: 0, y: 0 },
+                        link.coreElement.target.circle?.position ?? { x: 0, y: 0 }
+                    );
+                    // const minSegmentLength = 110;
+                    const visibleTexts = link.texts.filter(text => this.instances.linksSet.managers.get(LINK_KEY)?.isActive(text.text.text));
+                    const segmentLength = linkLength / visibleTexts.length;
+                    let i = 0;
+                    for (const text of link.texts) {
+                        if (visibleTexts.contains(text)) {
+                            if (Math.floor((i - segmentLength) / 110) < Math.floor(i / 110)) {
+                                text.isRendered = true;
+                                text.updateFrame();
+                            }
+                            else {
+                                text.isRendered = false;
+                                text.visible = false;
+                            }
+                            i += segmentLength;
+                        }
+                        else {
+                            text.isRendered = false;
+                            text.visible = false;
+                        }
+                    }
+                }
             }
         }
     }

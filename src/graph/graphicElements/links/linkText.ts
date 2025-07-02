@@ -7,7 +7,7 @@ export class LinkText extends Container {
     text: Text;
     textColor?: TextStyleFill | null;
     onCurve: boolean;
-    onCustomLine: boolean;
+    isRendered: boolean;
     style: CSSLinkLabelStyle;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
@@ -54,7 +54,7 @@ export class LinkText extends Container {
     updateFrame() {
         if (this.destroyed) return;
 
-        if (!this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text)) {
+        if (!this.isRendered || !this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text)) {
             this.visible = false;
             return;
         }
