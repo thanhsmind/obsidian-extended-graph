@@ -35,6 +35,8 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                     let i = 0;
                     for (const type of activeTypes) {
                         const [bezierA, bezierB] = this.deCasteljau([P0_, P1, this.bezier.P2], 1 / (activeTypes.length - i));
+                        P0_ = bezierB[0];
+                        P1 = bezierB[1];
                         this.setTypePosition(type, bezierA[0], bezierA[1], bezierA[2]);
                         ++i;
                     }

@@ -53,6 +53,13 @@ export class LinkText extends Container {
 
     updateFrame() {
         if (this.destroyed) return;
+
+        if (!this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text)) {
+            this.visible = false;
+            return;
+        }
+        this.visible = true;
+
         if (this.extendedLink.coreElement.source.circle) {
             this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
         }
