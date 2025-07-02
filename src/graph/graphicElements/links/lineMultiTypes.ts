@@ -1,6 +1,6 @@
 import { IDestroyOptions, Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { ExtendedGraphLink, hex2int, InteractiveManager, LINK_KEY, LinkArrow, ManagerGraphics, pixiColor2int } from "src/internal";
+import { ExtendedGraphLink, hex2int, InteractiveManager, lengthSegment, LINK_KEY, LinkArrow, ManagerGraphics, pixiColor2int } from "src/internal";
 
 
 export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraphics {
@@ -12,6 +12,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     extendedLink: ExtendedGraphLink;
     arrow: LinkArrow | null;
     activeType: string | undefined;
+    typesPositions: Record<string, { position: { x: number, y: number }, length: number }> = {};
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
         super();
@@ -59,6 +60,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     }
 
     updateFrame(): void {
+        this.typesPositions = {};
         if (this.destroyed) return;
 
         this.clear();
@@ -99,6 +101,16 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             y: P2.y - f * target.getSize() * dir.y,
         }
 
+        const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
+        // If the link has a sibling link, we concatenate its active types
+        if (this.extendedLink.siblingLink) {
+            const siblingActiveTypes = [...this.extendedLink.siblingLink.types.get(LINK_KEY) ?? []].filter(type => this.manager.isActive(type));
+            for (const type of siblingActiveTypes) {
+                if (!activeTypes.includes(type)) {
+                    activeTypes.unshift(type);
+                }
+            }
+        }
 
         let arrowColor: Color.Color | undefined;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
@@ -106,26 +118,37 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
+            if (this.extendedLink.instances.settings.displayLinkTypeLabel) {
+                if (activeTypes.length === 1) {
+                    this.setTypePosition(activeTypes[0], P0_, P2_);
+                }
+                else if (activeTypes.length > 0) {
+                    const step = 1 / activeTypes.length;
+                    let i = 0;
+                    let previousPosition = P0_;
+                    for (const type of activeTypes) {
+                        const t = step * (1 + i);
+                        const newPosition = {
+                            x: (1 - t) * P0_.x + t * P2_.x,
+                            y: (1 - t) * P0_.y + t * P2_.y
+                        }
+                        this.setTypePosition(type, previousPosition, newPosition);
+                        previousPosition = newPosition;
+                        ++i;
+                    }
+                }
+            }
         }
         else {
             arrowColor = this.color;
-            const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
             // We draw the line only if the link has no sibling already drawn
             if (this.extendedLink.firstSibling || !this.extendedLink.siblingLink?.getActiveType(LINK_KEY)) {
-                // If the link has a sibling link, we concatenate its active types
-                if (this.extendedLink.siblingLink) {
-                    const siblingActiveTypes = [...this.extendedLink.siblingLink.types.get(LINK_KEY) ?? []].filter(type => this.manager.isActive(type));
-                    for (const type of siblingActiveTypes) {
-                        if (!activeTypes.includes(type)) {
-                            activeTypes.unshift(type);
-                        }
-                    }
-                }
                 // If there is only one active type, we draw a single line
                 if (activeTypes.length === 1) {
                     this.lineStyle({ width: thickness, color: "white" });
                     this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
                     this.tint = this.color;
+                    this.setTypePosition(activeTypes[0], P0_, P2_);
                 }
                 else if (activeTypes.length > 0) {
                     this.tint = "white";
@@ -133,14 +156,21 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                     const step = 1 / activeTypes.length;
                     let i = 0;
                     this.moveTo(P0_.x, P0_.y);
+                    let previousPosition = P0_;
                     for (const type of activeTypes) {
                         const t = step * (1 + i);
 
                         this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
+                        const newPosition = {
+                            x: (1 - t) * P0_.x + t * P2_.x,
+                            y: (1 - t) * P0_.y + t * P2_.y
+                        }
                         this.lineTo(
-                            (1 - t) * P0_.x + t * P2_.x,
-                            (1 - t) * P0_.y + t * P2_.y
+                            newPosition.x,
+                            newPosition.y
                         );
+                        this.setTypePosition(type, previousPosition, newPosition);
+                        previousPosition = newPosition;
                         ++i;
                     }
                     arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
@@ -176,6 +206,16 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             this.arrow?.destroy();
             this.arrow = null;
         }
+    }
+
+    private setTypePosition(type: string, A: { x: number, y: number }, B: { x: number, y: number }): void {
+        this.typesPositions[type] = {
+            position: {
+                x: (A.x + B.x) * 0.5,
+                y: (A.y + B.y) * 0.5,
+            },
+            length: lengthSegment(1, A, B)
+        };
     }
 
     override destroy(options?: IDestroyOptions): void {

@@ -75,3 +75,9 @@ export function lengthQuadratic(t: number, p0: Point, p1: Point, p2: Point): num
     );
     return L;
 }
+
+export function lengthSegment(t: number, p0: Point, p1: Point): number {
+    const dx = p1.x - p0.x;
+    const dy = p1.y - p0.y;
+    return Math.sqrt(dx * dx + dy * dy) * t;
+}

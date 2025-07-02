@@ -56,8 +56,12 @@ export class LinksSet extends AbstractSet<GraphLink> {
 
     onCSSChange(): void {
         this.extendedElementsMap.forEach(extendedLink => {
-            extendedLink.text?.computeCSSStyle();
-            extendedLink.text?.applyCSSChanges();
+            if (extendedLink.texts) {
+                for (const text of extendedLink.texts) {
+                    text.computeCSSStyle();
+                    text.applyCSSChanges();
+                }
+            }
         });
     }
 

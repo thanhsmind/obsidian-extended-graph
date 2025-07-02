@@ -696,7 +696,7 @@ export class GraphEventsDispatcher extends Component {
                 const link = this.instances.linksSet.extendedElementsMap.get(id);
                 if (!link) continue;
                 link.graphicsWrapper?.pixiElement.updateFrame();
-                link.text?.updateFrame();
+                link.texts?.forEach(text => text.updateFrame());
             }
         }
     }

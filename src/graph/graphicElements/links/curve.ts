@@ -24,8 +24,11 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
             P1: { x: 0, y: 0 }, // Control point, shifted along the normal
             P2: { x: 0, y: 0 } // Center of target
         };
+        this.additionalConstruct();
         this.updateValues();
     }
+
+    protected additionalConstruct(): void { };
 
     updateValues(): void {
         this.activeType = this.extendedLink.getActiveType(this.manager.name);

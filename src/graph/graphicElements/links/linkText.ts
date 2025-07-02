@@ -1,4 +1,4 @@
-import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LinkCurveGraphics, LinkLineMultiTypesGraphics } from "src/internal";
+import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
 import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export class LinkText extends Container {
@@ -14,10 +14,12 @@ export class LinkText extends Container {
         super();
         this.extendedLink = extendedLink;
 
-        this.computeCSSStyle();
+        this.text = new Text(text);
 
-        this.text = new Text(text, this.getTextStyle());
+        this.computeCSSStyle();
+        this.text.style = this.getTextStyle();
         this.text.resolution = 2;
+
         if (this.needsGraphicsBackground()) {
             this.background = new Graphics();
             this.addChild(this.background, this.text);
@@ -54,17 +56,25 @@ export class LinkText extends Container {
         if (this.extendedLink.coreElement.source.circle) {
             this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
         }
-        if (this.onCurve) {
-            const middle = (this.extendedLink.graphicsWrapper?.pixiElement as LinkCurveGraphics).getMiddlePoint();
-            this.position.set(middle.x, middle.y);
+        if (this.onCurve && this.extendedLink.graphicsWrapper) {
+            if (this.extendedLink.graphicsWrapper.pixiElement instanceof LinkCurveMultiTypesGraphics && this.text.text in this.extendedLink.graphicsWrapper.pixiElement.typesPositions) {
+                const middle = this.extendedLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
+                this.position.set(middle.x, middle.y);
+            }
+            else {
+                const middle = (this.extendedLink.graphicsWrapper?.pixiElement as LinkCurveGraphics).getMiddlePoint();
+                this.position.set(middle.x, middle.y);
+            }
         }
         else {
             this.visible = this.extendedLink.coreElement.line?.visible ?? false;
             if (this.visible) {
                 this.rotation = - this.parent.rotation;
-                if (this.extendedLink.graphicsWrapper?.pixiElement === this.parent) {
-                    this.position.x = ((this.extendedLink.coreElement.source.circle?.x ?? 0) + (this.extendedLink.coreElement.target.circle?.x ?? 0)) * 0.5;
-                    this.position.y = ((this.extendedLink.coreElement.source.circle?.y ?? 0) + (this.extendedLink.coreElement.target.circle?.y ?? 0)) * 0.5;
+                if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics && this.text.text in this.extendedLink.graphicsWrapper.pixiElement.typesPositions) {
+                    this.position = this.extendedLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
+                }
+                else if (this.extendedLink.siblingLink?.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics && this.text.text in this.extendedLink.siblingLink.graphicsWrapper.pixiElement.typesPositions) {
+                    this.position = this.extendedLink.siblingLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
                 }
                 else {
                     this.position.x = this.parent.width * 0.5;
@@ -97,7 +107,7 @@ export class LinkText extends Container {
 
     private getTextColor(): TextStyleFill {
         if (this.extendedLink.instances.settings.colorLinkTypeLabel) {
-            const color = this.extendedLink.getStrokeColor() ?? (this.onCurve ? undefined : this.extendedLink.siblingLink?.getStrokeColor());
+            const color = this.extendedLink.managers.get(LINK_KEY)?.getColor(this.text.text);
             if (color) return color;
         }
 

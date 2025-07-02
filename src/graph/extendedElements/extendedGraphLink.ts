@@ -25,7 +25,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     animatedDot?: AnimatedDotOnLine | AnimatedDotOnCurve;
     hasChangedArrowShape: boolean = false;
     extendedArrow?: ExtendedGraphArrow;
-    text?: LinkText;
+    texts?: LinkText[];
     siblingLink?: ExtendedGraphLink;
     firstSibling: boolean;
     container?: Container;
@@ -82,7 +82,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override unload(): void {
         super.unload();
-        this.removeText();
+        this.removeTexts();
     }
 
     // =============================== GRAPHICS ================================
@@ -91,7 +91,6 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
             && (this.instances.settings.curvedLinks || this.instances.settings.allowMultipleLinkTypes)) {
-            (this.id, "Needs graphics wrapper");
             return true; // Always for curved links
         }
         return false;
@@ -388,12 +387,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     override disableType(key: string, type: string): void {
         super.disableType(key, type);
-        this.updateDisplayedText();
+        this.updateDisplayedTexts();
     }
 
     override enableType(key: string, type: string): void {
         super.enableType(key, type);
-        this.updateDisplayedText();
+        this.updateDisplayedTexts();
     }
 
     override disable(): void {
@@ -407,47 +406,64 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
 
     private displayText() {
-        if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px) return;
-        const type = this.getDisplayedText();
-        if (!type) return;
-        if (this.text && !this.text.destroyed) {
-            this.text.setDisplayedText(type);
-        }
-        else {
-            this.text = new LinkText(type, this);
-        }
-        this.text.connect();
-        this.text.updateFrame();
-    }
+        if (!this.instances.settings.displayLinkTypeLabel || !this.coreElement.px?.renderable) return;
 
-    private getDisplayedText(): string | undefined {
-        let activeType = this.getActiveType(LINK_KEY);
-        if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-            if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
-                return;
+        if (!this.texts) {
+            this.texts = [];
+        }
+
+        const types = this.getDisplayedTexts();
+        for (const type of types) {
+            let text = this.texts.find(t => t.text.text === type);
+
+            // If the text is destroyed, remove it from the texts array
+            if (text?.destroyed) {
+                this.texts.remove(text);
             }
-            activeType = this.siblingLink?.getActiveType(LINK_KEY);
-            if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-                return;
+
+            // If the text is not found or destroyed, create a new one
+            if (!text || text.destroyed) {
+                text = new LinkText(type, this);
+                this.texts.push(text);
             }
+
+            text.setDisplayedText(type);
+            text.connect();
+            text.updateFrame();
         }
-        return activeType;
     }
 
-    private updateDisplayedText() {
-        if (!this.text) return;
-        let activeType = this.getDisplayedText();
-        if (!activeType) {
-            return;
+    private getDisplayedTexts(): string[] {
+        let types = [...this.getTypes(LINK_KEY)]
+            .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
+                && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
+        if (!(this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) && this.siblingLink) {
+            let siblingTypes = [...this.siblingLink.getTypes(LINK_KEY)]
+                .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
+                    && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
+            types = [...new Set([...types, ...siblingTypes])];
         }
-        this.text.setDisplayedText(activeType);
-        this.text.updateTextColor();
+        return types;
     }
 
-    private removeText() {
-        this.text?.removeFromParent();
-        this.text?.destroy();
-        this.text = undefined;
+    private updateDisplayedTexts() {
+        if (!this.texts) return;
+        let types = this.getDisplayedTexts();
+        for (const type of types) {
+            const text = this.texts.find(t => t.text.text === type);
+            if (!text) continue;
+            text.setDisplayedText(type);
+            text.updateTextColor();
+        }
+    }
+
+    private removeTexts() {
+        if (!this.texts) return;
+        for (const text of this.texts) {
+            text.removeFromParent();
+            text.destroy();
+        }
+        this.texts = undefined;
     }
 }
 

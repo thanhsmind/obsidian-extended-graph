@@ -1,10 +1,17 @@
 import { IDestroyOptions } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { hex2int, lengthQuadratic, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
+import { hex2int, lengthQuadratic, lengthSegment, LinkCurveGraphics, ManagerGraphics, pixiColor2int, quadratic, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
+    typesPositions: Record<string, { position: { x: number, y: number }, length: number }>;
+
+    protected additionalConstruct() {
+        this.typesPositions = {};
+    }
+
     updateFrame(): boolean {
+        this.typesPositions = {};
         if (!super.updateFrame()) return false;
 
         const renderer = this.extendedLink.coreElement.renderer;
@@ -12,24 +19,37 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         let arrowColor: Color.Color | undefined;
         const thickness = this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale;
 
-
         let P0_ = { x: this.bezier.P0.x, y: this.bezier.P0.y };
         let P1 = { x: this.bezier.P1.x, y: this.bezier.P1.y };
+        const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
 
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
             this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
+            if (this.extendedLink.instances.settings.displayLinkTypeLabel) {
+                if (activeTypes.length === 1) {
+                    this.setTypePosition(activeTypes[0], this.bezier.P0, this.bezier.P1, this.bezier.P2);
+                }
+                else if (activeTypes.length > 0) {
+                    let i = 0;
+                    for (const type of activeTypes) {
+                        const [bezierA, bezierB] = this.deCasteljau([P0_, P1, this.bezier.P2], 1 / (activeTypes.length - i));
+                        this.setTypePosition(type, bezierA[0], bezierA[1], bezierA[2]);
+                        ++i;
+                    }
+                }
+            }
         }
         else {
             arrowColor = this.color;
             // Compute one bezier curve for each type
             // with the De Casteljau algorithm, considering the full
             // curbe with control points P0_, P1, P2_.
-            const activeTypes = [...this.types].filter(type => this.manager.isActive(type));
             if (activeTypes.length === 1) {
                 this.lineStyle({ width: thickness, color: "white" });
                 this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
+                this.setTypePosition(activeTypes[0], this.bezier.P0, this.bezier.P1, this.bezier.P2);
                 this.tint = this.color;
             }
             else if (activeTypes.length > 0) {
@@ -44,6 +64,7 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                     // Draw bezierA
                     this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
                     this.quadraticCurveTo(bezierA[1].x, bezierA[1].y, bezierA[2].x, bezierA[2].y);
+                    this.setTypePosition(type, bezierA[0], bezierA[1], bezierA[2]);
                     ++i;
                 }
                 arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
@@ -63,6 +84,13 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         );
 
         return true;
+    }
+
+    private setTypePosition(type: string, P0: { x: number, y: number }, P1: { x: number, y: number }, P2: { x: number, y: number }): void {
+        this.typesPositions[type] = {
+            position: quadratic(0.5, P0, P1, P2),
+            length: lengthSegment(1, P0, P2)
+        };
     }
 
     private deCasteljau(points: { x: number, y: number }[], t: number): { x: number, y: number }[][] {
