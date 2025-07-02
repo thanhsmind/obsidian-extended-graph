@@ -324,9 +324,9 @@
         "svgCopied": "已将 SVG 复制到剪贴板"
     },
     "query": {
-        "AND": "完全匹配",
+        "AND": "全部匹配",
         "ANDFilterDesc": "仅保留具有所有选定值的节点",
-        "OR": "部分匹配",
+        "OR": "任意匹配",
         "ORFilterDesc": "保留具有至少一个选定值的节点",
         "combinationLogic": "组合逻辑",
         "editShapeQuery": "编辑形状查询",
