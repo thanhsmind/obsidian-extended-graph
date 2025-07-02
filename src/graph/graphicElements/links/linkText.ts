@@ -181,7 +181,7 @@ export class LinkText extends Container {
             this.addChildAt(this.background, 0);
         }
         this.background.clear();
-        const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.getStrokeColor() ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
+        const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.managers.get(LINK_KEY)?.getColor(this.text.text) ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
         if (this.style.backgroundColor.a > 0) {
             backgroundColor = colorAttributes2hex(this.style.backgroundColor);
         }

@@ -38,10 +38,15 @@ export class SettingBeta extends SettingsSection {
                     PluginInstances.plugin.saveSettings();
                 }))
             .addSearch(cb => {
+                cb.setValue(PluginInstances.settings.cssSnippetFilename);
                 new CSSSnippetsSuggester(cb.inputEl, (value: string) => {
                     PluginInstances.settings.cssSnippetFilename = value;
                     PluginInstances.plugin.saveSettings();
                 });
+                cb.onChange((value) => {
+                    PluginInstances.settings.cssSnippetFilename = value;
+                    PluginInstances.plugin.saveSettings();
+                })
             });
 
         this.elementsBody.push(setting.settingEl);
