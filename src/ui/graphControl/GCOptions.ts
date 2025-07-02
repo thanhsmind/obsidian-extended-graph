@@ -75,7 +75,8 @@ export class GCOptions extends GCSection {
     private createSaveForNormalState(): Setting {
         return new Setting(this.treeItemChildren)
             .setName(t("states.saveForNormalState"))
-            .setTooltip(t("states.saveForNormalStateDesc"))
+            .setDesc(t("states.saveForNormalStateDesc"))
+            .setTooltip(t("states.saveForNormalStateTooltip"))
             .addExtraButton(cb => {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");

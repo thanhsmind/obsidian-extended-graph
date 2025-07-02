@@ -58,7 +58,7 @@
         "show": "显示",
         "toggle": "切换",
         "toggleAll": "切换所有文件夹的开关",
-        "toggleAllWithAtLeastOneNode": "切换至少含有一个节点的文件夹的开关",
+        "toggleAllWithAtLeastOneNode": "个节点的文件夹的开关",
         "rows": "行",
         "yes": "是"
     },
@@ -371,7 +371,8 @@
         "saveForDefaultState": "保存为默认状态",
         "saveForDefaultStateDesc": "将当前设置保存为默认状态设置",
         "saveForNormalState": "保存为正常状态",
-        "saveForNormalStateDesc": "将当前设置保存为正常状态设置 (无插件启用)",
+        "saveForNormalStateDesc": "(无插件启用)",
+        "saveForNormalStateTooltip": "将当前设置保存为正常状态设置",
         "showGraphState": "显示图谱状态",
         "startingState": "初始状态",
         "startingStateDesc": "选择用于初始化插件的状态",

@@ -558,6 +558,10 @@ body {
     background-color: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.2);
 }
 
+.graph-control-section:is(.mod-extended-graph-options, .mod-extended-graph-folders) .setting-item .setting-item-info {
+    align-items: flex-start;
+    flex-direction: column;
+}
 
 .graph-controls:not(.is-close) .separator-exended-graph {
     display: none;

@@ -50,7 +50,8 @@ export class GCFolders extends GCSection implements InteractiveUI {
 
     private addToggleAllWithAtLeastOneNodeButton(): void {
         new Setting(this.treeItemChildren)
-            .setName(t("controls.toggleAllWithAtLeastOneNode"))
+            .setName(t("controls.toggleAll"))
+            .setDesc(t("controls.toggleAllWithMoreThanOneNode"))
             .addExtraButton(cb => {
                 cb.setIcon("x")
                     .setTooltip(t("controls.disableAll") + ": " + t("plugin.folder"))
