@@ -89,17 +89,22 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private addCommands() {
+        const getActiveGraphView = (): GraphView | LocalGraphView | undefined => {
+            const itemView = this.app.workspace.getActiveViewOfType(ItemView);
+            if (itemView
+                && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")) {
+                return itemView as GraphView | LocalGraphView;
+            }
+        }
+
         this.addCommand({
             id: 'enable-in-graph-view',
             name: t("controls.enableInGraphView"),
             checkCallback: (checking: boolean) => {
-                // Conditions to check
-                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
-                if (itemView
-                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
-                    && !PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                const graphView = getActiveGraphView();
+                if (graphView && !PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                     if (!checking) {
-                        PluginInstances.graphsManager.enablePlugin(itemView as GraphView | LocalGraphView);
+                        PluginInstances.graphsManager.enablePlugin(graphView);
                     }
                     return true;
                 }
@@ -110,13 +115,10 @@ export default class ExtendedGraphPlugin extends Plugin {
             id: 'disable-in-graph-view',
             name: t("controls.disableInGraphView"),
             checkCallback: (checking: boolean) => {
-                // Conditions to check
-                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
-                if (itemView
-                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
-                    && PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                     if (!checking) {
-                        PluginInstances.graphsManager.disablePlugin(itemView as GraphView | LocalGraphView);
+                        PluginInstances.graphsManager.disablePlugin(graphView);
                     }
                     return true;
                 }
@@ -128,12 +130,134 @@ export default class ExtendedGraphPlugin extends Plugin {
             name: t("controls.resetInGraphView"),
             checkCallback: (checking: boolean) => {
                 // Conditions to check
-                const itemView = this.app.workspace.getActiveViewOfType(ItemView);
-                if (itemView
-                    && (itemView.getViewType() === "graph" || itemView.getViewType() === "localgraph")
-                    && PluginInstances.graphsManager.isPluginAlreadyEnabled(itemView as GraphView | LocalGraphView)) {
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                     if (!checking) {
-                        PluginInstances.graphsManager.resetPlugin(itemView as GraphView | LocalGraphView);
+                        PluginInstances.graphsManager.resetPlugin(graphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'save-for-default-state',
+            name: t("states.saveForDefaultState"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView) {
+                    if (!checking) {
+                        PluginInstances.statesManager.saveForDefaultState(graphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'save-for-normal-state',
+            name: t("states.saveForNormalState") + " " + t("states.saveForNormalStateDesc"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        PluginInstances.statesManager.saveForNormalState(graphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'copy-svg-screenshot',
+            name: t("features.svgScreenshotCopy"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView) {
+                    if (!checking) {
+                        PluginInstances.graphsManager.getSVGScreenshot(graphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'show-graph-state',
+            name: t("states.showGraphState"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        PluginInstances.statesManager.showGraphState(graphView);
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'enable-all-folders',
+            name: `${t("plugin.folders")}: ${t("controls.showAll")}`,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                        instances?.foldersSet?.enableAll();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'enable-more-than-one-node-folders',
+            name: `${t("plugin.folders")}: ${t("controls.showAll")} (${t("controls.toggleAllWithMoreThanOneNode")})`,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                        instances?.foldersSet?.enableAllWithAtLeastOneNode();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'disable-all-folders',
+            name: `${t("plugin.folders")}: ${t("controls.hideAll")}`,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                        instances?.foldersSet?.disableAll();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'disable-more-than-one-node-folders',
+            name: `${t("plugin.folders")}: ${t("controls.hideAll")} (${t("controls.toggleAllWithMoreThanOneNode")})`,
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                        instances?.foldersSet?.disableAllWithAtLeastOneNode();
                     }
                     return true;
                 }

@@ -81,7 +81,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
                 cb.onClick(() => {
-                    this.saveForNormalState();
+                    PluginInstances.statesManager.saveForNormalState(this.view);
                 });
             });
     }
@@ -93,7 +93,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("screenshot-button");
                 setIcon(cb.extraSettingsEl, "image");
                 cb.onClick(() => {
-                    this.getSVGScreenshot();
+                    PluginInstances.graphsManager.getSVGScreenshot(this.view);
                 });
             });
     }
@@ -115,10 +115,7 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
-                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
-                    if (!instances) return;
-                    const modal = new GraphStateModal(instances);
-                    modal.open();
+                    PluginInstances.statesManager.showGraphState(this.view);
                 })
             })
     }
@@ -152,24 +149,5 @@ export class GCOptions extends GCSection {
                     pinner.unpinAllNodes();
                 })
             });
-    }
-
-    // =============================== CALLBACKS ===============================
-
-    private saveForNormalState() {
-        const instance = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
-
-        const engine = getEngine(this.view);
-        if (!engine) {
-            return;
-        }
-        instance.options = engine.getOptions();
-        instance.saveOptions();
-        PluginInstances.graphsManager.backupOptions(this.view);
-        new Notice(t("notices.normalStateSave"));
-    }
-
-    private getSVGScreenshot() {
-        PluginInstances.graphsManager.getSVGScreenshot(this.view);
     }
 }

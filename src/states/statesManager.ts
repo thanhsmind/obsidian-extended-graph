@@ -1,4 +1,4 @@
-import { GraphView, LocalGraphView } from "obsidian-typings";
+import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
 import {
     DEFAULT_STATE_ID,
     EngineOptions,
@@ -7,6 +7,7 @@ import {
     GraphInstances,
     GraphState,
     GraphStateData,
+    GraphStateModal,
     InteractiveManager,
     InteractiveUI,
     PluginInstances,
@@ -172,6 +173,19 @@ export class StatesManager {
         await this.onStateNeedsSaving(stateData);
     }
 
+    saveForNormalState(view: GraphView | LocalGraphView) {
+        const coreGraph = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
+
+        const engine = getEngine(view);
+        if (!engine) {
+            return;
+        }
+        coreGraph.options = engine.getOptions();
+        coreGraph.saveOptions();
+        PluginInstances.graphsManager.backupOptions(view);
+        new Notice(t("notices.normalStateSave"));
+    }
+
     // ============================= UPDATE STATE ==============================
 
     private updateStateArray(stateData: GraphStateData): void {
@@ -215,5 +229,14 @@ export class StatesManager {
             new Notice(`${t("plugin.name")}: ${t("notices.stateDeleted")} (${state.name})`);
             this.updateAllStates();
         });
+    }
+
+    // ============================= DISPLAY STATE =============================
+
+    showGraphState(view: GraphView | LocalGraphView): void {
+        const instances = PluginInstances.graphsManager.allInstances.get(view.leaf.id);
+        if (!instances) return;
+        const modal = new GraphStateModal(instances);
+        modal.open();
     }
 }

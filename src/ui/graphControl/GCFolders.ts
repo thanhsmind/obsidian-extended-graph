@@ -36,14 +36,14 @@ export class GCFolders extends GCSection implements InteractiveUI {
                 cb.setIcon("x")
                     .setTooltip(t("controls.disableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
-                        this.disableAll();
+                        this.instances?.foldersSet?.disableAll();
                     });
             })
             .addExtraButton(cb => {
                 cb.setIcon("check-check")
                     .setTooltip(t("controls.enableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
-                        this.enableAll();
+                        this.instances?.foldersSet?.enableAll();
                     });
             });
     }
@@ -56,14 +56,14 @@ export class GCFolders extends GCSection implements InteractiveUI {
                 cb.setIcon("x")
                     .setTooltip(t("controls.disableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
-                        this.disableAllWithAtLeastOneNode();
+                        this.instances?.foldersSet?.disableAllWithAtLeastOneNode();
                     });
             })
             .addExtraButton(cb => {
                 cb.setIcon("check-check")
                     .setTooltip(t("controls.enableAll") + ": " + t("plugin.folder"))
                     .onClick(() => {
-                        this.enableAllWithAtLeastOneNode();
+                        this.instances?.foldersSet?.enableAllWithAtLeastOneNode();
                     });
             });
 
@@ -116,42 +116,6 @@ export class GCFolders extends GCSection implements InteractiveUI {
         else {
             this.foldersManager.enable([path]);
         }
-    }
-
-    enableAll(): void {
-        this.foldersManager.enable(this.foldersManager.getTypes());
-        this.enableAllUI(FOLDER_KEY);
-    }
-
-    disableAll(): void {
-        this.foldersManager.disable(this.foldersManager.getTypes());
-        this.disableAllUI(FOLDER_KEY);
-    }
-
-    enableAllWithAtLeastOneNode(): void {
-        const paths = this.foldersManager.getTypes();
-        const needToBeEnabled: string[] = [];
-        for (const path of paths) {
-            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
-                needToBeEnabled.push(path);
-                this.enableUI(FOLDER_KEY, path);
-            }
-        }
-
-        this.foldersManager.enable(needToBeEnabled);
-    }
-
-    disableAllWithAtLeastOneNode(): void {
-        const paths = this.foldersManager.getTypes();
-        const needToBeDisabled: string[] = [];
-        for (const path of paths) {
-            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
-                needToBeDisabled.push(path);
-                this.disableUI(FOLDER_KEY, path);
-            }
-        }
-
-        this.foldersManager.disable(needToBeDisabled);
     }
 
     // ============================== UI CONTROL ===============================

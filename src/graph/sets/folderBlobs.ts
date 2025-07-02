@@ -338,4 +338,56 @@ export class FoldersSet {
 
         return folder ? this.getNodesInFolder(folder).length > 1 : false;
     }
+
+    // ================================ TOGGLE =================================
+
+
+
+    enableAll(): void {
+        const foldersManager = this.managers.get(FOLDER_KEY);
+        if (!foldersManager) return;
+
+        foldersManager.enable(foldersManager.getTypes());
+        this.instances.foldersUI?.enableAllUI(FOLDER_KEY);
+    }
+
+    disableAll(): void {
+        const foldersManager = this.managers.get(FOLDER_KEY);
+        if (!foldersManager) return;
+
+        foldersManager.disable(foldersManager.getTypes());
+        this.instances.foldersUI?.disableAllUI(FOLDER_KEY);
+    }
+
+    enableAllWithAtLeastOneNode(): void {
+        const foldersManager = this.managers.get(FOLDER_KEY);
+        if (!foldersManager) return;
+
+        const paths = foldersManager.getTypes();
+        const needToBeEnabled: string[] = [];
+        for (const path of paths) {
+            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
+                needToBeEnabled.push(path);
+                this.instances.foldersUI?.enableUI(FOLDER_KEY, path);
+            }
+        }
+
+        foldersManager.enable(needToBeEnabled);
+    }
+
+    disableAllWithAtLeastOneNode(): void {
+        const foldersManager = this.managers.get(FOLDER_KEY);
+        if (!foldersManager) return;
+
+        const paths = foldersManager.getTypes();
+        const needToBeDisabled: string[] = [];
+        for (const path of paths) {
+            if (this.instances?.foldersSet?.hasMoreThanOneNode(FOLDER_KEY, path)) {
+                needToBeDisabled.push(path);
+                this.instances.foldersUI?.disableUI(FOLDER_KEY, path);
+            }
+        }
+
+        foldersManager.disable(needToBeDisabled);
+    }
 }
