@@ -47,7 +47,6 @@ export class StatesManager {
         if (!stateData) return;
 
         stateData = this.validateStateData(stateData);
-        if (!stateData) return;
 
         instances.stateData = stateData;
 

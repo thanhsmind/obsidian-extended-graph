@@ -11,7 +11,7 @@ import {
 export class GraphState {
     data = new GraphStateData();
 
-    constructor(name: string, data?: GraphStateData) {
+    constructor(name: string) {
         this.data.name = name;
     }
 
@@ -104,6 +104,12 @@ export class GraphState {
         if (!this.data.engineOptions) {
             this.data.engineOptions = new EngineOptions();
             hasChanged = true;
+        }
+        else {
+            if (this.data.engineOptions.search === undefined) {
+                this.data.engineOptions.search = "";
+                hasChanged = true;
+            }
         }
 
         if (!this.data.hiddenLegendRows) {

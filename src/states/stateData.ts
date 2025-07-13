@@ -3,6 +3,7 @@ import { CombinationLogic, FOLDER_KEY, GraphInstances, LINK_KEY, TAG_KEY } from 
 
 export class EngineOptions implements GraphPluginInstanceOptions {
     colorGroups?: GraphColorGroup[] = [];
+    search?: string = "";
     // filterOptions
     hideUnresolved?: boolean = !1;
     showAttachments?: boolean = !1;
@@ -23,9 +24,10 @@ export class EngineOptions implements GraphPluginInstanceOptions {
     linkStrength?: number = 1;
     repelStrength?: number = 10;
 
-    constructor(engineOptions?: EngineOptions) {
+    constructor(engineOptions?: GraphPluginInstanceOptions) {
         if (engineOptions) {
             this.colorGroups = engineOptions.colorGroups;
+            this.search = engineOptions.search;
             this.hideUnresolved = engineOptions.hideUnresolved;
             this.showAttachments = engineOptions.showAttachments;
             this.showOrphans = engineOptions.showOrphans;

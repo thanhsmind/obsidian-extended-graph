@@ -892,7 +892,7 @@ export class GraphsManager extends Component {
         if (!engine) return;
         const options = structuredClone(engine.getOptions());
         this.optionsBackup.set(view.leaf.id, options);
-        delete options.search;
+        //delete options.search;
         this.lastBackup = view.leaf.id;
         PluginInstances.settings.backupGraphOptions = options;
         PluginInstances.plugin.saveSettings();
@@ -903,6 +903,7 @@ export class GraphsManager extends Component {
         const corePluginInstance = this.getCorePluginInstance();
         if (corePluginInstance && backup) {
             corePluginInstance.options.colorGroups = backup.colorGroups;
+            corePluginInstance.options.search = backup.search;
             corePluginInstance.options.hideUnresolved = backup.hideUnresolved;
             corePluginInstance.options.showAttachments = backup.showAttachments;
             corePluginInstance.options.showOrphans = backup.showOrphans;
