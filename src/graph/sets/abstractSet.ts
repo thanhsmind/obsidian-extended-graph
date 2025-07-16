@@ -74,10 +74,8 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             isElementMissing = true;
 
             let types: Set<string> = new Set<string>();
-            if ((element as GraphNode).type === "tag") {
-                if (key === TAG_KEY) {
-                    types.add((element as GraphNode).id.replace("#", ""));
-                }
+            if ((element as GraphNode).type === "tag" && key === TAG_KEY) {
+                types.add((element as GraphNode).id.replace("#", ""));
             }
             else if (file && file instanceof TFile) {
                 types = this.getTypesFromFile(key, element, file);

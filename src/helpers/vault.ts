@@ -183,17 +183,30 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
         if (key === "file" || settings.imageProperties.contains(key)) continue;
         if (value === null || value === undefined || value === '') continue;
 
+        // Check if the key is a canonicalized version of another key
+        if (key === canonicalizeVarName(key) && Object.keys(sourcePage).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
+            continue;
+        }
+
         if (value && (typeof value === "object") && ("path" in value)) {
             const targetID = (value as { path: string }).path;
-            if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-            linkTypes.get(targetID)?.add(canonicalizeVarName(key));
+            let targetTypes = linkTypes.get(targetID);
+            if (!targetTypes) {
+                targetTypes = new Set<string>();
+                linkTypes.set(targetID, targetTypes);
+            }
+            targetTypes.add(key);
         }
         else if (Array.isArray(value)) {
             for (const l of value) {
                 if (l && (typeof l === "object") && ("path" in l)) {
                     const targetID = (l as { path: string }).path;
-                    if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
-                    linkTypes.get(targetID)?.add(canonicalizeVarName(key));
+                    let targetTypes = linkTypes.get(targetID);
+                    if (!targetTypes) {
+                        targetTypes = new Set<string>();
+                        linkTypes.set(targetID, targetTypes);
+                    }
+                    targetTypes.add(key);
                 }
             }
         }
@@ -204,7 +217,7 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
 function getOutlinkTypesWithFrontmatter(file: TFile): Map<string, Set<string>> {
     const linkTypes = new Map<string, Set<string>>();
     const frontmatterLinks = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
-    if (frontmatterLinks) {
+    if (frontmatterLinks && frontmatterLinks.length > 0) {
         // For each link in the frontmatters, check if target matches
         for (const linkCache of frontmatterLinks) {
             const linkType = linkCache.key.split('.')[0];
