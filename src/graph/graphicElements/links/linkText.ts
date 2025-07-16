@@ -1,12 +1,11 @@
 import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
 import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
-export class LinkText extends Container {
+export abstract class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
     background: Graphics | Sprite;
     text: Text;
     textColor?: TextStyleFill | null;
-    onCurve: boolean;
     isRendered: boolean;
     style: CSSLinkLabelStyle;
 
@@ -36,59 +35,22 @@ export class LinkText extends Container {
         return (this.style.borderWidth > 0 && this.style.borderColor.a > 0) || this.style.radius > 0;
     }
 
-    connect() {
-        if (this.destroyed) return;
-        if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
-            this.onCurve = true;
-            this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
-            this.alpha = 2;
-        }
-        else if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics) {
-            this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
-        }
-        else if (this.extendedLink.coreElement.px) {
-            this.extendedLink.coreElement.px.addChild(this);
-        }
-    }
+    abstract connect(): void;
 
-    updateFrame() {
-        if (this.destroyed) return;
+    updateFrame(): boolean {
+        if (this.destroyed) return false;
 
         if (!this.isRendered || !this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text) || !this.parent) {
             this.visible = false;
-            return;
+            return false;
         }
         this.visible = true;
 
         if (this.extendedLink.coreElement.source.circle) {
             this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
         }
-        if (this.onCurve && this.extendedLink.graphicsWrapper) {
-            if (this.extendedLink.graphicsWrapper.pixiElement instanceof LinkCurveMultiTypesGraphics && this.text.text in this.extendedLink.graphicsWrapper.pixiElement.typesPositions) {
-                const middle = this.extendedLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
-                this.position.set(middle.x, middle.y);
-            }
-            else {
-                const middle = (this.extendedLink.graphicsWrapper?.pixiElement as LinkCurveGraphics).getMiddlePoint();
-                this.position.set(middle.x, middle.y);
-            }
-        }
-        else {
-            this.visible = this.extendedLink.coreElement.line?.visible ?? false;
-            if (this.visible) {
-                this.rotation = - this.parent.rotation;
-                if (this.extendedLink.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics && this.text.text in this.extendedLink.graphicsWrapper.pixiElement.typesPositions) {
-                    this.position = this.extendedLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
-                }
-                else if (this.extendedLink.siblingLink?.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics && this.text.text in this.extendedLink.siblingLink.graphicsWrapper.pixiElement.typesPositions) {
-                    this.position = this.extendedLink.siblingLink.graphicsWrapper.pixiElement.typesPositions[this.text.text].position;
-                }
-                else {
-                    this.position.x = this.parent.width * 0.5;
-                }
-                this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
-            }
-        }
+
+        return true;
     }
 
     computeCSSStyle() {
@@ -207,5 +169,84 @@ export class LinkText extends Container {
         }
         this.background.width = this.getWidth();
         this.background.height = this.getHeight();
+    }
+}
+
+abstract class CurvedLinkText extends LinkText {
+    override connect() {
+        if (this.destroyed || !this.extendedLink.graphicsWrapper) return;
+        this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
+        this.alpha = 2;
+    }
+}
+
+export class LinkTextCurveMultiTypes extends CurvedLinkText {
+    override updateFrame(): boolean {
+        if (!super.updateFrame() || !this.extendedLink.graphicsWrapper) return false;
+
+        const parent = this.extendedLink.graphicsWrapper.pixiElement as LinkCurveMultiTypesGraphics;
+        if (this.text.text in parent.typesPositions) {
+            const middle = parent.typesPositions[this.text.text].position;
+            this.position.set(middle.x, middle.y);
+            return true;
+        }
+        return false;
+    }
+}
+
+export class LinkTextCurveSingleType extends CurvedLinkText {
+    override updateFrame(): boolean {
+        if (!super.updateFrame() || !this.extendedLink.graphicsWrapper) return false;
+
+        const middle = (this.extendedLink.graphicsWrapper.pixiElement as LinkCurveGraphics).getMiddlePoint();
+        this.position.set(middle.x, middle.y);
+        return true;
+    }
+}
+
+abstract class LineLinkText extends LinkText {
+    override updateFrame(): boolean {
+        if (!super.updateFrame()) return false;
+
+        this.visible = this.extendedLink.coreElement.line?.visible ?? false;
+        if (this.visible) {
+            this.rotation = - this.parent.rotation;
+            this.position = this.getPosition();
+            this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
+        }
+
+        return true;
+    }
+
+    protected abstract getPosition(): { x: number, y: number };
+}
+
+export class LinkTextLineMultiTypes extends LineLinkText {
+    override connect() {
+        if (this.destroyed) return;
+        this.extendedLink.graphicsWrapper?.pixiElement.addChild(this);
+    }
+
+    protected override getPosition(): { x: number, y: number } {
+        if (this.extendedLink.graphicsWrapper && this.text.text in (this.extendedLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions) {
+            return (this.extendedLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions[this.text.text].position;
+        }
+        else if (this.extendedLink.siblingLink?.graphicsWrapper && this.text.text in (this.extendedLink.siblingLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions) {
+            return (this.extendedLink.siblingLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions[this.text.text].position;
+        }
+        else {
+            return { x: this.parent.width * 0.5, y: 0 };
+        }
+    }
+}
+
+export class LinkTextLineSingleType extends LineLinkText {
+    override connect() {
+        if (this.destroyed) return;
+        this.extendedLink.coreElement.px?.addChild(this);
+    }
+
+    protected override getPosition(): { x: number, y: number } {
+        return { x: this.parent.width * 0.5, y: 0 };
     }
 }

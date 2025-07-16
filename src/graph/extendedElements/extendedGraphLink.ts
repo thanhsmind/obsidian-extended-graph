@@ -12,10 +12,16 @@ import {
     LineLinkGraphicsWrapper,
     LINK_KEY,
     LinkCurveGraphics,
+    LinkCurveMultiTypesGraphics,
+    LinkCurveSingleTypeGraphics,
     LinkLineMultiTypesGraphics,
     LinkText,
+    LinkTextCurveMultiTypes,
     PluginInstances,
-    SettingQuery
+    SettingQuery,
+    LinkTextCurveSingleType,
+    LinkTextLineMultiTypes,
+    LinkTextLineSingleType
 } from "src/internal";
 
 
@@ -423,7 +429,18 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
             // If the text is not found or destroyed, create a new one
             if (!text || text.destroyed) {
-                text = new LinkText(type, this);
+                if (this.graphicsWrapper?.pixiElement instanceof LinkCurveMultiTypesGraphics) {
+                    text = new LinkTextCurveMultiTypes(type, this);
+                }
+                else if (this.graphicsWrapper?.pixiElement instanceof LinkCurveSingleTypeGraphics) {
+                    text = new LinkTextCurveSingleType(type, this);
+                }
+                else if (this.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics) {
+                    text = new LinkTextLineMultiTypes(type, this);
+                }
+                else {
+                    text = new LinkTextLineSingleType(type, this);
+                }
                 this.texts.push(text);
             }
 
