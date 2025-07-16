@@ -434,26 +434,53 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     private getDisplayedTexts(): string[] {
-        let types = [...this.getTypes(LINK_KEY)]
-            .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
-                && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
-        if (!(this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) && this.siblingLink) {
-            let siblingTypes = [...this.siblingLink.getTypes(LINK_KEY)]
+        // If we can display multiple types, we can also display multiple labels
+        if (this.instances.settings.allowMultipleLinkTypes) {
+            let types = [...this.getTypes(LINK_KEY)]
                 .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
                     && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
-            types = [...new Set([...types, ...siblingTypes])];
+            if (!(this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) && this.siblingLink) {
+                let siblingTypes = [...this.siblingLink.getTypes(LINK_KEY)]
+                    .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
+                        && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
+                types = [...new Set([...types, ...siblingTypes])];
+            }
+            return types;
         }
-        return types;
+        // Otherwise, we just display the currently active type
+        else {
+            let activeType = this.getActiveType(LINK_KEY);
+            if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
+                if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
+                    return [];
+                }
+
+                activeType = this.siblingLink?.getActiveType(LINK_KEY);
+                if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
+                    return [];
+                }
+            }
+            return [activeType];
+        }
     }
 
     private updateDisplayedTexts() {
         if (!this.texts) return;
-        let types = this.getDisplayedTexts();
-        for (const type of types) {
-            const text = this.texts.find(t => t.text.text === type);
-            if (!text) continue;
-            text.setDisplayedText(type);
-            text.updateTextColor();
+        let activeTypes = this.getDisplayedTexts();
+        if (this.instances.settings.allowMultipleLinkTypes) {
+            for (const type of activeTypes) {
+                let text = this.texts.find(t => t.text.text === type);
+                if (!text) {
+                    continue;
+                }
+                text.setDisplayedText(type);
+                text.updateTextColor();
+            }
+        }
+        else {
+            if (activeTypes.length === 0) return;
+            this.texts[0].setDisplayedText(activeTypes[0]);
+            this.texts[0].applyCSSChanges();
         }
     }
 

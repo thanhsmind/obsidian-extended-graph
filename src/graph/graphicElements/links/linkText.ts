@@ -54,7 +54,7 @@ export class LinkText extends Container {
     updateFrame() {
         if (this.destroyed) return;
 
-        if (!this.isRendered || !this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text)) {
+        if (!this.isRendered || !this.extendedLink.managers.get(LINK_KEY)?.isActive(this.text.text) || !this.parent) {
             this.visible = false;
             return;
         }
