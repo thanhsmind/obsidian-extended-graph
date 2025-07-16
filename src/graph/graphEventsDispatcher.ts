@@ -1,5 +1,5 @@
 import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
-import { GraphData, GraphLink } from "obsidian-typings";
+import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import {
@@ -67,6 +67,7 @@ export class GraphEventsDispatcher extends Component {
     isLocalResetting: boolean = false;
     listenStage: boolean = true;
     coreArrowAlpha?: number;
+    coreLineHighlightColor?: GraphColorAttributes;
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreSetData: (data: GraphData) => void;
@@ -160,6 +161,7 @@ export class GraphEventsDispatcher extends Component {
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
             this.changeArrowAlpha();
+            this.removeLineHighlight();
             this.changeNodeOnClick();
             this.loadLastFilteringAction();
             this.registerEventsForLastFilteringAction();
@@ -278,6 +280,12 @@ export class GraphEventsDispatcher extends Component {
 
         this.coreArrowAlpha = this.instances.renderer.colors.arrow.a;
         this.instances.renderer.colors.arrow.a = 1;
+    }
+
+    private removeLineHighlight(): void {
+        if (!this.instances.settings.noLineHighlight) return;
+        this.coreLineHighlightColor = this.instances.renderer.colors.lineHighlight;
+        this.instances.renderer.colors.lineHighlight = this.instances.renderer.colors.line;
     }
 
     private changeNodeOnClick(): void {
@@ -452,6 +460,7 @@ export class GraphEventsDispatcher extends Component {
         this.instances.foldersUI?.destroy();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
         this.restoreArrowAlpha();
+        this.restoreLineHighlight();
         this.restoreOnNodeClick();
         this.unregisterEventsForLastFilteringAction();
         this.instances.engine.render();
@@ -468,6 +477,13 @@ export class GraphEventsDispatcher extends Component {
         if (this.coreArrowAlpha !== undefined) {
             this.instances.renderer.colors.arrow.a = this.coreArrowAlpha;
             this.coreArrowAlpha = undefined;
+        }
+    }
+
+    private restoreLineHighlight(): void {
+        if (this.coreLineHighlightColor !== undefined) {
+            this.instances.renderer.colors.lineHighlight = this.coreLineHighlightColor;
+            this.coreLineHighlightColor = undefined;
         }
     }
 

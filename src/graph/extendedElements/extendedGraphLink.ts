@@ -228,6 +228,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     isHighlighted(): boolean {
+        if (this.instances.settings.noLineHighlight) return false;
         return this.coreElement.source === this.coreElement.renderer.getHighlightNode() || this.coreElement.target === this.coreElement.renderer.getHighlightNode();
     }
 

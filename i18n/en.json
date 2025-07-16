@@ -248,6 +248,8 @@
         "namesVerticalOffsetDesc": "Vertical offset of the text. Positive value will push the text lower, and positive value will move it higher.",
         "namesDynamicVerticalOffset": "Dynamic vertical offset",
         "namesDynamicVerticalOffsetDesc": "Dynamically adapt the vertical position of the text to the size of the arrows.",
+        "noLineHighlight": "No line highlight",
+        "noLineHighlightDesc": "When hovering a node, don't highlight the connected links",
         "nodeSizesFunction": "Node size function",
         "nodeSizesFunctionDesc": "Select how the graph engine should compute the size of the nodes",
         "nodeSizeProperties": "Node size properties",

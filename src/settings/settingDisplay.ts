@@ -10,6 +10,7 @@ export class SettingDisplay extends SettingsSection {
     protected override addBody() {
         this.addBorderUnresolved();
         this.addLinkSameColorAsNodes();
+        this.addNoLineHighlight();
         this.addSpreadArcs();
         this.addWeightArcs();
         this.addBrightness();
@@ -47,6 +48,19 @@ export class SettingDisplay extends SettingsSection {
             t("features.linksSameColorAsNodeDesc"),
             'linksSameColorAsNode'
         ).settingEl);
+    }
+
+    private addNoLineHighlight() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("features.noLineHighlight"))
+            .setDesc(t("features.noLineHighlightDesc"))
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.noLineHighlight || false);
+                cb.onChange(value => {
+                    PluginInstances.settings.noLineHighlight = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addSpreadArcs() {

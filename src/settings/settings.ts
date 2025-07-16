@@ -123,6 +123,7 @@ export interface ExtendedGraphSettings {
     outlineLinks: boolean;
     displayLinkTypeLabel: boolean;
     colorLinkTypeLabel: boolean;
+    noLineHighlight: boolean;
 
     // Folders
     folderShowFullPath: boolean;
@@ -305,6 +306,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     outlineLinks: false,
     displayLinkTypeLabel: false,
     colorLinkTypeLabel: false,
+    noLineHighlight: false,
 
     // Folders
     folderShowFullPath: true,
@@ -588,7 +590,7 @@ export class SettingQuery {
             return true;
 
         // Other
-        if (['enableCSS', 'useRadialMenu'].some(key => !equals(key)))
+        if (['enableCSS', 'useRadialMenu', 'noLineHighlight'].some(key => !equals(key)))
             return true;
 
         return false;
