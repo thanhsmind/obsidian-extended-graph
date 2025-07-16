@@ -57,6 +57,7 @@ export interface ExtendedGraphSettings {
     startingStateID: string;
     syncDefaultState: boolean;
     openInNewTab: boolean;
+    canonicalizePropertiesWithDataview: boolean;
 
     // Color palettes
     customColorMaps: Record<string, {
@@ -234,6 +235,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     startingStateID: DEFAULT_STATE_ID,
     syncDefaultState: false,
     openInNewTab: false,
+    canonicalizePropertiesWithDataview: true,
 
     // Color palettes
     customColorMaps: {},
@@ -590,7 +592,7 @@ export class SettingQuery {
             return true;
 
         // Other
-        if (['enableCSS', 'useRadialMenu', 'noLineHighlight'].some(key => !equals(key)))
+        if (['enableCSS', 'useRadialMenu', 'noLineHighlight', 'canonicalizePropertiesWithDataview'].some(key => !equals(key)))
             return true;
 
         return false;

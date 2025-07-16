@@ -184,7 +184,7 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
         if (value === null || value === undefined || value === '') continue;
 
         // Check if the key is a canonicalized version of another key
-        if (key === canonicalizeVarName(key) && Object.keys(sourcePage).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
+        if (!settings.canonicalizePropertiesWithDataview && key === canonicalizeVarName(key) && Object.keys(sourcePage).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
             continue;
         }
 
@@ -195,7 +195,7 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
                 targetTypes = new Set<string>();
                 linkTypes.set(targetID, targetTypes);
             }
-            targetTypes.add(key);
+            targetTypes.add(settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
         }
         else if (Array.isArray(value)) {
             for (const l of value) {
@@ -206,7 +206,7 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
                         targetTypes = new Set<string>();
                         linkTypes.set(targetID, targetTypes);
                     }
-                    targetTypes.add(key);
+                    targetTypes.add(settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
                 }
             }
         }

@@ -1,4 +1,5 @@
 import { PluginSettingTab, Setting, ToggleComponent } from "obsidian";
+import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExportConfigModal,
     ImportConfigModal,
@@ -79,6 +80,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.addImportExport();
         this.addNav();
         this.addDisableNodes();
+        this.addCanonicalPropertiesWithDataview();
 
         // FEATURES
         for (const section of this.sections) {
@@ -141,6 +143,21 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                     PluginInstances.plugin.saveSettings();
                 })
             });
+    }
+
+    private addCanonicalPropertiesWithDataview() {
+        if (getDataviewAPI(PluginInstances.app)) {
+            new Setting(this.containerEl)
+                .setName(t("features.canonicalizePropertiesWithDataview"))
+                .setDesc(t("features.canonicalizePropertiesWithDataviewDesc"))
+                .addToggle(cb => {
+                    cb.setValue(PluginInstances.settings.canonicalizePropertiesWithDataview);
+                    cb.onChange(value => {
+                        PluginInstances.settings.canonicalizePropertiesWithDataview = value;
+                        PluginInstances.plugin.saveSettings();
+                    })
+                });
+        }
     }
 
     override hide(): void {

@@ -110,6 +110,8 @@
         "borderUnresolvedDesc": "If between 0 and 1 (excluded), unresolved nodes will only show an outside circle border instead of a full disk",
         "brightness": "Brightness factor",
         "brightnessDesc": "Multiply the brightness of tags, properties, and links by a factor depending on the theme. Need reloading of the graph if you swap themes while plugin is enabled.",
+        "canonicalizePropertiesWithDataview": "Canonicalize property names (Dataview)",
+        "canonicalizePropertiesWithDataviewDesc": "By default, the Dataview plugin canonicalize the property names, converting everything to lowercase, removing dashes and underscore. If you want to use the non-canonicalized version of the properties, disabled this. Note that if you have two properties, with one being the canonicalized version of the second one (for example CaseSensitive and casesensitive), the canonicalized version will be discarded. This option only applied if you're using the Dataview plugin.",
         "disableNodes": "Disable nodes",
         "disableNodesDesc": "When all arcs are disabled on the node, remove it from the graph",
         "excludeSourceFolders": "Exclude source folders",
