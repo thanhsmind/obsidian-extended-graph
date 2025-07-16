@@ -78,15 +78,16 @@ If you don't need every features from this plugin and are looking for something 
 - [Export Graph View](https://github.com/seantiz/obsidian_egv_plugin) by _seantiz_: export your vault's graph view to mermaid and dot format.
 - [Graph Banner](https://github.com/ras0q/obsidian-graph-banner) by _ras0q_, for displaying a relation graph view on the note header.
 - [Graph Link Types](https://github.com/natefrisch01/Graph-Link-Types) by _natefrisch01_: link types for graph view.
+- [GraphPro](https://github.com/Air-Mark/graph-pro) by _Air-Mark_ (still in beta): advanced controls and layout tools for the graph view. 
 - [Juggl](https://github.com/HEmile/juggl) by _HEmile_: adds a completely interactive, stylable and expandable graph view to Obsidian.
 - [Living Graph](https://github.com/geoffreysflaminglasersword/obsidian-living-graph) by _geoffreysflaminglasersword_: a for-fun graph plugin.
 - [Nested Tags](https://github.com/drPilman/obsidian-graph-nested-tags) by _drPilman_: links nested tags in graph view.
 - [Node Factor](https://github.com/CalfMoon/node-factor) by _CalfMoon_: customize factors effecting node size in graph.
 - [Persistent Graph](https://github.com/Sanqui/obsidian-persistent-graph) by _Sanqui_: adds commands to save and restore the positions of nodes on the global graph view. (seems abandonned)
 - [Sync Graph Settings](https://github.com/Xallt/sync-graph-settings) by _Xallt_: for syncing various graph settings to Local Graphs.
-- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by _AlexW00_ and its fork [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru: a 3D Graph for Obsidian.
 - [Tags Routes](https://github.com/kctekn/obsidian-TagsRoutes) by _kctekn_: A powerful 3D graph viewer for managing and navigating notes and tags, with advanced visual effects, animations.
 - [New 3D Graph](https://github.com/Apoo711/obsidian-3d-graph) by _Apoo711_ (still in beta): Visualize your Vault in 3D with a powerful, highly customizable, and filterable graph.
+- [3D Graph View](http://github.com/AlexW00/obsidian-3d-graph) by _AlexW00_ and its fork [3d Graph View New](https://github.com/HananoshikaYomaru/obsidian-3d-graph) by HananoshikaYomaru: a 3D Graph for Obsidian.
 
 (if you know more, let me know)
 
