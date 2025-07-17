@@ -59,7 +59,7 @@ export class GraphState {
         return ['id', 'name', 'toggleTypes', 'logicTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows'].includes(key);
     }
 
-    completeDefaultOptions(): boolean {
+    private completeDefaultOptions(): boolean {
         let hasChanged = false;
 
         if (!this.data.toggleTypes) {
@@ -107,8 +107,11 @@ export class GraphState {
         }
         else {
             if (this.data.engineOptions.search === undefined) {
-                this.data.engineOptions.search = "";
-                hasChanged = true;
+                const graphPlugin = PluginInstances.graphsManager.getCorePluginInstance();
+                if (graphPlugin) {
+                    this.data.engineOptions.search = graphPlugin.options.search ?? "";
+                    hasChanged = true;
+                }
             }
         }
 

@@ -924,7 +924,7 @@ export class GraphsManager extends Component {
         }
     }
 
-    private getCorePluginInstance(): GraphPluginInstance | undefined {
+    getCorePluginInstance(): GraphPluginInstance | undefined {
         return PluginInstances.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
