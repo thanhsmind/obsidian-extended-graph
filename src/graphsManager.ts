@@ -424,18 +424,9 @@ export class GraphsManager extends Component {
 
     private onRename(file: TAbstractFile, oldPath: string) {
         const newPath = file.path;
-        let predicate: (oldPath: string, currentPath: string) => boolean;
-
-        if (file instanceof TFile) {
-            predicate = function (oldPath: string, currentPath: string): boolean {
-                return oldPath === currentPath;
-            }
-        }
-        else {
-            predicate = function (oldPath: string, currentPath: string): boolean {
-                return currentPath.startsWith(oldPath + "/");
-            }
-        }
+        let predicate: (oldPath: string, currentPath: string) => boolean = function (oldPath: string, currentPath: string): boolean {
+            return oldPath === currentPath;
+        };
 
         for (const [leafID, instances] of this.allInstances) {
             // Type maps
@@ -458,25 +449,46 @@ export class GraphsManager extends Component {
                     })
                 );
             }
-            // Connected nodes ids
-            instances.nodesSet.connectedIDs = new Set<string>(
-                [...instances.nodesSet.connectedIDs].filter(id => {
-                    return !predicate(oldPath, id);
-                })
-            );
-            // Connected links ids
-            instances.linksSet.connectedIDs = new Set<string>(
-                [...instances.linksSet.connectedIDs].filter(linkID => {
-                    const extendedLink = instances.linksSet.extendedElementsMap.get(linkID);
-                    return extendedLink
-                        && !predicate(oldPath, extendedLink.coreElement.source.id)
-                        && !predicate(oldPath, extendedLink.coreElement.target.id);
-                })
-            );
+
+            // Extended nodes and connected ids
+            for (const extendedNode of [...instances.nodesSet.extendedElementsMap.values()]) {
+                if (oldPath === extendedNode.id) {
+                    instances.nodesSet.extendedElementsMap.delete(extendedNode.id);
+                    extendedNode.id = newPath;
+                    instances.nodesSet.extendedElementsMap.set(extendedNode.id, extendedNode);
+                    if (instances.nodesSet.connectedIDs.has(oldPath)) {
+                        instances.nodesSet.connectedIDs.delete(oldPath);
+                        instances.nodesSet.connectedIDs.add(newPath);
+                    }
+                }
+            }
+
+            // Extended links and connected ids
+            for (const extendedLink of [...instances.linksSet.extendedElementsMap.values()]) {
+                const sourceChanged = oldPath === extendedLink.coreElement.source.id;
+                const targetChanged = oldPath === extendedLink.coreElement.target.id;
+                if (sourceChanged || targetChanged) {
+                    const oldID = extendedLink.id;
+                    instances.linksSet.extendedElementsMap.delete(extendedLink.id); // Delete from the map
+                    if (sourceChanged) {
+                        extendedLink.id = getLinkID({ source: { id: newPath }, target: { id: extendedLink.coreElement.target.id } }); // Change the id
+                    }
+                    if (targetChanged) {
+                        extendedLink.id = getLinkID({ source: { id: extendedLink.coreElement.source.id }, target: { id: newPath } });
+                    }
+                    instances.linksSet.extendedElementsMap.set(extendedLink.id, extendedLink); // Add to the map
+                    if (instances.linksSet.connectedIDs.has(oldID)) {
+                        instances.linksSet.connectedIDs.delete(oldID);
+                        instances.linksSet.connectedIDs.add(extendedLink.id);
+                    }
+                }
+            }
+
             // Pinned nodes
             const pinner = new Pinner(instances);
             for (const [nodeID, extendedNode] of instances.nodesSet.extendedElementsMap) {
-                if (extendedNode.isPinned && predicate(oldPath, nodeID)) {
+                if (extendedNode.isPinned && nodeID === newPath) {
+                    console.log(nodeID);
                     pinner.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
                 }
             }
@@ -484,37 +496,13 @@ export class GraphsManager extends Component {
                 if (!state.pinNodes) break;
                 const pinNodes = structuredClone(Object.entries(state.pinNodes));
                 for (const [currentPath, pos] of pinNodes) {
-                    if (predicate(oldPath, currentPath)) {
+                    if (oldPath === currentPath) {
                         delete state.pinNodes[currentPath];
                         state.pinNodes[newPath] = pos;
                     }
                 }
-                PluginInstances.plugin.saveSettings();
+                PluginInstances.statesManager.onStateNeedsSaving(state, false);
             }
-            // Extended nodes
-            instances.nodesSet.extendedElementsMap = new Map<string, ExtendedGraphNode>(
-                [...instances.nodesSet.extendedElementsMap].filter(([id, extendedNode]) => {
-                    if (predicate(oldPath, id)) {
-                        extendedNode.graphicsWrapper?.destroyGraphics();
-                        extendedNode.graphicsWrapper?.disconnect();
-                        extendedNode.coreElement.clearGraphics();
-                        return false;
-                    }
-                    return true;
-                })
-            );
-            // Extended links
-            instances.linksSet.extendedElementsMap = new Map<string, ExtendedGraphLink>(
-                [...instances.linksSet.extendedElementsMap].filter(([id, extendedLink]) => {
-                    if (predicate(oldPath, extendedLink.coreElement.source.id) || predicate(oldPath, extendedLink.coreElement.target.id)) {
-                        extendedLink.graphicsWrapper?.destroyGraphics();
-                        extendedLink.graphicsWrapper?.disconnect();
-                        extendedLink.coreElement.clearGraphics();
-                        return false;
-                    }
-                    return true;
-                })
-            );
         }
     }
 
