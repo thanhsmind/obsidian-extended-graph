@@ -488,7 +488,6 @@ export class GraphsManager extends Component {
             const pinner = new Pinner(instances);
             for (const [nodeID, extendedNode] of instances.nodesSet.extendedElementsMap) {
                 if (extendedNode.isPinned && nodeID === newPath) {
-                    console.log(nodeID);
                     pinner.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
                 }
             }
