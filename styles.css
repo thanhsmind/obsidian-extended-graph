@@ -559,8 +559,7 @@ body {
 }
 
 .graph-control-section:is(.mod-extended-graph-options, .mod-extended-graph-folders) .setting-item .setting-item-info {
-    align-items: flex-start;
-    flex-direction: column;
+    display: block;
 }
 
 .graph-controls:not(.is-close) .separator-exended-graph {
