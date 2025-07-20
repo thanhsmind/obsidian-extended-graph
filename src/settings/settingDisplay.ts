@@ -14,6 +14,7 @@ export class SettingDisplay extends SettingsSection {
         this.addSpreadArcs();
         this.addWeightArcs();
         this.addBrightness();
+        this.addFadeInElements();
         this.addAnimateDotsOnLinks();
         this.addAnimationSpeedForDot();
         this.addHorizontalLegend();
@@ -126,6 +127,19 @@ export class SettingDisplay extends SettingsSection {
                 })
             })
             .settingEl);
+    }
+
+    private addFadeInElements() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("features.fadeInElements"))
+            .setDesc(t("features.fadeInElementsDesc"))
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.fadeInElements);
+                cb.onChange(value => {
+                    PluginInstances.settings.fadeInElements = value;
+                    PluginInstances.plugin.saveSettings();
+                });
+            }).settingEl);
     }
 
     private addAnimateDotsOnLinks() {

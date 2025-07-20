@@ -2,6 +2,7 @@ import { Assets, ColorSource, Container, Sprite, Text, Texture } from 'pixi.js';
 import { GraphColorAttributes } from 'obsidian-typings';
 import {
     ExtendedGraphNode,
+    fadeIn,
     getBackgroundColor,
     getFile,
     GraphicsWrapper,
@@ -15,12 +16,15 @@ import {
 const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
 
+class FadableContainer extends Container {
+    hasFaded: boolean = false;
+}
 
 export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     // Interface instance values
     name: string;
     extendedElement: ExtendedGraphNode;
-    pixiElement: Container;
+    pixiElement: FadableContainer;
 
     opacityLayer?: NodeShape;
     iconBackgroundLayer?: NodeShape;
@@ -61,7 +65,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         if (this.pixiElement && !this.pixiElement.destroyed) return;
         if (this.pixiElement && this.pixiElement.parent) this.pixiElement.removeFromParent();
 
-        this.pixiElement = new Container();
+        this.pixiElement = new FadableContainer();
         this.pixiElement.name = this.name;
 
         this.placeNode();
@@ -185,6 +189,9 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     connect(): void {
         if (this.extendedElement.coreElement.circle && !this.extendedElement.coreElement.circle.getChildByName(this.name)) {
             this.extendedElement.coreElement.circle.addChild(this.pixiElement);
+            if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
+                fadeIn(this.pixiElement);
+            }
         }
     }
 
@@ -194,11 +201,11 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
 
     // ============================== FADE IN/OUT ==============================
 
-    fadeIn() {
+    makeOpaque() {
         if (this.opacityLayer) this.opacityLayer.alpha = 0;
     }
 
-    fadeOut() {
+    makeFaded() {
         if (this.opacityLayer) this.opacityLayer.alpha = 0.8;
     }
 

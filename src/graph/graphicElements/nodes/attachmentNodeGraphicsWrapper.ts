@@ -1,5 +1,5 @@
 import { Texture } from "pixi.js";
-import { ExtendedGraphAttachmentNode, NodeGraphicsWrapper, NodeImage } from "src/internal";
+import { ExtendedGraphAttachmentNode, fadeIn, NodeGraphicsWrapper, NodeImage } from "src/internal";
 
 export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
@@ -32,6 +32,9 @@ export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
             }
             else {
                 this.pixiElement.addChild(this.nodeImage);
+            }
+            if (this.extendedElement.instances.settings.fadeInElements && !this.nodeImage.hasFaded) {
+                fadeIn(this.nodeImage);
             }
         }
     }

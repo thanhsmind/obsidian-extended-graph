@@ -7,6 +7,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
+    hasFaded: boolean = false;
     targetAlpha: number;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;

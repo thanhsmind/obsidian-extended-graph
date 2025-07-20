@@ -7,6 +7,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
+    hasFaded: boolean = false;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: LinkArrow | null;
@@ -105,7 +106,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
         if (!this.computeMainBezier()) return false;
 
         const link = this.extendedLink.coreElement;
-        if (link.line) {
+        if (link.line && this.hasFaded) {
             this.alpha = link.line.alpha;
         }
 

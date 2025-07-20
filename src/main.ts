@@ -37,6 +37,9 @@ export default class ExtendedGraphPlugin extends Plugin {
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this));
 
+        PluginInstances.graphsManager = new GraphsManager();
+        PluginInstances.statesManager = new StatesManager();
+
         this.app.workspace.onLayoutReady(() => {
             this.loadGraphsManager();
             this.onLayoutChange();
@@ -65,8 +68,6 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private loadGraphsManager() {
-        PluginInstances.graphsManager = new GraphsManager();
-        PluginInstances.statesManager = new StatesManager();
         this.addChild(PluginInstances.graphsManager);
         PluginInstances.graphsManager.load();
     }

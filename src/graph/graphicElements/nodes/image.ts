@@ -4,6 +4,7 @@ import { NodeShape, ShapeEnum } from "src/internal";
 export class NodeImage extends Sprite {
     opacityLayer: Graphics;
     textureSize: number;
+    hasFaded: boolean = false;
 
     constructor(texture: Texture = Texture.EMPTY, borderFactor: number, shape: ShapeEnum) {
         super(texture);

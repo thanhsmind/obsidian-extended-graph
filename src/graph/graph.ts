@@ -166,7 +166,7 @@ export class Graph extends Component {
         for (const id of ids) {
             const extendedElement = this.instances.nodesSet.extendedElementsMap.get(id);
             if (!extendedElement) continue;
-            extendedElement.graphicsWrapper?.fadeOut();
+            extendedElement.graphicsWrapper?.makeFaded();
         }
         return false;
     }
@@ -175,7 +175,7 @@ export class Graph extends Component {
         for (const id of ids) {
             const extendedElement = this.instances.nodesSet.extendedElementsMap.get(id);
             if (!extendedElement) continue;
-            extendedElement.graphicsWrapper?.fadeIn();
+            extendedElement.graphicsWrapper?.makeOpaque();
         }
         return false;
     }

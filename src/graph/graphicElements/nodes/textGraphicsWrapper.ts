@@ -1,6 +1,7 @@
 import { Sprite, Texture, Text, ColorSource } from "pixi.js";
 import { ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics } from "src/internal";
 
+
 export class TextGraphicsWrapper implements GraphicsWrapper {
     extendedElement: ExtendedGraphText;
     pixiElement: Sprite;
@@ -14,11 +15,11 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
     }
 
     destroyGraphics() {
-        if (this.pixiElement) {
+        if (this.pixiElement && !this.pixiElement.destroyed) {
             this.pixiElement.removeFromParent();
             if (!this.pixiElement.destroyed) this.pixiElement.destroy(true);
         }
-        if (this.textClone) {
+        if (this.textClone && !this.textClone.destroyed) {
             this.textClone.removeFromParent();
             this.textClone.destroy(true);
             if (!this.textClone.destroyed) this.textClone.destroy(true);

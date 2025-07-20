@@ -112,6 +112,7 @@ export interface ExtendedGraphSettings {
     animateDotsOnLinks: boolean;
     animationSpeedForDots: number;
     interactivesBrightness: { light: number, dark: number };
+    fadeInElements: boolean;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -296,6 +297,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     animateDotsOnLinks: false,
     animationSpeedForDots: 1,
     interactivesBrightness: { light: 1, dark: 1 },
+    fadeInElements: false,
 
     // Links
     allowMultipleLinkTypes: false,
@@ -576,7 +578,8 @@ export class SettingQuery {
         if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])
             return true;
         if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
-            'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness'].some(key => !equals(key)))
+            'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
+            'fadeInElements'].some(key => !equals(key)))
             return true;
 
         // Automation

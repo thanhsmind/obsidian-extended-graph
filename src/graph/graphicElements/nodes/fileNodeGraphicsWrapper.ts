@@ -2,6 +2,7 @@ import { ColorSource, Texture } from "pixi.js";
 import {
     ArcsCircle,
     ExtendedGraphFileNode,
+    fadeIn,
     getFile,
     InteractiveManager,
     NodeGraphicsWrapper,
@@ -77,6 +78,9 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
             }
             else {
                 this.pixiElement.addChild(this.nodeImage);
+            }
+            if (this.extendedElement.instances.settings.fadeInElements && !this.nodeImage.hasFaded) {
+                fadeIn(this.nodeImage);
             }
         }
     }

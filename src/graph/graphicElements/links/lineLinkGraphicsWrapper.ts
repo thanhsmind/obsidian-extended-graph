@@ -1,4 +1,4 @@
-import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkLineMultiTypesGraphics } from "src/internal";
+import { ExtendedGraphLink, fadeIn, GraphicsWrapper, InteractiveManager, LinkLineMultiTypesGraphics } from "src/internal";
 
 
 export class LineLinkGraphicsWrapper implements GraphicsWrapper {
@@ -76,6 +76,9 @@ export class LineLinkGraphicsWrapper implements GraphicsWrapper {
             if (this.extendedElement.coreElement.arrow) this.extendedElement.coreElement.arrow.renderable = false;
             const index = hanger.getChildIndex(this.extendedElement.coreElement.px);
             hanger.addChildAt(this.pixiElement, index);
+            if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
+                fadeIn(this.pixiElement);
+            }
         }
     }
 
