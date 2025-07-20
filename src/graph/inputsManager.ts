@@ -1,5 +1,6 @@
 import { Keymap, Menu, TFile, UserEvent } from "obsidian";
-import { Pinner, RadialMenuManager, t } from "src/internal";
+import { FederatedPointerEvent, Graphics } from "pixi.js";
+import { Pinner, ProxysManager, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export class InputsManager {
@@ -7,21 +8,29 @@ export class InputsManager {
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
 
+    isSelecting: boolean = false;
+    selectionStartPosition: { x: number, y: number };
+    selectionRectangle: Graphics;
+
     constructor(instances: GraphInstances) {
         this.instances = instances;
+
+        this.selectionRectangle = new Graphics();
 
         this.bindStageEvents();
         this.changeNodeOnClick();
         this.preventDraggingPinnedNodes();
     }
 
-
     private bindStageEvents(): void {
-        this.onPointerDown = this.onPointerDown.bind(this);
-        this.instances.renderer.px.stage.on('pointerdown', this.onPointerDown);
+        this.onPointerDownOnStage = this.onPointerDownOnStage.bind(this);
+        this.instances.renderer.px.stage.on('pointerdown', this.onPointerDownOnStage);
 
-        this.onPointerUp = this.onPointerUp.bind(this);
-        this.instances.renderer.px.stage.on('pointerup', this.onPointerUp);
+        this.onPointerUpOnStage = this.onPointerUpOnStage.bind(this);
+        this.instances.renderer.px.stage.on('pointerup', this.onPointerUpOnStage);
+
+        this.onPointerUpOnWindow = this.onPointerUpOnWindow.bind(this);
+        this.onPointerMoveOnStage = this.onPointerMoveOnStage.bind(this);
     }
 
     private changeNodeOnClick(): void {
@@ -38,13 +47,83 @@ export class InputsManager {
         }
     }
 
-    private onPointerDown(): void {
+    // ========================= POINTERS UP/DOWN/MOVE =========================
+
+    private onPointerDownOnStage(e: FederatedPointerEvent): void {
         this.preventDraggingPinnedNodes();
+
+        // Selection if "shift" is holded
+        if (e.button === 0 && Keymap.isModifier(e, "Shift") && !this.instances.renderer.dragNode) {
+            // Get start position, and add rectangle if needed
+            this.selectionStartPosition = e.getLocalPosition(this.instances.renderer.hanger);
+            if (!this.selectionRectangle.parent) {
+                this.instances.renderer.hanger.addChild(this.selectionRectangle);
+            }
+            this.selectionRectangle.clear();
+            this.selectionRectangle.visible = true;
+
+            // Start special behaviors
+            this.preventPan();
+            this.instances.renderer.px.stage.on('globalpointermove', this.onPointerMoveOnStage);
+            this.instances.renderer.interactiveEl.win.addEventListener("mouseup", this.onPointerUpOnWindow);
+            this.isSelecting = true;
+        }
     }
 
-    private onPointerUp(): void {
+    private onPointerUpOnStage(): void {
         this.pinDraggingPinnedNode();
     }
+
+    private onPointerUpOnWindow(e: FederatedPointerEvent) {
+        if (e.button === 0) {
+            // Clear rectangle
+            this.selectionRectangle.visible = false;
+
+            // Stop special behaviors
+            this.allowPan();
+            this.instances.renderer.px.stage.off('globalpointermove', this.onPointerMoveOnStage);
+            this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
+            this.isSelecting = false;
+        }
+    }
+
+    private preventPan() {
+        const renderer = this.instances.renderer;
+        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setPan>(
+            this.instances.renderer,
+            "setPan",
+            {
+                apply(target, thisArg, args) {
+                    renderer.panvX = 0;
+                    renderer.panvY = 0;
+                    renderer.panning = false;
+                    return false;
+                }
+            }
+        );
+    }
+
+    private allowPan() {
+        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.setPan);
+    }
+
+    private onPointerMoveOnStage(e: FederatedPointerEvent): void {
+        if (!this.isSelecting) return;
+
+        const pos = e.getLocalPosition(this.instances.renderer.hanger);
+        this.selectionRectangle.clear();
+        this.selectionRectangle.beginFill(0x9872f5, 0.1);
+        this.selectionRectangle.lineStyle(2, 0x9872f5, 0.3);
+        this.selectionRectangle.drawRect(
+            Math.min(this.selectionStartPosition.x, pos.x),
+            Math.min(this.selectionStartPosition.y, pos.y),
+            Math.abs(pos.x - this.selectionStartPosition.x),
+            Math.abs(pos.y - this.selectionStartPosition.y),
+        );
+        this.selectionRectangle.endFill();
+    }
+
+    // ============================== NODE CLICKS ==============================
 
     private onNodeClick(e: UserEvent | null, id: string, type: string): void {
         if ("tag" !== type)
@@ -67,8 +146,12 @@ export class InputsManager {
     // =============================== UNLOADING ===============================
 
     unload() {
-        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDown);
-        this.instances.renderer.px.stage.off('pointerup', this.onPointerUp);
+        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDownOnStage);
+        this.instances.renderer.px.stage.off('pointerup', this.onPointerUpOnStage);
+
+        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
+        this.instances.renderer.px.stage.off('globalpointermove', this.onPointerMoveOnStage);
+
         this.restoreOnNodeClick();
     }
 
@@ -122,7 +205,7 @@ export class InputsManager {
         this.instances.renderer.changed();
     }
 
-    preventDraggingPinnedNodes() {
+    private preventDraggingPinnedNodes() {
         const node = this.instances.renderer.dragNode;
         if (node && this.instances.nodesSet.isNodePinned(node.id)) {
             const pinner = new Pinner(this.instances);
@@ -130,7 +213,7 @@ export class InputsManager {
         }
     }
 
-    pinDraggingPinnedNode() {
+    private pinDraggingPinnedNode() {
         const pinner = new Pinner(this.instances);
         pinner.pinLastDraggedPinnedNode();
     }

@@ -1,4 +1,4 @@
-import { Component, Keymap, Menu, TFile, UserEvent } from "obsidian";
+import { Component } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
