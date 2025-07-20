@@ -932,7 +932,7 @@ export class GraphsManager extends Component {
 
     onNodeMenuOpened(menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) {
         if (source === "graph-context-menu" && leaf && file instanceof TFile) {
-            this.allInstances.get(leaf.id)?.dispatcher.onNodeMenuOpened(menu, file);
+            this.allInstances.get(leaf.id)?.dispatcher.inputsManager.onNodeMenuOpened(menu, file);
         }
     }
 

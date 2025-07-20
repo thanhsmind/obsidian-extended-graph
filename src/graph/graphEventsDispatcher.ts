@@ -14,6 +14,7 @@ import {
     getNodeTextStyle,
     Graph,
     GraphInstances,
+    InputsManager,
     LegendUI,
     lengthSegment,
     LINK_KEY,
@@ -58,8 +59,8 @@ interface LastFilteringAction {
 }
 
 export class GraphEventsDispatcher extends Component {
-
     instances: GraphInstances;
+    inputsManager: InputsManager;
 
     lastFilteringAction: LastFilteringAction | undefined;
     lastCheckboxContainerToggled: HTMLDivElement | undefined;
@@ -68,8 +69,6 @@ export class GraphEventsDispatcher extends Component {
     listenStage: boolean = true;
     coreArrowAlpha?: number;
     coreLineHighlightColor?: GraphColorAttributes;
-    coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
-    coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreSetData: (data: GraphData) => void;
 
     // ============================== CONSTRUCTOR ==============================
@@ -156,17 +155,16 @@ export class GraphEventsDispatcher extends Component {
         try {
             this.updateOpacityLayerColor();
             this.bindStageEvents();
+            this.inputsManager = new InputsManager(this.instances);
 
             this.createRenderCallbackProxy();
             this.createInitGraphicsProxy();
             this.createDestroyGraphicsProxy();
             this.changeArrowAlpha();
             this.removeLineHighlight();
-            this.changeNodeOnClick();
             this.loadLastFilteringAction();
             this.registerEventsForLastFilteringAction();
 
-            this.preventDraggingPinnedNodes();
             PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
             PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
 
@@ -200,12 +198,6 @@ export class GraphEventsDispatcher extends Component {
 
         this.onChildRemovedFromStage = this.onChildRemovedFromStage.bind(this);
         this.instances.renderer.hanger.on('childRemoved', this.onChildRemovedFromStage);
-
-        this.onPointerDown = this.onPointerDown.bind(this);
-        this.instances.renderer.px.stage.on('pointerdown', this.onPointerDown);
-
-        this.onPointerUp = this.onPointerUp.bind(this);
-        this.instances.renderer.px.stage.on('pointerup', this.onPointerUp);
     }
 
     private createRenderCallbackProxy(): void {
@@ -286,20 +278,6 @@ export class GraphEventsDispatcher extends Component {
         if (!this.instances.settings.noLineHighlight) return;
         this.coreLineHighlightColor = this.instances.renderer.colors.lineHighlight;
         this.instances.renderer.colors.lineHighlight = this.instances.renderer.colors.line;
-    }
-
-    private changeNodeOnClick(): void {
-        if (this.instances.settings.openInNewTab) {
-            this.onNodeClick = this.onNodeClick.bind(this);
-            this.coreOnNodeClick = this.instances.renderer.onNodeClick;
-            this.instances.renderer.onNodeClick = this.onNodeClick;
-        }
-
-        if (this.instances.settings.useRadialMenu) {
-            this.onNodeRightClick = this.onNodeRightClick.bind(this);
-            this.coreOnNodeRightClick = this.instances.renderer.onNodeRightClick;
-            this.instances.renderer.onNodeRightClick = this.onNodeRightClick;
-        }
     }
 
     private loadLastFilteringAction(): void {
@@ -458,10 +436,10 @@ export class GraphEventsDispatcher extends Component {
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
         this.instances.foldersUI?.destroy();
+        this.inputsManager.unload();
         PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
         this.restoreArrowAlpha();
         this.restoreLineHighlight();
-        this.restoreOnNodeClick();
         this.unregisterEventsForLastFilteringAction();
         this.instances.engine.render();
     }
@@ -469,8 +447,6 @@ export class GraphEventsDispatcher extends Component {
     private unbindStageEvents(): void {
         this.instances.renderer.hanger.off('childAdded', this.onChildAddedToStage);
         this.instances.renderer.hanger.off('childRemoved', this.onChildRemovedFromStage);
-        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDown);
-        this.instances.renderer.px.stage.off('pointerup', this.onPointerUp);
     }
 
     private restoreArrowAlpha(): void {
@@ -484,17 +460,6 @@ export class GraphEventsDispatcher extends Component {
         if (this.coreLineHighlightColor !== undefined) {
             this.instances.renderer.colors.lineHighlight = this.coreLineHighlightColor;
             this.coreLineHighlightColor = undefined;
-        }
-    }
-
-    private restoreOnNodeClick(): void {
-        if (this.coreOnNodeClick) {
-            this.instances.renderer.onNodeClick = this.coreOnNodeClick;
-            this.coreOnNodeClick = undefined;
-        }
-        if (this.coreOnNodeRightClick) {
-            this.instances.renderer.onNodeRightClick = this.coreOnNodeRightClick;
-            this.coreOnNodeRightClick = undefined;
         }
     }
 
@@ -601,14 +566,6 @@ export class GraphEventsDispatcher extends Component {
         }
     }
 
-    private onPointerDown(): void {
-        this.preventDraggingPinnedNodes();
-    }
-
-    private onPointerUp(): void {
-        this.pinDraggingPinnedNode();
-    }
-
     private updateData(data: GraphData): GraphData | undefined {
         // Filter out nodes
         data = this.instances.filter.filterNodes(data);
@@ -630,24 +587,6 @@ export class GraphEventsDispatcher extends Component {
         }
 
         return data;
-    }
-
-    private onNodeClick(e: UserEvent | null, id: string, type: string): void {
-        if ("tag" !== type)
-            PluginInstances.app.workspace.openLinkText(id, "", "tab");
-        else {
-            if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
-        }
-    }
-
-    private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {
-        if (e && Keymap.isModifier(e, "Shift")) {
-            const radialMenu = new RadialMenuManager(this.instances, id, type);
-            radialMenu.open(e);
-            return;
-        }
-
-        if (this.coreOnNodeRightClick) this.coreOnNodeRightClick(e, id, type);
     }
 
     // ============================== GRAPH CYCLE ==============================
@@ -1035,58 +974,6 @@ export class GraphEventsDispatcher extends Component {
     changeState(stateID: string) {
         this.setLastFilteringActionAsStateChange(stateID);
         PluginInstances.statesManager.changeState(this.instances, stateID);
-    }
-
-    // =============================== PIN NODES ===============================
-
-    onNodeMenuOpened(menu: Menu, file: TFile) {
-        menu.addSections(['extended-graph']);
-        menu.addItem(cb => {
-            cb.setIcon("pin");
-            if (this.instances.nodesSet.isNodePinned(file.path)) {
-                cb.setTitle(t("features.unpinNode"));
-                cb.onClick(() => { this.unpinNode(file); });
-            }
-            else {
-                cb.setTitle(t("features.pinNode"));
-                cb.onClick(() => { this.pinNode(file); });
-            }
-        })
-    }
-
-    private pinNode(file: TFile) {
-        const pinner = new Pinner(this.instances);
-        pinner.pinNode(file.path);
-    }
-
-    pinNodeFromId(id: string) {
-        const pinner = new Pinner(this.instances);
-        pinner.pinNode(id);
-    }
-
-    private unpinNode(file: TFile) {
-        const pinner = new Pinner(this.instances);
-        pinner.unpinNode(file.path);
-        this.instances.renderer.changed();
-    }
-
-    unpinNodeFromId(id: string) {
-        const pinner = new Pinner(this.instances);
-        pinner.unpinNode(id);
-        this.instances.renderer.changed();
-    }
-
-    preventDraggingPinnedNodes() {
-        const node = this.instances.renderer.dragNode;
-        if (node && this.instances.nodesSet.isNodePinned(node.id)) {
-            const pinner = new Pinner(this.instances);
-            pinner.setLastDraggedPinnedNode(node.id);
-        }
-    }
-
-    pinDraggingPinnedNode() {
-        const pinner = new Pinner(this.instances);
-        pinner.pinLastDraggedPinnedNode();
     }
 
     // ================================== CSS ==================================

@@ -16,6 +16,7 @@ export * from "./colors/colors";
 export * from "./graph/graph";
 export * from "./graph/graphEventsDispatcher";
 export * from "./graph/interactiveManager";
+export * from "./graph/inputsManager";
 export * from "./graph/extendedElements/extendedGraphElement";
 export * from "./graph/extendedElements/extendedGraphLink";
 export * from "./graph/extendedElements/extendedGraphNode";

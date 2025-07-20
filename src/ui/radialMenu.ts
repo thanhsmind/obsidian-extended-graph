@@ -294,10 +294,10 @@ export class RadialMenuManager {
 
     private onPin(): void {
         if (this.instances.nodesSet.isNodePinned(this.nodeID)) {
-            this.instances.dispatcher.unpinNodeFromId(this.nodeID);
+            this.instances.dispatcher.inputsManager.unpinNodeFromId(this.nodeID);
         }
         else {
-            this.instances.dispatcher.pinNodeFromId(this.nodeID);
+            this.instances.dispatcher.inputsManager.pinNodeFromId(this.nodeID);
         }
     }
 
