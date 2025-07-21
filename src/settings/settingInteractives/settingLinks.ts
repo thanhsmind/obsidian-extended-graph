@@ -196,14 +196,19 @@ export class SettingLinks extends SettingInteractives {
                     if (key === "file" || PluginInstances.settings.imageProperties.contains(key) || INVALID_KEYS[LINK_KEY].includes(key)) continue;
                     if (value === null || value === undefined || value === '') continue;
 
+                    // Check if the key is a canonicalized version of another key
+                    if (!PluginInstances.settings.canonicalizePropertiesWithDataview && key === canonicalizeVarName(key) && Object.keys(page).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
+                        continue;
+                    }
+
                     if ((typeof value === "object") && ("path" in value)) {
-                        allTypes.add(canonicalizeVarName(key));
+                        allTypes.add(PluginInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
                     }
 
                     if (Array.isArray(value)) {
                         for (const link of value) {
                             if (link && (typeof link === "object") && ("path" in link)) {
-                                allTypes.add(canonicalizeVarName(key));
+                                allTypes.add(PluginInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
                             }
                         }
                     }
