@@ -2,6 +2,7 @@
 export * from "./globalVariables";
 export * from "./pluginInstances";
 
+export * from "./commands";
 export * from "./proxysManager";
 export * from "./graphsManager";
 export * from "./logs";
