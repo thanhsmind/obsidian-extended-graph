@@ -15,6 +15,7 @@ import {
     InteractiveManager,
     Media,
     NodeShape,
+    Pinner,
     PluginInstances
 } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
@@ -24,7 +25,7 @@ import { OutlineFilter } from "@pixi/filter-outline";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
-    selectedNodes: Record<string, { filter: OutlineFilter, originX: number, originY: number }> = {};
+    selectedNodes: Record<string, { node: GraphNode, filter: OutlineFilter, originX: number, originY: number }> = {};
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -265,6 +266,20 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return extendedNode.isPinned;
     }
 
+    pinSelectedNodes() {
+        const pinner = new Pinner(this.instances);
+        for (const id in this.selectedNodes) {
+            pinner.pinNode(id);
+        }
+    }
+
+    unpinSelectedNodes() {
+        const pinner = new Pinner(this.instances);
+        for (const id in this.selectedNodes) {
+            pinner.unpinNode(id);
+        }
+    }
+
     // ============================= SELECT NODES ==============================
 
     selectNodes(bounds: Rectangle) {
@@ -288,6 +303,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 }
 
                 this.selectedNodes[coreNode.id] = {
+                    node: coreNode,
                     filter: filter,
                     originX: coreNode.circle.x,
                     originY: coreNode.circle.y
@@ -298,8 +314,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     unselectNodes() {
         for (const id in this.selectedNodes) {
-            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
-            if (!coreNode) continue;
+            const coreNode = this.selectedNodes[id].node;
+            if (!coreNode.circle) continue;
 
             // Remove filter
             coreNode.circle?.filters?.remove(this.selectedNodes[id].filter);
@@ -318,8 +334,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
             this.instances.dispatcher.inputsManager.isDragging = true;
 
             for (const id in this.selectedNodes) {
-                const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
-                if (!coreNode || !coreNode.circle) return;
+                const coreNode = this.selectedNodes[id].node;
+                if (!coreNode.circle) continue;
 
                 this.selectedNodes[id].originX = coreNode.circle.x;
                 this.selectedNodes[id].originY = coreNode.circle.y;
@@ -338,8 +354,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         for (const id in this.selectedNodes) {
             if (id === this.instances.renderer.dragNode.id) continue;
 
-            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
-            if (!coreNode || !coreNode.circle) return;
+            const coreNode = this.selectedNodes[id].node;
+            if (!coreNode.circle) continue;
 
             coreNode.fx = this.selectedNodes[id].originX + translation.x;
             coreNode.fy = this.selectedNodes[id].originY + translation.y;
@@ -358,9 +374,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     stopMovingSelectedNodes() {
         for (const id in this.selectedNodes) {
-            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
+            const coreNode = this.selectedNodes[id].node;
 
-            if (coreNode && (coreNode.fx !== null || coreNode.fy !== null) && !this.isNodePinned(coreNode.id)) {
+            if ((coreNode.fx !== null || coreNode.fy !== null) && !this.isNodePinned(coreNode.id)) {
                 this.instances.renderer.worker.postMessage({
                     alphaTarget: 0,
                     forceNode: {

@@ -195,6 +195,8 @@
 		"pinMultipleCenter": "Centre",
 		"pinMultipleGridSize": "Nombre de colonnes",
 		"pinMultipleGridSizeDesc": "Les valeurs peuvent être \"N\" (une seule ligne), \"auto\" (grille carrée) ou un entier positif",
+		"pinSelectedNodes": "Épingler les noeuds sélectionnés",
+		"unpinSelectedNodes": "Désépingler tous les noeuds sélectionnés",
 		"size": "Taille",
 		"elementsStats": "Stastiques des noeuds et liens",
 		"elementsStatsDesc": "Choisissez comment couleurs/tailles des noeuds et des liens sont calculées",

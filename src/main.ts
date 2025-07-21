@@ -10,6 +10,7 @@ import {
     INVALID_KEYS,
     isGraphBannerLoaded,
     LINK_KEY,
+    Pinner,
     PluginInstances,
     ProxysManager,
     rgb2hex,
@@ -259,6 +260,65 @@ export default class ExtendedGraphPlugin extends Plugin {
                     if (!checking) {
                         const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
                         instances?.foldersSet?.disableAllWithAtLeastOneNode();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'pin-selected-nodes',
+            name: t("features.pinSelectedNodes"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    if (!instances || Object.keys(instances.nodesSet.selectedNodes).length === 0) {
+                        return;
+                    }
+                    if (!checking) {
+                        instances.nodesSet.pinSelectedNodes();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'unpin-selected-nodes',
+            name: t("features.unpinSelectedNodes"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    if (!instances || Object.keys(instances.nodesSet.selectedNodes).length === 0) {
+                        return;
+                    }
+                    if (Object.keys(instances.nodesSet.selectedNodes).every(id => !instances.nodesSet.isNodePinned(id))) {
+                        return;
+                    }
+                    if (!checking) {
+                        instances.nodesSet.unpinSelectedNodes();
+                    }
+                    return true;
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'unpin-all-nodes',
+            name: t("features.unpinAllNodes"),
+            checkCallback: (checking: boolean) => {
+                // Conditions to check
+                const graphView = getActiveGraphView();
+                if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                    if (!checking) {
+                        const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                        if (instances) {
+                            new Pinner(instances).unpinAllNodes();
+                        }
                     }
                     return true;
                 }

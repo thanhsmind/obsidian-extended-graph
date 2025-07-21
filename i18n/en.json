@@ -223,6 +223,8 @@
         "pinMultipleCenter": "Center",
         "pinMultipleGridSize": "Number of columns",
         "pinMultipleGridSizeDesc": "Values can be 'N' (single row), 'auto' (square grid) or a positive integer",
+        "pinSelectedNodes": "Pin selected nodes",
+        "unpinSelectedNodes": "Unpin selected nodes",
         "size": "Size",
         "elementsStats": "Nodes and links statistics",
         "elementsStatsDesc": "Choose how nodes and links sizes/colors must be computed",

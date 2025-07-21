@@ -51,6 +51,31 @@ export class InputsManager {
         }
     }
 
+    // =============================== UNLOADING ===============================
+
+    unload() {
+        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDownOnStage);
+        this.instances.renderer.px.stage.off('pointerup', this.onPointerUpOnStage);
+        this.instances.renderer.px.stage.off('pointermove', this.onPointerMoveOnStage);
+
+        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
+        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
+        this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
+
+        this.restoreOnNodeClick();
+    }
+
+    private restoreOnNodeClick(): void {
+        if (this.coreOnNodeClick) {
+            this.instances.renderer.onNodeClick = this.coreOnNodeClick;
+            this.coreOnNodeClick = undefined;
+        }
+        if (this.coreOnNodeRightClick) {
+            this.instances.renderer.onNodeRightClick = this.coreOnNodeRightClick;
+            this.coreOnNodeRightClick = undefined;
+        }
+    }
+
     // ========================= POINTERS UP/DOWN/MOVE =========================
 
     private onPointerDownOnStage(e: FederatedPointerEvent): void {
@@ -170,31 +195,6 @@ export class InputsManager {
         }
 
         if (this.coreOnNodeRightClick) this.coreOnNodeRightClick(e, id, type);
-    }
-
-    // =============================== UNLOADING ===============================
-
-    unload() {
-        this.instances.renderer.px.stage.off('pointerdown', this.onPointerDownOnStage);
-        this.instances.renderer.px.stage.off('pointerup', this.onPointerUpOnStage);
-        this.instances.renderer.px.stage.off('pointermove', this.onPointerMoveOnStage);
-
-        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
-        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
-        this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
-
-        this.restoreOnNodeClick();
-    }
-
-    private restoreOnNodeClick(): void {
-        if (this.coreOnNodeClick) {
-            this.instances.renderer.onNodeClick = this.coreOnNodeClick;
-            this.coreOnNodeClick = undefined;
-        }
-        if (this.coreOnNodeRightClick) {
-            this.instances.renderer.onNodeRightClick = this.coreOnNodeRightClick;
-            this.coreOnNodeRightClick = undefined;
-        }
     }
 
     // =============================== PIN NODES ===============================
