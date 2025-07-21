@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { Assets, Texture } from "pixi.js";
+import { Assets, Graphics, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
     AbstractSet,
@@ -14,14 +14,17 @@ import {
     GraphInstances,
     InteractiveManager,
     Media,
+    NodeShape,
     PluginInstances
 } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
+import { OutlineFilter } from "@pixi/filter-outline";
 
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
+    selectedNodes: Record<string, OutlineFilter> = {};
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -260,5 +263,41 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.instances.nodesSet.extendedElementsMap.get(id);
         if (!extendedNode) return;
         return extendedNode.isPinned;
+    }
+
+    // ============================= SELECT NODES ==============================
+
+    selectNodes(bounds: Rectangle) {
+        const selectedNodes = this.instances.renderer.nodes.filter(node =>
+            node.circle && bounds.contains(node.circle.x, node.circle.y));
+
+        for (const coreNode of selectedNodes) {
+            if (coreNode.circle) {
+                const filter = new OutlineFilter(
+                    3, this.instances.renderer.colors.fillHighlight.rgb, 0.1, 1, false
+                );
+
+                if (coreNode.circle.filters) {
+                    if (coreNode.id in this.selectNodes) {
+                        coreNode.circle.filters.remove(filter);
+                    }
+                    coreNode.circle.filters.push(filter);
+                }
+                else {
+                    coreNode.circle.filters = [filter];
+                }
+
+                this.selectedNodes[coreNode.id] = filter;
+            }
+        }
+    }
+
+    unselectNodes() {
+        for (const id in this.selectedNodes) {
+            this.instances.renderer.nodes.find(node => node.id === id)?.circle?.filters?.remove(this.selectedNodes[id]);
+            this.selectedNodes[id].destroy();
+        }
+        this.selectedNodes = {};
+        this.instances.renderer.changed();
     }
 }

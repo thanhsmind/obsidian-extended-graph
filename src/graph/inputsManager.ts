@@ -1,6 +1,6 @@
-import { Keymap, Menu, TFile, UserEvent } from "obsidian";
+import { Keymap, KeymapEventHandler, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
-import { Pinner, ProxysManager, RadialMenuManager, t } from "src/internal";
+import { Pinner, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export class InputsManager {
@@ -31,6 +31,7 @@ export class InputsManager {
 
         this.onPointerUpOnWindow = this.onPointerUpOnWindow.bind(this);
         this.onPointerMoveOnStage = this.onPointerMoveOnStage.bind(this);
+        this.onInputToUnselectNodes = this.onInputToUnselectNodes.bind(this);
     }
 
     private changeNodeOnClick(): void {
@@ -84,6 +85,13 @@ export class InputsManager {
             this.instances.renderer.px.stage.off('globalpointermove', this.onPointerMoveOnStage);
             this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
             this.isSelecting = false;
+
+            // Select nodes
+            this.instances.nodesSet.selectNodes(this.selectionRectangle.getLocalBounds());
+
+            // Listen to unselect
+            this.instances.renderer.interactiveEl.win.addEventListener("mouseup", this.onInputToUnselectNodes);
+            this.instances.renderer.interactiveEl.win.addEventListener("keydown", this.onInputToUnselectNodes);
         }
     }
 
@@ -121,6 +129,16 @@ export class InputsManager {
             Math.abs(pos.y - this.selectionStartPosition.y),
         );
         this.selectionRectangle.endFill();
+    }
+
+    private onInputToUnselectNodes(e: MouseEvent | KeyboardEvent) {
+        if (e instanceof MouseEvent || (e instanceof KeyboardEvent && e.key === "Escape")) {
+            this.instances.nodesSet.unselectNodes();
+
+            // Stop listening
+            this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
+            this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
+        }
     }
 
     // ============================== NODE CLICKS ==============================
