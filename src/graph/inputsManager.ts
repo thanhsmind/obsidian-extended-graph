@@ -1,4 +1,4 @@
-import { Keymap, KeymapEventHandler, Menu, TFile, UserEvent } from "obsidian";
+import { Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
 import { Pinner, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
@@ -9,6 +9,7 @@ export class InputsManager {
     coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
 
     isSelecting: boolean = false;
+    isDragging: boolean = false;
     selectionStartPosition: { x: number, y: number };
     selectionRectangle: Graphics;
 
@@ -29,8 +30,10 @@ export class InputsManager {
         this.onPointerUpOnStage = this.onPointerUpOnStage.bind(this);
         this.instances.renderer.px.stage.on('pointerup', this.onPointerUpOnStage);
 
-        this.onPointerUpOnWindow = this.onPointerUpOnWindow.bind(this);
         this.onPointerMoveOnStage = this.onPointerMoveOnStage.bind(this);
+        this.instances.renderer.px.stage.on('pointermove', this.onPointerMoveOnStage);
+
+        this.onPointerUpOnWindow = this.onPointerUpOnWindow.bind(this);
         this.onInputToUnselectNodes = this.onInputToUnselectNodes.bind(this);
     }
 
@@ -65,7 +68,6 @@ export class InputsManager {
 
             // Start special behaviors
             this.preventPan();
-            this.instances.renderer.px.stage.on('globalpointermove', this.onPointerMoveOnStage);
             this.instances.renderer.interactiveEl.win.addEventListener("mouseup", this.onPointerUpOnWindow);
             this.isSelecting = true;
         }
@@ -82,7 +84,6 @@ export class InputsManager {
 
             // Stop special behaviors
             this.allowPan();
-            this.instances.renderer.px.stage.off('globalpointermove', this.onPointerMoveOnStage);
             this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
             this.isSelecting = false;
 
@@ -116,28 +117,38 @@ export class InputsManager {
     }
 
     private onPointerMoveOnStage(e: FederatedPointerEvent): void {
-        if (!this.isSelecting) return;
+        if (this.isSelecting) {
+            const pos = e.getLocalPosition(this.instances.renderer.hanger);
+            this.selectionRectangle.clear();
+            this.selectionRectangle.beginFill(0x9872f5, 0.1);
+            this.selectionRectangle.lineStyle(2, 0x9872f5, 0.3);
+            this.selectionRectangle.drawRect(
+                Math.min(this.selectionStartPosition.x, pos.x),
+                Math.min(this.selectionStartPosition.y, pos.y),
+                Math.abs(pos.x - this.selectionStartPosition.x),
+                Math.abs(pos.y - this.selectionStartPosition.y),
+            );
+            this.selectionRectangle.endFill();
+        }
 
-        const pos = e.getLocalPosition(this.instances.renderer.hanger);
-        this.selectionRectangle.clear();
-        this.selectionRectangle.beginFill(0x9872f5, 0.1);
-        this.selectionRectangle.lineStyle(2, 0x9872f5, 0.3);
-        this.selectionRectangle.drawRect(
-            Math.min(this.selectionStartPosition.x, pos.x),
-            Math.min(this.selectionStartPosition.y, pos.y),
-            Math.abs(pos.x - this.selectionStartPosition.x),
-            Math.abs(pos.y - this.selectionStartPosition.y),
-        );
-        this.selectionRectangle.endFill();
+        else {
+            this.instances.nodesSet.moveSelectedNodes(e.getLocalPosition(this.instances.renderer.hanger));
+        }
     }
 
     private onInputToUnselectNodes(e: MouseEvent | KeyboardEvent) {
         if (e instanceof MouseEvent || (e instanceof KeyboardEvent && e.key === "Escape")) {
-            this.instances.nodesSet.unselectNodes();
+            if (this.isDragging) {
+                this.isDragging = false;
+                this.instances.nodesSet.stopMovingSelectedNodes();
+            }
+            else {
+                this.instances.nodesSet.unselectNodes();
 
-            // Stop listening
-            this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
-            this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
+                // Stop listening
+                this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
+                this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
+            }
         }
     }
 
@@ -166,9 +177,11 @@ export class InputsManager {
     unload() {
         this.instances.renderer.px.stage.off('pointerdown', this.onPointerDownOnStage);
         this.instances.renderer.px.stage.off('pointerup', this.onPointerUpOnStage);
+        this.instances.renderer.px.stage.off('pointermove', this.onPointerMoveOnStage);
 
         this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onPointerUpOnWindow);
-        this.instances.renderer.px.stage.off('globalpointermove', this.onPointerMoveOnStage);
+        this.instances.renderer.interactiveEl.win.removeEventListener("mouseup", this.onInputToUnselectNodes);
+        this.instances.renderer.interactiveEl.win.removeEventListener("keydown", this.onInputToUnselectNodes);
 
         this.restoreOnNodeClick();
     }

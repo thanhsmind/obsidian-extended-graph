@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { Assets, Graphics, Rectangle, Texture } from "pixi.js";
+import { Assets, Graphics, IPointData, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
     AbstractSet,
@@ -24,7 +24,7 @@ import { OutlineFilter } from "@pixi/filter-outline";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
-    selectedNodes: Record<string, OutlineFilter> = {};
+    selectedNodes: Record<string, { filter: OutlineFilter, originX: number, originY: number }> = {};
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -287,17 +287,91 @@ export class NodesSet extends AbstractSet<GraphNode> {
                     coreNode.circle.filters = [filter];
                 }
 
-                this.selectedNodes[coreNode.id] = filter;
+                this.selectedNodes[coreNode.id] = {
+                    filter: filter,
+                    originX: coreNode.circle.x,
+                    originY: coreNode.circle.y
+                };
             }
         }
     }
 
     unselectNodes() {
         for (const id in this.selectedNodes) {
-            this.instances.renderer.nodes.find(node => node.id === id)?.circle?.filters?.remove(this.selectedNodes[id]);
-            this.selectedNodes[id].destroy();
+            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
+            if (!coreNode) continue;
+
+            // Remove filter
+            coreNode.circle?.filters?.remove(this.selectedNodes[id].filter);
+            this.selectedNodes[id].filter.destroy();
         }
         this.selectedNodes = {};
         this.instances.renderer.changed();
+    }
+
+    moveSelectedNodes(pos: IPointData) {
+        if (!this.instances.renderer.dragNode) {
+            return;
+        }
+
+        if (!this.instances.dispatcher.inputsManager.isDragging) {
+            this.instances.dispatcher.inputsManager.isDragging = true;
+
+            for (const id in this.selectedNodes) {
+                const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
+                if (!coreNode || !coreNode.circle) return;
+
+                this.selectedNodes[id].originX = coreNode.circle.x;
+                this.selectedNodes[id].originY = coreNode.circle.y;
+            }
+        }
+
+        if (!(this.instances.renderer.dragNode.id in this.selectedNodes)) {
+            return;
+        }
+
+        const translation = {
+            x: pos.x - this.selectedNodes[this.instances.renderer.dragNode.id].originX,
+            y: pos.y - this.selectedNodes[this.instances.renderer.dragNode.id].originY
+        };
+
+        for (const id in this.selectedNodes) {
+            if (id === this.instances.renderer.dragNode.id) continue;
+
+            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
+            if (!coreNode || !coreNode.circle) return;
+
+            coreNode.fx = this.selectedNodes[id].originX + translation.x;
+            coreNode.fy = this.selectedNodes[id].originY + translation.y;
+            this.instances.renderer.worker.postMessage({
+                alpha: .3,
+                alphaTarget: .3,
+                run: true,
+                forceNode: {
+                    id: coreNode.id,
+                    x: coreNode.fx,
+                    y: coreNode.fy
+                }
+            });
+        }
+    }
+
+    stopMovingSelectedNodes() {
+        for (const id in this.selectedNodes) {
+            const coreNode = this.instances.renderer.nodes.find(node => node.id === id);
+
+            if (coreNode && (coreNode.fx !== null || coreNode.fy !== null) && !this.isNodePinned(coreNode.id)) {
+                this.instances.renderer.worker.postMessage({
+                    alphaTarget: 0,
+                    forceNode: {
+                        id: coreNode.id,
+                        x: null,
+                        y: null
+                    }
+                });
+                coreNode.fx = null;
+                coreNode.fy = null;
+            }
+        }
     }
 }
