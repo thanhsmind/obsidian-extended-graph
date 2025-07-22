@@ -1,4 +1,5 @@
 import { ButtonComponent, Setting } from "obsidian";
+import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExtendedGraphSettingTab,
     FOLDER_KEY,
@@ -175,5 +176,12 @@ export class SettingProperty extends SettingInteractives {
 
     protected override getPlaceholder(): string {
         return "property-key";
+    }
+
+    protected override getAllTypes(): string[] {
+        if (!getDataviewAPI(PluginInstances.app)) {
+            return PluginInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(this.interactiveKey);
+        }
+        return super.getAllTypes();
     }
 }

@@ -30,4 +30,8 @@ export class SettingTags extends SettingInteractives {
     protected override getPlaceholder(): string {
         return "tag";
     }
+
+    protected override getAllTypes(): string[] {
+        return Object.keys(PluginInstances.app.metadataCache.getTags());
+    }
 }

@@ -1,4 +1,4 @@
-import { getAllTags, getLinkpath, TagCache, TFile, TFolder } from "obsidian";
+import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import path from "path";
 import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
