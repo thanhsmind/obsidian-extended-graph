@@ -79,6 +79,9 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
             else {
                 this.pixiElement.addChild(this.nodeImage);
             }
+            if (!this.pixiElement.parent) {
+                this.connect();
+            }
             if (this.extendedElement.instances.settings.fadeInElements && !this.nodeImage.hasFaded) {
                 fadeIn(this.nodeImage);
             }

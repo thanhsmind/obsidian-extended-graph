@@ -155,18 +155,24 @@ export class GraphEventsDispatcher extends Component {
     onGraphReady(): void {
         try {
             this.updateOpacityLayerColor();
-            this.bindStageEvents();
-            this.inputsManager = new InputsManager(this.instances);
 
-            this.createRenderCallbackProxy();
-            this.createInitGraphicsProxy();
-            this.createDestroyGraphicsProxy();
-            this.changeArrowAlpha();
-            this.removeLineHighlight();
-            this.loadLastFilteringAction();
-            this.registerEventsForLastFilteringAction();
+            if (this.isLocalResetting) {
+                this.isLocalResetting = false;
+            }
+            else {
+                this.bindStageEvents();
+                this.inputsManager = new InputsManager(this.instances);
 
-            PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+                this.createRenderCallbackProxy();
+                this.createInitGraphicsProxy();
+                this.createDestroyGraphicsProxy();
+                this.changeArrowAlpha();
+                this.removeLineHighlight();
+                this.loadLastFilteringAction();
+                this.registerEventsForLastFilteringAction();
+                PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+            }
+
             PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
 
             // Make sure to render one frame in order to render every changes made by the plugin
@@ -434,6 +440,7 @@ export class GraphEventsDispatcher extends Component {
     reloadLocalDispatcher(): void {
         if (this.instances.type !== "localgraph") return;
 
+        this.isLocalResetting = true;
         this.instances.graph.unload();
         this.instances.graph.load();
     }
