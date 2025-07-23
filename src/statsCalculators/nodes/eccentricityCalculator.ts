@@ -1,11 +1,11 @@
 import eccentricity from "graphology-metrics/node/eccentricity";
-import { GraphologySingleton } from "../graphology";
-import { NodeStatCalculator } from "src/internal";
+import { NodeStatCalculator, PluginInstances } from "src/internal";
 
 export class EccentricityCalculator extends NodeStatCalculator {
 
     override async getStat(id: string, invert: boolean): Promise<number> {
-        const connectedGraph = GraphologySingleton.getConnectedGraphology(id, invert);
+        if (!PluginInstances.graphologyGraph) return NaN;
+        const connectedGraph = PluginInstances.graphologyGraph.getConnectedGraphology(id, invert);
         if (!connectedGraph) return NaN;
         return eccentricity(connectedGraph, id);
     }

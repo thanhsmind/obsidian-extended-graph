@@ -18,13 +18,17 @@ export class ExtendedGraphTagNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
 
     protected override needToChangeColor() {
-        return this.instances.settings.enableFeatures[this.instances.type]["tags"]
-            && !SettingQuery.excludeType(this.instances.settings, TAG_KEY, this.id.replace('#', ''));
+        return super.needToChangeColor()
+            || (this.instances.settings.enableFeatures[this.instances.type]["tags"]
+                && !SettingQuery.excludeType(this.instances.settings, TAG_KEY, this.id.replace('#', '')));
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {
-        const color = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
-        if (!color) return undefined;
-        return { rgb: color, a: 1 }
+        if (this.instances.settings.enableFeatures[this.instances.type]["tags"]
+            && !SettingQuery.excludeType(this.instances.settings, TAG_KEY, this.id.replace('#', ''))) {
+            const color = this.managers.get(TAG_KEY)?.getColor(this.id.replace('#', ''));
+            if (color) return { rgb: color, a: 1 }
+        }
+        return super.getFillColor();
     }
 }

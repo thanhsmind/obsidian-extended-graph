@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 
 export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
@@ -55,15 +55,19 @@ export abstract class LinkStatCalculator {
 
     async computeStats(statFunction: LinkStatFunction): Promise<void> {
         this.statFunction = statFunction;
-        GraphologySingleton.getInstance().registerListener(async (graph) => {
+        if (!PluginInstances.graphologyGraph) {
+            PluginInstances.graphologyGraph = new GraphologyGraph();
+        }
+        PluginInstances.graphologyGraph.registerListener(async (graph) => {
             await this.getStats();
             this.mapStat();
         }, true);
     }
 
     private async getStats(): Promise<void> {
+        if (!PluginInstances.graphologyGraph) return;
         this.linksStats = {};
-        const links = GraphologySingleton.getInstance().graphologyGraph?.edgeEntries();
+        const links = PluginInstances.graphologyGraph.graphology?.edgeEntries();
         if (!links) return;
         for (const link of links) {
             if (!this.linksStats[link.source]) {

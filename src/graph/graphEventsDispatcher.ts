@@ -14,6 +14,7 @@ import {
     getNodeTextStyle,
     Graph,
     GraphInstances,
+    GraphologyGraph,
     InputsManager,
     LegendUI,
     lengthSegment,
@@ -216,6 +217,8 @@ export class GraphEventsDispatcher extends Component {
 
     private createSetDataProxy() {
         const updateData = this.updateData.bind(this);
+        const instances = this.instances;
+        const needToUpdateGraphology = (this.instances.type === "localgraph" && this.instances.settings.colorBasedOnDepth);
 
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
@@ -225,7 +228,19 @@ export class GraphEventsDispatcher extends Component {
                     const data = updateData(args[0] as GraphData);
                     if (data) {
                         args[0] = data;
-                        return Reflect.apply(target, thisArg, args);
+                        const res = Reflect.apply(target, thisArg, args);
+
+                        // Check if we need to recompute the graphology
+                        if (needToUpdateGraphology) {
+                            if (instances.graphologyGraph) {
+                                instances.graphologyGraph.buildGraphology();
+                            }
+                            else {
+                                instances.graphologyGraph = new GraphologyGraph(instances);
+                            }
+                        }
+
+                        return res;
                     }
                     else {
                         return false;

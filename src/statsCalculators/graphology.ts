@@ -1,17 +1,19 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { PluginInstances } from 'src/internal';
+import { GraphInstances, PluginInstances } from 'src/internal';
 import { reverse } from 'graphology-operators';
+import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
+import { LocalGraphView } from 'obsidian-typings';
 
-export class GraphologySingleton {
-    static _instance: GraphologySingleton;
-
-    graphologyGraph?: Graphology;
+export class GraphologyGraph {
+    graphology?: Graphology;
     doneListeners: ((graphologyGraph: Graphology) => any)[] = [];
     graphologyConnectedGraphs = new Map<string, Graphology>();
+    instances?: GraphInstances;
 
-    private constructor() {
+    constructor(instances?: GraphInstances) {
         this.buildGraphology = this.buildGraphology.bind(this);
+        this.instances = instances;
 
         if (PluginInstances.app.metadataCache.isCacheClean()) {
             this.buildGraphology();
@@ -21,62 +23,101 @@ export class GraphologySingleton {
         }
     }
 
-    private buildGraphology() {
+    buildGraphology() {
         PluginInstances.app.metadataCache.off("resolved", this.buildGraphology);
 
-        if (this.graphologyGraph) {
-            this.graphologyGraph.clear();
+        if (this.graphology) {
+            this.graphology.clear();
         }
         else {
-            this.graphologyGraph = new Graphology();
+            this.graphology = new Graphology();
         }
 
-        // Add existing files
-        const files = PluginInstances.app.vault.getFiles();
-        for (const file of files) {
-            this.graphologyGraph.addNode(file.path);
-        }
+        if (this.instances) {
+            // Add nodes
+            for (const node of this.instances.renderer.nodes) {
+                this.graphology.addNode(node.id);
+            }
 
-        // Add unresolved links
-        const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
-        for (const [source, references] of Object.entries(resolvedLinks)) {
-            for (const [target, count] of Object.entries(references)) {
-                this.graphologyGraph.addEdge(source, target, { count: count });
+            // Add links
+            const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
+            const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
+            for (const link of this.instances.renderer.links) {
+                let count = 1;
+
+                // Get the number of occurences in the vault
+                const resolvedReference = resolvedLinks[link.source.id];
+                if (resolvedReference) {
+                    count = resolvedReference[link.target.id] ?? count;
+                }
+                const unresolvedReference = unresolvedLinks[link.source.id];
+                if (unresolvedReference) {
+                    count += unresolvedReference[link.target.id] ?? 0;
+                }
+
+                this.graphology.addEdge(link.source.id, link.target.id, { count: count });
             }
         }
 
-        // Add unresolved links and files
-        const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
-        for (const [source, references] of Object.entries(unresolvedLinks)) {
-            for (const [target, count] of Object.entries(references)) {
-                if (!this.graphologyGraph.hasNode(target)) this.graphologyGraph.addNode(target);
-                this.graphologyGraph.addEdge(source, target, { count: count });
+        else {
+            // Add existing files
+            const files = PluginInstances.app.vault.getFiles();
+            for (const file of files) {
+                this.graphology.addNode(file.path);
+            }
+
+            // Add unresolved links
+            const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
+            for (const [source, references] of Object.entries(resolvedLinks)) {
+                for (const [target, count] of Object.entries(references)) {
+                    this.graphology.addEdge(source, target, { count: count });
+                }
+            }
+
+            // Add unresolved links and files
+            const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
+            for (const [source, references] of Object.entries(unresolvedLinks)) {
+                for (const [target, count] of Object.entries(references)) {
+                    if (!this.graphology.hasNode(target)) this.graphology.addNode(target);
+                    this.graphology.addEdge(source, target, { count: count });
+                }
             }
         }
+
+        this.computeAttributes();
 
         for (const callback of this.doneListeners) {
-            callback(this.graphologyGraph);
+            callback(this.graphology);
+        }
+    }
+
+    private computeAttributes() {
+        if (!this.graphology) return;
+
+        if (this.instances?.type === "localgraph") {
+            const mainNode = (this.instances.view as LocalGraphView).file?.path;
+            if (mainNode) {
+                const paths = undirectedSingleSourceLength(this.graphology, mainNode);
+                for (const target in paths) {
+                    this.graphology.setNodeAttribute(target, 'depth', paths[target]);
+                }
+            }
         }
     }
 
     registerListener(callback: (graphologyGraph: Graphology) => any, triggerIfPossible: boolean = false) {
         this.doneListeners.push(callback);
-        if (triggerIfPossible && this.graphologyGraph) {
-            callback(this.graphologyGraph);
+        if (triggerIfPossible && this.graphology) {
+            callback(this.graphology);
         }
     }
 
-    static getInstance(): GraphologySingleton {
-        if (!GraphologySingleton._instance) GraphologySingleton._instance = new GraphologySingleton();
-        return GraphologySingleton._instance;
+    getGraphology(): Graphology | undefined {
+        return this.graphology;
     }
 
-    static getGraphology(): Graphology | undefined {
-        return GraphologySingleton.getInstance().graphologyGraph;
-    }
-
-    static getConnectedGraphology(node: string, invert: boolean) {
-        const graphology = GraphologySingleton.getInstance().graphologyGraph;
+    getConnectedGraphology(node: string, invert: boolean) {
+        const graphology = this.graphology;
         if (!graphology) return;
 
         const addNeighbors = function (originalGraph: Graphology, subGraph: Graphology, node: string) {

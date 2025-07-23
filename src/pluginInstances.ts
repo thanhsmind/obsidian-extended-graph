@@ -18,7 +18,8 @@ import {
     StatesUI,
     CSSFolderStyle,
     GraphStateData,
-    canonicalizeVarName
+    canonicalizeVarName,
+    GraphologyGraph
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -33,6 +34,7 @@ export class PluginInstances {
     static proxysManager: ProxysManager; // init in main.ts
     static pinSVGDataUrl: string; // init in main.ts
     static configurationDirectory: string; // init in main.ts
+    static graphologyGraph?: GraphologyGraph; // init the first time it is needed
 }
 
 export class GraphInstances {
@@ -48,6 +50,7 @@ export class GraphInstances {
     filter: GraphFilter; // init in graphEventsDispatcher.ts (constructor)
     graph: Graph; // init in graph.ts (constructor)
     stateData?: GraphStateData; // graphsManager.ts (addGraph) and changed in statesUI.ts
+    graphologyGraph?: GraphologyGraph; // init the first time it is needed
 
 
     nodesSet: NodesSet; // init in graph.ts (constructor)

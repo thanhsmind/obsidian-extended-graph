@@ -1,5 +1,5 @@
 import { GraphColorAttributes } from "obsidian-typings";
-import { ExtendedGraphNode, FileNodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
+import { evaluateCMap, ExtendedGraphNode, FileNodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
 
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
@@ -47,17 +47,33 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     // ============================== NODE COLOR ===============================
 
     protected override needToChangeColor() {
-        return this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
-            && PluginInstances.settings.nodesColorFunction !== "default";
+        return super.needToChangeColor() ||
+            (this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
+                && PluginInstances.settings.nodesColorFunction !== "default");
     }
 
     protected override needToUpdateGraphicsColor(): boolean {
-        return !!this.graphicsWrapper.background || !!this.graphicsWrapper?.iconSprite;
+        return super.needToUpdateGraphicsColor()
+            || !!this.graphicsWrapper.background
+            || !!this.graphicsWrapper?.iconSprite;
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {
-        const rgb = PluginInstances.graphsManager.nodesColorCalculator?.filesStats.get(this.id);
-        if (!rgb) return undefined;
-        return { rgb: rgb.value, a: 1 }
+        if ((this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
+            && PluginInstances.settings.nodesColorFunction !== "default")) {
+            const rgb = PluginInstances.graphsManager.nodesColorCalculator?.filesStats.get(this.id);
+            if (rgb) return { rgb: rgb.value, a: 1 }
+        }
+
+        if (this.instances.type === "localgraph" && this.instances.settings.colorBasedOnDepth && this.instances.graphologyGraph?.graphology) {
+            const maxDepth = 5;
+            const depth = this.instances.graphologyGraph.graphology.getNodeAttribute(this.id, 'depth');
+            if (depth && depth > 0) {
+                const x = (depth - 1) / (maxDepth - 1);
+                return { rgb: evaluateCMap(x, this.instances.settings.depthColormap, this.instances.settings), a: 1 };
+            }
+        }
+
+        return super.getFillColor();
     }
 }

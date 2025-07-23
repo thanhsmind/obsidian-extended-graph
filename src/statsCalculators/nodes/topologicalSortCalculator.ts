@@ -1,5 +1,5 @@
-import { GraphologySingleton } from "../graphology";
-import { NodeStatCalculator } from "src/internal";
+import { GraphologyGraph } from "../graphology";
+import { NodeStatCalculator, PluginInstances } from "src/internal";
 import { stronglyConnectedComponents } from "graphology-components";
 import { DirectedGraph } from "graphology";
 import { topologicalSort } from "graphology-dag";
@@ -9,7 +9,8 @@ export class TopologicalSortCalculator extends NodeStatCalculator {
     topologicalWeights: Map<string, number> = new Map<string, number>();
 
     override async getStats(invert: boolean): Promise<void> {
-        const graphology = GraphologySingleton.getInstance().graphologyGraph;
+        if (!PluginInstances.graphologyGraph) return;
+        const graphology = PluginInstances.graphologyGraph.graphology;
         if (!graphology) return;
         const g = invert ? reverse(graphology) : graphology;
         const components = stronglyConnectedComponents(g);

@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologySingleton, PluginInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
 
@@ -33,15 +33,19 @@ export abstract class NodeStatCalculator {
     }
 
     async computeStats(invert: boolean): Promise<void> {
-        GraphologySingleton.getInstance().registerListener(async (graph) => {
+        if (!PluginInstances.graphologyGraph) {
+            PluginInstances.graphologyGraph = new GraphologyGraph();
+        }
+        PluginInstances.graphologyGraph.registerListener(async (graph) => {
             await this.getStats(invert);
             this.mapStat();
         }, true);
     }
 
     protected async getStats(invert: boolean): Promise<void> {
+        if (!PluginInstances.graphologyGraph) return;
         this.filesStats = new Map<string, { measure: number, value: number }>();
-        const ids = GraphologySingleton.getInstance().graphologyGraph?.nodes();
+        const ids = PluginInstances.graphologyGraph.graphology?.nodes();
         if (!ids) return;
         for (const id of ids) {
             this.getStat(id, invert).then(size => this.filesStats.set(id, { measure: size, value: 0 }));

@@ -3,6 +3,7 @@ import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
+    evaluateCMap,
     ExtendedGraphElement,
     ExtendedGraphText,
     getLinkID,
@@ -85,8 +86,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
-    protected needToChangeColor(): boolean { return false; }
+    protected needToChangeColor(): boolean {
+        return this.instances.type === "localgraph" && this.instances.settings.colorBasedOnDepth;
+    }
+
     protected needToUpdateGraphicsColor(): boolean { return false; }
+
     private proxyGetFillColor(): void {
         const needToUpdateGraphicsColor = this.needToUpdateGraphicsColor();
         const needToChangeColor = this.needToChangeColor();
@@ -274,7 +279,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         return overrideColor;
     }
 
-    protected getFillColor(): GraphColorAttributes | undefined { return; };
+    protected getFillColor(): GraphColorAttributes | undefined {
+        return;
+    };
 
     // ============================== CORE ELEMENT =============================
 

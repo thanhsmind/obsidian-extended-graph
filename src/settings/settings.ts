@@ -113,6 +113,8 @@ export interface ExtendedGraphSettings {
     animationSpeedForDots: number;
     interactivesBrightness: { light: number, dark: number };
     fadeInElements: boolean;
+    colorBasedOnDepth: boolean;
+    depthColormap: string;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -298,6 +300,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     animationSpeedForDots: 1,
     interactivesBrightness: { light: 1, dark: 1 },
     fadeInElements: false,
+    colorBasedOnDepth: false,
+    depthColormap: "rainbow",
 
     // Links
     allowMultipleLinkTypes: false,
@@ -579,8 +583,11 @@ export class SettingQuery {
             return true;
         if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
             'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
-            'fadeInElements'].some(key => !equals(key)))
+            'fadeInElements', 'colorBasedOnDepth'].some(key => !equals(key)))
             return true;
+        if (newSettings.colorBasedOnDepth && !equals('depthColormap')) {
+            return true;
+        }
 
         // Automation
         if (['openInNewTab'].some(key => !equals(key)))
