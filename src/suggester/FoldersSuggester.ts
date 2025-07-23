@@ -13,7 +13,7 @@ export class FoldersSuggester extends AbstractFormattingSuggester {
 
     protected override getStringSuggestions(query: string): string[] {
         return this.folders.reduce((acc: string[], folder) => {
-            if (folder.path.toLowerCase().includes(query.toLowerCase())) {
+            if (new RegExp(query, "i").exec(folder.path)) {
                 acc.push(folder.path);
             }
             return acc;

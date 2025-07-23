@@ -13,7 +13,7 @@ export class FilesSuggester extends AbstractFormattingSuggester {
 
     protected override getStringSuggestions(query: string): string[] {
         return this.files.reduce((acc: string[], file) => {
-            if (file.path.toLowerCase().includes(query.toLowerCase())) {
+            if (new RegExp(query, "i").exec(file.path)) {
                 acc.push(file.path);
             }
             return acc;

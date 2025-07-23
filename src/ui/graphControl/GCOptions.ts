@@ -129,9 +129,10 @@ export class GCOptions extends GCSection {
                     const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
                     if (!instances) return;
                     const pinner = new Pinner(instances);
-                    const modal = new PinMultipleNodesModal((shapeData, queryData) => {
-                        pinner.pinInShape(shapeData, queryData);
-                    });
+                    const modal = new PinMultipleNodesModal(this.instances?.settings ?? PluginInstances.settings,
+                        (shapeData, queryData) => {
+                            pinner.pinInShape(shapeData, queryData);
+                        });
                     modal.open();
                 })
             });

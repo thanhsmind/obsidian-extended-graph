@@ -1,13 +1,13 @@
 import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import path from "path";
-import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, PluginInstances, TAG_KEY } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, PluginInstances, TAG_KEY } from "src/internal";
 
 export function getFile(path: string): TFile | null {
     return PluginInstances.app.vault.getFileByPath(path);
 }
 
-export function getFileInteractives(interactive: string, file: TFile): Set<string> {
+export function getFileInteractives(interactive: string, file: TFile, settings?: ExtendedGraphSettings): Set<string> {
     if (PluginInstances.app.metadataCache.isUserIgnored(file.path)) return new Set();
 
     if (file.extension !== "md") return new Set<string>();
@@ -17,7 +17,7 @@ export function getFileInteractives(interactive: string, file: TFile): Set<strin
         case FOLDER_KEY:
             return getFolderPath(file);
         default:
-            return getProperty(interactive, file);
+            return getProperty(settings ?? PluginInstances.settings, interactive, file);
     }
 }
 
@@ -90,16 +90,29 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
     }
 }
 
-function getProperty(key: string, file: TFile): Set<string> {
+function getProperty(settings: ExtendedGraphSettings, key: string, file: TFile): Set<string> {
     const dv = getDataviewAPI(PluginInstances.app);
     const types = new Set<string>();
 
     // With Dataview
     if (dv) {
         const sourcePage = dv.page(file.path);
-        const values = sourcePage[key];
-        if (values === null || values === undefined || values === '') return new Set<string>();
-        recursiveGetProperties(values, types);
+        if (settings.canonicalizePropertiesWithDataview) {
+            const uncanonicalizedKeys = Object.keys(sourcePage).filter(k => canonicalizeVarName(k) === canonicalizeVarName(key));
+            const values = uncanonicalizedKeys.reduce((acc: any[], k: string) => {
+                if (sourcePage[k] === null || sourcePage[k] === undefined || sourcePage[k] === '') {
+                    return acc;
+                }
+                return acc.concat([sourcePage[k]]);
+            }, []);
+            if (values.length === 0) return new Set<string>();
+            recursiveGetProperties(values, types);
+        }
+        else {
+            const values = sourcePage[key];
+            if (values === null || values === undefined || values === '') return new Set<string>();
+            recursiveGetProperties(values, types);
+        }
     }
 
     // Links in the frontmatter
@@ -159,6 +172,18 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
     }
 
     return 1;
+}
+
+export function getAllVaultProperties(settings: ExtendedGraphSettings): string[] {
+    const dv = getDataviewAPI(PluginInstances.app);
+    if (!dv) {
+        return Object.keys(PluginInstances.app.metadataCache.getAllPropertyInfos());
+    }
+    else {
+        return dv.pages().values.reduce((acc: string[], page: any) => {
+            return acc.concat(getDataviewPageProperties(settings.canonicalizePropertiesWithDataview, page));
+        }, []);
+    }
 }
 
 // ================================ FOLDERS ================================= //

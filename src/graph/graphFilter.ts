@@ -87,7 +87,7 @@ export class GraphFilter {
                 const file = getFile(id);
                 if (file) {
                     for (const [key, manager] of this.instances.nodesSet.managers) {
-                        const interactives = getFileInteractives(key, file);
+                        const interactives = getFileInteractives(key, file, this.instances.settings);
                         if (interactives.size === 0) {
                             interactives.add(this.instances.settings.interactiveSettings[key].noneType);
                         }

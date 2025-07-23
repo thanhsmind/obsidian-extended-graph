@@ -1,5 +1,4 @@
-import { AbstractFormattingSuggester } from "src/internal";
-import { PluginInstances } from "src/pluginInstances";
+import { AbstractFormattingSuggester, getAllVaultProperties, PluginInstances } from "src/internal";
 
 export class PropertiesSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
@@ -10,11 +9,9 @@ export class PropertiesSuggester extends AbstractFormattingSuggester {
     }
 
     protected getStringSuggestions(query: string): string[] {
-        const values = Object.keys(PluginInstances.app.metadataTypeManager.properties);
-
-        let filteredValues = values.filter(value => value.contains(query));
-        let sortedValues = new Set(filteredValues.sort());
-        return [...sortedValues];
+        const values = getAllVaultProperties(PluginInstances.settings);
+        const filteredValues = values.filter(value => new RegExp(query, "i").exec(value));
+        return [...new Set(filteredValues)];
     }
 
     override selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {

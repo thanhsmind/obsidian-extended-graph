@@ -12,9 +12,8 @@ export class CSSSnippetsSuggester extends AbstractFormattingSuggester {
     protected getStringSuggestions(query: string): string[] {
         const values = [...PluginInstances.app.customCss.enabledSnippets];
 
-        let filteredValues = values.filter(value => value.contains(query));
-        let sortedValues = new Set(filteredValues.sort());
-        return [...sortedValues];
+        let filteredValues = values.filter(value => new RegExp(query, "i").exec(value));
+        return [...new Set(filteredValues)];
     }
 
     override selectSuggestion(value: HTMLElement, evt: MouseEvent | KeyboardEvent): void {

@@ -1,5 +1,5 @@
 import { TFile, TFolder } from "obsidian";
-import { getFileInteractives, LINK_KEY, PluginInstances, t, TAG_KEY } from "src/internal";
+import { ExtendedGraphSettings, getFileInteractives, LINK_KEY, PluginInstances, t, TAG_KEY } from "src/internal";
 
 export type SourceKey = 'all' | 'tag' | 'link' | 'property' | 'file' | 'folder' | 'folderRec' | 'path';
 export type LogicKey = 'is' | 'isNot' | 'contains' | 'containsNot' | 'matchesRegex' | 'matchesRegexNot' | 'containsRegex' | 'containsRegexNot' | 'isEmpty' | 'isEmptyNot';
@@ -54,7 +54,7 @@ export class RuleQuery {
         return PluginInstances.app.vault.getMarkdownFiles().filter(file => this.doesMatch(file));
     }
 
-    doesMatch(file: TFile): boolean | null {
+    doesMatch(file: TFile, settings?: ExtendedGraphSettings): boolean | null {
         if (!this.isValid()) return null;
         const folder = file.path;
         switch ((this.source as SourceKey)) {
@@ -65,12 +65,12 @@ export class RuleQuery {
                 return this.checkLogic([...tags]);
 
             case 'link':
-                const links = getFileInteractives(LINK_KEY, file);
+                const links = getFileInteractives(LINK_KEY, file, settings);
                 return this.checkLogic([...links]);
 
             case 'property':
                 if (!this.property) break;
-                const properties = getFileInteractives(this.property, file);
+                const properties = getFileInteractives(this.property, file, settings);
                 return this.checkLogic([...properties]);
 
             case 'file':

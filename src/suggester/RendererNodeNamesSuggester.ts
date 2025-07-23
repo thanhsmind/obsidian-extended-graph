@@ -13,7 +13,7 @@ export class RendererNodeNamesSuggester extends AbstractInputSuggest<string> {
     }
 
     protected getSuggestions(query: string): string[] {
-        return this.renderer.nodes.filter(node => node.id.toLowerCase().contains(query.toLowerCase())).map(node => node.id);
+        return this.renderer.nodes.filter(node => new RegExp(query, "i").exec(node.id)).map(node => node.id);
     }
 
     renderSuggestion(value: string, el: HTMLElement): void {

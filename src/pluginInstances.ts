@@ -17,7 +17,8 @@ import {
     StatesManager,
     StatesUI,
     CSSFolderStyle,
-    GraphStateData
+    GraphStateData,
+    canonicalizeVarName
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -70,10 +71,35 @@ export class GraphInstances {
     constructor(view: GraphView | LocalGraphView) {
         this.view = view;
         this.settings = structuredClone(PluginInstances.settings);
+        this.canonicalizeProperties();
         this.type = this.view.getViewType() === "graph" ? "graph" : "localgraph";
         const engine = getEngine(this.view);
         if (!engine) throw new Error("Graph engine is not initialized");
         this.engine = engine;
         this.renderer = this.view.renderer;
+    }
+
+    private canonicalizeProperties() {
+        if (!this.settings.canonicalizePropertiesWithDataview) return;
+        for (const property in this.settings.additionalProperties) {
+            const canonicalizedProperty = canonicalizeVarName(property);
+            if (canonicalizedProperty === property) continue;
+
+            if (canonicalizedProperty in this.settings.additionalProperties) {
+                delete this.settings.additionalProperties[property];
+            }
+            else {
+                this.settings.additionalProperties[canonicalizedProperty] = this.settings.additionalProperties[property];
+                delete this.settings.additionalProperties[property];
+            }
+
+            if (canonicalizedProperty in this.settings.interactiveSettings) {
+                delete this.settings.interactiveSettings[property];
+            }
+            else {
+                this.settings.interactiveSettings[canonicalizedProperty] = this.settings.interactiveSettings[property];
+                delete this.settings.interactiveSettings[property];
+            }
+        }
     }
 }

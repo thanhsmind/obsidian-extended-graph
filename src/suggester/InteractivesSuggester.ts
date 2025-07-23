@@ -1,12 +1,14 @@
-import { AbstractFormattingSuggester, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, ExtendedGraphSettings, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;
     propertyKey: string | undefined;
+    settings: ExtendedGraphSettings;
     callback: (value: string) => void;
 
-    constructor(textInputEl: HTMLInputElement | HTMLDivElement, callback: (value: string) => void) {
+    constructor(textInputEl: HTMLInputElement | HTMLDivElement, settings: ExtendedGraphSettings, callback: (value: string) => void) {
         super(textInputEl);
+        this.settings = settings;
         this.callback = callback;
     }
 
@@ -24,7 +26,7 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
             case 'property':
                 if (!this.propertyKey) return [];
                 for (const file of files) {
-                    values = values.concat([...getFileInteractives(this.propertyKey, file)]);
+                    values = values.concat([...getFileInteractives(this.propertyKey, file, this.settings)]);
                 }
                 break;
             case 'link':
@@ -50,9 +52,8 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
                 break;
         }
 
-        let filteredValues = values.filter(value => value.toLowerCase().contains(query.toLowerCase()));
-        let sortedValues = new Set(filteredValues.sort());
-        return [...sortedValues];
+        let filteredValues = values.filter(value => new RegExp(query, "i").exec(value));
+        return [...new Set(filteredValues)];
     }
 
     setKey(key?: SourceKey, propertyKey?: string): void {

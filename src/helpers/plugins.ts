@@ -1,6 +1,6 @@
 import { getIcon, Plugin } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, PluginInstances } from "src/internal";
+import { canonicalizeVarName, GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, PluginInstances } from "src/internal";
 
 
 // ======================== Graph Analysis
@@ -115,4 +115,22 @@ export function isGraphBannerView(view: LocalGraphView | GraphView) {
 
 export function getGraphBannerPlugin(): GraphBannerPlugin | undefined {
     return PluginInstances.app.plugins.getPlugin('graph-banner') as GraphBannerPlugin
+}
+
+// ======================== Dataview
+
+export function getDataviewPageProperties(canonicalizeProperties: boolean, page: any): string[] {
+    const properties: string[] = [];
+    for (const [key, value] of Object.entries(page)) {
+        if (key === "file") continue;
+        if (value === null || value === undefined || value === '') continue;
+
+        // Check if the key is a canonicalized version of another key
+        if (!canonicalizeProperties && key === canonicalizeVarName(key) && Object.keys(page).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
+            continue;
+        }
+
+        properties.push(canonicalizeProperties ? canonicalizeVarName(key) : key);
+    }
+    return properties;
 }

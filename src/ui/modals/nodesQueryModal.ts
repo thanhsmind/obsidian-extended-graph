@@ -1,6 +1,8 @@
-import { ButtonComponent, DropdownComponent, Modal, SearchComponent, Setting } from "obsidian";
+import { ButtonComponent, DropdownComponent, getLanguage, Modal, SearchComponent, Setting } from "obsidian";
 import {
     CombinationLogic,
+    ExtendedGraphSettings,
+    getAllVaultProperties,
     InteractivesSuggester,
     LogicKey,
     logicKeyLabel,
@@ -28,13 +30,15 @@ export class NodesQueryModal extends Modal {
         'AND': null,
         'OR': null
     };
+    settings?: ExtendedGraphSettings;
 
-    constructor(title: string, queryData: QueryData, callback: (queryData: QueryData) => void) {
+    constructor(title: string, queryData: QueryData, callback: (queryData: QueryData) => void, settings?: ExtendedGraphSettings) {
         super(PluginInstances.app);
         this.setTitle(title);
         this.modalEl.addClass("graph-modal-nodes-query");
         this.callback = callback;
         this.queryData = queryData;
+        this.settings = settings;
     }
 
     onOpen() {
@@ -89,6 +93,7 @@ export class NodesQueryModal extends Modal {
     protected addRule(queryRecord?: Record<string, string>) {
         const ruleSetting = new RuleSetting(
             this.contentEl,
+            this.settings ?? PluginInstances.settings,
             this.removeRule.bind(this),
             this.onChange.bind(this),
             queryRecord
@@ -122,7 +127,7 @@ export class NodesQueryModal extends Modal {
 
     onChange(ruleQuery?: RuleQuery) {
         const matcher = this.getMatcher();
-        const files = matcher.getMatches();
+        const files = matcher.getMatches(this.settings);
         this.viewMatchesButton.setButtonText(`${t("query.viewMatches")} (${files.length})`);
         this.viewMatchesButton.setDisabled(files.length === 0);
     }
@@ -158,6 +163,7 @@ export class NodesQueryModal extends Modal {
 
 
 class RuleSetting extends Setting {
+    settings: ExtendedGraphSettings;
     onRemoveCallback: (s: RuleSetting) => void;
     onChangeCallback: (r: RuleQuery) => void
 
@@ -167,9 +173,10 @@ class RuleSetting extends Setting {
     valueText: SearchComponent | null;
     suggester: InteractivesSuggester | null;
 
-    constructor(containerEl: HTMLElement, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
+    constructor(containerEl: HTMLElement, settings: ExtendedGraphSettings, onRemove: (s: RuleSetting) => void, onChange: (r: RuleQuery) => void, queryRecord?: Record<string, string>) {
         super(containerEl);
 
+        this.settings = settings;
         this.onRemoveCallback = onRemove;
 
         this.setClass('rule-setting');
@@ -238,8 +245,11 @@ class RuleSetting extends Setting {
         return this.addDropdown(cb => {
             this.propertyDropdown = cb;
             this.controlEl.insertAfter(cb.selectEl, this.sourceDropdown.selectEl);
-            const properties = PluginInstances.app.metadataTypeManager.properties;
-            cb.addOptions(Object.keys(properties).sort().reduce((res: Record<string, string>, key: string) => (res[key] = properties[key].name, res), {}));
+            const properties = getAllVaultProperties(this.settings);
+            cb.addOptions(
+                properties.sort((a, b) => a.localeCompare(b, getLanguage(), { 'sensitivity': 'base' }))
+                    .reduce((acc: Record<string, string>, key: string) => (acc[key] = key, acc), {})
+            );
             cb.onChange(value => {
                 this.onChange();
             });
@@ -268,9 +278,10 @@ class RuleSetting extends Setting {
             this.valueText = cb;
             cb.setPlaceholder(t("plugin.valuePlaceholder"));
             cb.inputEl.setAttr('required', true);
-            this.suggester = new InteractivesSuggester(this.valueText.inputEl, (value: string) => {
-                this.onChange();
-            });
+            this.suggester = new InteractivesSuggester(this.valueText.inputEl, this.settings,
+                (value: string) => {
+                    this.onChange();
+                });
             cb.onChange(value => {
                 this.onChange();
             })

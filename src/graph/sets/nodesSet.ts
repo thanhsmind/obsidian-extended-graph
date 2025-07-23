@@ -196,7 +196,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     protected override getTypesFromFile(key: string, element: GraphNode, file: TFile): Set<string> {
-        return getFileInteractives(key, file);
+        return getFileInteractives(key, file, this.instances.settings);
     }
 
     protected getAbstractFile(node: GraphNode): TFile | null {

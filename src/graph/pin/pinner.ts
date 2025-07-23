@@ -116,7 +116,7 @@ export class Pinner {
         }
 
         const matcher = new QueryMatcher(queryData);
-        const ids = matcher.getMatches().map(file => file.path);
+        const ids = matcher.getMatches(this.instances.settings).map(file => file.path);
         const nodes = [...this.instances.nodesSet.extendedElementsMap.values()].filter(n => ids.includes(n.id));
 
         pinShape.pinNodes(nodes);

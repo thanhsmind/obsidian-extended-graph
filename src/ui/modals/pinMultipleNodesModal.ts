@@ -1,15 +1,16 @@
 import { Setting } from "obsidian";
-import { NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, PluginInstances, QueryData, RuleQuery, t } from "src/internal";
+import { ExtendedGraphSettings, NodesQueryModal, PinShapeData, PinShapeLabels, PinShapeType, PluginInstances, QueryData, RuleQuery, t } from "src/internal";
 
 export class PinMultipleNodesModal extends NodesQueryModal {
     pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void;
     shapeData: PinShapeData;
     gridSetting: Setting | null;
 
-    constructor(pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
+    constructor(settings: ExtendedGraphSettings, pinCallback: (shapeData: PinShapeData, queryData: QueryData) => void) {
         super(t("features.pinMultipleNodes"),
             PluginInstances.settings.multipleNodesData.queryData ?? { combinationLogic: 'AND', rules: [] },
-            (queryData) => { this.pinCallback(this.shapeData, queryData); }
+            (queryData) => { this.pinCallback(this.shapeData, queryData); },
+            settings
         );
         this.pinCallback = pinCallback;
         this.shapeData = PluginInstances.settings.multipleNodesData.shapeData ?? {

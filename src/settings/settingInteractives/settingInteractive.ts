@@ -192,11 +192,12 @@ export class SettingColor extends Setting {
         // Input
         this.addSearch(cb => {
             this.textComponent = cb;
-            const suggester = new InteractivesColorSuggester(cb.inputEl, (value) => {
-                this.toggleWarning();
-                this.save();
-                suggester.typeToInclude = this.data.type;
-            });
+            const suggester = new InteractivesColorSuggester(cb.inputEl, PluginInstances.settings,
+                (value) => {
+                    this.toggleWarning();
+                    this.save();
+                    suggester.typeToInclude = this.data.type;
+                });
             suggester.typeToInclude = this.data.type;
             switch (key) {
                 case LINK_KEY:

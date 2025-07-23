@@ -20,11 +20,11 @@ export class ExtendedElementsSuggester extends AbstractInputSuggest<string> {
         switch (this.set) {
             case 'nodes':
                 return [...this.instances.nodesSet.extendedElementsMap.keys()]
-                    .filter(id => id.toLowerCase().contains(query.toLowerCase()))
+                    .filter(id => new RegExp(query, "i").exec(id))
             case 'pinned':
                 return [...this.instances.nodesSet.extendedElementsMap.values()]
                     .reduce((acc: string[], curr: ExtendedGraphNode) => {
-                        if (curr.isPinned && curr.id.toLowerCase().contains(query.toLowerCase())) acc.push(curr.id);
+                        if (curr.isPinned && new RegExp(query, "i").exec(curr.id)) acc.push(curr.id);
                         return acc;
                     }, []);
             case 'folders':
@@ -33,7 +33,7 @@ export class ExtendedElementsSuggester extends AbstractInputSuggest<string> {
                 if (!manager) return [];
 
                 return manager.getTypesWithoutNone()
-                    .filter(id => id.toLowerCase().contains(query.toLowerCase()));
+                    .filter(id => new RegExp(query, "i").exec(id));
         }
     }
 
