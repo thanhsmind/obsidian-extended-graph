@@ -94,7 +94,7 @@ export class GraphologyGraph {
     private computeAttributes() {
         if (!this.graphology) return;
 
-        if (this.instances?.type === "localgraph") {
+        if (this.instances?.type === "localgraph" && this.instances.settings.depthColormap) {
             const mainNode = (this.instances.view as LocalGraphView).file?.path;
             if (mainNode) {
                 const paths = undirectedSingleSourceLength(this.graphology, mainNode);
