@@ -14,7 +14,6 @@ export class StatesUI extends Component {
     settingsSetting: Setting;
     toggleButton: ExtraButtonComponent;
     selectState: DropdownComponent;
-    selectConfig: DropdownComponent;
     saveButton: ExtraButtonComponent;
     addButton: ExtraButtonComponent;
     deleteButton: ExtraButtonComponent;
@@ -44,7 +43,6 @@ export class StatesUI extends Component {
             });
 
         this.addStateSetting();
-        this.addSettingsSetting();
 
         // CURRENT STATE ID
         this.currentStateID = this.selectState.getValue();
@@ -100,37 +98,6 @@ export class StatesUI extends Component {
                     PluginInstances.statesManager.deleteState(this.selectState.getValue());
                 });
             });
-    }
-
-    private addSettingsSetting() {
-        this.settingsSetting = new Setting(this.root)
-            .setName(t("plugin.settings"))
-            .addDropdown(async (cb) => {
-                this.selectConfig = cb;
-                await this.updateConfigList();
-
-                cb.onChange(filepath => {
-                    if (filepath === "") {
-                        return;
-                    }
-                    PluginInstances.plugin.importSettings(filepath).then(() => {
-                        PluginInstances.graphsManager.resetPlugin(this.instances.view);
-                    });
-                })
-            });
-    }
-
-    async updateConfigList() {
-        const dir = PluginInstances.configurationDirectory;
-        const files = (await PluginInstances.app.vault.adapter.exists(dir)) ?
-            (await PluginInstances.app.vault.adapter.list(dir)).files
-            : [];
-
-        for (let i = this.selectConfig.selectEl.length; i >= 0; i--) {
-            this.selectConfig.selectEl.remove(i);
-        }
-        this.selectConfig.addOption("", "");
-        this.selectConfig.addOptions(Object.fromEntries(files.map(file => [file, path.basename(file, ".json")])));
     }
 
     onunload(): void {

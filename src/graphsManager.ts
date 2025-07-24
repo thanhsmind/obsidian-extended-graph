@@ -641,7 +641,7 @@ export class GraphsManager extends Component {
 
     // ============================= ENABLE PLUGIN =============================
 
-    enablePlugin(view: GraphView | LocalGraphView, stateID?: string): void {
+    enablePlugin(view: GraphView | LocalGraphView, stateID?: string, reloadState: boolean = true): void {
         if (!this.isResetting) {
             this.backupOptions(view);
         }
@@ -655,7 +655,7 @@ export class GraphsManager extends Component {
         const actuallyEnablePlugin = () => {
             if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
             if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
-            const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID);
+            const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
             globalUI.menu.setEnableUIState();
             globalUI.control.onPluginEnabled(instances);
             this.updateStatusBarItem(view.leaf);
@@ -669,13 +669,13 @@ export class GraphsManager extends Component {
         }
     }
 
-    private addGraph(view: GraphView | LocalGraphView, stateID: string): GraphInstances {
+    private addGraph(view: GraphView | LocalGraphView, stateID: string, reloadState: boolean): GraphInstances {
         let instances = this.allInstances.get(view.leaf.id);
         if (instances) return instances;
 
         instances = new GraphInstances(view);
         instances.stateData = PluginInstances.statesManager.getStateDataById(stateID);
-        new GraphEventsDispatcher(instances);
+        new GraphEventsDispatcher(instances, reloadState);
         if (stateID) {
             instances.statesUI.setValue(stateID);
         }
@@ -772,13 +772,13 @@ export class GraphsManager extends Component {
         }
     }
 
-    resetPlugin(view: GraphView | LocalGraphView): void {
+    resetPlugin(view: GraphView | LocalGraphView, reloadState: boolean = true): void {
         this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
         const stateID = instances?.stateData?.id;
         const scale = instances?.renderer.targetScale ?? false;
         this.disablePlugin(view);
-        this.enablePlugin(view, stateID);
+        this.enablePlugin(view, stateID, reloadState);
         const newDispatcher = this.allInstances.get(view.leaf.id);
         if (newDispatcher && scale) {
             newDispatcher.renderer.targetScale = scale;

@@ -62,6 +62,7 @@ interface LastFilteringAction {
 export class GraphEventsDispatcher extends Component {
     instances: GraphInstances;
     inputsManager: InputsManager;
+    reloadStateDuringInit: boolean;
 
     lastFilteringAction: LastFilteringAction | undefined;
     lastCheckboxContainerToggled: HTMLDivElement | undefined;
@@ -79,9 +80,10 @@ export class GraphEventsDispatcher extends Component {
      * @param leaf - The workspace leaf.
      * @param graphsManager - The graphs manager.
      */
-    constructor(instances: GraphInstances) {
+    constructor(instances: GraphInstances, reloadState: boolean) {
         super();
         this.instances = instances;
+        this.reloadStateDuringInit = reloadState;
         this.instances.filter = new GraphFilter(this.instances);
         instances.dispatcher = this;
         this.initializeGraph();
@@ -139,6 +141,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private loadCurrentStateEngineOptions(): void {
+        if (!this.reloadStateDuringInit) return;
         const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
@@ -170,7 +173,10 @@ export class GraphEventsDispatcher extends Component {
                 this.removeLineHighlight();
                 this.loadLastFilteringAction();
                 this.registerEventsForLastFilteringAction();
-                PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+                console.log(this.reloadStateDuringInit);
+                if (this.reloadStateDuringInit) {
+                    PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+                }
             }
 
             PluginInstances.graphsManager.onPluginLoaded(this.instances.view);

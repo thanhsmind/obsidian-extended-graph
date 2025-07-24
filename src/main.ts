@@ -332,11 +332,6 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         const data = JSON.stringify(PluginInstances.settings, null, 2);
         await this.app.vault.adapter.write(filepath, data);
-
-        // Update all dropdown in active graph view
-        for (const instances of PluginInstances.graphsManager.allInstances.values()) {
-            instances.statesUI.updateConfigList();
-        }
     }
 
     // ============================= LAYOUT CHANGE =============================

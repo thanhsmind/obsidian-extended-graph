@@ -51,7 +51,7 @@ export class GCOptions extends GCSection {
                             return;
                         }
                         PluginInstances.plugin.importSettings(filepath).then(() => {
-                            PluginInstances.graphsManager.resetPlugin(this.view);
+                            PluginInstances.graphsManager.resetPlugin(this.view, false);
                         });
                     });
                     modal.open();
