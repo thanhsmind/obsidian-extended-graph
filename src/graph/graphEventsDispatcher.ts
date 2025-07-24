@@ -173,7 +173,6 @@ export class GraphEventsDispatcher extends Component {
                 this.removeLineHighlight();
                 this.loadLastFilteringAction();
                 this.registerEventsForLastFilteringAction();
-                console.log(this.reloadStateDuringInit);
                 if (this.reloadStateDuringInit) {
                     PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
                 }

@@ -1,9 +1,9 @@
 import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
-import { ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
+import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
-    background: Graphics | Sprite;
+    background?: Graphics | Sprite;
     text: Text;
     textColor?: TextStyleFill | null;
     isRendered: boolean;
@@ -23,9 +23,12 @@ export abstract class LinkText extends Container {
             this.background = new Graphics();
             this.addChild(this.background, this.text);
         }
-        else {
+        else if (this.needsSpriteBackground()) {
             this.background = new Sprite(Texture.WHITE);
             this.addChild(this.background, this.text);
+        }
+        else {
+            this.addChild(this.text);
         }
 
         this.applyCSSChanges();
@@ -35,7 +38,14 @@ export abstract class LinkText extends Container {
         return (this.style.borderWidth > 0 && this.style.borderColor.a > 0) || this.style.radius > 0;
     }
 
-    abstract connect(): void;
+    private needsSpriteBackground(): boolean {
+        return !this.needsGraphicsBackground() && this.style.backgroundColor.a > 0;
+    }
+
+    connect() {
+        if (this.destroyed) return;
+        this.extendedLink.coreElement.renderer.hanger.addChild(this);
+    }
 
     updateFrame(): boolean {
         if (this.destroyed) return false;
@@ -71,6 +81,8 @@ export abstract class LinkText extends Container {
             letterSpacing: this.style.textStyle.letterSpacing,
             fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             fill: this.getTextColor(),
+            stroke: new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber(),
+            strokeThickness: 8,
         });
     }
 
@@ -119,9 +131,13 @@ export abstract class LinkText extends Container {
         if (this.needsGraphicsBackground()) {
             this.drawGraphics(getBackgroundColor(this.extendedLink.coreElement.renderer));
         }
-        else {
-            const bgColor = getBackgroundColor(this.extendedLink.coreElement.renderer);
-            this.drawSprite(bgColor);
+        else if (this.needsSpriteBackground()) {
+            this.drawSprite();
+        }
+        else if (this.background) {
+            this.background.removeFromParent();
+            this.background.destroy();
+            this.background = undefined;
         }
 
         this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
@@ -142,6 +158,10 @@ export abstract class LinkText extends Container {
             this.background = new Graphics();
             this.addChildAt(this.background, 0);
         }
+        if (!this.background) {
+            this.background = new Graphics();
+            this.addChildAt(this.background, 0);
+        }
         this.background.clear();
         const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.managers.get(LINK_KEY)?.getColor(this.text.text) ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
         if (this.style.backgroundColor.a > 0) {
@@ -152,32 +172,26 @@ export abstract class LinkText extends Container {
             .drawRoundedRect(0, 0, this.getWidth(), this.getHeight(), this.style.radius);
     }
 
-    private drawSprite(backgroundColor: ColorSource): void {
+    private drawSprite(): void {
         if (this.background instanceof Graphics) {
             this.background.removeFromParent();
             this.background.destroy();
             this.background = new Sprite(Texture.WHITE);
             this.addChildAt(this.background, 0);
         }
-        if (this.style.backgroundColor.a > 0) {
-            this.background.tint = this.style.backgroundColor.rgb;
-            this.background.alpha = this.style.backgroundColor.a;
+        if (!this.background) {
+            this.background = new Sprite(Texture.WHITE);
+            this.addChildAt(this.background, 0);
         }
-        else {
-            this.background.tint = backgroundColor;
-            this.background.alpha = 1;
-        }
+        this.background.tint = this.style.backgroundColor.rgb;
+        this.background.alpha = this.style.backgroundColor.a;
         this.background.width = this.getWidth();
         this.background.height = this.getHeight();
     }
 }
 
 abstract class CurvedLinkText extends LinkText {
-    override connect() {
-        if (this.destroyed || !this.extendedLink.graphicsWrapper) return;
-        this.extendedLink.graphicsWrapper.pixiElement.addChild(this);
-        this.alpha = 2;
-    }
+
 }
 
 export class LinkTextCurveMultiTypes extends CurvedLinkText {
@@ -210,7 +224,6 @@ abstract class LineLinkText extends LinkText {
 
         this.visible = this.extendedLink.coreElement.line?.visible ?? false;
         if (this.visible) {
-            this.rotation = - this.parent.rotation;
             this.position = this.getPosition();
             this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
         }
@@ -222,31 +235,34 @@ abstract class LineLinkText extends LinkText {
 }
 
 export class LinkTextLineMultiTypes extends LineLinkText {
-    override connect() {
-        if (this.destroyed) return;
-        this.extendedLink.graphicsWrapper?.pixiElement.addChild(this);
-    }
-
     protected override getPosition(): { x: number, y: number } {
+
         if (this.extendedLink.graphicsWrapper && this.text.text in (this.extendedLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions) {
             return (this.extendedLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions[this.text.text].position;
         }
+
         else if (this.extendedLink.siblingLink?.graphicsWrapper && this.text.text in (this.extendedLink.siblingLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions) {
             return (this.extendedLink.siblingLink.graphicsWrapper.pixiElement as LinkLineMultiTypesGraphics).typesPositions[this.text.text].position;
         }
+
         else {
-            return { x: this.parent.width * 0.5, y: 0 };
+            const bounds = this.extendedLink.coreElement.line?.getBounds();
+            if (!bounds || !this.parent) return { x: 0, y: 0 };
+            return this.parent.toLocal({
+                x: (bounds.left + bounds.right) * 0.5,
+                y: (bounds.top + bounds.bottom) * 0.5,
+            });
         }
     }
 }
 
 export class LinkTextLineSingleType extends LineLinkText {
-    override connect() {
-        if (this.destroyed) return;
-        this.extendedLink.coreElement.px?.addChild(this);
-    }
-
     protected override getPosition(): { x: number, y: number } {
-        return { x: this.parent.width * 0.5, y: 0 };
+        const bounds = this.extendedLink.coreElement.line?.getBounds();
+        if (!bounds || !this.parent) return { x: 0, y: 0 };
+        return this.parent.toLocal({
+            x: (bounds.left + bounds.right) * 0.5,
+            y: (bounds.top + bounds.bottom) * 0.5,
+        });
     }
 }
