@@ -73,7 +73,7 @@ export abstract class LinkText extends Container {
     }
 
     getTextStyle(): TextStyle {
-        return new TextStyle({
+        const style = new TextStyle({
             fontFamily: this.style.textStyle.fontFamily,
             fontStyle: this.style.textStyle.fontStyle,
             fontVariant: this.style.textStyle.fontVariant,
@@ -81,9 +81,12 @@ export abstract class LinkText extends Container {
             letterSpacing: this.style.textStyle.letterSpacing,
             fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             fill: this.getTextColor(),
-            stroke: this.style.backgroundColor.a > 0 ? undefined : new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber(),
-            strokeThickness: this.style.backgroundColor.a > 0 ? 0 : 8,
         });
+        if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
+            style.stroke = "red"; //new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
+            style.strokeThickness = 8;
+        }
+        return style;
     }
 
     private getTextColor(): TextStyleFill {
