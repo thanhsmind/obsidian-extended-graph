@@ -507,7 +507,7 @@ export class GraphsManager extends Component {
 
     initLeaf(leaf: WorkspaceLeaf): void {
         const view = getGraphView(leaf);
-        if (!view) return;
+        if (!view || view.leaf.isDeferred) return;
 
         try {
             this.setGlobalUI(view);
@@ -541,6 +541,7 @@ export class GraphsManager extends Component {
         const localLeaf = leaves.find(l =>
             l.view.getViewType() === "localgraph"
             && (l.view instanceof View)
+            && !l.isDeferred
             && !isGraphBannerView(l.view as LocalGraphView));
 
         this.localGraphID = localLeaf ? localLeaf.id : null;
