@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
@@ -9,7 +9,6 @@ export class SettingBeta extends SettingsSection {
 
     protected override addBody() {
         this.addRevertAction();
-        this.addEnableCSS();
         this.addRadialMenu();
     }
 
@@ -23,31 +22,6 @@ export class SettingBeta extends SettingsSection {
                     PluginInstances.settings.revertAction = value;
                     await PluginInstances.plugin.saveSettings();
                 }));
-
-        this.elementsBody.push(setting.settingEl);
-    }
-
-    private addEnableCSS() {
-        const setting = new Setting(this.settingTab.containerEl)
-            .setName(t("beta.enableCSS"))
-            .setDesc(t("beta.enableCSSDesc"))
-            .addToggle(cb => cb
-                .setValue(PluginInstances.settings.enableCSS)
-                .onChange(value => {
-                    PluginInstances.settings.enableCSS = value;
-                    PluginInstances.plugin.saveSettings();
-                }))
-            .addSearch(cb => {
-                cb.setValue(PluginInstances.settings.cssSnippetFilename);
-                new CSSSnippetsSuggester(cb.inputEl, (value: string) => {
-                    PluginInstances.settings.cssSnippetFilename = value;
-                    PluginInstances.plugin.saveSettings();
-                });
-                cb.onChange((value) => {
-                    PluginInstances.settings.cssSnippetFilename = value;
-                    PluginInstances.plugin.saveSettings();
-                })
-            });
 
         this.elementsBody.push(setting.settingEl);
     }

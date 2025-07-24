@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingPerformance extends SettingsSection {
 
@@ -10,6 +10,7 @@ export class SettingPerformance extends SettingsSection {
     protected override addBody() {
         this.addDelay();
         this.addNumberOfNodes();
+        this.addEnableCSS();
     }
 
     private addDelay() {
@@ -45,6 +46,31 @@ export class SettingPerformance extends SettingsSection {
                             await PluginInstances.plugin.saveSettings();
                         }
                     })
+            });
+
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    private addEnableCSS() {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(t("beta.enableCSS"))
+            .setDesc(t("beta.enableCSSDesc"))
+            .addToggle(cb => cb
+                .setValue(PluginInstances.settings.enableCSS)
+                .onChange(value => {
+                    PluginInstances.settings.enableCSS = value;
+                    PluginInstances.plugin.saveSettings();
+                }))
+            .addSearch(cb => {
+                cb.setValue(PluginInstances.settings.cssSnippetFilename);
+                new CSSSnippetsSuggester(cb.inputEl, (value: string) => {
+                    PluginInstances.settings.cssSnippetFilename = value;
+                    PluginInstances.plugin.saveSettings();
+                });
+                cb.onChange((value) => {
+                    PluginInstances.settings.cssSnippetFilename = value;
+                    PluginInstances.plugin.saveSettings();
+                })
             });
 
         this.elementsBody.push(setting.settingEl);
