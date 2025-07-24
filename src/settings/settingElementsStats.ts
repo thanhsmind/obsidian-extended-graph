@@ -44,6 +44,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.addLinkSizeFunction();
         this.addLinkColorFunction();
         this.addColorPaletteSettingForLinks();
+
+        this.addRecomputeStatsOnGraphChange();
     }
 
     private addNodeSizeProperties(): void {
@@ -223,6 +225,23 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         // Push to body list
         this.elementsBody.push(this.linksPaletteSetting.settingEl);
     }
+
+    private addRecomputeStatsOnGraphChange(): void {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(t("features.nodeStatsRecomputeOnGraphChange"))
+            .setDesc(t("features.nodeStatsRecomputeOnGraphChangeDesc"))
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.recomputeStatsOnGraphChange);
+                cb.onChange((value) => {
+                    PluginInstances.settings.recomputeStatsOnGraphChange = value;
+                    PluginInstances.plugin.saveSettings();
+                });
+            });
+
+        this.elementsBody.push(setting.settingEl);
+    }
+
+
 
     onCustomPaletteModified(oldName: string, newName: string): void {
         // Check if the colormap is no longer in the settings

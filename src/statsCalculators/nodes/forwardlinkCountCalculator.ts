@@ -1,14 +1,30 @@
-import { getFile, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
+import { Attributes } from "graphology-types";
+import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
 
 export class ForwardlinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
 
-    constructor(stat: NodeStat, countDuplicates: boolean) {
-        super(stat);
+    constructor(stat: NodeStat, countDuplicates: boolean, graphologyGraph?: GraphologyGraph) {
+        super(stat, graphologyGraph);
         this.countDuplicates = countDuplicates;
     }
 
     override async getStat(id: string, invert: boolean): Promise<number> {
+        if (this.graphologyGraph?.graphology) {
+            if (this.countDuplicates) {
+                return invert
+                    ? this.graphologyGraph.graphology.reduceInEdges(id, (acc: number, edge: string, attr: Attributes) => {
+                        return acc + (attr["count"] ?? 0);
+                    }, 0)
+                    : this.graphologyGraph.graphology.reduceOutEdges(id, (acc: number, edge: string, attr: Attributes) => {
+                        return acc + (attr["count"] ?? 0);
+                    }, 0);
+            }
+            else {
+                return invert ? this.graphologyGraph.graphology.inDegree(id) : this.graphologyGraph.graphology.outDegree(id);
+            }
+        }
+
         const file = getFile(id);
         if (file) {
             if (!invert) {

@@ -3,6 +3,10 @@ import { getFile, NodeStatCalculator, PluginInstances } from "src/internal";
 export class BacklinkCountCalculator extends NodeStatCalculator {
 
     override async getStat(id: string, invert: boolean): Promise<number> {
+        if (this.graphologyGraph?.graphology) {
+            return invert ? this.graphologyGraph.graphology.outDegree(id) : this.graphologyGraph.graphology.inDegree(id);
+        }
+
         const file = getFile(id);
         if (file) {
             if (!invert) {

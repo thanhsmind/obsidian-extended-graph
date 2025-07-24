@@ -229,7 +229,25 @@ export class GraphEventsDispatcher extends Component {
     private createSetDataProxy() {
         const updateData = this.updateData.bind(this);
         const instances = this.instances;
-        const needToUpdateGraphology = (this.instances.type === "localgraph" && this.instances.settings.colorBasedOnDepth);
+        const settings = this.instances.settings;
+        const needToUpdateGraphology = (instances.type === "localgraph" && settings.colorBasedOnDepth)
+            || (settings.enableFeatures[instances.type]["elements-stats"]
+                && settings.recomputeStatsOnGraphChange
+                && ((settings.nodesSizeFunction !== "default"
+                    && settings.nodesSizeFunction !== "constant"
+                    && settings.nodesSizeFunction !== "creationTime"
+                    && settings.nodesSizeFunction !== "filenameLength"
+                    && settings.nodesSizeFunction !== "modifiedTime"
+                    && settings.nodesSizeFunction !== "tagsCount"
+                )
+                    || (settings.nodesColorFunction !== "default"
+                        && settings.nodesColorFunction !== "constant"
+                        && settings.nodesColorFunction !== "creationTime"
+                        && settings.nodesColorFunction !== "filenameLength"
+                        && settings.nodesColorFunction !== "modifiedTime"
+                        && settings.nodesColorFunction !== "tagsCount"
+                    )
+                ));
 
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,

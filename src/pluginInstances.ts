@@ -19,7 +19,9 @@ import {
     CSSFolderStyle,
     GraphStateData,
     canonicalizeVarName,
-    GraphologyGraph
+    GraphologyGraph,
+    NodeStatCalculator,
+    LinkStatCalculator
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -67,6 +69,9 @@ export class GraphInstances {
         nodeText: CSSTextStyle; // init in graphDistacher.ts
         folder: CSSFolderStyle; // init in graphDistacher.ts
     }
+
+    nodesSizeCalculator: NodeStatCalculator | undefined;
+    nodesColorCalculator: NodeStatCalculator | undefined;
 
     colorGroupHaveChanged: boolean = false;
     statePinnedNodes: Record<string, { x: number; y: number; handled?: boolean }> | null = null;

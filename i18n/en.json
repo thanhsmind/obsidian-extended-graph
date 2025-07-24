@@ -271,6 +271,8 @@
         "nodeColorsPaletteDesc": "Choose the color palette for the nodes",
         "nodeStatsInvert": "Reverse graph to compute node statistics",
         "nodeStatsInvertDesc": "When computing the node statistics, reverse the graph so that the source nodes become targets and vice versa",
+        "nodeStatsRecomputeOnGraphChange": "Recompute when graph changes",
+        "nodeStatsRecomputeOnGraphChangeDesc": "Recompute the metrics everytime the graph's data changes. This can create a drop in performances.",
         "openInNewTab": "Open nodes in new tab",
         "openInNewTabDesc": "Always open the nodes in a new tab when left clicking on them",
         "otherDisplay": "Other display options",

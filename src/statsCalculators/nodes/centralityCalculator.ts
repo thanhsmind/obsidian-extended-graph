@@ -13,16 +13,19 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
-    constructor(stat: NodeStat, link: string = "") {
-        super(stat);
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph, link: string = "") {
+        super(stat, graphologyGraph);
         this.link = link;
     }
 
     override async computeStats(invert: boolean): Promise<void> {
-        if (!PluginInstances.graphologyGraph) {
-            PluginInstances.graphologyGraph = new GraphologyGraph();
+        if (!this.graphologyGraph) {
+            if (!PluginInstances.graphologyGraph) {
+                PluginInstances.graphologyGraph = new GraphologyGraph();
+            }
+            this.graphologyGraph = PluginInstances.graphologyGraph;
         }
-        const graphology = PluginInstances.graphologyGraph.graphology;
+        const graphology = this.graphologyGraph.graphology;
         if (!graphology) return;
         this.computeCentralityMap(invert ? reverse(graphology) : graphology);
         return super.computeStats(invert);

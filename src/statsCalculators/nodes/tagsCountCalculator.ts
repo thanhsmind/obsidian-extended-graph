@@ -1,4 +1,4 @@
-import { getFile, getFileInteractives, NodeStatCalculator, TAG_KEY } from "src/internal";
+import { getFile, getFileInteractives, NodeStatCalculator, PluginInstances, TAG_KEY } from "src/internal";
 
 export class TagsCountCalculator extends NodeStatCalculator {
 

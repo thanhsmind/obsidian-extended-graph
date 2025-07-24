@@ -86,6 +86,8 @@ export interface ExtendedGraphSettings {
     // Links colors
     linksColorColormap: string;
     linksColorFunction: LinkStatFunction;
+    // Other stats settings
+    recomputeStatsOnGraphChange: boolean;
 
     // Zoom on node
     zoomFactor: number;
@@ -262,6 +264,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Links colors
     linksColorColormap: 'YlOrRd',
     linksColorFunction: 'default',
+    // Other stats settings
+    recomputeStatsOnGraphChange: false,
 
     // Zoom on node
     zoomFactor: 2,
@@ -531,7 +535,7 @@ export class SettingQuery {
                 return true;
             if (oldSettings.linksColorFunction === "default" && newSettings.linksColorFunction !== "default")
                 return true;
-            if (!equals('invertNodeStats') && (['nodesSizeFunction', 'nodesColorFunction', 'linksSizeFunction', 'linksColorFunction'].some(key => newSettings[key as keyof ExtendedGraphSettings] !== "default")))
+            if (!equals('invertNodeStats') && (['nodesSizeFunction', 'nodesColorFunction', 'linksSizeFunction', 'linksColorFunction', 'recomputeStatsOnGraphChange'].some(key => newSettings[key as keyof ExtendedGraphSettings] !== "default")))
                 return true;
         }
 

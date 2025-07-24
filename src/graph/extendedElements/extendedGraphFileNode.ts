@@ -61,7 +61,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     protected override getFillColor(): GraphColorAttributes | undefined {
         if ((this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
             && PluginInstances.settings.nodesColorFunction !== "default")) {
-            const rgb = PluginInstances.graphsManager.nodesColorCalculator?.filesStats.get(this.id);
+            const rgb = (this.instances.nodesColorCalculator ?? PluginInstances.graphsManager.nodesColorCalculator)?.filesStats.get(this.id);
             if (rgb) return { rgb: rgb.value, a: 1 }
         }
 

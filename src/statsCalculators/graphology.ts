@@ -92,9 +92,9 @@ export class GraphologyGraph {
     }
 
     private computeAttributes() {
-        if (!this.graphology) return;
+        if (!this.graphology || !this.instances) return;
 
-        if (this.instances?.type === "localgraph" && this.instances.settings.depthColormap) {
+        if (this.instances.type === "localgraph" && this.instances.settings.depthColormap) {
             const mainNode = (this.instances.view as LocalGraphView).file?.path;
             if (mainNode) {
                 const paths = undirectedSingleSourceLength(this.graphology, mainNode);
@@ -102,6 +102,11 @@ export class GraphologyGraph {
                     this.graphology.setNodeAttribute(target, 'depth', paths[target]);
                 }
             }
+        }
+
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
+            PluginInstances.graphsManager.initiliazesNodeSizeCalculator(this.instances);
+            PluginInstances.graphsManager.initializeNodesColorCalculator(this.instances);
         }
     }
 

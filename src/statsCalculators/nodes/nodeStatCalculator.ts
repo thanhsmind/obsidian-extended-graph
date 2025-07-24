@@ -27,25 +27,30 @@ export type NodeStat = 'size' | 'color';
 export abstract class NodeStatCalculator {
     filesStats: Map<string, { measure: number, value: number }>;
     stat: NodeStat;
+    graphologyGraph?: GraphologyGraph
 
-    constructor(stat: NodeStat) {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
         this.stat = stat;
+        this.graphologyGraph = graphologyGraph;
     }
 
     async computeStats(invert: boolean): Promise<void> {
-        if (!PluginInstances.graphologyGraph) {
-            PluginInstances.graphologyGraph = new GraphologyGraph();
+        if (!this.graphologyGraph) {
+            if (!PluginInstances.graphologyGraph) {
+                PluginInstances.graphologyGraph = new GraphologyGraph();
+            }
+            this.graphologyGraph = PluginInstances.graphologyGraph;
         }
-        PluginInstances.graphologyGraph.registerListener(async (graph) => {
+        this.graphologyGraph.registerListener(async (graph) => {
             await this.getStats(invert);
             this.mapStat();
         }, true);
     }
 
     protected async getStats(invert: boolean): Promise<void> {
-        if (!PluginInstances.graphologyGraph) return;
+        if (!this.graphologyGraph) return;
         this.filesStats = new Map<string, { measure: number, value: number }>();
-        const ids = PluginInstances.graphologyGraph.graphology?.nodes();
+        const ids = this.graphologyGraph.graphology?.nodes();
         if (!ids) return;
         for (const id of ids) {
             this.getStat(id, invert).then(size => this.filesStats.set(id, { measure: size, value: 0 }));
