@@ -7,7 +7,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
-    hasFaded: boolean = false;
+    hasFaded: boolean;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: LinkArrow | null;
@@ -25,6 +25,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
             P1: { x: 0, y: 0 }, // Control point, shifted along the normal
             P2: { x: 0, y: 0 } // Center of target
         };
+        this.hasFaded = !this.extendedLink.instances.settings.fadeInElements;
         this.additionalConstruct();
         this.updateValues();
     }

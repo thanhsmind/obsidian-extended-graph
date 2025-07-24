@@ -17,7 +17,7 @@ const NODE_CIRCLE_X: number = 100;
 const NODE_CIRCLE_Y: number = 100;
 
 class FadableContainer extends Container {
-    hasFaded: boolean = false;
+    hasFaded: boolean;
 }
 
 export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
@@ -66,6 +66,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         if (this.pixiElement && this.pixiElement.parent) this.pixiElement.removeFromParent();
 
         this.pixiElement = new FadableContainer();
+        this.pixiElement.hasFaded = !this.extendedElement.instances.settings.fadeInElements;
         this.pixiElement.name = this.name;
 
         this.placeNode();

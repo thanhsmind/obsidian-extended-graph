@@ -7,7 +7,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     manager: InteractiveManager;
     types: Set<string>;
     name: string;
-    hasFaded: boolean = false;
+    hasFaded: boolean;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: LinkArrow | null;
@@ -20,6 +20,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         this.types = types;
         this.name = "line:" + name;
         this.extendedLink = link;
+        this.hasFaded = !this.extendedLink.instances.settings.fadeInElements;
         this.updateValues();
     }
 

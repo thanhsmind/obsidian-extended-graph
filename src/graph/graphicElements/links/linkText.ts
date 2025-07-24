@@ -8,11 +8,12 @@ export abstract class LinkText extends Container {
     textColor?: TextStyleFill | null;
     isRendered: boolean;
     style: CSSLinkLabelStyle;
-    hasFaded: boolean = false;
+    hasFaded: boolean;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
         super();
         this.extendedLink = extendedLink;
+        this.hasFaded = !this.extendedLink.instances.settings.fadeInElements;
 
         this.text = new Text(text);
 

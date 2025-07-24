@@ -71,6 +71,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         if (texture) {
             this.texture = texture;
             this.nodeImage = new NodeImage(texture, this.extendedElement.instances.settings.borderFactor, this.shape);
+            this.nodeImage.hasFaded = !this.extendedElement.instances.settings.fadeInElements;
             const opacityLayer = this.pixiElement.getChildByName("opacity-layer");
             if (opacityLayer) {
                 const opacityLayerIndex = this.pixiElement.getChildIndex(opacityLayer);
