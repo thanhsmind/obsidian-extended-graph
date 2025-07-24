@@ -1,4 +1,4 @@
-import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
+import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
 import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
@@ -8,6 +8,7 @@ export abstract class LinkText extends Container {
     textColor?: TextStyleFill | null;
     isRendered: boolean;
     style: CSSLinkLabelStyle;
+    hasFaded: boolean = false;
 
     constructor(text: string, extendedLink: ExtendedGraphLink) {
         super();
@@ -45,6 +46,9 @@ export abstract class LinkText extends Container {
     connect() {
         if (this.destroyed) return;
         this.extendedLink.coreElement.renderer.hanger.addChild(this);
+        if (this.extendedLink.instances.settings.fadeInElements && !this.hasFaded) {
+            fadeIn(this);
+        }
     }
 
     updateFrame(): boolean {
@@ -228,7 +232,7 @@ abstract class LineLinkText extends LinkText {
         this.visible = this.extendedLink.coreElement.line?.visible ?? false;
         if (this.visible) {
             this.position = this.getPosition();
-            this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
+            if (this.hasFaded) this.alpha = this.extendedLink.coreElement.line?.alpha ?? 0;
         }
 
         return true;

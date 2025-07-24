@@ -73,7 +73,9 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.createContainer();
         if ((this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics
             || this.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics
-        ) && this.coreElement.line) this.coreElement.line.renderable = false;
+        ) && this.coreElement.line) {
+            this.coreElement.line.renderable = false;
+        }
     }
 
     override restoreCoreElement(): void {

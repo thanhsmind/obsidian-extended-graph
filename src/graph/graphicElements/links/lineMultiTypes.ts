@@ -8,7 +8,6 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     types: Set<string>;
     name: string;
     hasFaded: boolean = false;
-    targetAlpha: number;
     color: Color.Color;
     extendedLink: ExtendedGraphLink;
     arrow: LinkArrow | null;
@@ -21,8 +20,6 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         this.types = types;
         this.name = "line:" + name;
         this.extendedLink = link;
-        this.targetAlpha = link.instances.settings.enableFeatures[link.instances.type]['arrows'] && link.instances.settings.opaqueArrowsButKeepFading
-            ? 1 : this.extendedLink.instances.renderer.colors.arrow.a;
         this.updateValues();
     }
 
@@ -184,7 +181,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
             }
         }
 
-        if (link.line) {
+        if (link.line && this.hasFaded) {
             this.alpha = link.line.alpha;
         }
 

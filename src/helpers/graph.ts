@@ -32,7 +32,7 @@ export function getEngine(view: GraphView | LocalGraphView): GraphEngine | undef
     }
 }
 
-export function fadeIn(element: DisplayObject & { hasFaded: boolean, maxAlpha?: number }) {
+export function fadeIn(element: DisplayObject & { hasFaded: boolean, maxAlpha?: number }, callback?: () => void) {
     const increaseAlpha = () => {
         if (element.alpha < (element.maxAlpha ?? 1)) {
             element.alpha += 0.04;
@@ -40,6 +40,7 @@ export function fadeIn(element: DisplayObject & { hasFaded: boolean, maxAlpha?: 
         }
         else {
             element.hasFaded = true;
+            if (callback) callback();
         }
     }
 
