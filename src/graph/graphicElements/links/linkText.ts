@@ -81,8 +81,8 @@ export abstract class LinkText extends Container {
             letterSpacing: this.style.textStyle.letterSpacing,
             fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             fill: this.getTextColor(),
-            stroke: new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber(),
-            strokeThickness: 8,
+            stroke: this.style.backgroundColor.a > 0 ? undefined : new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber(),
+            strokeThickness: this.style.backgroundColor.a > 0 ? 0 : 8,
         });
     }
 
