@@ -83,7 +83,7 @@ export abstract class LinkText extends Container {
             fill: this.getTextColor(),
         });
         if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
-            style.stroke = "red"; //new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
+            style.stroke = new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
             style.strokeThickness = 8;
         }
         return style;
