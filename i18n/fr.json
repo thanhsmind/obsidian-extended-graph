@@ -11,6 +11,7 @@
 		"name": "Extended graph",
 		"nodes": "Noeuds",
 		"options": "Options",
+		"settings": "Paramètres",
 		"source": "Source",
 		"target": "Cible",
 		"valuePlaceholder": "valeur..."

@@ -12,6 +12,7 @@
         "name": "Extended graph",
         "nodes": "Nodes",
         "options": "Options",
+        "settings": "Settings",
         "source": "Source",
         "target": "Target",
         "valuePlaceholder": "value..."

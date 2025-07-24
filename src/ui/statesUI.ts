@@ -1,4 +1,5 @@
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
+import path from "path";
 import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances, t } from "src/internal";
 
 export class StatesUI extends Component {
@@ -9,9 +10,11 @@ export class StatesUI extends Component {
     isOpen: boolean;
 
     root: HTMLDivElement;
-    statePane: Setting;
+    stateSetting: Setting;
+    settingsSetting: Setting;
     toggleButton: ExtraButtonComponent;
-    select: DropdownComponent;
+    selectState: DropdownComponent;
+    selectConfig: DropdownComponent;
     saveButton: ExtraButtonComponent;
     addButton: ExtraButtonComponent;
     deleteButton: ExtraButtonComponent;
@@ -40,11 +43,26 @@ export class StatesUI extends Component {
                 cb.extraSettingsEl.addClasses(["graph-controls-button", "mod-states"]);
             });
 
-        // STATE PANE
-        this.statePane = new Setting(this.root)
+        this.addStateSetting();
+        this.addSettingsSetting();
+
+        // CURRENT STATE ID
+        this.currentStateID = this.selectState.getValue();
+        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+
+        if (PluginInstances.settings.collapseState) {
+            this.close();
+        }
+        else {
+            this.open();
+        }
+    }
+
+    private addStateSetting() {
+        this.stateSetting = new Setting(this.root)
             .setName(t("states.states"))
             .addDropdown(cb => {
-                this.select = cb;
+                this.selectState = cb;
                 cb.onChange(value => {
                     this.currentStateID = value;
                     this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
@@ -72,27 +90,47 @@ export class StatesUI extends Component {
                 this.saveButton = cb;
                 UIElements.setupExtraButton(cb, 'save');
                 cb.onClick(() => {
-                    PluginInstances.statesManager.saveState(this.instances, this.select.getValue());
+                    PluginInstances.statesManager.saveState(this.instances, this.selectState.getValue());
                 });
             })
             .addExtraButton(cb => {
                 this.deleteButton = cb;
                 UIElements.setupExtraButton(cb, 'delete');
                 cb.onClick(() => {
-                    PluginInstances.statesManager.deleteState(this.select.getValue());
+                    PluginInstances.statesManager.deleteState(this.selectState.getValue());
                 });
             });
+    }
 
-        // CURRENT STATE ID
-        this.currentStateID = this.select.getValue();
-        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+    private addSettingsSetting() {
+        this.settingsSetting = new Setting(this.root)
+            .setName(t("plugin.settings"))
+            .addDropdown(async (cb) => {
+                this.selectConfig = cb;
+                await this.updateConfigList();
 
-        if (PluginInstances.settings.collapseState) {
-            this.close();
+                cb.onChange(filepath => {
+                    if (filepath === "") {
+                        return;
+                    }
+                    PluginInstances.plugin.importSettings(filepath).then(() => {
+                        PluginInstances.graphsManager.resetPlugin(this.instances.view);
+                    });
+                })
+            });
+    }
+
+    async updateConfigList() {
+        const dir = PluginInstances.configurationDirectory;
+        const files = (await PluginInstances.app.vault.adapter.exists(dir)) ?
+            (await PluginInstances.app.vault.adapter.list(dir)).files
+            : [];
+
+        for (let i = this.selectConfig.selectEl.length; i >= 0; i--) {
+            this.selectConfig.selectEl.remove(i);
         }
-        else {
-            this.open();
-        }
+        this.selectConfig.addOption("", "");
+        this.selectConfig.addOptions(Object.fromEntries(files.map(file => [file, path.basename(file, ".json")])));
     }
 
     onunload(): void {
@@ -121,18 +159,18 @@ export class StatesUI extends Component {
     }
 
     private addOption(key: string, name: string): void {
-        for (let i = 0; i < this.select.selectEl.length; ++i) {
-            if (this.select.selectEl.options[i].value == key) {
-                this.select.selectEl.options[i].innerText = name;
+        for (let i = 0; i < this.selectState.selectEl.length; ++i) {
+            if (this.selectState.selectEl.options[i].value == key) {
+                this.selectState.selectEl.options[i].innerText = name;
                 return;
             }
         }
-        this.select.addOption(key, name);
+        this.selectState.addOption(key, name);
     }
 
     private addState(key: string, name: string) {
         this.addOption(key, name);
-        this.select.setValue(key);
+        this.selectState.setValue(key);
     }
 
     private newState(name: string): boolean {
@@ -158,7 +196,7 @@ export class StatesUI extends Component {
             this.setValue(this.currentStateID);
         }
         else {
-            this.currentStateID = this.select.getValue();
+            this.currentStateID = this.selectState.getValue();
             this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
             this.displaySaveDeleteButton();
         }
@@ -167,21 +205,21 @@ export class StatesUI extends Component {
     setValue(id: string) {
         this.currentStateID = id;
         this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
-        this.select.setValue(id);
+        this.selectState.setValue(id);
         this.displaySaveDeleteButton();
     }
 
     private clear() {
-        for (let i = this.select.selectEl.length; i >= 0; i--) {
-            this.select.selectEl.remove(i);
+        for (let i = this.selectState.selectEl.length; i >= 0; i--) {
+            this.selectState.selectEl.remove(i);
         }
     }
 
     private displaySaveDeleteButton() {
-        if (this.select.getValue() !== DEFAULT_STATE_ID) {
-            this.statePane.settingEl.append(this.editButton.extraSettingsEl);
-            this.statePane.settingEl.append(this.saveButton.extraSettingsEl);
-            this.statePane.settingEl.append(this.deleteButton.extraSettingsEl);
+        if (this.selectState.getValue() !== DEFAULT_STATE_ID) {
+            this.stateSetting.settingEl.append(this.editButton.extraSettingsEl);
+            this.stateSetting.settingEl.append(this.saveButton.extraSettingsEl);
+            this.stateSetting.settingEl.append(this.deleteButton.extraSettingsEl);
         }
         else {
             this.editButton.extraSettingsEl.remove();

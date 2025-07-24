@@ -19,7 +19,9 @@ export class ImportConfigModal extends Modal {
                 this.dropdown = cb;
                 const dir = PluginInstances.configurationDirectory;
                 cb.addOption("", "");
-                const files = (await PluginInstances.app.vault.adapter.list(dir)).files;
+                const files = (await PluginInstances.app.vault.adapter.exists(dir))
+                    ? (await PluginInstances.app.vault.adapter.list(dir)).files
+                    : [];
                 cb.addOptions(Object.fromEntries(files.map(file => [file, path.basename(file, ".json")])));
             })
             .addButton((cb) => {
