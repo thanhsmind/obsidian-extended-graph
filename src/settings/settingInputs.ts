@@ -81,7 +81,7 @@ export class SettingInput extends SettingsSection {
         const rightClickCompatibility = rightClickModifiers.unique().length === rightClickModifiers.length;
 
         if (!rightClickCompatibility) {
-            this.settingHeader.setDesc("Multiple inputs use the same modifier for the right click.");
+            this.settingHeader.setDesc(t("inputs.rightClickIncompatibility"));
         }
         else {
             this.settingHeader.setDesc("");
