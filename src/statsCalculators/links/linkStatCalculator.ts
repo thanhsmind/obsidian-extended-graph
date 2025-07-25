@@ -45,15 +45,15 @@ export abstract class LinkStatCalculator {
     linksStats: { [source: string]: { [target: string]: { measure: number, value: number } } };
     stat: LinkStat;
     graphologyGraph?: GraphologyGraph;
-    statFunction: LinkStatFunction;
+    readonly functionKey: LinkStatFunction;
 
-    constructor(stat: LinkStat, graphologyGraph?: GraphologyGraph) {
+    constructor(stat: LinkStat, statFunction: LinkStatFunction, graphologyGraph?: GraphologyGraph) {
         this.stat = stat;
+        this.functionKey = statFunction;
         this.graphologyGraph = graphologyGraph;
     }
 
-    async computeStats(statFunction: LinkStatFunction): Promise<void> {
-        this.statFunction = statFunction;
+    async computeStats(): Promise<void> {
         if (!this.graphologyGraph) {
             if (!PluginInstances.graphologyGraph) {
                 PluginInstances.graphologyGraph = new GraphologyGraph();

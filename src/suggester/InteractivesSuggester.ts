@@ -1,4 +1,4 @@
-import { AbstractFormattingSuggester, ExtendedGraphSettings, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, ExtendedGraphSettings, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SettingLinks, SettingProperty, SettingTags, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;
@@ -14,39 +14,37 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
 
     protected override getStringSuggestions(query: string): string[] {
         if (!this.key) return [];
-        const files = PluginInstances.app.vault.getMarkdownFiles();
         let values: string[] = [];
 
         switch (this.key) {
             case 'tag':
-                for (const file of files) {
-                    values = values.concat([...getFileInteractives(TAG_KEY, file)]);
-                }
+                values = SettingTags.getAllTypes();
                 break;
             case 'property':
                 if (!this.propertyKey) return [];
-                for (const file of files) {
-                    values = values.concat([...getFileInteractives(this.propertyKey, file, this.settings)]);
+                const properties = SettingProperty.getAllTypes(this.propertyKey);
+                if (properties) {
+                    values = properties;
+                }
+                else {
+                    const files = PluginInstances.app.vault.getMarkdownFiles();
+                    for (const file of files) {
+                        values = values.concat([...getFileInteractives(this.propertyKey, file, this.settings)]);
+                    }
                 }
                 break;
             case 'link':
-                for (const file of files) {
-                    const types = [...getOutlinkTypes(PluginInstances.settings, file).values()].flat();
-                    values = values.concat(types.reduce((a: string[], c: Set<string>) => a.concat([...c]), []));
-                    values = [... new Set(values)];
-                }
+                values = SettingLinks.getAllTypes();
                 break;
             case 'folder':
             case 'folderRec':
-                for (const file of files) {
-                    values = values.concat([...getFileInteractives(FOLDER_KEY, file)]);
-                }
+                values = PluginInstances.app.vault.getAllFolders().map(folder => folder.path);
                 break;
             case 'file':
-                values = files.map(file => file.basename);
+                values = PluginInstances.app.vault.getFiles().map(file => file.basename);
                 break;
             case 'path':
-                values = files.map(file => file.path);
+                values = PluginInstances.app.vault.getFiles().map(file => file.path);
                 break;
             default:
                 break;

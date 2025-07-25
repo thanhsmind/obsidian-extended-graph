@@ -5,12 +5,16 @@
  * Released under the GNU General Public License v3.0
  */
 
-import { getNLPPlugin, LinkStatCalculator } from "src/internal";
+import { getNLPPlugin, GraphologyGraph, LinkStat, LinkStatCalculator } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 import similarity from "wink-nlp/utilities/similarity";
 
 export class OtsukaOchiaiCalculator extends LinkStatCalculator {
     cache: { [source: string]: { [target: string]: number } } = {};
+
+    constructor(stat: LinkStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "Otsuka-Ochiai", graphologyGraph);
+    }
 
     override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {

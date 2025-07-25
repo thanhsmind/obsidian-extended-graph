@@ -4,7 +4,7 @@ import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { GraphologyGraph, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
+import { GraphologyGraph, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances } from "src/internal";
 import { reverse } from "graphology-operators";
 
 type CentralityMapping = Record<string, number>;
@@ -13,8 +13,8 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
     link: string;
 
-    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph, link: string = "") {
-        super(stat, graphologyGraph);
+    constructor(stat: NodeStat, functionKey: NodeStatFunction, graphologyGraph?: GraphologyGraph, link: string = "") {
+        super(stat, functionKey, graphologyGraph);
         this.link = link;
     }
 
@@ -40,6 +40,10 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
 }
 
 export class DegreeCentralityCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "degree", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         this.cm = degreeCentrality(g);
     }
@@ -50,6 +54,10 @@ export class DegreeCentralityCalculator extends CentralityCalculator {
 }
 
 export class EigenvectorCentralityCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "eigenvector", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         this.cm = eigenvectorCentrality(g);
     }
@@ -60,6 +68,10 @@ export class EigenvectorCentralityCalculator extends CentralityCalculator {
 }
 
 export class ClosenessCentralityCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "closeness", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         this.cm = closenessCentrality(g);
     }
@@ -70,6 +82,10 @@ export class ClosenessCentralityCalculator extends CentralityCalculator {
 }
 
 export class BetweennessCentralityCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "betweenness", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         this.cm = betweennessCentrality(g);
     }
@@ -80,6 +96,10 @@ export class BetweennessCentralityCalculator extends CentralityCalculator {
 }
 
 export class HubsCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "hub", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         const { hubs, authorities } = hits(g);
         this.cm = hubs;
@@ -91,6 +111,10 @@ export class HubsCalculator extends CentralityCalculator {
 }
 
 export class AuthoritiesCalculator extends CentralityCalculator {
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "authority", graphologyGraph);
+    }
+
     override computeCentralityMap(g: Graphology) {
         const { hubs, authorities } = hits(g);
         this.cm = authorities;

@@ -179,9 +179,12 @@ export class SettingProperty extends SettingInteractives {
     }
 
     protected override getAllTypes(): string[] {
+        return SettingProperty.getAllTypes(this.interactiveKey) ?? super.getAllTypes();
+    }
+
+    static getAllTypes(key: string): string[] | undefined {
         if (!getDataviewAPI(PluginInstances.app)) {
-            return PluginInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(this.interactiveKey);
+            return PluginInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(key);
         }
-        return super.getAllTypes();
     }
 }

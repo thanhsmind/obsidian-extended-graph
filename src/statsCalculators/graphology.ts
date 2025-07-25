@@ -1,9 +1,10 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { GraphInstances, linkStatFunctionIsDynamic, nodeStatFunctionIsDynamic, PluginInstances } from 'src/internal';
+import { getFile, GraphInstances, linkStatFunctionIsDynamic, nodeStatFunctionIsDynamic, PluginInstances, SettingTags } from 'src/internal';
 import { reverse } from 'graphology-operators';
 import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { LocalGraphView } from 'obsidian-typings';
+import { getAllTags, TagCache } from 'obsidian';
 
 export class GraphologyGraph {
     graphology?: Graphology;
@@ -46,13 +47,20 @@ export class GraphologyGraph {
                 let count = 1;
 
                 // Get the number of occurences in the vault
-                const resolvedReference = resolvedLinks[link.source.id];
-                if (resolvedReference) {
-                    count = resolvedReference[link.target.id] ?? count;
+                if (link.target.id.startsWith("#")) {
+                    count = PluginInstances.app.metadataCache.getCache(link.source.id)?.tags?.reduce((acc: number, cache: TagCache) => {
+                        return acc + (cache.tag === link.target.id ? 1 : 0);
+                    }, 0) ?? 1;
                 }
-                const unresolvedReference = unresolvedLinks[link.source.id];
-                if (unresolvedReference) {
-                    count += unresolvedReference[link.target.id] ?? 0;
+                else {
+                    const resolvedReference = resolvedLinks[link.source.id];
+                    if (resolvedReference) {
+                        count = resolvedReference[link.target.id] ?? count;
+                    }
+                    const unresolvedReference = unresolvedLinks[link.source.id];
+                    if (unresolvedReference) {
+                        count += unresolvedReference[link.target.id] ?? 0;
+                    }
                 }
 
                 this.graphology.addEdge(link.source.id, link.target.id, { count: count });
@@ -60,10 +68,25 @@ export class GraphologyGraph {
         }
 
         else {
-            // Add existing files
+            // Add existing files and tags
             const files = PluginInstances.app.vault.getFiles();
             for (const file of files) {
                 this.graphology.addNode(file.path);
+                const fileTags = PluginInstances.app.metadataCache.getFileCache(file)?.tags ?? [];
+                for (const tagCache of fileTags) {
+                    if (!this.graphology.hasNode(tagCache.tag)) {
+                        this.graphology.addNode(tagCache.tag);
+                    }
+                    if (!this.graphology.hasEdge(file.path, tagCache.tag)) {
+                        this.graphology.addEdge(file.path, tagCache.tag, { count: 1 });
+                    }
+                    else {
+                        this.graphology.updateEdge(file.path, tagCache.tag, attr => {
+                            attr["count"] = (attr["count"] ?? 0) + 1;
+                            return attr;
+                        });
+                    }
+                }
             }
 
             // Add unresolved links
@@ -101,21 +124,6 @@ export class GraphologyGraph {
                 for (const target in paths) {
                     this.graphology.setNodeAttribute(target, 'depth', paths[target]);
                 }
-            }
-        }
-
-        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
-            if (linkStatFunctionIsDynamic[this.instances.settings.linksSizeFunction]) {
-                PluginInstances.graphsManager.initializeLinksSizeCalculator(this.instances);
-            }
-            if (linkStatFunctionIsDynamic[this.instances.settings.linksColorFunction]) {
-                PluginInstances.graphsManager.initializeLinksColorCalculator(this.instances);
-            }
-            if (nodeStatFunctionIsDynamic[this.instances.settings.nodesSizeFunction]) {
-                PluginInstances.graphsManager.initiliazesNodeSizeCalculator(this.instances);
-            }
-            if (nodeStatFunctionIsDynamic[this.instances.settings.nodesColorFunction]) {
-                PluginInstances.graphsManager.initializeNodesColorCalculator(this.instances);
             }
         }
     }

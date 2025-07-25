@@ -315,11 +315,6 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         PluginInstances.settings.nodesSizeFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.plugin.saveSettings();
-
-        PluginInstances.graphsManager.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-        PluginInstances.graphsManager.nodesSizeCalculator?.computeStats(invertNodeStats).then(() => {
-            PluginInstances.graphsManager.updateSizeFunctionForNodesStat();
-        });
         this.setWarning(this.warningNodeSizeSetting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
     }
 
@@ -332,10 +327,6 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         PluginInstances.settings.nodesColorFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
-        PluginInstances.graphsManager.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-        PluginInstances.graphsManager.nodesColorCalculator?.computeStats(invertNodeStats).then(() => {
-            PluginInstances.graphsManager.updatePaletteForNodesStat();
-        });
         this.setWarning(this.warningNodeColorSetting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
         PluginInstances.plugin.saveSettings();
     }
@@ -349,17 +340,6 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         PluginInstances.settings.linksSizeFunction = functionKey;
         PluginInstances.plugin.saveSettings();
-
-        if (functionKey === 'default') {
-            PluginInstances.graphsManager.linksSizeCalculator = undefined;
-            PluginInstances.graphsManager.updateSizeFunctionForLinksStat();
-            return;
-        }
-
-        PluginInstances.graphsManager.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
-        PluginInstances.graphsManager.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction).then(() => {
-            PluginInstances.graphsManager.updateSizeFunctionForLinksStat();
-        });
     }
 
     private recomputeLinksColors(functionKey: LinkStatFunction): void {
@@ -371,16 +351,5 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         PluginInstances.settings.linksColorFunction = functionKey;
         PluginInstances.plugin.saveSettings();
-
-        if (functionKey === 'default') {
-            PluginInstances.graphsManager.linksColorCalculator = undefined;
-            PluginInstances.graphsManager.updatePaletteForLinksStat();
-            return;
-        }
-
-        PluginInstances.graphsManager.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
-        PluginInstances.graphsManager.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction).then(() => {
-            PluginInstances.graphsManager.updatePaletteForLinksStat();
-        });
     }
 }

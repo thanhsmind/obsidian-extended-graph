@@ -53,7 +53,10 @@ import {
     LinkStat,
     SettingQuery,
     t,
-    getNLPPlugin
+    getNLPPlugin,
+    GraphologyGraph,
+    nodeStatFunctionIsDynamic,
+    linkStatFunctionIsDynamic
 } from "./internal";
 
 
@@ -86,10 +89,6 @@ export class GraphsManager extends Component {
     // ================================ LOADING ================================
 
     onload(): void {
-        this.initiliazesNodeSizeCalculator();
-        this.initializeNodesColorCalculator();
-        this.initializeLinksSizeCalculator();
-        this.initializeLinksColorCalculator();
         this.addStatusBarItem();
         this.registerEvents();
     }
@@ -164,67 +163,37 @@ export class GraphsManager extends Component {
         return !!PluginInstances.app.internalPlugins.getPluginById("graph")?._loaded;
     }
 
-    initiliazesNodeSizeCalculator(instances?: GraphInstances): void {
+    initializeNodesSizeCalculator(): void {
         try {
-            if (instances) {
-                instances.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size', instances);
-                instances.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
-            }
-            else {
-                this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-                this.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
-            }
+            this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
+            this.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
         } catch (error) {
             console.error(error);
-            new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[(instances ?? PluginInstances).settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
-            if (instances) {
-                instances.settings.nodesSizeFunction = 'default';
-                instances.nodesSizeCalculator = undefined;
-            }
-            else {
-                PluginInstances.settings.nodesSizeFunction = 'default';
-                PluginInstances.plugin.saveSettings();
-                this.nodesSizeCalculator = undefined;
-            }
+            new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
+            PluginInstances.settings.nodesSizeFunction = 'default';
+            PluginInstances.plugin.saveSettings();
+            this.nodesSizeCalculator = undefined;
         }
     }
 
-    initializeNodesColorCalculator(instances?: GraphInstances): void {
+    initializeNodesColorCalculator(): void {
         try {
-            if (instances) {
-                instances.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color', instances);
-                instances.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
-            }
-            else {
-                this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-                this.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
-            }
+            this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
+            this.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
         } catch (error) {
             console.error(error);
-            new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[(instances ?? PluginInstances).settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
-            if (instances) {
-                instances.settings.nodesColorFunction = 'default';
-                instances.nodesColorCalculator = undefined;
-            }
-            else {
-                PluginInstances.settings.nodesColorFunction = 'default';
-                PluginInstances.plugin.saveSettings();
-                this.nodesColorCalculator = undefined;
-            }
+            new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
+            PluginInstances.settings.nodesColorFunction = 'default';
+            PluginInstances.plugin.saveSettings();
+            this.nodesColorCalculator = undefined;
         }
     }
 
-    initializeLinksSizeCalculator(instances?: GraphInstances): void {
+    initializeLinksSizeCalculator(): void {
         try {
             if (this.canUseLinkStatFunction('size')) {
-                if (instances) {
-                    instances.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size', instances);
-                    instances.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
-                }
-                else {
-                    this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
-                    this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
-                }
+                this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
+                this.linksSizeCalculator?.computeStats();
             }
         } catch (error) {
             console.error(error);
@@ -235,11 +204,11 @@ export class GraphsManager extends Component {
         }
     }
 
-    initializeLinksColorCalculator(instances?: GraphInstances): void {
+    initializeLinksColorCalculator(): void {
         try {
             if (this.canUseLinkStatFunction('color')) {
                 this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
-                this.linksColorCalculator?.computeStats(PluginInstances.settings.linksColorFunction);
+                this.linksColorCalculator?.computeStats();
             }
         } catch (error) {
             console.error(error);
@@ -672,13 +641,34 @@ export class GraphsManager extends Component {
         globalUI.menu.disableUI();
 
         const actuallyEnablePlugin = () => {
-            if (!this.linksSizeCalculator) this.initializeLinksSizeCalculator();
-            if (!this.linksColorCalculator) this.initializeLinksColorCalculator();
             const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
+
+            if (this.nodesSizeCalculator?.functionKey !== PluginInstances.settings.nodesSizeFunction
+                && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "size" })
+            ) {
+                this.initializeNodesSizeCalculator();
+            }
+            if (this.nodesColorCalculator?.functionKey !== PluginInstances.settings.nodesColorFunction
+                && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "color" })
+            ) {
+                this.initializeNodesColorCalculator();
+            }
+            if (this.linksSizeCalculator?.functionKey !== PluginInstances.settings.linksSizeFunction
+                && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "size" })
+            ) {
+                this.initializeLinksSizeCalculator();
+            }
+            if (this.linksColorCalculator?.functionKey !== PluginInstances.settings.linksColorFunction
+                && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "color" })
+            ) {
+                this.initializeLinksColorCalculator();
+            }
+
             globalUI.menu.setEnableUIState();
             globalUI.control.onPluginEnabled(instances);
             this.updateStatusBarItem(view.leaf);
         }
+
 
         if (PluginInstances.settings.syncDefaultState) {
             PluginInstances.statesManager.saveForDefaultState(view).then(() => actuallyEnablePlugin());

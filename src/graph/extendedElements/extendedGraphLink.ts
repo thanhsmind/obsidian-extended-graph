@@ -141,11 +141,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             || PluginInstances.settings.linksSizeFunction === "default"
         ) return 1;
 
-        if (!PluginInstances.graphsManager.linksSizeCalculator) return 1;
-        if (!(this.coreElement.source.id in PluginInstances.graphsManager.linksSizeCalculator.linksStats)) return 1;
-        if (!(this.coreElement.target.id in PluginInstances.graphsManager.linksSizeCalculator.linksStats[this.coreElement.source.id])) return 1;
+        const calculator = this.instances.linksSizeCalculator ?? PluginInstances.graphsManager.linksSizeCalculator;
+        if (!calculator) return 1;
+        if (!(this.coreElement.source.id in calculator.linksStats)) return 1;
+        if (!(this.coreElement.target.id in calculator.linksStats[this.coreElement.source.id])) return 1;
 
-        return PluginInstances.graphsManager.linksSizeCalculator.linksStats[this.coreElement.source.id][this.coreElement.target.id].value;
+        return calculator.linksStats[this.coreElement.source.id][this.coreElement.target.id].value;
     }
 
     // ============================= LINK CONTAINER =============================
@@ -256,7 +257,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
             && PluginInstances.settings.linksColorFunction !== "default"
         ) {
-            const calculator = PluginInstances.graphsManager.linksColorCalculator;
+            const calculator = this.instances.linksColorCalculator ?? PluginInstances.graphsManager.linksColorCalculator;
             if (calculator) {
                 if (this.coreElement.source.id in calculator.linksStats
                     && this.coreElement.target.id in calculator.linksStats[this.coreElement.source.id]

@@ -187,6 +187,10 @@ export class SettingLinks extends SettingInteractives {
     }
 
     protected override getAllTypes(): string[] {
+        return SettingLinks.getAllTypes();
+    }
+
+    static getAllTypes() {
         let allTypes = new Set<string>();
 
         const dv = getDataviewAPI(PluginInstances.app);
@@ -217,8 +221,8 @@ export class SettingLinks extends SettingInteractives {
 
         }
         else {
-            for (const file of this.settingTab.app.vault.getFiles()) {
-                const frontmatterLinks = this.settingTab.app.metadataCache.getCache(file.path)?.frontmatterLinks;
+            for (const file of PluginInstances.app.vault.getFiles()) {
+                const frontmatterLinks = PluginInstances.app.metadataCache.getCache(file.path)?.frontmatterLinks;
                 if (!frontmatterLinks) continue;
                 const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => !PluginInstances.settings.imageProperties.contains(k) && !INVALID_KEYS[LINK_KEY].includes(k));
                 allTypes = new Set<string>([...allTypes, ...types]);

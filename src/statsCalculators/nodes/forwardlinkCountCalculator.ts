@@ -5,7 +5,7 @@ export class ForwardlinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
 
     constructor(stat: NodeStat, countDuplicates: boolean, graphologyGraph?: GraphologyGraph) {
-        super(stat, graphologyGraph);
+        super(stat, countDuplicates ? "forwardlinksCount" : "forwardUniquelinksCount", graphologyGraph);
         this.countDuplicates = countDuplicates;
     }
 

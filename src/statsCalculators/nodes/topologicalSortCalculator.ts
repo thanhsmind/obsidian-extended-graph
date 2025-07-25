@@ -1,5 +1,5 @@
 import { GraphologyGraph } from "../graphology";
-import { NodeStatCalculator, PluginInstances } from "src/internal";
+import { NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
 import { stronglyConnectedComponents } from "graphology-components";
 import { DirectedGraph } from "graphology";
 import { topologicalSort } from "graphology-dag";
@@ -7,6 +7,10 @@ import { reverse } from "graphology-operators";
 
 export class TopologicalSortCalculator extends NodeStatCalculator {
     topologicalWeights: Map<string, number> = new Map<string, number>();
+
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "topological", graphologyGraph);
+    }
 
     override async getStats(invert: boolean): Promise<void> {
         if (!this.graphologyGraph) return;

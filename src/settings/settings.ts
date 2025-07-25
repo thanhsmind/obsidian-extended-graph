@@ -9,8 +9,12 @@ import {
     GraphType,
     INVALID_KEYS,
     LINK_KEY,
+    LinkStat,
     LinkStatFunction,
+    linkStatFunctionIsDynamic,
+    NodeStat,
     NodeStatFunction,
+    nodeStatFunctionIsDynamic,
     PinShapeData,
     PluginInstances,
     QueryData,
@@ -475,6 +479,29 @@ export class SettingQuery {
             || instances.settings.flatArrows
         )
             || SettingQuery.needToChangeLinkColor(instances);
+    }
+
+    static needDynamicGraphology(instances: GraphInstances, specific?: { element: 'node' | 'link', stat: LinkStat | NodeStat }): boolean {
+        if (!specific) {
+            return (instances.type === "localgraph" && instances.settings.colorBasedOnDepth)
+                || (instances.settings.enableFeatures[instances.type]["elements-stats"]
+                    && instances.settings.recomputeStatsOnGraphChange
+                    && (linkStatFunctionIsDynamic[instances.settings.linksSizeFunction]
+                        || linkStatFunctionIsDynamic[instances.settings.linksColorFunction]
+                        || nodeStatFunctionIsDynamic[instances.settings.nodesSizeFunction]
+                        || nodeStatFunctionIsDynamic[instances.settings.nodesColorFunction]
+                    ));
+        }
+        else {
+            if (!instances.settings.enableFeatures[instances.type]["elements-stats"] || !instances.settings.recomputeStatsOnGraphChange) return false;
+            switch (specific.element) {
+                case "node":
+                    return nodeStatFunctionIsDynamic[specific.stat === "size" ? instances.settings.nodesSizeFunction : instances.settings.nodesColorFunction];
+
+                case "link":
+                    return linkStatFunctionIsDynamic[specific.stat === "size" ? instances.settings.linksSizeFunction : instances.settings.linksColorFunction];
+            }
+        }
     }
 
     static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {

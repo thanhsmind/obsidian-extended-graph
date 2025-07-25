@@ -19,12 +19,17 @@ import {
     LegendUI,
     lengthSegment,
     LINK_KEY,
+    LinksStatCalculatorFactory,
     linkStatFunctionIsDynamic,
+    linkStatFunctionLabels,
     LinkText,
+    NodeStatCalculatorFactory,
     nodeStatFunctionIsDynamic,
+    nodeStatFunctionLabels,
     Pinner,
     PluginInstances,
     RadialMenuManager,
+    SettingQuery,
     StatesUI,
     t
 } from "src/internal";
@@ -139,6 +144,7 @@ export class GraphEventsDispatcher extends Component {
     onload(): void {
         this.createStyleElementsForCSSBridge();
         this.loadCurrentStateEngineOptions();
+        this.initGraphologyStats();
         this.createSetDataProxy();
     }
 
@@ -228,18 +234,64 @@ export class GraphEventsDispatcher extends Component {
         );
     }
 
+    private initGraphologyStats(): void {
+        if (!SettingQuery.needDynamicGraphology(this.instances)) return;
+
+        this.instances.graphologyGraph = new GraphologyGraph(this.instances);
+
+        if (SettingQuery.needDynamicGraphology(this.instances, { element: "node", stat: "size" })) {
+            try {
+                this.instances.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size', this.instances);
+                this.instances.nodesSizeCalculator?.computeStats(this.instances.settings.invertNodeStats);
+            }
+            catch (error) {
+                console.error(error);
+                new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[this.instances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
+                this.instances.settings.nodesSizeFunction = 'default';
+                this.instances.nodesSizeCalculator = undefined;
+            }
+        }
+
+        if (SettingQuery.needDynamicGraphology(this.instances, { element: "node", stat: "color" })) {
+            try {
+                this.instances.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color', this.instances);
+                this.instances.nodesColorCalculator?.computeStats(this.instances.settings.invertNodeStats);
+            } catch (error) {
+                console.error(error);
+                new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[this.instances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
+                this.instances.settings.nodesColorFunction = 'default';
+                this.instances.nodesColorCalculator = undefined;
+            }
+        }
+
+        if (SettingQuery.needDynamicGraphology(this.instances, { element: "link", stat: "size" })) {
+            try {
+                this.instances.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size', this.instances);
+                this.instances.linksSizeCalculator?.computeStats();
+            } catch (error) {
+                console.error(error);
+                new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[this.instances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
+                this.instances.settings.linksSizeFunction = 'default';
+                this.instances.linksSizeCalculator = undefined;
+            }
+        }
+
+        if (SettingQuery.needDynamicGraphology(this.instances, { element: "link", stat: "color" })) {
+            try {
+                this.instances.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color', this.instances);
+                this.instances.linksColorCalculator?.computeStats();
+            } catch (error) {
+                console.error(error);
+                new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[this.instances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
+                this.instances.settings.linksColorFunction = 'default';
+                this.instances.linksColorCalculator = undefined;
+            }
+        }
+    }
+
     private createSetDataProxy() {
         const updateData = this.updateData.bind(this);
         const instances = this.instances;
-        const settings = this.instances.settings;
-        const needToUpdateGraphology = (instances.type === "localgraph" && settings.colorBasedOnDepth)
-            || (settings.enableFeatures[instances.type]["elements-stats"]
-                && settings.recomputeStatsOnGraphChange
-                && (linkStatFunctionIsDynamic[settings.linksSizeFunction]
-                    || linkStatFunctionIsDynamic[settings.linksColorFunction]
-                    || nodeStatFunctionIsDynamic[settings.nodesSizeFunction]
-                    || nodeStatFunctionIsDynamic[settings.nodesColorFunction]
-                ));
 
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
@@ -251,15 +303,8 @@ export class GraphEventsDispatcher extends Component {
                         args[0] = data;
                         const res = Reflect.apply(target, thisArg, args);
 
-                        // Check if we need to recompute the graphology
-                        if (needToUpdateGraphology) {
-                            if (instances.graphologyGraph) {
-                                instances.graphologyGraph.buildGraphology();
-                            }
-                            else {
-                                instances.graphologyGraph = new GraphologyGraph(instances);
-                            }
-                        }
+                        // Recompute the graphology
+                        instances.graphologyGraph?.buildGraphology();
 
                         return res;
                     }

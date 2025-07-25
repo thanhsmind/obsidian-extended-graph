@@ -68,12 +68,14 @@ export const nodeStatFunctionIsDynamic: Record<NodeStatFunction, boolean> = {
 export type NodeStat = 'size' | 'color';
 
 export abstract class NodeStatCalculator {
+    readonly functionKey: NodeStatFunction;
     filesStats: Map<string, { measure: number, value: number }>;
     stat: NodeStat;
     graphologyGraph?: GraphologyGraph;
 
-    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+    constructor(stat: NodeStat, functionKey: NodeStatFunction, graphologyGraph?: GraphologyGraph) {
         this.stat = stat;
+        this.functionKey = functionKey;
         this.graphologyGraph = graphologyGraph;
     }
 

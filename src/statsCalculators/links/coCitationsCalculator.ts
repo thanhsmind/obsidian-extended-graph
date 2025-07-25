@@ -5,7 +5,7 @@
  * Released under the GNU General Public License v3.0
  */
 
-import { LinkStatCalculator, PluginInstances } from "src/internal";
+import { GraphologyGraph, LinkStat, LinkStatCalculator, PluginInstances } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 import { CacheItem, getAllTags, getLinkpath, HeadingCache, ListItemCache, ReferenceCache, TagCache } from "obsidian";
 import tokenizer from "sbd";
@@ -28,6 +28,10 @@ interface LineSentences {
 
 export class CoCitationsCalculator extends LinkStatCalculator {
     cache: { [source: string]: { [target: string]: number } } = {};
+
+    constructor(stat: LinkStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "Co-Citations", graphologyGraph);
+    }
 
     override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {

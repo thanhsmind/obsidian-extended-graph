@@ -1,6 +1,10 @@
-import { getFile, NodeStatCalculator, PluginInstances } from "src/internal";
+import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
 
 export class BacklinkCountCalculator extends NodeStatCalculator {
+
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "backlinksCount", graphologyGraph);
+    }
 
     override async getStat(id: string, invert: boolean): Promise<number> {
         if (this.graphologyGraph?.graphology) {

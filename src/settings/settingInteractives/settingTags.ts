@@ -32,6 +32,10 @@ export class SettingTags extends SettingInteractives {
     }
 
     protected override getAllTypes(): string[] {
+        return SettingTags.getAllTypes();
+    }
+
+    static getAllTypes(): string[] {
         return Object.keys(PluginInstances.app.metadataCache.getTags());
     }
 }

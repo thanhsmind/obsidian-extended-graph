@@ -5,10 +5,14 @@
  * Released under the GNU General Public License v3.0
  */
 
-import { getNLPPlugin, NodeStatCalculator } from "src/internal";
+import { getNLPPlugin, GraphologyGraph, NodeStat, NodeStatCalculator } from "src/internal";
 
 export class SentimentCalculator extends NodeStatCalculator {
     cache: { [source: string]: { [target: string]: number } } = {};
+
+    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "sentiment", graphologyGraph);
+    }
 
     override async getStat(id: string, invert: boolean): Promise<number> {
         const nlp = getNLPPlugin();

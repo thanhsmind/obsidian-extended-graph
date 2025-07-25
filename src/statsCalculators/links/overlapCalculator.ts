@@ -5,11 +5,15 @@
  * Released under the GNU General Public License v3.0
  */
 
-import { LinkStatCalculator } from "src/internal";
+import { GraphologyGraph, LinkStat, LinkStatCalculator } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 
 export class OverlapCalculator extends LinkStatCalculator {
     cache: { [source: string]: { [target: string]: number } } = {};
+
+    constructor(stat: LinkStat, graphologyGraph?: GraphologyGraph) {
+        super(stat, "Overlap", graphologyGraph);
+    }
 
     override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {
