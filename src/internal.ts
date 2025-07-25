@@ -101,6 +101,7 @@ export * from "./settings/settingFilter";
 export * from "./settings/settingFocus";
 export * from "./settings/settingIcons";
 export * from "./settings/settingImages";
+export * from "./settings/settingInputs";
 export * from "./settings/settingNames";
 export * from "./settings/settingPerformance";
 export * from "./settings/settingShapes";

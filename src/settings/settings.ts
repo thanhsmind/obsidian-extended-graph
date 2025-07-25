@@ -1,3 +1,4 @@
+import { Modifier } from "obsidian";
 import {
     DEFAULT_STATE_ID,
     EngineOptions,
@@ -167,6 +168,7 @@ export interface ExtendedGraphSettings {
     // UI
     horizontalLegend: boolean;
     useRadialMenu: boolean;
+    radialMenuModifier: Modifier;
 
     // Filters
     filterAbstractFiles: { regex: string, flag: string }[];
@@ -356,6 +358,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // UI
     horizontalLegend: false,
     useRadialMenu: false,
+    radialMenuModifier: 'Shift',
 
     // Filters
     filterAbstractFiles: [],

@@ -15,6 +15,13 @@
         "target": "目标",
         "valuePlaceholder": "输入值..."
     },
+    "beta": {
+        "beta": "Beta 功能",
+        "enableCSS": "启用自定义 CSS",
+        "enableCSSDesc": "允许插件将自定义 CSS 注入关系图谱以进行进一步定制。再次输入使用的 CSS 片段名称。",
+        "revertAction": "撤销操作",
+        "revertActionDesc": "当达到最大节点数时，尝试撤销最后操作（而非直接禁用插件）"
+    },
     "controls": {
         "add": "添加",
         "apply": "应用",
@@ -66,15 +73,6 @@
         "uri401": "获取节点图像时遇到 URL 未授权错误（代码401）：这可能意味着URL无效。图像将不会加载，可以安全忽略此消息。",
         "issueNeedView": "插件 $t(plugin.name) 出现问题。请关闭关系图谱后重新打开。",
         "paletteNameRequired": "需要为此颜色映射选择名称"
-    },
-    "beta": {
-        "beta": "Beta 功能",
-        "enableCSS": "启用自定义 CSS",
-        "enableCSSDesc": "允许插件将自定义 CSS 注入关系图谱以进行进一步定制。再次输入使用的 CSS 片段名称。",
-        "radialMenu": "启用节点轮盘菜单",
-        "radialMenuDesc": "按住Shift键右键点击节点时，将显示包含扩展图谱插件数据的轮盘菜单，而非常规菜单。",
-        "revertAction": "撤销操作",
-        "revertActionDesc": "当达到最大节点数时，尝试撤销最后操作（而非直接禁用插件）"
     },
     "features": {
         "animateDotsOnLinks": "在链接上显示圆点动画",
@@ -303,6 +301,9 @@
         "zoomOnNode": "缩放节点",
         "zoomScale": "缩放比例",
         "zoomScaleDesc": "缩放节点时使用的比例"
+    },
+    "inputs": {
+        "radialMenu": "启用节点轮盘菜单"
     },
     "notices": {
         "changeInSettings": "您可以在设置中更改此选项",

@@ -17,6 +17,13 @@
         "target": "Target",
         "valuePlaceholder": "value..."
     },
+    "beta": {
+        "beta": "Beta features",
+        "enableCSS": "Enable CSS customization",
+        "enableCSSDesc": "Allows the plugin to inject custom CSS into the graph view for further customization. Write the name of the CSS snippet to use.",
+        "revertAction": "Revert action",
+        "revertActionDesc": "If the max number of nodes is reached, try to reverse last action instead of disabling the plugin"
+    },
     "controls": {
         "add": "Add",
         "apply": "Apply",
@@ -71,15 +78,6 @@
         "uri401": "Unauthorized URL (Code 401) while trying to get an image for a node. This probably means that the URL is invalid. No image will be loaded and this message can safely be ignored.",
         "issueNeedView": "There was an issue with the plugin $t(plugin.name). Please close the graph view and open it again.",
         "paletteNameRequired": "You need to choose a name for this color map"
-    },
-    "beta": {
-        "beta": "Beta features",
-        "enableCSS": "Enable CSS customization",
-        "enableCSSDesc": "Allows the plugin to inject custom CSS into the graph view for further customization. Write the name of the CSS snippet to use.",
-        "radialMenu": "Enable the node radial context menu",
-        "radialMenuDesc": "When doing a right click on a node while holding the Shift key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu.",
-        "revertAction": "Revert action",
-        "revertActionDesc": "If the max number of nodes is reached, try to reverse last action instead of disabling the plugin"
     },
     "features": {
         "animateDotsOnLinks": "Animate dots on links",
@@ -322,6 +320,11 @@
         "zoomOnNode": "Zoom on node",
         "zoomScale": "Zoom scale",
         "zoomScaleDesc": "When zooming on a node, set the used scale"
+    },
+    "inputs": {
+        "inputs": "Inputs",
+        "radialMenu": "Enable the node radial context menu",
+        "radialMenuDesc": "When doing a right click on a node while holding the specified key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu."
     },
     "notices": {
         "changeInSettings": "You can change this in the settings",

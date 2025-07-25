@@ -9,7 +9,6 @@ export class SettingBeta extends SettingsSection {
 
     protected override addBody() {
         this.addRevertAction();
-        this.addRadialMenu();
     }
 
     private addRevertAction() {
@@ -20,20 +19,6 @@ export class SettingBeta extends SettingsSection {
                 .setValue(PluginInstances.settings.revertAction)
                 .onChange(async (value) => {
                     PluginInstances.settings.revertAction = value;
-                    await PluginInstances.plugin.saveSettings();
-                }));
-
-        this.elementsBody.push(setting.settingEl);
-    }
-
-    private addRadialMenu() {
-        const setting = new Setting(this.settingTab.containerEl)
-            .setName(t("beta.radialMenu"))
-            .setDesc(t("beta.radialMenuDesc"))
-            .addToggle(cb => cb
-                .setValue(PluginInstances.settings.useRadialMenu)
-                .onChange(async (value) => {
-                    PluginInstances.settings.useRadialMenu = value;
                     await PluginInstances.plugin.saveSettings();
                 }));
 

@@ -188,7 +188,7 @@ export class InputsManager {
     }
 
     private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {
-        if (e && Keymap.isModifier(e, "Shift")) {
+        if (e && Keymap.isModifier(e, PluginInstances.settings.radialMenuModifier)) {
             const radialMenu = new RadialMenuManager(this.instances, id, type);
             radialMenu.open(e);
             return;

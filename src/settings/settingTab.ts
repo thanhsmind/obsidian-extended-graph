@@ -24,7 +24,8 @@ import {
     SettingDisplay,
     SettingBeta,
     SettingFilter,
-    t
+    t,
+    SettingInput as SettingInputs
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
@@ -70,6 +71,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(new SettingZoom(this));
         this.sections.push(settingDisplay);
         this.sections.push(new SettingFilter(this));
+        this.sections.push(new SettingInputs(this));
         this.sections.push(new SettingPerformance(this));
         this.sections.push(new SettingBeta(this));
     }
