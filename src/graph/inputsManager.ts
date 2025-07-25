@@ -44,7 +44,7 @@ export class InputsManager {
             this.instances.renderer.onNodeClick = this.onNodeClick;
         }
 
-        if (this.instances.settings.useRadialMenu) {
+        if (this.instances.settings.useRadialMenu || this.instances.settings.pinNodeModifier) {
             this.onNodeRightClick = this.onNodeRightClick.bind(this);
             this.coreOnNodeRightClick = this.instances.renderer.onNodeRightClick;
             this.instances.renderer.onNodeRightClick = this.onNodeRightClick;
@@ -188,9 +188,20 @@ export class InputsManager {
     }
 
     private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {
-        if (e && Keymap.isModifier(e, PluginInstances.settings.radialMenuModifier)) {
+        if (e && PluginInstances.settings.useRadialMenu && Keymap.isModifier(e, PluginInstances.settings.radialMenuModifier)) {
             const radialMenu = new RadialMenuManager(this.instances, id, type);
             radialMenu.open(e);
+            return;
+        }
+
+        if (e && PluginInstances.settings.pinNodeModifier && Keymap.isModifier(e, PluginInstances.settings.pinNodeModifier)) {
+            const pinner = new Pinner(this.instances);
+            if (this.instances.nodesSet.isNodePinned(id)) {
+                pinner.unpinNode(id);
+            }
+            else {
+                pinner.pinNode(id);
+            }
             return;
         }
 

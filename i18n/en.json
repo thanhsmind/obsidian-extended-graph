@@ -323,8 +323,10 @@
     },
     "inputs": {
         "inputs": "Inputs",
-        "radialMenu": "Enable the node radial context menu",
-        "radialMenuDesc": "When doing a right click on a node while holding the specified key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu."
+        "pinHotkey": "Pin node (right click)",
+        "pinHotkeyDesc": "When doing a right click on a node while holding the specified key down, it will pin the node",
+        "radialMenu": "Radial context menu (right click)",
+        "radialMenuDesc": "When doing a right click on a node while holding the specified key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu"
     },
     "notices": {
         "changeInSettings": "You can change this in the settings",

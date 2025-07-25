@@ -833,6 +833,10 @@ body {
     input.number {
         max-width: 5em;
     }
+
+    .error {
+        color: var(--color-red);
+    }
 }
 
 .graph-modal-nodes-query {

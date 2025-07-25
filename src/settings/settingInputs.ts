@@ -9,7 +9,11 @@ export class SettingInput extends SettingsSection {
 
     protected override addBody() {
         this.addRadialMenu();
+        this.addPinHotkey();
+
+        this.checkCompatibility();
     }
+
     private addRadialMenu() {
         const setting = new Setting(this.settingTab.containerEl)
             .setName(t("inputs.radialMenu"))
@@ -33,9 +37,55 @@ export class SettingInput extends SettingsSection {
                         PluginInstances.settings.radialMenuModifier = value as Modifier;
                     }
                     await PluginInstances.plugin.saveSettings();
+                    this.checkCompatibility();
                 })
             });
 
         this.elementsBody.push(setting.settingEl);
+    }
+
+    private addPinHotkey() {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(t("inputs.pinHotkey"))
+            .setDesc(t("inputs.pinHotkeyDesc"))
+            .addDropdown(cb => {
+                cb.addOptions({
+                    '': '',
+                    'Mod': Platform.isMacOS ? 'Cmd (Mod)' : 'Ctrl (Mod)',
+                    'Ctrl': 'Ctrl',
+                    'Meta': Platform.isMacOS ? 'Cmd (Meta)' : 'Win',
+                    'Shift': 'Shift',
+                    'Alt': 'Alt'
+                });
+                cb.setValue(PluginInstances.settings.pinNodeModifier ? PluginInstances.settings.pinNodeModifier : '');
+                cb.onChange(async (value) => {
+                    if (value === '') {
+                        PluginInstances.settings.pinNodeModifier = undefined;
+                    }
+                    else {
+                        PluginInstances.settings.pinNodeModifier = value as Modifier;
+                    }
+                    await PluginInstances.plugin.saveSettings();
+                    this.checkCompatibility();
+                })
+            });
+
+        this.elementsBody.push(setting.settingEl);
+    }
+
+    private checkCompatibility() {
+        const rightClickModifiers = [
+            PluginInstances.settings.radialMenuModifier,
+            PluginInstances.settings.pinNodeModifier
+        ];
+        const rightClickCompatibility = rightClickModifiers.unique().length === rightClickModifiers.length;
+
+        if (!rightClickCompatibility) {
+            this.settingHeader.setDesc("Multiple inputs use the same modifier for the right click.");
+        }
+        else {
+            this.settingHeader.setDesc("");
+        }
+        this.settingHeader.descEl.toggleClass("error", !rightClickCompatibility);
     }
 }

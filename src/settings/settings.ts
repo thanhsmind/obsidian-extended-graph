@@ -167,8 +167,11 @@ export interface ExtendedGraphSettings {
 
     // UI
     horizontalLegend: boolean;
+
+    // Inputs
     useRadialMenu: boolean;
     radialMenuModifier: Modifier;
+    pinNodeModifier?: Modifier;
 
     // Filters
     filterAbstractFiles: { regex: string, flag: string }[];
@@ -357,8 +360,11 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // UI
     horizontalLegend: false,
+
+    // Inputs
     useRadialMenu: false,
     radialMenuModifier: 'Shift',
+    pinNodeModifier: 'Alt',
 
     // Filters
     filterAbstractFiles: [],
