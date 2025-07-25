@@ -2,15 +2,15 @@ import { DropdownComponent, setIcon, Setting } from "obsidian";
 import {
     ExtendedGraphSettingTab,
     getCMapData,
-    getGraphAnalysis,
+    getNLPPlugin,
     LinksStatCalculatorFactory,
     LinkStatFunction,
     linkStatFunctionLabels,
-    linkStatFunctionNeedsGraphAnalysis,
     linkStatFunctionNeedsNLP,
     NodeStatCalculatorFactory,
     NodeStatFunction,
     nodeStatFunctionLabels,
+    nodeStatFunctionNeedsNLP,
     PluginInstances,
     SettingColorPalette,
     SettingsSectionPerGraphType,
@@ -21,6 +21,8 @@ import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModa
 export class SettingElementsStats extends SettingsSectionPerGraphType {
     warningNodeSizeSetting: Setting;
     warningNodeColorSetting: Setting;
+    nodesSizeFunctionDropdown: DropdownComponent | undefined;
+    nodesColorFunctionDropdown: DropdownComponent | undefined;
     linksSizeFunctionDropdown: DropdownComponent | undefined;
     linksColorFunctionDropdown: DropdownComponent | undefined;
     nodesPaletteSetting: SettingColorPalette;
@@ -72,7 +74,16 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setName(t("features.nodeSizesFunction"))
             .setDesc(t("features.nodeSizesFunctionDesc"))
             .addDropdown(cb => {
-                cb.addOptions(nodeStatFunctionLabels);
+                this.nodesSizeFunctionDropdown = cb;
+                cb.addOptions(
+                    Object.fromEntries(Object.entries(nodeStatFunctionLabels)
+                        .filter(entry => {
+                            const fn = entry[0] as NodeStatFunction;
+                            if (nodeStatFunctionNeedsNLP[fn] && !getNLPPlugin())
+                                return false;
+                            return true;
+                        })
+                    ));
                 cb.setValue(PluginInstances.settings.nodesSizeFunction);
                 cb.onChange((value) => {
                     this.recomputeNodesSizes(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
@@ -99,7 +110,16 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setName(t("features.nodeColorsFunction"))
             .setDesc(t("features.nodeColorsFunctionDesc"))
             .addDropdown(cb => {
-                cb.addOptions(nodeStatFunctionLabels);
+                this.nodesColorFunctionDropdown = cb;
+                cb.addOptions(
+                    Object.fromEntries(Object.entries(nodeStatFunctionLabels)
+                        .filter(entry => {
+                            const fn = entry[0] as NodeStatFunction;
+                            if (nodeStatFunctionNeedsNLP[fn] && !getNLPPlugin())
+                                return false;
+                            return true;
+                        })
+                    ));
                 cb.setValue(PluginInstances.settings.nodesColorFunction);
                 cb.onChange((value) => {
                     this.recomputeNodeColors(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
@@ -159,14 +179,11 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(t("features.linkSizesFunctionDesc"))
             .addDropdown(cb => {
                 this.linksSizeFunctionDropdown = cb;
-                const ga = getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
                         .filter(entry => {
                             const fn = entry[0] as LinkStatFunction;
-                            if (linkStatFunctionNeedsGraphAnalysis[fn] && !ga["graph-analysis"])
-                                return false;
-                            if (linkStatFunctionNeedsNLP[fn] && !ga.nlp)
+                            if (linkStatFunctionNeedsNLP[fn] && !getNLPPlugin())
                                 return false;
                             return true;
                         })
@@ -187,14 +204,11 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(t("features.linkColorsFunctionDesc") + " ⚠️ " + t("features.linksFeatureRequired"))
             .addDropdown(cb => {
                 this.linksColorFunctionDropdown = cb;
-                const ga = getGraphAnalysis();
                 cb.addOptions(
                     Object.fromEntries(Object.entries(linkStatFunctionLabels)
                         .filter(entry => {
                             const fn = entry[0] as LinkStatFunction;
-                            if (linkStatFunctionNeedsGraphAnalysis[fn] && !ga["graph-analysis"])
-                                return false;
-                            if (linkStatFunctionNeedsNLP[fn] && !ga.nlp)
+                            if (linkStatFunctionNeedsNLP[fn] && !getNLPPlugin())
                                 return false;
                             return true;
                         })
@@ -292,6 +306,12 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeNodesSizes(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
+        if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
+            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
+            functionKey = 'default';
+            this.nodesSizeFunctionDropdown?.setValue(functionKey);
+        }
+
         PluginInstances.settings.nodesSizeFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.plugin.saveSettings();
@@ -304,6 +324,12 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeNodeColors(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
+        if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
+            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
+            functionKey = 'default';
+            this.nodesColorFunctionDropdown?.setValue(functionKey);
+        }
+
         PluginInstances.settings.nodesColorFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.graphsManager.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
@@ -315,11 +341,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {
-        const ga = getGraphAnalysis();
-        if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
-            return;
-        }
-        else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
+        if (!getNLPPlugin() && linkStatFunctionNeedsNLP[functionKey]) {
             new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
             functionKey = 'default';
             this.linksSizeFunctionDropdown?.setValue(functionKey);
@@ -341,11 +363,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     private recomputeLinksColors(functionKey: LinkStatFunction): void {
-        const ga = getGraphAnalysis();
-        if (!ga && linkStatFunctionNeedsGraphAnalysis[functionKey]) {
-            return;
-        }
-        else if (!ga.nlp && linkStatFunctionNeedsNLP[functionKey]) {
+        if (!getNLPPlugin() && linkStatFunctionNeedsNLP[functionKey]) {
             new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
             functionKey = 'default';
             this.linksColorFunctionDropdown?.setValue(functionKey);

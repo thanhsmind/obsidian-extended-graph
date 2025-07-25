@@ -1,6 +1,6 @@
 import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 
-export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'authority' | 'topological';
+export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': t("plugin.default"),
@@ -20,6 +20,49 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'hub': t("statsFunctions.hub"),
     'authority': t("statsFunctions.authority"),
     'topological': t("statsFunctions.topological"),
+    'sentiment': t("statsFunctions.sentiment"),
+}
+
+export const nodeStatFunctionNeedsNLP: Record<NodeStatFunction, boolean> = {
+    'default': false,
+    'constant': false,
+    'backlinksCount': false,
+    'forwardlinksCount': false,
+    'forwardUniquelinksCount': false,
+    'filenameLength': false,
+    'tagsCount': false,
+    'creationTime': false,
+    'modifiedTime': false,
+    'eccentricity': false,
+    'betweenness': false,
+    'closeness': false,
+    'degree': false,
+    'eigenvector': false,
+    'hub': false,
+    'authority': false,
+    'topological': false,
+    'sentiment': true,
+}
+
+export const nodeStatFunctionIsDynamic: Record<NodeStatFunction, boolean> = {
+    'default': false,
+    'constant': false,
+    'backlinksCount': true,
+    'forwardlinksCount': true,
+    'forwardUniquelinksCount': true,
+    'filenameLength': false,
+    'tagsCount': false,
+    'creationTime': false,
+    'modifiedTime': false,
+    'eccentricity': true,
+    'betweenness': true,
+    'closeness': true,
+    'degree': true,
+    'eigenvector': true,
+    'hub': true,
+    'authority': true,
+    'topological': true,
+    'sentiment': false,
 }
 
 export type NodeStat = 'size' | 'color';
@@ -27,7 +70,7 @@ export type NodeStat = 'size' | 'color';
 export abstract class NodeStatCalculator {
     filesStats: Map<string, { measure: number, value: number }>;
     stat: NodeStat;
-    graphologyGraph?: GraphologyGraph
+    graphologyGraph?: GraphologyGraph;
 
     constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
         this.stat = stat;

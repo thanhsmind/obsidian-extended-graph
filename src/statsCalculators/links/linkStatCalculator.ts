@@ -1,7 +1,7 @@
 import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 
-export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Sentiment' | 'Co-Citations';
+export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Co-Citations';
 
 export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'default': t("plugin.default"),
@@ -13,20 +13,6 @@ export const linkStatFunctionLabels: Record<LinkStatFunction, string> = {
     'Ocurences': t("statsFunctions.Occurences"),
     'Otsuka-Ochiai': t("statsFunctions.OtsukaOchiai"),
     'Overlap': t("statsFunctions.overlap"),
-    'Sentiment': t("statsFunctions.sentiment"),
-};
-
-export const linkStatFunctionNeedsGraphAnalysis: Record<LinkStatFunction, boolean> = {
-    'default': false,
-    'Adamic Adar': true,
-    'BoW': true,
-    'Co-Citations': true,
-    'Clustering Coefficient': true,
-    'Jaccard': true,
-    'Ocurences': false,
-    'Otsuka-Ochiai': true,
-    'Overlap': true,
-    'Sentiment': true,
 };
 
 export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
@@ -39,7 +25,18 @@ export const linkStatFunctionNeedsNLP: Record<LinkStatFunction, boolean> = {
     'Ocurences': false,
     'Otsuka-Ochiai': true,
     'Overlap': false,
-    'Sentiment': true,
+};
+
+export const linkStatFunctionIsDynamic: Record<LinkStatFunction, boolean> = {
+    'default': false,
+    'Adamic Adar': true,
+    'BoW': false,
+    'Co-Citations': true,
+    'Clustering Coefficient': true,
+    'Jaccard': true,
+    'Ocurences': false,
+    'Otsuka-Ochiai': false,
+    'Overlap': true,
 };
 
 export type LinkStat = 'size' | 'color';
@@ -47,27 +44,32 @@ export type LinkStat = 'size' | 'color';
 export abstract class LinkStatCalculator {
     linksStats: { [source: string]: { [target: string]: { measure: number, value: number } } };
     stat: LinkStat;
+    graphologyGraph?: GraphologyGraph;
     statFunction: LinkStatFunction;
 
-    constructor(stat: LinkStat) {
+    constructor(stat: LinkStat, graphologyGraph?: GraphologyGraph) {
         this.stat = stat;
+        this.graphologyGraph = graphologyGraph;
     }
 
     async computeStats(statFunction: LinkStatFunction): Promise<void> {
         this.statFunction = statFunction;
-        if (!PluginInstances.graphologyGraph) {
-            PluginInstances.graphologyGraph = new GraphologyGraph();
+        if (!this.graphologyGraph) {
+            if (!PluginInstances.graphologyGraph) {
+                PluginInstances.graphologyGraph = new GraphologyGraph();
+            }
+            this.graphologyGraph = PluginInstances.graphologyGraph;
         }
-        PluginInstances.graphologyGraph.registerListener(async (graph) => {
+        this.graphologyGraph.registerListener(async (graph) => {
             await this.getStats();
             this.mapStat();
         }, true);
     }
 
     private async getStats(): Promise<void> {
-        if (!PluginInstances.graphologyGraph) return;
+        if (!this.graphologyGraph) return;
         this.linksStats = {};
-        const links = PluginInstances.graphologyGraph.graphology?.edgeEntries();
+        const links = this.graphologyGraph.graphology?.edgeEntries();
         if (!links) return;
         for (const link of links) {
             if (!this.linksStats[link.source]) {

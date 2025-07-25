@@ -19,7 +19,9 @@ import {
     LegendUI,
     lengthSegment,
     LINK_KEY,
+    linkStatFunctionIsDynamic,
     LinkText,
+    nodeStatFunctionIsDynamic,
     Pinner,
     PluginInstances,
     RadialMenuManager,
@@ -233,20 +235,10 @@ export class GraphEventsDispatcher extends Component {
         const needToUpdateGraphology = (instances.type === "localgraph" && settings.colorBasedOnDepth)
             || (settings.enableFeatures[instances.type]["elements-stats"]
                 && settings.recomputeStatsOnGraphChange
-                && ((settings.nodesSizeFunction !== "default"
-                    && settings.nodesSizeFunction !== "constant"
-                    && settings.nodesSizeFunction !== "creationTime"
-                    && settings.nodesSizeFunction !== "filenameLength"
-                    && settings.nodesSizeFunction !== "modifiedTime"
-                    && settings.nodesSizeFunction !== "tagsCount"
-                )
-                    || (settings.nodesColorFunction !== "default"
-                        && settings.nodesColorFunction !== "constant"
-                        && settings.nodesColorFunction !== "creationTime"
-                        && settings.nodesColorFunction !== "filenameLength"
-                        && settings.nodesColorFunction !== "modifiedTime"
-                        && settings.nodesColorFunction !== "tagsCount"
-                    )
+                && (linkStatFunctionIsDynamic[settings.linksSizeFunction]
+                    || linkStatFunctionIsDynamic[settings.linksColorFunction]
+                    || nodeStatFunctionIsDynamic[settings.nodesSizeFunction]
+                    || nodeStatFunctionIsDynamic[settings.nodesColorFunction]
                 ));
 
         PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(

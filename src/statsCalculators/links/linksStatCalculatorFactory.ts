@@ -1,21 +1,39 @@
-import { GraphAnalysisLinkCalculator, GraphAnalysisPlugin, LinkStat, LinkStatCalculator, OccurencesLinkCalculator, PluginInstances } from "src/internal";
+import {
+    AdamicAdarCalculator,
+    BoWCalculator,
+    ClusteringCoefficientCalculator,
+    CoCitationsCalculator,
+    GraphInstances,
+    JaccardCalculator,
+    LinkStat,
+    LinkStatCalculator,
+    OccurencesLinkCalculator,
+    OtsukaOchiaiCalculator,
+    OverlapCalculator,
+    PluginInstances
+} from "src/internal";
 
 
 export class LinksStatCalculatorFactory {
-    static getCalculator(stat: LinkStat): LinkStatCalculator | undefined {
-        switch (stat === 'size' ? PluginInstances.settings.linksSizeFunction : PluginInstances.settings.linksColorFunction) {
+    static getCalculator(stat: LinkStat, instances?: GraphInstances): LinkStatCalculator | undefined {
+        const g = instances?.graphologyGraph;
+        switch (stat === 'size' ? (instances ?? PluginInstances).settings.linksSizeFunction : (instances ?? PluginInstances).settings.linksColorFunction) {
             case 'Adamic Adar':
+                return new AdamicAdarCalculator(stat, g);
             case 'BoW':
+                return new BoWCalculator(stat, g);
             case 'Clustering Coefficient':
+                return new ClusteringCoefficientCalculator(stat, g);
             case 'Co-Citations':
+                return new CoCitationsCalculator(stat, g);
             case 'Jaccard':
-            case 'Otsuka-Ochiai':
-            case 'Overlap':
-            case 'Sentiment':
-                const graphAnalysisPlugin = PluginInstances.app.plugins.getPlugin("graph-analysis") as GraphAnalysisPlugin | null;
-                return graphAnalysisPlugin ? new GraphAnalysisLinkCalculator(stat, graphAnalysisPlugin.g) : undefined;
+                return new JaccardCalculator(stat, g);
             case 'Ocurences':
-                return new OccurencesLinkCalculator(stat);
+                return new OccurencesLinkCalculator(stat, g);
+            case 'Otsuka-Ochiai':
+                return new OtsukaOchiaiCalculator(stat, g);
+            case 'Overlap':
+                return new OverlapCalculator(stat, g);
             default:
                 return;
         }

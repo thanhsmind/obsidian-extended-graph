@@ -11,6 +11,7 @@ import {
     NodeStat,
     NodeStatCalculator,
     PluginInstances,
+    SentimentCalculator,
     TagsCountCalculator,
     TopologicalSortCalculator
 } from "src/internal";
@@ -19,40 +20,43 @@ import * as centrality from "./centralityCalculator";
 
 export class NodeStatCalculatorFactory {
     static getCalculator(stat: NodeStat, instances?: GraphInstances): NodeStatCalculator | undefined {
+        const g = instances?.graphologyGraph;
         const fn = stat === 'size' ? (instances ?? PluginInstances).settings.nodesSizeFunction : (instances ?? PluginInstances).settings.nodesColorFunction;
         switch (fn) {
             case 'constant':
-                return new ConstantCalculator(stat, instances?.graphologyGraph);
+                return new ConstantCalculator(stat, g);
             case 'backlinksCount':
-                return new BacklinkCountCalculator(stat, instances?.graphologyGraph);
+                return new BacklinkCountCalculator(stat, g);
             case 'forwardlinksCount':
-                return new ForwardlinkCountCalculator(stat, true, instances?.graphologyGraph);
+                return new ForwardlinkCountCalculator(stat, true, g);
             case 'forwardUniquelinksCount':
-                return new ForwardlinkCountCalculator(stat, false, instances?.graphologyGraph);
+                return new ForwardlinkCountCalculator(stat, false, g);
             case 'filenameLength':
-                return new FilenameLengthCalculator(stat, instances?.graphologyGraph);
+                return new FilenameLengthCalculator(stat, g);
             case 'tagsCount':
-                return new TagsCountCalculator(stat, instances?.graphologyGraph);
+                return new TagsCountCalculator(stat, g);
             case 'creationTime':
-                return new CreationTimeCalculator(stat, instances?.graphologyGraph);
+                return new CreationTimeCalculator(stat, g);
             case 'modifiedTime':
-                return new ModifiedTimeCalculator(stat, instances?.graphologyGraph);
+                return new ModifiedTimeCalculator(stat, g);
             case 'eccentricity':
-                return new EccentricityCalculator(stat, instances?.graphologyGraph);
+                return new EccentricityCalculator(stat, g);
             case 'closeness':
-                return new centrality.ClosenessCentralityCalculator(stat, instances?.graphologyGraph);
+                return new centrality.ClosenessCentralityCalculator(stat, g);
             case 'betweenness':
-                return new centrality.BetweennessCentralityCalculator(stat, instances?.graphologyGraph);
+                return new centrality.BetweennessCentralityCalculator(stat, g);
             case 'degree':
-                return new centrality.DegreeCentralityCalculator(stat, instances?.graphologyGraph);
+                return new centrality.DegreeCentralityCalculator(stat, g);
             case 'eigenvector':
-                return new centrality.EigenvectorCentralityCalculator(stat, instances?.graphologyGraph);
+                return new centrality.EigenvectorCentralityCalculator(stat, g);
             case 'hub':
-                return new centrality.HubsCalculator(stat, instances?.graphologyGraph);
+                return new centrality.HubsCalculator(stat, g);
             case 'authority':
-                return new centrality.AuthoritiesCalculator(stat, instances?.graphologyGraph);
+                return new centrality.AuthoritiesCalculator(stat, g);
             case 'topological':
-                return new TopologicalSortCalculator(stat, instances?.graphologyGraph);
+                return new TopologicalSortCalculator(stat, g);
+            case 'sentiment':
+                return new SentimentCalculator(stat, g);
             default:
                 return;
         }

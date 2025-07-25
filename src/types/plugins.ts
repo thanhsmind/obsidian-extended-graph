@@ -1,4 +1,5 @@
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { Plugin, TFile, WorkspaceLeaf } from "obsidian";
+import { Bow, WinkMethods } from "wink-nlp";
 
 // ======================== Iconize
 
@@ -63,4 +64,20 @@ export interface GraphBannerPlugin extends Plugin {
         leaf: WorkspaceLeaf,
         node: Node,
     }[];
+}
+
+// ======================== NLP
+
+export interface NLPPlugin extends Plugin {
+    Docs: { [path: string]: Document }
+    model: WinkMethods
+    getDocFromFile: (file: TFile) => Promise<Document>
+    getNoStopBoW: (doc: Document, type?: 'tokens' | 'entities') => Bow
+    getNoStopSet: (doc: Document, type?: 'tokens' | 'entities') => Set<string>
+    getAvgSentimentFromDoc: (
+        doc: Document,
+        opts?: { perSentence?: boolean; normalised?: boolean }
+    ) => number
+    settings: { refreshDocsOnLoad: boolean }
+    worker: Worker
 }

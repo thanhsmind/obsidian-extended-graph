@@ -50,11 +50,10 @@ import {
     GraphType,
     GraphStateModal,
     LinksStatCalculatorFactory,
-    linkStatFunctionNeedsGraphAnalysis,
     LinkStat,
     SettingQuery,
-    getGraphAnalysis,
-    t
+    t,
+    getNLPPlugin
 } from "./internal";
 
 
@@ -215,11 +214,17 @@ export class GraphsManager extends Component {
         }
     }
 
-    initializeLinksSizeCalculator(): void {
+    initializeLinksSizeCalculator(instances?: GraphInstances): void {
         try {
             if (this.canUseLinkStatFunction('size')) {
-                this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
-                this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
+                if (instances) {
+                    instances.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size', instances);
+                    instances.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
+                }
+                else {
+                    this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
+                    this.linksSizeCalculator?.computeStats(PluginInstances.settings.linksSizeFunction);
+                }
             }
         } catch (error) {
             console.error(error);
@@ -230,7 +235,7 @@ export class GraphsManager extends Component {
         }
     }
 
-    initializeLinksColorCalculator(): void {
+    initializeLinksColorCalculator(instances?: GraphInstances): void {
         try {
             if (this.canUseLinkStatFunction('color')) {
                 this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
@@ -246,20 +251,9 @@ export class GraphsManager extends Component {
     }
 
     private canUseLinkStatFunction(stat: LinkStat): boolean {
-        const ga = getGraphAnalysis();
         const fn = stat === 'color' ? PluginInstances.settings.linksColorFunction : PluginInstances.settings.linksSizeFunction;
 
-        if (!ga["graph-analysis"] && linkStatFunctionNeedsGraphAnalysis[fn]) {
-            if (stat === 'color') {
-                this.linksColorCalculator = undefined;
-            }
-            else {
-                this.linksSizeCalculator = undefined;
-            }
-            return false;
-        }
-
-        if (!ga.nlp && linkStatFunctionNeedsNLP[fn]) {
+        if (!getNLPPlugin() && linkStatFunctionNeedsNLP[fn]) {
             new Notice(`${t("notices.nlpPluginRequired")} (${fn})`);
             if (stat === 'color') {
                 this.linksColorCalculator = undefined;

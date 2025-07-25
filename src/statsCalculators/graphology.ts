@@ -1,6 +1,6 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { GraphInstances, PluginInstances } from 'src/internal';
+import { GraphInstances, linkStatFunctionIsDynamic, nodeStatFunctionIsDynamic, PluginInstances } from 'src/internal';
 import { reverse } from 'graphology-operators';
 import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { LocalGraphView } from 'obsidian-typings';
@@ -105,8 +105,18 @@ export class GraphologyGraph {
         }
 
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
-            PluginInstances.graphsManager.initiliazesNodeSizeCalculator(this.instances);
-            PluginInstances.graphsManager.initializeNodesColorCalculator(this.instances);
+            if (linkStatFunctionIsDynamic[this.instances.settings.linksSizeFunction]) {
+                PluginInstances.graphsManager.initializeLinksSizeCalculator(this.instances);
+            }
+            if (linkStatFunctionIsDynamic[this.instances.settings.linksColorFunction]) {
+                PluginInstances.graphsManager.initializeLinksColorCalculator(this.instances);
+            }
+            if (nodeStatFunctionIsDynamic[this.instances.settings.nodesSizeFunction]) {
+                PluginInstances.graphsManager.initiliazesNodeSizeCalculator(this.instances);
+            }
+            if (nodeStatFunctionIsDynamic[this.instances.settings.nodesColorFunction]) {
+                PluginInstances.graphsManager.initializeNodesColorCalculator(this.instances);
+            }
         }
     }
 
@@ -144,5 +154,9 @@ export class GraphologyGraph {
         }
 
         return graph;
+    }
+
+    intersection(nodes1: string[], nodes2: string[]) {
+        return nodes1?.filter((node1) => nodes2.includes(node1)) ?? []
     }
 }

@@ -72,6 +72,8 @@ export class GraphInstances {
 
     nodesSizeCalculator: NodeStatCalculator | undefined;
     nodesColorCalculator: NodeStatCalculator | undefined;
+    linksSizeCalculator: LinkStatCalculator | undefined;
+    linksColorCalculator: LinkStatCalculator | undefined;
 
     colorGroupHaveChanged: boolean = false;
     statePinnedNodes: Record<string, { x: number; y: number; handled?: boolean }> | null = null;
