@@ -643,25 +643,27 @@ export class GraphsManager extends Component {
         const actuallyEnablePlugin = () => {
             const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
 
-            if (this.nodesSizeCalculator?.functionKey !== PluginInstances.settings.nodesSizeFunction
-                && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "size" })
-            ) {
-                this.initializeNodesSizeCalculator();
-            }
-            if (this.nodesColorCalculator?.functionKey !== PluginInstances.settings.nodesColorFunction
-                && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "color" })
-            ) {
-                this.initializeNodesColorCalculator();
-            }
-            if (this.linksSizeCalculator?.functionKey !== PluginInstances.settings.linksSizeFunction
-                && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "size" })
-            ) {
-                this.initializeLinksSizeCalculator();
-            }
-            if (this.linksColorCalculator?.functionKey !== PluginInstances.settings.linksColorFunction
-                && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "color" })
-            ) {
-                this.initializeLinksColorCalculator();
+            if (PluginInstances.settings.enableFeatures[instances.type]["elements-stats"]) {
+                if (this.nodesSizeCalculator?.functionKey !== PluginInstances.settings.nodesSizeFunction
+                    && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "size" })
+                ) {
+                    this.initializeNodesSizeCalculator();
+                }
+                if (this.nodesColorCalculator?.functionKey !== PluginInstances.settings.nodesColorFunction
+                    && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "color" })
+                ) {
+                    this.initializeNodesColorCalculator();
+                }
+                if (this.linksSizeCalculator?.functionKey !== PluginInstances.settings.linksSizeFunction
+                    && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "size" })
+                ) {
+                    this.initializeLinksSizeCalculator();
+                }
+                if (this.linksColorCalculator?.functionKey !== PluginInstances.settings.linksColorFunction
+                    && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "color" })
+                ) {
+                    this.initializeLinksColorCalculator();
+                }
             }
 
             globalUI.menu.setEnableUIState();
