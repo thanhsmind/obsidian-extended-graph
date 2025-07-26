@@ -1,4 +1,4 @@
-import { Component } from "obsidian";
+import { Component, WorkspaceWindow } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
@@ -675,6 +675,7 @@ export class GraphEventsDispatcher extends Component {
 
     private beforeDestroyGraphics() {
         this.unbindStageEvents();
+        this.inputsManager.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
             PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
@@ -709,6 +710,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.bindStageEvents();
+            this.inputsManager.bindStageEvents();
             this.instances.renderer.changed();
         }, this.instances.settings.delay);
     }
