@@ -165,7 +165,7 @@ export class InputsManager {
     }
 
     private onInputToUnselectNodes(e: MouseEvent | KeyboardEvent) {
-        if (!("key" in e) || ("key" in e && e.key === "Escape")) {
+        if (e.instanceOf(MouseEvent) || (e.instanceOf(KeyboardEvent) && e.key === "Escape")) {
             if (this.isDragging) {
                 this.isDragging = false;
                 this.instances.nodesSet.stopMovingSelectedNodes();
