@@ -713,6 +713,7 @@ export class GraphEventsDispatcher extends Component {
             this.instances.nodesSet.onCSSChange();
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
+            this.instances.layersManager?.rebuildContainers();
             this.bindStageEvents();
             this.inputsManager.bindStageEvents();
             this.instances.renderer.changed();

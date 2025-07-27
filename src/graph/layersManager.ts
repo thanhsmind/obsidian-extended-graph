@@ -45,7 +45,32 @@ export class LayersManager {
         this.currentLevel = instances.stateData?.currentLayerLevel ?? 0;
     }
 
+    rebuildContainers() {
+        for (const group of this.layerGroups) {
+            for (const layer of group.layers) {
+                if (layer.container.destroyed) {
+                    layer.container = this.getNewContainer(layer.id, layer.level);
+                    layer.container.alpha = group.alpha;
+                    for (const nodeID of layer.nodes) {
+                        const node = this.instances.renderer.nodeLookup[nodeID];
+                        if (node) {
+                            this.addToContainer(node);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // ============================== Add a node ===============================
+
+    private getNewContainer(id: string, level: number): Container {
+        const container = new Container();
+        container.name = "layer-" + id;
+        container.zIndex = this.instances.settings.layersOrder === "ASC" ? level : -1 * level;
+        this.instances.renderer.hanger.addChild(container);
+        return container;
+    }
 
     addNode(nodeID: string) {
         if (this.nodeLookup[nodeID]) {
@@ -87,12 +112,9 @@ export class LayersManager {
                         label: parsed.label,
                         level: parsed.level,
                         nodes: [nodeID],
-                        container: new Container(),
+                        container: this.getNewContainer(layerID, parsed.level),
                     };
                     group.layers.push(layer);
-                    layer.container.name = "layer-" + layerID;
-                    layer.container.zIndex = this.instances.settings.layersOrder === "ASC" ? parsed.level : -1 * parsed.level;
-                    this.instances.renderer.hanger.addChild(layer.container);
                 }
                 this.nodeLookup[nodeID] = { group, layer };
 
@@ -184,12 +206,10 @@ export class LayersManager {
             this.instances.renderer.hanger.addChild(element);
         }
         for (const element of this.graphicsArray.linksContainer) {
-            element.setParent(this.instances.renderer.hanger);
+            this.instances.renderer.hanger.addChild(element);
         }
         for (const element of this.graphicsArray.circles) {
-            console.log("Move", this.instances.renderer.nodes.find(node => node.circle === element)?.id);
-            element.setParent(this.instances.renderer.hanger);
-            //this.instances.renderer.hanger.addChild(element);
+            this.instances.renderer.hanger.addChild(element);
         }
         for (const element of this.graphicsArray.names) {
             this.instances.renderer.hanger.addChild(element);

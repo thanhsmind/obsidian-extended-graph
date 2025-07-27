@@ -62,8 +62,6 @@ export class GraphState {
     }
 
     isValidProperty(key: string) {
-        console.log(GraphStateData.prototype);
-        //return GraphStateData.prototype.hasOwnProperty(key);
         return ['id', 'name', 'toggleTypes', 'logicTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows', 'enableLayers', 'currentLayerLevel'].includes(key);
     }
 
