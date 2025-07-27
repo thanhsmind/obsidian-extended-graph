@@ -18,6 +18,8 @@ export * from "./graph/graph";
 export * from "./graph/graphEventsDispatcher";
 export * from "./graph/interactiveManager";
 export * from "./graph/inputsManager";
+export * from "./graph/layersManager";
+
 export * from "./graph/extendedElements/extendedGraphElement";
 export * from "./graph/extendedElements/extendedGraphLink";
 export * from "./graph/extendedElements/extendedGraphNode";
@@ -102,6 +104,7 @@ export * from "./settings/settingFocus";
 export * from "./settings/settingIcons";
 export * from "./settings/settingImages";
 export * from "./settings/settingInputs";
+export * from "./settings/settingLayers";
 export * from "./settings/settingNames";
 export * from "./settings/settingPerformance";
 export * from "./settings/settingShapes";
@@ -132,6 +135,7 @@ export * from "./types/restrictedStrings";
 export * from "./types/workspace";
 
 export * from "./ui/UIElements";
+export * from "./ui/layersUI";
 export * from "./ui/legendUI";
 export * from "./ui/menu";
 export * from "./ui/radialMenu";
@@ -157,6 +161,7 @@ export * from "./ui/modals/queryMatchesModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 
+export * from "./helpers/array";
 export * from "./helpers/css";
 export * from "./helpers/graph";
 export * from "./helpers/html";

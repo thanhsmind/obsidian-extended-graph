@@ -64,6 +64,8 @@ export class StatesManager {
                 }
             }
 
+            instances.layersManager?.setCurrentLevel(stateData.currentLayerLevel ?? 0, false);
+
             instances.legendUI?.updateUIFromState();
 
             instances.statePinnedNodes = structuredClone(stateData.pinNodes) ?? {};
@@ -169,7 +171,7 @@ export class StatesManager {
         const engine = getEngine(view);
         if (!engine) return;
         stateData.engineOptions = new EngineOptions(engine.getOptions());
-        await this.onStateNeedsSaving(stateData);
+        await this.onStateNeedsSaving(stateData, true);
     }
 
     saveForNormalState(view: GraphView | LocalGraphView) {

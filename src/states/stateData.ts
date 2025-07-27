@@ -57,6 +57,8 @@ export class GraphStateData {
     engineOptions?: EngineOptions;
     hiddenLegendRows?: string[];
     collapsedLegendRows?: string[];
+    enableLayers: boolean = false;
+    currentLayerLevel: number = 0;
 
     constructor() {
         this.toggleTypes = {};

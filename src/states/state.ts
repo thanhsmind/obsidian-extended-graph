@@ -48,6 +48,12 @@ export class GraphState {
         // Combination logics
         // (same)
         this.data.logicTypes = structuredClone(instances.stateData?.logicTypes) ?? {};
+
+        // Layers
+        if (instances.layersManager) {
+            this.data.enableLayers = instances.layersManager.isEnabled;
+            this.data.currentLayerLevel = instances.layersManager.currentLevel;
+        }
     }
 
     saveState(stateData: GraphStateData): boolean {
@@ -56,7 +62,9 @@ export class GraphState {
     }
 
     isValidProperty(key: string) {
-        return ['id', 'name', 'toggleTypes', 'logicTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows'].includes(key);
+        console.log(GraphStateData.prototype);
+        //return GraphStateData.prototype.hasOwnProperty(key);
+        return ['id', 'name', 'toggleTypes', 'logicTypes', 'pinNodes', 'engineOptions', 'hiddenLegendRows', 'collapsedLegendRows', 'enableLayers', 'currentLayerLevel'].includes(key);
     }
 
     private completeDefaultOptions(): boolean {

@@ -165,6 +165,11 @@ export interface ExtendedGraphSettings {
     usePluginForIconColor: boolean;
     useParentIcon: boolean;
 
+    // Layers
+    layerProperties: string[];
+    numberOfActiveLayers: number;
+    layersOrder: 'ASC' | 'DESC';
+
     // UI
     horizontalLegend: boolean;
 
@@ -194,7 +199,9 @@ export const DEFAULT_STATE_SETTINGS: GraphStateData = {
     name: "Vault (default)",
     engineOptions: new EngineOptions(),
     toggleTypes: {},
-    logicTypes: {}
+    logicTypes: {},
+    enableLayers: false,
+    currentLayerLevel: 0,
 };
 
 let shapeQueriesIndex = 0;
@@ -218,6 +225,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'names': false,
             'icons': false,
             'arrows': false,
+            'layers': false,
         },
         'localgraph': {
             'auto-enabled': false,
@@ -236,6 +244,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
             'names': false,
             'icons': false,
             'arrows': false,
+            'layers': false,
         }
     },
 
@@ -357,6 +366,11 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     usePluginForIcon: true,
     usePluginForIconColor: true,
     useParentIcon: false,
+
+    // Layers
+    layerProperties: ["layer"],
+    numberOfActiveLayers: 4,
+    layersOrder: "ASC",
 
     // UI
     horizontalLegend: false,
@@ -609,13 +623,21 @@ export class SettingQuery {
         // Icons
         if (newFeatures['icons'] !== oldFeatures['icons'])
             return true;
-        if (newFeatures['arrows']) {
+        if (newFeatures['icons']) {
             if (['iconProperties', 'usePluginForIcon'].some(k => !equals(k)))
                 return true;
             if (oldSettings.usePluginForIcon && newSettings.usePluginForIcon) {
                 if (['usePluginForIconColor', 'useParentIcon'].some(k => !equals(k)))
                     return true;
             }
+        }
+
+        // Layers
+        if (newFeatures['layers'] !== oldFeatures['layers'])
+            return true;
+        if (newFeatures['layers']) {
+            if (['layerProperties', 'numberOfActiveLayers', 'layersOrder'].some(k => !equals(k)))
+                return true;
         }
 
         // Display settings

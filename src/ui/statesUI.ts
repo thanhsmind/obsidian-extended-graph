@@ -1,5 +1,4 @@
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
-import path from "path";
 import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances, t } from "src/internal";
 
 export class StatesUI extends Component {

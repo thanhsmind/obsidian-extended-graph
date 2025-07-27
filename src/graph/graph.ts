@@ -1,6 +1,6 @@
 
 import { Component } from 'obsidian';
-import { FOLDER_KEY, FoldersSet, GraphInstances, InteractiveManager, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
+import { FOLDER_KEY, FoldersSet, GraphInstances, InteractiveManager, LayersManager, LayersUI, LINK_KEY, LinksSet, NodesSet, TAG_KEY } from 'src/internal';
 
 export class Graph extends Component {
     instances: GraphInstances;
@@ -18,6 +18,13 @@ export class Graph extends Component {
 
         // Interactive managers
         this.initializeInteractiveManagers();
+
+        // Layers
+        if (this.instances.settings.enableFeatures[this.instances.type].layers) {
+            this.instances.layersManager = new LayersManager(this.instances);
+            this.instances.layersUI = new LayersUI(this.instances);
+            this.addChild(this.instances.layersUI);
+        }
 
         // Sets
         this.instances.nodesSet = new NodesSet(this.instances, this.getNodeManagers());
@@ -98,6 +105,7 @@ export class Graph extends Component {
 
     onunload(): void {
         this.restoreOriginalFunctions();
+        this.instances.layersManager?.unload();
         this.instances.nodesSet.unload();
         this.instances.linksSet.unload();
         this.instances.foldersSet?.unload();

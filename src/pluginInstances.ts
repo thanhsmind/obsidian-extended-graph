@@ -21,7 +21,9 @@ import {
     canonicalizeVarName,
     GraphologyGraph,
     NodeStatCalculator,
-    LinkStatCalculator
+    LinkStatCalculator,
+    LayersManager,
+    LayersUI
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -54,7 +56,7 @@ export class GraphInstances {
     stateData?: GraphStateData; // graphsManager.ts (addGraph) and changed in statesUI.ts
     graphologyGraph?: GraphologyGraph; // init the first time it is needed
 
-
+    layersManager?: LayersManager; // init in graph.ts (constructor)
     nodesSet: NodesSet; // init in graph.ts (constructor)
     linksSet: LinksSet; // init in graph.ts (constructor)
     foldersSet: FoldersSet | undefined; // init in graph.ts (constructor)
@@ -62,6 +64,7 @@ export class GraphInstances {
     legendUI: LegendUI | null = null;
     foldersUI: GCFolders | null = null;
     statesUI: StatesUI;
+    layersUI?: LayersUI;
 
     coreStyleEl?: HTMLStyleElement; // init in graphDistacher.ts
     extendedStyleEl?: HTMLStyleElement; // init in graphDistacher.ts

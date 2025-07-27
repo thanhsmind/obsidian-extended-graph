@@ -184,6 +184,9 @@ export class GraphEventsDispatcher extends Component {
                 if (this.reloadStateDuringInit) {
                     PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
                 }
+                if (this.instances.stateData?.enableLayers) {
+                    this.instances.layersManager?.enable();
+                }
             }
 
             PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
@@ -579,6 +582,7 @@ export class GraphEventsDispatcher extends Component {
             }
             else {
                 extendedNode.setCoreElement(node);
+                this.instances.layersManager?.addNode(node.id);
             }
             const file = getFile(node.id);
             const folderManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);

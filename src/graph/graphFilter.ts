@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { GraphColorAttributes, GraphData } from "obsidian-typings";
+import { GraphColorAttributes, GraphData, GraphNode } from "obsidian-typings";
 import { getFile, getFileInteractives, getOutlinkTypes, regExpFromString, TAG_KEY } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
@@ -18,8 +18,7 @@ export class GraphFilter {
 
     filterNodes(data: GraphData): GraphData {
         // Filter out nodes
-        this.exludedAbstractFiles(data);
-        this.filterByInteractives(data);
+        this.excludeNodes(data);
 
         let nodesToRemove: string[] = [];
 
@@ -61,16 +60,12 @@ export class GraphFilter {
         return data;
     }
 
-    private exludedAbstractFiles(data: GraphData) {
-        if (this.instances.settings.filterAbstractFiles.length === 0) return;
-
+    private excludeNodes(data: GraphData) {
         const nodesToRemove: string[] = [];
         for (const [id, node] of Object.entries(data.nodes)) {
-            for (const filter of this.instances.settings.filterAbstractFiles) {
-                if (new RegExp(filter.regex, filter.flag).test(id)) {
-                    nodesToRemove.push(id);
-                    break;
-                }
+            // @ts-ignore
+            if (this.shouldRemoveNode(id, node)) {
+                nodesToRemove.push(id);
             }
         }
 
@@ -79,36 +74,47 @@ export class GraphFilter {
         }
     }
 
-    private filterByInteractives(data: GraphData) {
-        const nodesToRemove: string[] = [];
-        if (!this.instances.settings.fadeOnDisable) {
-            for (const [id, node] of Object.entries(data.nodes)) {
-                // Remove file nodes
-                const file = getFile(id);
-                if (file) {
-                    for (const [key, manager] of this.instances.nodesSet.managers) {
-                        const interactives = getFileInteractives(key, file, this.instances.settings);
-                        if (interactives.size === 0) {
-                            interactives.add(this.instances.settings.interactiveSettings[key].noneType);
-                        }
-                        if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
-                            nodesToRemove.push(id);
-                        }
-                    }
-                }
+    private shouldRemoveNode(id: string, node: GraphNodeData): boolean {
+        for (const filter of this.instances.settings.filterAbstractFiles) {
+            if (new RegExp(filter.regex, filter.flag).test(id)) {
+                return true;
+            }
+        }
 
-                // Remove tag nodes
-                else if (node.type === 'tag' && this.instances.settings.enableFeatures[this.instances.type]['tags']) {
-                    const manager = this.instances.interactiveManagers.get(TAG_KEY);
-                    if (manager && !manager.isActiveBasedOnTypes([id.replace('#', '')])) {
-                        nodesToRemove.push(id);
+        if (this.instances.layersManager?.isEnabled) {
+            if (this.instances.layersManager.notInLayers.contains(id)) {
+                return true;
+            }
+            if (this.instances.layersManager.nodeLookup[id]?.group.alpha === 0) {
+                return true;
+            }
+        }
+
+        if (!this.instances.settings.fadeOnDisable) {
+            // Remove file nodes
+            const file = getFile(id);
+            if (file) {
+                for (const [key, manager] of this.instances.nodesSet.managers) {
+                    const interactives = getFileInteractives(key, file, this.instances.settings);
+                    if (interactives.size === 0) {
+                        interactives.add(this.instances.settings.interactiveSettings[key].noneType);
+                    }
+                    if (interactives.size > 0 && !manager.isActiveBasedOnTypes([...interactives])) {
+                        return true;
                     }
                 }
             }
+
+            // Remove tag nodes
+            else if (node.type === 'tag' && this.instances.settings.enableFeatures[this.instances.type]['tags']) {
+                const manager = this.instances.interactiveManagers.get(TAG_KEY);
+                if (manager && !manager.isActiveBasedOnTypes([id.replace('#', '')])) {
+                    return true;
+                }
+            }
         }
-        for (const id of nodesToRemove) {
-            delete data.nodes[id];
-        }
+
+        return false;
     }
 
     private filterOrphans(data: GraphData, potentialOrphans: string[]): GraphData {

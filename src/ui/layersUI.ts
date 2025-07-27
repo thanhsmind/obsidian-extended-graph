@@ -1,0 +1,103 @@
+import { Component, ExtraButtonComponent } from "obsidian";
+import { LayerGroup } from "src/internal";
+import { GraphInstances } from "src/pluginInstances";
+
+export class LayersUI extends Component {
+    instances: GraphInstances;
+
+    root: HTMLDivElement;
+    toggleButton: ExtraButtonComponent;
+    levelsArea: HTMLDivElement;
+    activeLayersBorder: HTMLDivElement;
+
+    constructor(instances: GraphInstances) {
+        super();
+        this.instances = instances;
+        this.root = this.instances.view.contentEl.createDiv();
+        this.root.addClass("extended-graph-layers");
+
+        this.onLevelClicked = this.onLevelClicked.bind(this);
+        this.onMouseWheel = this.onMouseWheel.bind(this);
+
+        this.addToggleButton();
+        this.addLevels();
+
+        if (this.instances.layersManager?.isEnabled) {
+            this.open();
+        }
+    }
+
+    private addToggleButton() {
+        this.toggleButton = new ExtraButtonComponent(this.root);
+        this.toggleButton.setIcon("layers");
+        this.toggleButton.onClick(() => {
+            if (this.instances.layersManager?.isEnabled) {
+                this.instances.layersManager.disable();
+            }
+            else {
+                this.instances.layersManager?.enable();
+            }
+        });
+    }
+
+    private addLevels() {
+        this.levelsArea = this.root.createDiv("levels");
+        this.levelsArea.addEventListener("wheel", this.onMouseWheel, { passive: true });
+    }
+
+    updateLevels(layerGroups: LayerGroup[]) {
+        this.levelsArea.innerHTML = "";
+        for (const group of layerGroups) {
+            const div = this.levelsArea.createDiv("layer-level");
+            div.innerText = group.level.toString();
+            div.addEventListener("click", this.onLevelClicked);
+        }
+    }
+
+    updateCurrentLevelUI(currentIndex: number) {
+        if (!this.activeLayersBorder)
+            this.activeLayersBorder = this.root.createDiv("active-layers-border");
+
+        for (const child of Array.from(this.levelsArea.children)) {
+            child.removeClass("current-layer");
+        }
+        const firstDiv = this.levelsArea.children[currentIndex];
+        const lastDiv = this.levelsArea.children[Math.min(this.levelsArea.children.length - 1, currentIndex + this.instances.settings.numberOfActiveLayers - 1)];
+
+        const top = firstDiv.getBoundingClientRect().top - this.root.getBoundingClientRect().top;
+        const bottom = this.root.getBoundingClientRect().bottom - lastDiv.getBoundingClientRect().bottom;
+        this.activeLayersBorder.style.setProperty("top", top.toString() + "px");
+        this.activeLayersBorder.style.setProperty("bottom", bottom.toString() + "px");
+
+        firstDiv.addClass("current-layer");
+    }
+
+    private onMouseWheel(e: WheelEvent) {
+        if (e.deltaY < 0) {
+            this.instances.layersManager?.decreaseCurrentLevel();
+        }
+        else {
+            this.instances.layersManager?.increaseCurrentLevel();
+        }
+    }
+
+    private onLevelClicked(e: MouseEvent) {
+        if (e.targetNode?.textContent) this.instances.layersManager?.setCurrentLevel(parseInt(e.targetNode.textContent))
+    }
+
+    open() {
+        this.toggleButton.extraSettingsEl.addClass("is-active");
+        this.levelsArea.show();
+        this.activeLayersBorder?.show();
+    }
+
+    close() {
+        this.toggleButton.extraSettingsEl.removeClass("is-active");
+        this.levelsArea.hide();
+        this.activeLayersBorder?.hide();
+    }
+
+    onunload(): void {
+        this.root.detach();
+    }
+}

@@ -135,6 +135,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
                 const extendedElement = this.createExtendedElement(coreElement);
                 extendedElement.init();
             }
+            this.instances.layersManager?.addNode(id);
         }
         return missingElements;
     }
