@@ -126,6 +126,8 @@
         "withExclusionFilter": "Files matching the following filters won't have back/forward links in the graph:",
         "fadeInElements": "Fade in new elements",
         "fadeInElementsDesc": "Extended elements added to the graph view by the plugin are faded in instead of appearing suddenly",
+        "filters": "Filters",
+        "filtersDesc": "Exclude files and folders from the graph based on regex patterns.",
         "focus": "Focus",
         "focusDesc": "Scale up the node corresponding to the active note",
         "focusScale": "Scale factor",
