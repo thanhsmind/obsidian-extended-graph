@@ -69,7 +69,7 @@
         "show": "显示",
         "showAll": "全部显示",
         "toggle": "切换",
-        "toggleAll": "切换所有文件夹的开关",
+        "toggleAll": "切换所有文件夹",
         "toggleAllWithMoreThanOneNode": "含有大于1个节点数",
         "rows": "行",
         "yes": "是"
