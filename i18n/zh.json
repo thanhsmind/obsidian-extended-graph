@@ -323,9 +323,9 @@
         "svgScreenshotNodeShapes": "使用节点形状",
         "svgScreenshotOptions": "SVG 截图选项",
         "svgScreenshotVisibleArea": "仅导出可见区域",
-        "zoomOnNode": "缩放节点",
-        "zoomScale": "缩放比例",
-        "zoomScaleDesc": "缩放节点时使用的比例"
+        "zoomOnNode": "聚焦节点",
+        "zoomScale": "聚焦比例",
+        "zoomScaleDesc": "聚焦到节点时放大的比例"
     },
     "inputs": {
         "inputs": "输入",
@@ -401,9 +401,9 @@
         "openSettings": "打开状态设置",
         "saveForDefaultState": "保存为默认状态",
         "saveForDefaultStateDesc": "将当前设置保存为默认状态设置",
-        "saveForNormalState": "保存为正常状态",
+        "saveForNormalState": "保存为常规状态",
         "saveForNormalStateDesc": "(无插件启用)",
-        "saveForNormalStateTooltip": "将当前设置保存为正常状态设置",
+        "saveForNormalStateTooltip": "将当前设置保存为常规状态（原生图谱）的设置",
         "showGraphState": "显示图谱状态",
         "startingState": "初始状态",
         "startingStateDesc": "选择用于初始化插件的状态",
