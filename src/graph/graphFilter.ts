@@ -69,9 +69,17 @@ export class GraphFilter {
             }
         }
 
+        const nodesToKeep = Object.keys(data.nodes).filter(id => !nodesToRemove.includes(id));
         for (const id of nodesToRemove) {
             delete data.nodes[id];
+
+            // @ts-ignore
+            for (const sourceID of nodesToKeep.filter(source => id in data.nodes[source].links)) {
+                // @ts-ignore
+                delete data.nodes[sourceID].links[id]
+            }
         }
+
     }
 
     private shouldRemoveNode(id: string, node: GraphNodeData): boolean {
@@ -82,7 +90,7 @@ export class GraphFilter {
         }
 
         if (this.instances.layersManager?.isEnabled) {
-            if (this.instances.layersManager.notInLayers.contains(id)) {
+            if (this.instances.settings.removeNodesWithoutLayers && this.instances.layersManager.notInLayers.contains(id)) {
                 return true;
             }
             if (this.instances.layersManager.nodeLookup[id]?.group.alpha === 0) {

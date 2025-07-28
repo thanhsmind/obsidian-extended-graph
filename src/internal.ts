@@ -158,6 +158,7 @@ export * from "./ui/modals/newNameModal";
 export * from "./ui/modals/nodesQueryModal";
 export * from "./ui/modals/pinMultipleNodesModal";
 export * from "./ui/modals/queryMatchesModal";
+export * from "./ui/modals/settingPropertiesModal";
 export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 

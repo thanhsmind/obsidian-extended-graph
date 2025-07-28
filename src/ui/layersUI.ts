@@ -41,16 +41,27 @@ export class LayersUI extends Component {
     }
 
     private addLevels() {
-        this.levelsArea = this.root.createDiv("levels");
+        this.levelsArea = this.root.createDiv("layers");
         this.levelsArea.addEventListener("wheel", this.onMouseWheel, { passive: true });
     }
 
     updateLevels(layerGroups: LayerGroup[]) {
         this.levelsArea.innerHTML = "";
         for (const group of layerGroups) {
-            const div = this.levelsArea.createDiv("layer-level");
-            div.innerText = group.level.toString();
-            div.addEventListener("click", this.onLevelClicked);
+            const divLayer = this.levelsArea.createDiv("layer");
+
+            const divLevel = divLayer.createDiv("layer-level");
+            divLevel.innerText = group.level.toString();
+            divLevel.addEventListener("click", this.onLevelClicked);
+
+            if (this.instances.settings.displayLabelsInUI) {
+                const divLabels = divLayer.createDiv("layer-labels");
+                for (const layer of group.layers) {
+                    if (layer.label) {
+                        divLabels.createDiv({ text: layer.label });
+                    }
+                }
+            }
         }
     }
 
@@ -59,17 +70,19 @@ export class LayersUI extends Component {
             this.activeLayersBorder = this.root.createDiv("active-layers-border");
 
         for (const child of Array.from(this.levelsArea.children)) {
-            child.removeClass("current-layer");
+            child.removeClass("current");
         }
         const firstDiv = this.levelsArea.children[currentIndex];
-        const lastDiv = this.levelsArea.children[Math.min(this.levelsArea.children.length - 1, currentIndex + this.instances.settings.numberOfActiveLayers - 1)];
+        const lastDiv = this.levelsArea.children[Math.min(
+            this.levelsArea.children.length - 1,
+            (currentIndex + this.instances.settings.numberOfActiveLayers - 1))];
 
         const top = firstDiv.getBoundingClientRect().top - this.root.getBoundingClientRect().top;
         const bottom = this.root.getBoundingClientRect().bottom - lastDiv.getBoundingClientRect().bottom;
         this.activeLayersBorder.style.setProperty("top", top.toString() + "px");
         this.activeLayersBorder.style.setProperty("bottom", bottom.toString() + "px");
 
-        firstDiv.addClass("current-layer");
+        firstDiv.addClass("current");
     }
 
     private onMouseWheel(e: WheelEvent) {

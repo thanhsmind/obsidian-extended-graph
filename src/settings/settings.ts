@@ -169,6 +169,10 @@ export interface ExtendedGraphSettings {
     layerProperties: string[];
     numberOfActiveLayers: number;
     layersOrder: 'ASC' | 'DESC';
+    displayLabelsInUI: boolean;
+    removeNodesWithoutLayers: boolean;
+    useLayerCustomOpacity: boolean;
+    layersCustomOpacity: { [level: number]: number };
 
     // UI
     horizontalLegend: boolean;
@@ -371,6 +375,10 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     layerProperties: ["layer"],
     numberOfActiveLayers: 4,
     layersOrder: "ASC",
+    displayLabelsInUI: true,
+    removeNodesWithoutLayers: true,
+    useLayerCustomOpacity: true,
+    layersCustomOpacity: {},
 
     // UI
     horizontalLegend: false,
@@ -636,9 +644,12 @@ export class SettingQuery {
         if (newFeatures['layers'] !== oldFeatures['layers'])
             return true;
         if (newFeatures['layers']) {
-            if (['layerProperties', 'numberOfActiveLayers', 'layersOrder'].some(k => !equals(k)))
+            if (['layerProperties', 'numberOfActiveLayers', 'layersOrder', 'displayLabelsInUI',
+                'removeNodesWithoutLayers', 'useLayerCustomOpacity', 'layersCustomOpacity'
+            ].some(k => !equals(k)))
                 return true;
         }
+
 
         // Display settings
         if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])

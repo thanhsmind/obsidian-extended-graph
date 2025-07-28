@@ -1,6 +1,7 @@
+import { TFile } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Container, DisplayObject } from "pixi.js";
-import { findClosestIndex, getFile, getFileInteractives, getLinkID } from "src/internal";
+import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export interface Layer {
@@ -64,14 +65,6 @@ export class LayersManager {
 
     // ============================== Add a node ===============================
 
-    private getNewContainer(id: string, level: number): Container {
-        const container = new Container();
-        container.name = "layer-" + id;
-        container.zIndex = this.instances.settings.layersOrder === "ASC" ? level : -1 * level;
-        this.instances.renderer.hanger.addChild(container);
-        return container;
-    }
-
     addNode(nodeID: string) {
         if (this.nodeLookup[nodeID]) {
             if (this.isEnabled) {
@@ -84,14 +77,9 @@ export class LayersManager {
         }
 
         const file = getFile(nodeID);
-        if (!file) return;
-
-        for (const property of this.instances.settings.layerProperties.filter(p => p !== "")) {
-            const values = getFileInteractives(property, file, this.instances.settings);
-            for (const layerID of values) {
-                const parsed = this.parseLayerID(layerID);
-                if (!parsed) continue;
-
+        if (file) {
+            const { layerID, parsed } = LayersManager.getNodeLayer(file, this.instances.settings);
+            if (layerID && parsed) {
                 // Add the node id to the layers
                 let group = this.layerGroups.find(group => group.level === parsed.level);
                 let layer = group?.layers.find(layer => layer.id === layerID);
@@ -125,13 +113,12 @@ export class LayersManager {
         this.notInLayers.push(nodeID);
     }
 
-    private parseLayerID(layerID: string): { level: number, label: string } | undefined {
-        const words = layerID.split("_");
-        if (words.length === 0) return;
-        const level = parseInt(words[0]);
-        const label = words.length > 1 ? words.slice(1).join("_") : "";
-        if (isNaN(level)) return;
-        return { level, label };
+    private getNewContainer(id: string, level: number): Container {
+        const container = new Container();
+        container.name = "layer-" + id;
+        container.zIndex = this.instances.settings.layersOrder === "ASC" ? level : -1 * level;
+        this.instances.renderer.hanger.addChild(container);
+        return container;
     }
 
 
@@ -239,9 +226,11 @@ export class LayersManager {
 
     setCurrentLevel(n: number, render = true): void {
         this.currentLevel = n;
-        this.updateOpacity();
-        if (render) this.instances.engine.render();
-        this.instances.layersUI?.updateCurrentLevelUI(this.getCurrentIndex());
+        if (this.isEnabled) {
+            this.updateOpacity();
+            if (render) this.instances.engine.render();
+            this.instances.layersUI?.updateCurrentLevelUI(this.getCurrentIndex());
+        }
     }
 
     getCurrentIndex(): number {
@@ -269,18 +258,61 @@ export class LayersManager {
     private updateOpacity(): void {
         const currentIndex = this.getCurrentIndex();
         for (let i = 0; i < this.layerGroups.length; i++) {
-            this.layerGroups[i].alpha = this.getOpacity(i - currentIndex);
+            this.layerGroups[i].alpha = this.getOpacity(currentIndex, i);
             for (const layer of this.layerGroups[i].layers) {
                 layer.container.alpha = this.layerGroups[i].alpha;
             }
         }
     }
 
-    private getOpacity(shift: number): number {
+    private getOpacity(currentIndex: number, index: number): number {
+        // If the index is out of range, return 0
+        const shift = index - currentIndex;
         if (shift < 0 || shift >= this.instances.settings.numberOfActiveLayers) {
             return 0;
         }
-        return (this.instances.settings.numberOfActiveLayers - shift) / this.instances.settings.numberOfActiveLayers;
+
+        if (!this.instances.settings.useLayerCustomOpacity) {
+            return (this.instances.settings.numberOfActiveLayers - shift) / this.instances.settings.numberOfActiveLayers;
+        }
+
+        // If a custom opacity is set for the level, use it
+        const level = this.layerGroups[index].level;
+        if (level in this.instances.settings.layersCustomOpacity) {
+            return this.instances.settings.layersCustomOpacity[level];
+        }
+
+        // Interpolate between the two closests custom opacity
+        const activeLayers = this.layerGroups.slice(currentIndex, currentIndex + this.instances.settings.numberOfActiveLayers);
+        let lowestBound = {
+            opacity: 1,
+            index: 0,
+        };
+        for (let i = shift; i >= 0; i--) {
+            if (activeLayers[i].level in this.instances.settings.layersCustomOpacity) {
+                lowestBound = {
+                    opacity: this.instances.settings.layersCustomOpacity[activeLayers[i].level],
+                    index: i,
+                };
+                break;
+            }
+        }
+        let highestBound = {
+            opacity: 0,
+            index: this.instances.settings.numberOfActiveLayers,
+        };
+        for (let i = shift; i < activeLayers.length; i++) {
+            if (activeLayers[i].level in this.instances.settings.layersCustomOpacity) {
+                highestBound = {
+                    opacity: this.instances.settings.layersCustomOpacity[activeLayers[i].level],
+                    index: i,
+                };
+                break;
+            }
+        }
+
+        const f = (shift - lowestBound.index) / (highestBound.index - lowestBound.index);
+        return (1 - f) * lowestBound.opacity + f * highestBound.opacity;
     }
 
     private updateUI(): void {
@@ -317,5 +349,70 @@ export class LayersManager {
             }
         }
         this.layerGroups = [];
+    }
+
+    // ================================ Static =================================
+
+    static parseLayerID(layerID: string): { level: number, label: string } | undefined {
+        const words = layerID.split("_");
+        if (words.length === 0) return;
+        const level = parseInt(words[0]);
+        const label = words.length > 1 ? words.slice(1).join("_") : "";
+        if (isNaN(level)) return;
+        return { level, label };
+    }
+
+    static getNodeLayer(file: TFile, settings: ExtendedGraphSettings): {
+        layerID?: string;
+        parsed?: {
+            level: number;
+            label: string;
+        };
+    } {
+        for (const property of settings.layerProperties.filter(p => p !== "")) {
+            const values = getFileInteractives(property, file, settings);
+            for (const layerID of values) {
+                const parsed = LayersManager.parseLayerID(layerID);
+                if (!parsed) continue;
+
+                return { layerID, parsed };
+            }
+        }
+        return {};
+    }
+
+    static getAllLayers(settings: ExtendedGraphSettings): { level: number, labels: string[] }[] {
+        const files = PluginInstances.app.vault.getMarkdownFiles();
+        const results: { level: number, labels: string[] }[] = [];
+        for (const file of files) {
+            LayersManager.addLayerIfNeeded(settings, results, file);
+        }
+        LayersManager.sortData(settings, results);
+        return results;
+    }
+
+    static sortData(settings: ExtendedGraphSettings, data: { level: number, labels: string[] }[]) {
+        for (const layer of data) {
+            layer.labels = layer.labels.unique().sort();
+        }
+        data.sort((a, b) => a.level - b.level);
+        if (settings.layersOrder === "DESC") {
+            data.reverse();
+        }
+    }
+
+    static addLayerIfNeeded(settings: ExtendedGraphSettings, results: { level: number, labels: string[] }[], file: TFile) {
+        const { layerID, parsed } = LayersManager.getNodeLayer(file, settings);
+        if (layerID && parsed) {
+            let found = results.find(layer => layer.level === parsed.level);
+            if (!found) {
+                found = {
+                    level: parsed.level,
+                    labels: []
+                };
+                results.push(found);
+            }
+            found.labels.push(parsed.label);
+        }
     }
 }

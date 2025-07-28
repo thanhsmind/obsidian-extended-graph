@@ -1,4 +1,3 @@
-import { re } from "mathjs";
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, TextComponent } from "obsidian";
 import { isPropertyKeyValid, PluginInstances, PropertiesSuggester, t, UIElements } from "src/internal";
 
