@@ -79,6 +79,9 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
     else if (typeof value === "number") {
         types.add(String(value));
     }
+    else if (typeof value === "boolean") {
+        types.add(String(value));
+    }
     else if ((typeof value === "object") && ("path" in value)) {
         // Dataview
         types.add(path.parse(value.path).name);
