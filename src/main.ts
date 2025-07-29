@@ -103,7 +103,9 @@ export default class ExtendedGraphPlugin extends Plugin {
     private async checkDataValidity() {
         const dataPath = normalizePath((this.manifest.dir ?? "") + "/data.json");
         try {
-            JSON.parse(await this.app.vault.adapter.read(dataPath));
+            if (await this.app.vault.adapter.exists(dataPath)) {
+                JSON.parse(await this.app.vault.adapter.read(dataPath));
+            }
         } catch (error) {
             const message = `There is an error in the settings file ${dataPath}, the json file can not be parsed. Please, make a copy of your file and report it on the GitHub repo, with the copy attached. Then, you can try to fix the file by hand, or fully delete the content of ${dataPath} and start using the plugin again (but you will lose your settings). I apologize for the inconvenience.`;
             new Notice(message, 0);
