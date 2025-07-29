@@ -28,6 +28,9 @@ export class LayersUI extends Component {
         if (this.instances.layersManager?.isEnabled) {
             this.open();
         }
+        else {
+            this.close();
+        }
     }
 
     private addToggleButton() {
@@ -102,12 +105,14 @@ export class LayersUI extends Component {
     }
 
     open() {
+        this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.levelsArea.show();
         this.activeLayersBorder?.show();
     }
 
     close() {
+        this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.levelsArea.hide();
         this.activeLayersBorder?.hide();

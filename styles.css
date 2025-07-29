@@ -389,6 +389,9 @@ body {
 .extended-graph-layers.show-labels ~ .graph-legend-container.horizontal-layout {
     --layers-max-width: var(--ext-graph-layers-with-labels-max-width);
 }
+.extended-graph-layers.is-closed ~ .graph-legend-container.horizontal-layout {
+    --layers-max-width: calc(2 * var(--size-2-2) + 2 * var(--size-2-3) + var(--icon-size));
+}
 
 /* MODAL NEW */
 
