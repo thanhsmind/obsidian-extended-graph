@@ -3,7 +3,7 @@ import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements } from "src/internal";
 
 export class SettingLayers extends SettingsSectionPerGraphType {
-    layerInfoSettings: Setting[] = [];
+    layerInfoSettings: LayerSetting[] = [];
     lastSettingBeforeLayerInfos: Setting;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -126,74 +126,14 @@ export class SettingLayers extends SettingsSectionPerGraphType {
         this.layerInfoSettings = [];
 
         for (const layer of layers.reverse()) {
-            let levelComponent: TextComponent;
-            let labelComponents: { label: string, cb: TextComponent }[] = [];
-            let saveButton: ButtonComponent;
-
-            const setting = new Setting(this.containerEl);
-            setting.settingEl.addClass("setting-layer-info");
-
-            // Save
-            setting.addButton(cb => {
-                saveButton = cb;
-                UIElements.setupButton(cb, 'save');
-                cb.onClick(() => {
-                    this.updateLayerID(
-                        layer.level,
-                        parseInt(levelComponent.getValue()),
-                        labelComponents.map(l => {
-                            return {
-                                old: l.label,
-                                new: l.cb.getValue()
-                            };
-                        })
-                    );
-                });
-            });
-
-            // Level
-            setting.addText(cb => {
-                cb.inputEl.addClass("number");
-                cb.setValue(layer.level.toString());
-                levelComponent = cb;
-            });
-
-            // Labels
-            const labelsDiv = setting.controlEl.createDiv("labels-list");
-            for (const label of layer.labels.reverse()) {
-                if (label === "") {
-                    continue;
-                }
-                const cb = new TextComponent(labelsDiv);
-                cb.setValue(label);
-                if (label === "") {
-                    cb.setDisabled(true);
-                }
-                labelComponents.push({ label, cb })
-            }
-
-            // Opacity
-            setting.addText(cb => {
-                cb.inputEl.addClass("number");
-                cb.setPlaceholder(t("features.layersOpacityPlaceholder"));
-                cb.setValue(PluginInstances.settings.layersCustomOpacity[layer.level]?.toString() ?? "");
-                cb.onChange(async (value) => {
-                    const floatValue = parseFloat(value);
-                    if (!isNaN(floatValue)) {
-                        PluginInstances.settings.layersCustomOpacity[layer.level] = floatValue;
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                    else {
-                        delete PluginInstances.settings.layersCustomOpacity[layer.level];
-                        await PluginInstances.plugin.saveSettings();
-                    }
-                });
-            });
+            const setting = new LayerSetting(this.settingTab.containerEl, this, layer);
 
             this.lastSettingBeforeLayerInfos.settingEl.insertAdjacentElement("afterend", setting.settingEl);
             this.layerInfoSettings.push(setting);
             this.elementsBody.push(setting.settingEl);
         }
+
+        this.layerInfoSettings.reverse();
     }
 
     private addDisplayLabelsInUI() {
@@ -211,7 +151,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
 
     // =========================================================================
 
-    private async updateLayerID(oldLevel: number, newLevel: number, labels: { old: string, new: string }[]) {
+    async updateLayerID(oldLevel: number, newLevel: number, labels: { old: string, new: string }[]) {
         // If there is already a custom opacity for this new level, we don't do anything.
         // But if there isn't, we copy the custom opacity of the old level
         if (oldLevel in PluginInstances.settings.layersCustomOpacity && !(newLevel in PluginInstances.settings.layersCustomOpacity)) {
@@ -320,5 +260,104 @@ export class SettingLayers extends SettingsSectionPerGraphType {
 
         doneIterating = true;
         tryFinish();
+    }
+}
+
+class LayerSetting extends Setting {
+    mainSettings: SettingLayers;
+    layer: {
+        level: number;
+        labels: string[];
+    }
+
+    saveButton: ButtonComponent;
+    levelInput: TextComponent;
+    labels: { label: string, cb: TextComponent }[] = [];
+    opacityInput: TextComponent;
+
+    constructor(
+        containerEl: HTMLElement,
+        mainSettings: SettingLayers,
+        layer: {
+            level: number;
+            labels: string[];
+        }
+    ) {
+        super(containerEl)
+
+        this.mainSettings = mainSettings;
+        this.layer = layer;
+
+        this.settingEl.addClass("setting-layer-info");
+
+        this.addSaveButton()
+            .addLevelInput()
+            .addLabelsInputs()
+            .addOpacityInput();
+    }
+
+    private addSaveButton(): LayerSetting {
+        this.addButton(cb => {
+            this.saveButton = cb;
+            UIElements.setupButton(cb, 'save');
+            cb.onClick(() => {
+                this.mainSettings.updateLayerID(
+                    this.layer.level,
+                    parseInt(this.levelInput.getValue()),
+                    this.labels.map(l => {
+                        return {
+                            old: l.label,
+                            new: l.cb.getValue()
+                        };
+                    })
+                );
+            });
+        });
+        return this;
+    }
+
+    private addLevelInput(): LayerSetting {
+        this.addText(cb => {
+            this.levelInput = cb;
+            cb.inputEl.addClass("number");
+            cb.setValue(this.layer.level.toString());
+        });
+        return this;
+    }
+
+    private addLabelsInputs(): LayerSetting {
+        const labelsDiv = this.controlEl.createDiv("labels-list");
+        for (const label of this.layer.labels.reverse()) {
+            if (label === "") {
+                continue;
+            }
+            const cb = new TextComponent(labelsDiv);
+            cb.setValue(label);
+            if (label === "") {
+                cb.setDisabled(true);
+            }
+            this.labels.push({ label, cb })
+        }
+        return this;
+    }
+
+    private addOpacityInput(): LayerSetting {
+        this.addText(cb => {
+            cb.inputEl.addClass("number");
+            cb.setPlaceholder(t("features.layersOpacityPlaceholder"));
+            cb.setValue(PluginInstances.settings.layersCustomOpacity[this.layer.level]?.toString() ?? "");
+            cb.onChange(async (value) => {
+                const floatValue = parseFloat(value);
+                if (!isNaN(floatValue)) {
+                    PluginInstances.settings.layersCustomOpacity[this.layer.level] = floatValue;
+                    await PluginInstances.plugin.saveSettings();
+                }
+                else {
+                    delete PluginInstances.settings.layersCustomOpacity[this.layer.level];
+                    await PluginInstances.plugin.saveSettings();
+                }
+            });
+        });
+        return this;
     }
 }
