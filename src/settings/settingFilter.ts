@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab, FilesSuggester, PluginInstances, SettingsSecti
 
 export class SettingFilter extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'filter', t('features.filters'), 'file-x', t('features.filtersDesc'));
+        super(settingTab, 'filter', t("features.ids.filter"), t('features.filters'), 'file-x', t('features.filtersDesc'));
     }
 
     protected override addBody(): void {

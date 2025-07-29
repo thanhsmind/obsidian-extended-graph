@@ -4,6 +4,7 @@ import {
     FileView,
     MarkdownView,
     Menu,
+    Notice,
     Plugin,
     setIcon,
     TAbstractFile,

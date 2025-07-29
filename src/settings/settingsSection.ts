@@ -9,15 +9,17 @@ export abstract class SettingsSection {
     elementsBody: HTMLElement[] = [];
     itemClasses: string[] = [];
     id: string;
+    keyword: string;
     title: string;
     icon: string;
     description: string;
     isCollapsed: boolean = false;
 
-    constructor(settingTab: ExtendedGraphSettingTab, id: string, title: string, icon: string, description: string) {
+    constructor(settingTab: ExtendedGraphSettingTab, id: string, keyword: string, title: string, icon: string, description: string) {
         this.settingTab = settingTab;
         this.containerEl = settingTab.containerEl;
         this.id = id;
+        this.keyword = keyword;
         this.title = title;
         this.icon = icon;
         this.description = description;
@@ -85,9 +87,7 @@ export abstract class SettingsSection {
             })
             .setTooltip(this.title);
 
-        var camelCased = this.id.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
-
-        div.appendText(t(`features.ids.${camelCased}`));
+        div.appendText(this.keyword);
     }
 
     protected collapse(): void {

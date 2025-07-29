@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, 
 
 export class SettingFocus extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'focus', '', t("features.focus"), 'telescope', t("features.focusDesc"));
+        super(settingTab, 'focus', '', t("features.ids.focus"), t("features.focus"), 'telescope', t("features.focusDesc"));
     }
 
     protected override addHeader(): void {

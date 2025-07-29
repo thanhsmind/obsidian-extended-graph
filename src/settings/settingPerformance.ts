@@ -4,7 +4,7 @@ import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, Setting
 export class SettingPerformance extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'performances', t("features.performance"), 'cpu', "");
+        super(settingTab, 'performances', t("features.ids.performances"), t("features.performance"), 'cpu', "");
     }
 
     protected override addBody() {

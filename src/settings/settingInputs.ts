@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "sr
 export class SettingInput extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'inputs', t("inputs.inputs"), 'mouse', "");
+        super(settingTab, 'inputs', t("features.ids.inputs"), t("inputs.inputs"), 'mouse', "");
     }
 
     protected override addBody() {

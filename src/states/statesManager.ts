@@ -1,3 +1,4 @@
+import { Notice } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
 import {
     DEFAULT_STATE_ID,

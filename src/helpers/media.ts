@@ -1,4 +1,4 @@
-import { arrayBufferToBase64, MarkdownRenderer, Platform } from "obsidian";
+import { arrayBufferToBase64, MarkdownRenderer, Platform, requestUrl } from "obsidian";
 import { getFile, getLinkDestination, PluginInstances, t } from "src/internal";
 
 export class Media {

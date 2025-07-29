@@ -21,7 +21,7 @@
 		"esbuild": "^0.25.0",
 		"obsidian": "latest",
 		"obsidian-dataview": "^0.5.64",
-		"obsidian-typings": "^2.42.0",
+		"obsidian-typings": "^3.13.5",
 		"tslib": "2.4.0",
 		"typescript": "^5.7.3"
 	},

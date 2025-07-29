@@ -7,7 +7,7 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     parentSetting: Setting | undefined;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'icons', '', t("features.icons"), 'origami', t("features.iconsDesc"));
+        super(settingTab, 'icons', '', t("features.ids.icons"), t("features.icons"), 'origami', t("features.iconsDesc"));
     }
 
     protected override addBody(): void {

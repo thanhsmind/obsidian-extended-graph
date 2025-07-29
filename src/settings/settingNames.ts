@@ -6,7 +6,7 @@ export class SettingNames extends SettingsSectionPerGraphType {
     verticalOffset: Setting;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'names', '', t("features.names"), 'case-sensitive', t("features.namesDesc"));
+        super(settingTab, 'names', '', t("features.ids.names"), t("features.names"), 'case-sensitive', t("features.namesDesc"));
     }
 
     protected override addBody() {

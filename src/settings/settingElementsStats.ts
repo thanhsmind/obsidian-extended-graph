@@ -1,4 +1,4 @@
-import { DropdownComponent, setIcon, Setting } from "obsidian";
+import { DropdownComponent, Notice, setIcon, Setting } from "obsidian";
 import {
     ExtendedGraphSettingTab,
     getCMapData,
@@ -29,7 +29,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     linksPaletteSetting: SettingColorPalette;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'elements-stats', '', t("features.elementsStats"), 'chart-pie', t("features.elementsStatsDesc"));
+        super(settingTab, 'elements-stats', '', t("features.ids.elementsStats"), t("features.elementsStats"), 'chart-pie', t("features.elementsStatsDesc"));
     }
 
     protected override addBody(): void {

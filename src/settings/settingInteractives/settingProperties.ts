@@ -1,4 +1,4 @@
-import { ButtonComponent, Setting } from "obsidian";
+import { ButtonComponent, Notice, Setting } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExtendedGraphSettingTab,
@@ -21,7 +21,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     addButton?: ButtonComponent;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'properties', '', t("features.interactives.properties"), 'archive', t("features.interactives.propertiesDesc"));
+        super(settingTab, 'properties', '', t("features.ids.properties"), t("features.interactives.properties"), 'archive', t("features.interactives.propertiesDesc"));
 
         for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
@@ -126,7 +126,7 @@ export class SettingProperty extends SettingInteractives {
     array: SettingPropertiesArray;
 
     constructor(key: string, settingTab: ExtendedGraphSettingTab, array: SettingPropertiesArray) {
-        super(settingTab, 'property-key', key, t("features.interactives.property") + ": " + key, '', t("features.interactives.propertyDesc") + key, false);
+        super(settingTab, 'property-key', key, '', t("features.interactives.property") + ": " + key, '', t("features.interactives.propertyDesc") + key, false);
         this.array = array;
     }
 

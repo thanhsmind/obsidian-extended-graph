@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "sr
 export class SettingZoom extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'zoom', t("features.zoomOnNode"), 'scan-search', "");
+        super(settingTab, 'zoom', t("features.ids.zoom"), t("features.zoomOnNode"), 'scan-search', "");
     }
 
     protected override addBody() {

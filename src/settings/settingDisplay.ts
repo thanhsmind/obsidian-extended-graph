@@ -5,7 +5,7 @@ export class SettingDisplay extends SettingsSection {
     depthColormapSetting: SettingColorPalette;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'display', t("features.otherDisplay"), 'monitor', "");
+        super(settingTab, 'display', t("features.ids.display"), t("features.otherDisplay"), 'monitor', "");
     }
 
     protected override addBody() {

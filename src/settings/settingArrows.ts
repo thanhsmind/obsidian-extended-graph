@@ -3,7 +3,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, 
 
 export class SettingArrows extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'arrows', '', t("features.arrows"), 'mouse-pointer-2', t("features.arrowsDesc"));
+        super(settingTab, 'arrows', '', t("features.ids.arrows"), t("features.arrows"), 'mouse-pointer-2', t("features.arrowsDesc"));
     }
 
     protected override addBody() {

@@ -1,6 +1,7 @@
 import P from "parsimmon";
 import emojiRegex from "emoji-regex";
 import { t } from "src/internal";
+import { Notice } from "obsidian";
 
 export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);

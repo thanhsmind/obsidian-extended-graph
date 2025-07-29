@@ -22,6 +22,7 @@ import {
     t,
     textColor
 } from "src/internal";
+import { Notice } from 'obsidian';
 
 export abstract class ExportGraphToSVG {
     svg: SVGSVGElement;

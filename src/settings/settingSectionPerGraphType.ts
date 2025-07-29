@@ -7,8 +7,8 @@ export abstract class SettingsSectionPerGraphType extends SettingsSection {
     interactiveKey: string;
     toggles: Partial<Record<GraphType, HTMLDivElement>> = {};
 
-    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, key: string, title: string, icon: string, description: string) {
-        super(settingTab, feature, title, icon, description);
+    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, key: string, keyword: string, title: string, icon: string, description: string) {
+        super(settingTab, feature, keyword, title, icon, description);
 
         this.feature = feature;
         this.interactiveKey = key;

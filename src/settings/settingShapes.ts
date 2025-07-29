@@ -5,7 +5,7 @@ export class SettingShapes extends SettingsSectionPerGraphType {
     settingsShape: SettingShape[] = [];
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'shapes', '', t("features.shapes"), 'shapes', t("features.shapesDesc"))
+        super(settingTab, 'shapes', '', t("features.ids.shapes"), t("features.shapes"), 'shapes', t("features.shapesDesc"))
     }
 
     protected override addBody() {

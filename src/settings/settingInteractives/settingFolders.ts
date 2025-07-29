@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, FOLDER_KEY, PluginInstances, SettingInteractiv
 export class SettingFolders extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'folders', FOLDER_KEY, t("features.folders"), 'folder', t("features.foldersDesc"), true);
+        super(settingTab, 'folders', FOLDER_KEY, t("features.ids.folders"), t("features.folders"), 'folder', t("features.foldersDesc"), true);
     }
 
     protected override addBody(): void {

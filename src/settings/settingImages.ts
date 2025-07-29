@@ -4,7 +4,7 @@ import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModa
 
 export class SettingImages extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'images', t("features.image"), 'image', t("features.imageDesc"));
+        super(settingTab, 'images', t("features.ids.images"), t("features.image"), 'image', t("features.imageDesc"));
     }
 
     protected override addBody() {

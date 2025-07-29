@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingInteractives, t, TAG_K
 export class SettingTags extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'tags', TAG_KEY, t("features.interactives.tags"), 'tags', t("features.interactives.tagsDesc"), true);
+        super(settingTab, 'tags', TAG_KEY, t("features.ids.tags"), t("features.interactives.tags"), 'tags', t("features.interactives.tagsDesc"), true);
     }
 
     protected override addBody(): void {

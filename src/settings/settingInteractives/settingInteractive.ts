@@ -29,8 +29,8 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     colors: SettingColor[] = [];
     canBeRecursive: boolean;
 
-    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, title: string, icon: string, description: string, canBeRecursive: boolean) {
-        super(settingTab, feature, interactiveKey, title, icon, description);
+    constructor(settingTab: ExtendedGraphSettingTab, feature: Feature, interactiveKey: string, keyword: string, title: string, icon: string, description: string, canBeRecursive: boolean) {
+        super(settingTab, feature, interactiveKey, keyword, title, icon, description);
         this.canBeRecursive = canBeRecursive;
     }
 

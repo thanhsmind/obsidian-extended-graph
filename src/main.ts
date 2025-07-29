@@ -1,4 +1,4 @@
-import { addIcon, getIcon, ItemView, MarkdownView, normalizePath, Plugin, WorkspaceLeaf } from 'obsidian';
+import { addIcon, getIcon, ItemView, MarkdownView, normalizePath, Notice, Plugin, WorkspaceLeaf } from 'obsidian';
 import { GraphView, LocalGraphView } from "obsidian-typings";
 import {
     addCommands,

@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSecti
 export class SettingAutomation extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'automation', t("features.automation"), 'workflow', "");
+        super(settingTab, 'automation', t("features.ids.automation"), t("features.automation"), 'workflow', "");
     }
 
     protected override addBody() {

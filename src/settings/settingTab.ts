@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, ToggleComponent } from "obsidian";
+import { Notice, PluginSettingTab, Setting, ToggleComponent } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExportConfigModal,

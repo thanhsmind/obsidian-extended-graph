@@ -1,4 +1,4 @@
-import { Component, WorkspaceWindow } from "obsidian";
+import { Component, Notice, WorkspaceWindow } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
