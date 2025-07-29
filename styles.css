@@ -864,6 +864,7 @@ body {
         justify-content: flex-start;
         align-items: center;
         overflow-x: auto;
+        flex-wrap: wrap;
 
         >.clickable-icon {
             background-color: var(--background-secondary);
@@ -873,17 +874,17 @@ body {
             }
         }
 
-        >*:first-child {
-            margin-left: auto;
-        }
-
         >*:last-child {
             margin-right: auto;
         }
 
+        >* {
+            color: var(--text-faint);
+            font-size: var(--font-ui-smaller);
+        }
+
         .nav-label {
             color: var(--text-muted);
-            font-size: var(--font-ui-smaller);
         }
     }
 

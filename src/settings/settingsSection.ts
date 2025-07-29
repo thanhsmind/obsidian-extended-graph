@@ -76,12 +76,16 @@ export abstract class SettingsSection {
         const nav = this.settingTab.containerEl.querySelector(".extended-graph-nav-settings") as HTMLDivElement;
         if (!nav) return;
 
-        const button = new ExtraButtonComponent(nav);
+        const div = nav.createDiv();
+
+        const button = new ExtraButtonComponent(div);
         button.setIcon(this.icon)
             .onClick(() => {
                 this.settingHeader.settingEl.scrollIntoView();
             })
             .setTooltip(this.title);
+
+        div.appendText(this.id);
     }
 
     protected collapse(): void {
