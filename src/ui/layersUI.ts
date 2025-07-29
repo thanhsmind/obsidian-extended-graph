@@ -15,6 +15,9 @@ export class LayersUI extends Component {
         this.instances = instances;
         this.root = this.instances.view.contentEl.createDiv();
         this.root.addClass("extended-graph-layers");
+        if (this.instances.settings.displayLabelsInUI) {
+            this.root.addClass("show-labels");
+        }
 
         this.onLevelClicked = this.onLevelClicked.bind(this);
         this.onMouseWheel = this.onMouseWheel.bind(this);

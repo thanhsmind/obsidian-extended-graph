@@ -1,6 +1,8 @@
 body {
     --ext-graph-background-container: var(--background-primary);
     --ext-graph-background-container-opacity: 0.9;
+    --ext-graph-layers-max-width: 5em;
+    --ext-graph-layers-with-labels-max-width: 10em;
 }
 
 /* Container */
@@ -309,6 +311,11 @@ body {
     padding: var(--size-2-2);
     display: flex;
     flex-direction: column-reverse;
+    max-width: var(--ext-graph-layers-max-width);
+
+    &.show-labels {
+        max-width: var(--ext-graph-layers-with-labels-max-width);
+    }
 
     .layers {
         display: flex;
@@ -333,12 +340,14 @@ body {
         padding-inline: var(--size-2-2);
         border: 1px solid var(--background-modifier-border);
         border-radius: var(--radius-s);
+        flex-shrink: 0;
     }
 
     .layer-labels {
         display: flex;
         align-items: center;
         color: var(--text-faint);
+        overflow-x: auto;
     }
 
     .layer-labels>* {
@@ -370,6 +379,15 @@ body {
         border-radius: var(--radius-m);
         transition: top 0.1s ease-out, bottom 0.1s ease-out;
     }
+}
+
+.extended-graph-layers ~ .graph-legend-container.horizontal-layout {
+    --layers-max-width: var(--ext-graph-layers-max-width);
+    right: calc(var(--size-4-3) * 2 + var(--layers-max-width));
+    max-width: calc(100% - 3 * var(--size-4-3) - var(--layers-max-width));
+}
+.extended-graph-layers.show-labels ~ .graph-legend-container.horizontal-layout {
+    --layers-max-width: var(--ext-graph-layers-with-labels-max-width);
 }
 
 /* MODAL NEW */
