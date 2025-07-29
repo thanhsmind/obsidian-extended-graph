@@ -47,33 +47,40 @@ export function getSvgFromIconize(path: string): { svg: SVGSVGElement | null, co
     const iconize: IconizePlugin | null = PluginInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
     if (!iconize
         || !iconize.hasOwnProperty("api")
-        || !iconize.api.hasOwnProperty("util")
-        || !iconize.api.util.hasOwnProperty("dom")
-        || !iconize.api.util.dom.hasOwnProperty("getIconNodeFromPath")
+        || !iconize.api.hasOwnProperty("getIconByName")
         || !iconize.hasOwnProperty("data")) return null;
 
-    // Try to get an SVG
-    const iconNode = iconize.api.util.dom.getIconNodeFromPath(path);
-    if (iconNode) {
-        const svg = iconNode.querySelector("svg") as SVGSVGElement;
-        if (svg) {
-            if (!iconize.hasOwnProperty("data")
-                || !iconize.data.hasOwnProperty(path)
-                || !iconize.data[path].hasOwnProperty("iconColor")) {
-                return { svg, color: null, emoji: null };
-            }
-            const color = iconize.data[path].iconColor;
-            return { svg: svg.cloneNode(true) as SVGSVGElement, color, emoji: null };
-        }
+    if (!(path in iconize.data)) return null;
+
+    const data = iconize.data[path];
+
+    let name: string | undefined = undefined;;
+    let color: string | null = null;
+
+    if (typeof data === "string") {
+        name = data;
+    }
+    else {
+        name = data.iconName;
+        color = data.iconColor;
+    }
+
+    if (!name) return null;
+
+    const icon = iconize.api.getIconByName(name);
+    if (icon) {
+        const svgString = icon.svgElement;
+        const parser = new DOMParser();
+        const parsedNode = parser.parseFromString(svgString, 'text/html');
+        const svg = parsedNode.querySelector('svg');
+        return { svg: svg, color, emoji: null };
     }
 
     // Try to get an emoji
-    if (iconize.data.hasOwnProperty(path)) {
-        const emoji = iconize.data[path];
-        if (typeof emoji === "string" && emoji !== "" && isEmoji(emoji)) {
-            return { svg: null, color: null, emoji };
-        }
+    if (typeof name === "string" && name !== "" && isEmoji(name)) {
+        return { svg: null, color: null, emoji: name };
     }
+
 
     return null;
 }

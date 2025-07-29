@@ -3,6 +3,7 @@ import { GraphColorAttributes, GraphNode } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
+    colorizeSVG,
     evaluateCMap,
     ExtendedGraphElement,
     ExtendedGraphText,
@@ -202,7 +203,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
                     break;
                 }
             }
-            icon?.svg?.setAttribute("stroke", "white");
+            if (icon?.svg) {
+                colorizeSVG(icon.svg, "white");
+            }
         }
         if (icon && !this.instances.settings.usePluginForIconColor) {
             icon.color = null;

@@ -170,4 +170,5 @@ export * from "./helpers/math";
 export * from "./helpers/media";
 export * from "./helpers/plugins";
 export * from "./helpers/strings";
+export * from "./helpers/svg";
 export * from "./helpers/vault";
