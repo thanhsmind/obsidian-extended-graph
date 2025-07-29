@@ -18,7 +18,8 @@
         "valuePlaceholder": "value..."
     },
     "beta": {
-        "beta": "Beta features",
+        "beta": "Beta",
+        "betaFeatures": "Beta features",
         "enableCSS": "Enable CSS customization",
         "enableCSSDesc": "Allows the plugin to inject custom CSS into the graph view for further customization. Write the name of the CSS snippet to use.",
         "revertAction": "Revert action",
@@ -40,6 +41,7 @@
         "enableInGraphView": "Enable in graph view",
         "export": "Export",
         "exportSettings": "Export settings",
+        "goTo": "Go to",
         "hide": "Hide",
         "hideAll": "Hide all",
         "hideRow": "Hide row",
@@ -80,6 +82,27 @@
         "paletteNameRequired": "You need to choose a name for this color map"
     },
     "features": {
+        "ids": {
+            "arrows": "arrows",
+            "automation": "automation",
+            "beta": "beta",
+            "display": "display",
+            "elementsStats": "stats",
+            "filter": "filter",
+            "focus": "focus",
+            "folders": "folders",
+            "icons": "icons",
+            "images": "images",
+            "inputs": "inputs",
+            "layers": "layers",
+            "links": "links",
+            "names": "names",
+            "performances": "performances",
+            "properties": "properties",
+            "shapes": "shapes",
+            "tags": "tags",
+            "zoom": "zoom"
+        },
         "animateDotsOnLinks": "Animate dots on links",
         "animateDotsOnLinksDesc": "Animate dots on links when a node is hovered to show the flow of information",
         "animateDotsOnLinksSpeed": "Animation speed",
@@ -152,6 +175,7 @@
         "iconUseParentIcon": "Use the icon of a parent folder",
         "iconUseParentIconDesc": "If no icon is set on the file itself with \"Iconic\" or \"Iconize\", it will try to find one set on a parent folder",
         "image": "Image",
+        "images": "Images",
         "imageDesc": "Display image on top of nodes",
         "imagesAllowExternal": "Allow images from the web",
         "imagesAllowExternalDesc": "Allow the loading of external images via http: and https: protocols",

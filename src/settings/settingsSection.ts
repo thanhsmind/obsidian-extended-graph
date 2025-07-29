@@ -1,5 +1,5 @@
 import { ExtraButtonComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances } from "src/internal";
+import { ExtendedGraphSettingTab, PluginInstances, t } from "src/internal";
 
 export abstract class SettingsSection {
     settingTab: ExtendedGraphSettingTab;
@@ -85,7 +85,9 @@ export abstract class SettingsSection {
             })
             .setTooltip(this.title);
 
-        div.appendText(this.id);
+        var camelCased = this.id.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+
+        div.appendText(t(`features.ids.${camelCased}`));
     }
 
     protected collapse(): void {

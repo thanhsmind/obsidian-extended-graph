@@ -17,7 +17,8 @@
 		"valuePlaceholder": "valeur..."
 	},
 	"beta": {
-		"beta": "Fonctionnalités en bêta",
+		"beta": "Bêta",
+		"betaFeatures": "Fonctionnalités en bêta",
 		"enableCSS": "Activer la personnalisation CSS",
 		"enableCSSDesc": "Permet au plugin d'injecter du CSS dans la vue graphique pour plus de personnalisation. Indiquer le nom de l'extrait CSS à utiliser.",
 		"revertAction": "Annuler la dernière action",
@@ -39,6 +40,7 @@
 		"enableInGraphView": "Activer dans la vue graphique",
 		"export": "Exporter",
 		"exportSettings": "Exporter les paramètres",
+		"goTo": "Aller à",
 		"hide": "Cacher",
 		"hideAll": "Cacher tout",
 		"hideRow": "Cacher la ligne",
@@ -79,6 +81,27 @@
 		"paletteNameRequired": "Vous devez choisir un nom pour cette palette de couleurs"
 	},
 	"features": {
+		"ids": {
+			"arrows": "flèches",
+			"automation": "automatisation",
+			"beta": "bêta",
+			"display": "affichage",
+			"elementsStats": "stats",
+			"filter": "filtre",
+			"focus": "focus",
+			"folders": "dossiers",
+			"icons": "icônes",
+			"images": "images",
+			"inputs": "commandes",
+			"layers": "couches",
+			"links": "liens",
+			"names": "noms",
+			"performances": "performances",
+			"properties": "propriétés",
+			"shapes": "formes",
+			"tags": "tags",
+			"zoom": "zoom"
+		},
 		"animateDotsOnLinks": "Anime des points sur les liens",
 		"animateDotsOnLinksDesc": "Ajoute des points animés sur les liens quand un noeud est survolé, afin de montrer le flux des informations",
 		"animateDotsOnLinksSpeed": "Vitesse d'animation",

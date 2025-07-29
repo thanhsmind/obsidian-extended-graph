@@ -18,7 +18,8 @@
         "valuePlaceholder": "输入值..."
     },
     "beta": {
-        "beta": "Beta 功能",
+        "beta": "Beta",
+        "betaFeatures": "Beta 功能",
         "enableCSS": "启用自定义 CSS",
         "enableCSSDesc": "允许插件将自定义 CSS 注入关系图谱以进行进一步定制。再次输入使用的 CSS 片段名称。",
         "revertAction": "撤销操作",
@@ -80,6 +81,23 @@
         "paletteNameRequired": "需要为此颜色映射选择名称"
     },
     "features": {
+        "ids": {
+            "arrows": "箭头",
+            "automation": "自动化",
+            "beta": "beta",
+            "filter": "过滤器",
+            "focus": "聚焦",
+            "folders": "文件夹",
+            "icons": "图标",
+            "inputs": "输入",
+            "links": "链接",
+            "names": "节点名称",
+            "performances": "性能",
+            "properties": "属性",
+            "shapes": "形状",
+            "tags": "标签",
+            "zoom": "聚焦"
+        },
         "animateDotsOnLinks": "在链接上显示圆点动画",
         "animateDotsOnLinksDesc": "当鼠标悬停在节点上时，在链接上显示圆点动画以展示信息流向",
         "animateDotsOnLinksSpeed": "动画速度",

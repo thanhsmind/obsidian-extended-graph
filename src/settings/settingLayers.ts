@@ -7,7 +7,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
     lastSettingBeforeLayerInfos: Setting;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'layers', '', t("features.layers"), 'layers', t("features.layersDesc"));
+        super(settingTab, 'layers', '', `${t("features.layers")} (${t("beta.beta")})`, 'layers', t("features.layersDesc"));
     }
 
     protected override addBody() {

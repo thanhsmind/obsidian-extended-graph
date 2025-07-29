@@ -4,7 +4,7 @@ import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "sr
 export class SettingBeta extends SettingsSection {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'beta', t("beta.beta"), 'hourglass', "");
+        super(settingTab, 'beta', t("beta.betaFeatures"), 'hourglass', "");
     }
 
     protected override addBody() {

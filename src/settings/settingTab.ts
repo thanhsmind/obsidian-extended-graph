@@ -135,7 +135,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         const nav = this.containerEl.createDiv({ cls: "extended-graph-nav-settings" });
 
         const label = nav.createDiv({ cls: "nav-label" });
-        label.innerText = "Go to";
+        label.innerText = t("controls.goTo");
     }
 
     private addDisableNodes() {
