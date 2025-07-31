@@ -1,11 +1,12 @@
 import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 
-export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
+export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'backUniquelinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': t("plugin.default"),
     'constant': t("statsFunctions.constant"),
     'backlinksCount': t("statsFunctions.backlinksCount"),
+    'backUniquelinksCount': t("statsFunctions.backUniquelinksCount"),
     'forwardlinksCount': t("statsFunctions.forwardlinksCount"),
     'forwardUniquelinksCount': t("statsFunctions.forwardUniquelinksCount"),
     'filenameLength': t("statsFunctions.filenameLength"),
@@ -27,6 +28,7 @@ export const nodeStatFunctionNeedsNLP: Record<NodeStatFunction, boolean> = {
     'default': false,
     'constant': false,
     'backlinksCount': false,
+    'backUniquelinksCount': false,
     'forwardlinksCount': false,
     'forwardUniquelinksCount': false,
     'filenameLength': false,
@@ -48,6 +50,7 @@ export const nodeStatFunctionIsDynamic: Record<NodeStatFunction, boolean> = {
     'default': false,
     'constant': false,
     'backlinksCount': true,
+    'backUniquelinksCount': true,
     'forwardlinksCount': true,
     'forwardUniquelinksCount': true,
     'filenameLength': false,

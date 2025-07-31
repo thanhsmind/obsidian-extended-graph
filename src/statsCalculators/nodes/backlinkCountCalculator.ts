@@ -1,41 +1,63 @@
+import { Attributes } from "graphology-types";
 import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
 
 export class BacklinkCountCalculator extends NodeStatCalculator {
+    countDuplicates: boolean;
 
-    constructor(stat: NodeStat, graphologyGraph?: GraphologyGraph) {
+    constructor(stat: NodeStat, countDuplicates: boolean, graphologyGraph?: GraphologyGraph) {
         super(stat, "backlinksCount", graphologyGraph);
+        this.countDuplicates = countDuplicates;
     }
 
     override async getStat(id: string, invert: boolean): Promise<number> {
         if (this.graphologyGraph?.graphology) {
-            return invert ? this.graphologyGraph.graphology.outDegree(id) : this.graphologyGraph.graphology.inDegree(id);
+            if (this.countDuplicates) {
+                return this.graphologyGraph.graphology.reduceInEdges(id, (acc: number, edge: string, attr: Attributes) => {
+                    return acc + (attr["count"] ?? 0);
+                }, 0);
+            }
+            else {
+                return this.graphologyGraph.graphology.inDegree(id);
+            }
         }
 
         const file = getFile(id);
         if (file) {
-            if (!invert) {
-                const backlinks = PluginInstances.app.metadataCache.getBacklinksForFile(file);
-                return backlinks.count();
-            }
-            else {
-                const links = PluginInstances.app.metadataCache.resolvedLinks[file.path];
-                return links ? Object.values(links).reduce((a: number, b: number, i: number, arr: number[]) => a + b, 0) : 0;
-            }
-        }
-        else {
-            if (!invert) {
-                let count = 0;
-                Object.entries(PluginInstances.app.metadataCache.unresolvedLinks).forEach(([source, unresolvedLinks]) => {
-                    if (id in unresolvedLinks) {
-                        count += unresolvedLinks[id];
+            const resolvedCounts = Object.values(PluginInstances.app.metadataCache.resolvedLinks).reduce(
+                (acc: number[], value: Record<string, number>) => {
+                    if (id in value) {
+                        acc.push(value[id]);
                     }
-                });
-                return count;
-            }
-            else {
-                // 0 forward links for unresolved nodes
+                    return acc;
+                },
+                []
+            );
+            const unresolvedCounts = Object.values(PluginInstances.app.metadataCache.unresolvedLinks).reduce(
+                (acc: number[], value: Record<string, number>) => {
+                    if (id in value) {
+                        acc.push(value[id]);
+                    }
+                    return acc;
+                },
+                []
+            );
+            const links = resolvedCounts.concat(unresolvedCounts);
+            if (!links) {
                 return 0;
             }
+            if (this.countDuplicates) {
+                return links.reduce((a: number, b: number, i: number, arr: number[]) => a + b, 0);
+            }
+            return links.length;
+        }
+        else {
+            let count = 0;
+            Object.entries(PluginInstances.app.metadataCache.unresolvedLinks).forEach(([source, unresolvedLinks]) => {
+                if (id in unresolvedLinks) {
+                    count += unresolvedLinks[id];
+                }
+            });
+            return count;
         }
     }
 }

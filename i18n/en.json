@@ -453,6 +453,7 @@
         "AdamicAdar": "Adamic Adar",
         "authority": "Authority centrality (from HITS)",
         "backlinksCount": "Number of backlinks",
+        "backUniquelinksCount": "Number of unique backlinks",
         "betweenness": "Betweenness centrality",
         "BoW": "Bag of words",
         "closeness": "Closeness centrality",
