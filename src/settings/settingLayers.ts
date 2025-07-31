@@ -77,11 +77,15 @@ export class SettingLayers extends SettingsSectionPerGraphType {
         this.elementsBody.push(new Setting(this.containerEl)
             .setName(t("features.layersRemoveIfNoLayer"))
             .setDesc(t("features.layersRemoveIfNoLayerDesc"))
-            .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.removeNodesWithoutLayers)
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.nodesWithoutLayerOpacity.toString())
                     .onChange(async (value) => {
-                        PluginInstances.settings.removeNodesWithoutLayers = value;
-                        await PluginInstances.plugin.saveSettings();
+                        const floatValue = parseFloat(value);
+                        if (!isNaN(floatValue)) {
+                            PluginInstances.settings.nodesWithoutLayerOpacity = Math.clamp(floatValue, 0, 1);
+                            await PluginInstances.plugin.saveSettings();
+                        }
                     })
             }).settingEl);
     }
@@ -301,7 +305,7 @@ class LayerSetting extends Setting {
             cb.onChange(async (value) => {
                 const floatValue = parseFloat(value);
                 if (!isNaN(floatValue)) {
-                    PluginInstances.settings.layersCustomOpacity[this.layer.level] = floatValue;
+                    PluginInstances.settings.layersCustomOpacity[this.layer.level] = Math.clamp(floatValue, 0, 1);;
                     await PluginInstances.plugin.saveSettings();
                 }
                 else {

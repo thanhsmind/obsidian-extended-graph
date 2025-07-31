@@ -90,7 +90,7 @@ export class GraphFilter {
         }
 
         if (this.instances.settings.enableFeatures[this.instances.type].layers && this.instances.layersManager?.isEnabled) {
-            if (this.instances.settings.removeNodesWithoutLayers && this.instances.layersManager.notInLayers.contains(id)) {
+            if (this.instances.settings.nodesWithoutLayerOpacity === 0 && this.instances.layersManager.notInLayers.nodeIDs.contains(id)) {
                 return true;
             }
             if (this.instances.layersManager.nodeLookup[id]?.group.alpha === 0) {

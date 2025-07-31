@@ -170,7 +170,7 @@ export interface ExtendedGraphSettings {
     numberOfActiveLayers: number;
     layersOrder: 'ASC' | 'DESC';
     displayLabelsInUI: boolean;
-    removeNodesWithoutLayers: boolean;
+    nodesWithoutLayerOpacity: number;
     useLayerCustomOpacity: boolean;
     layersCustomOpacity: { [level: number]: number };
     layersLevels: { [label: string]: number };
@@ -378,7 +378,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     numberOfActiveLayers: 4,
     layersOrder: "ASC",
     displayLabelsInUI: true,
-    removeNodesWithoutLayers: true,
+    nodesWithoutLayerOpacity: 0,
     useLayerCustomOpacity: true,
     layersCustomOpacity: {},
     layersLevels: {},
@@ -649,7 +649,7 @@ export class SettingQuery {
             return true;
         if (newFeatures['layers']) {
             if (['layerProperties', 'numberOfActiveLayers', 'layersOrder', 'displayLabelsInUI',
-                'removeNodesWithoutLayers', 'useLayerCustomOpacity', 'layersCustomOpacity',
+                'nodesWithoutLayerOpacity', 'useLayerCustomOpacity', 'layersCustomOpacity',
                 'layersLevels', 'defaultLevelForLayers'
             ].some(k => !equals(k)))
                 return true;

@@ -606,6 +606,7 @@ export class GraphEventsDispatcher extends Component {
                 else {
                     extendedLink.setCoreElement(l);
                 }
+                this.instances.layersManager?.addLinkToContainer(l);
             }
             // We can add the link only if the line AND the arrow (if needed) have been added
             const canAdd = (l: GraphLink) => {

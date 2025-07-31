@@ -262,6 +262,14 @@ export default class ExtendedGraphPlugin extends Plugin {
             }
         }
 
+        // 2.6.1 --> 2.6.2
+        if ('removeNodesWithoutLayers' in settings) {
+            if (typeof settings['removeNodesWithoutLayers'] === "boolean") {
+                settings['nodesWithoutLayerOpacity'] = settings['removeNodesWithoutLayers'] ? 0 : 1;
+            }
+            delete settings['removeNodesWithoutLayers'];
+        }
+
         return settings;
     }
 

@@ -1,5 +1,5 @@
 import { getLanguage, TFile } from "obsidian";
-import { GraphNode } from "obsidian-typings";
+import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container, DisplayObject } from "pixi.js";
 import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID, strCompare } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
@@ -28,7 +28,7 @@ export interface LayerGroup {
 
 export class LayersManager {
     layerGroups: LayerGroup[] = [];
-    notInLayers: string[] = [];
+    notInLayers: { nodeIDs: string[], layerGroup: LayerGroup };
     nodeLookup: Record<string, { group: LayerGroup, graphLayer: GraphLayer }> = {};
     graphicsArray: {
         circles: Set<DisplayObject>,
@@ -52,6 +52,24 @@ export class LayersManager {
     constructor(instances: GraphInstances) {
         this.instances = instances;
         this.currentLevel = instances.stateData?.currentLayerLevel ?? 0;
+
+        const notInLayerslevel = this.instances.settings.layersOrder === "ASC" ? -10000 : 10000;
+        this.notInLayers = {
+            nodeIDs: [],
+            layerGroup: {
+                level: notInLayerslevel,
+                alpha: 0,
+                layers: [{
+                    id: "",
+                    level: notInLayerslevel,
+                    label: "",
+                    nodes: [],
+                    container: this.getNewContainer("", notInLayerslevel)
+                }]
+            }
+        };
+        this.notInLayers.layerGroup.alpha = instances.settings.nodesWithoutLayerOpacity;
+        this.notInLayers.layerGroup.layers[0].container.alpha = instances.settings.nodesWithoutLayerOpacity;
     }
 
     rebuildContainers() {
@@ -67,6 +85,16 @@ export class LayersManager {
                         }
                     }
                 }
+            }
+        }
+
+        const noneLayer = this.notInLayers.layerGroup.layers[0];
+        noneLayer.container = this.getNewContainer(noneLayer.id, noneLayer.level);
+        noneLayer.container.alpha = this.notInLayers.layerGroup.alpha;
+        for (const nodeID of this.notInLayers.nodeIDs) {
+            const node = this.instances.renderer.nodeLookup[nodeID];
+            if (node) {
+                this.addToContainer(node);
             }
         }
     }
@@ -118,7 +146,15 @@ export class LayersManager {
             }
         }
 
-        this.notInLayers.push(nodeID);
+        this.notInLayers.nodeIDs.push(nodeID);
+        this.nodeLookup[nodeID] = { group: this.notInLayers.layerGroup, graphLayer: this.notInLayers.layerGroup.layers[0] };
+        if (this.isEnabled) {
+            const node = this.instances.renderer.nodeLookup[nodeID];
+            if (node) {
+                this.addToContainer(node);
+            }
+        }
+        return;
     }
 
     private getNewContainer(id: string, level: number): Container {
@@ -142,50 +178,57 @@ export class LayersManager {
         }
     }
 
+    private add(element: DisplayObject, layer: GraphLayer, array: keyof typeof this.graphicsArray, at?: number): void {
+        if (!element.destroyed && element.parent
+            && (element.parent === this.instances.renderer.hanger
+                || (element.parent.name?.startsWith("layer-") && element.parent !== layer.container)
+            )
+        ) {
+            at !== undefined ? layer.container.addChildAt(element, at) : layer.container.addChild(element);
+            this.graphicsArray[array].add(element);
+            element.on('destroyed', () => {
+                this.graphicsArray[array].delete(element);
+            });
+        }
+    }
+
     private addToContainer(node: GraphNode) {
         const sourceLayer = this.nodeLookup[node.id].graphLayer;
         if (!sourceLayer) return;
 
-        const add = (element: DisplayObject, layer: GraphLayer, array: keyof typeof this.graphicsArray, at?: number): void => {
-            if (!element.destroyed && element.parent
-                && (element.parent === this.instances.renderer.hanger
-                    || (element.parent.name?.startsWith("layer-") && element.parent !== layer.container)
-                )
-            ) {
-                at !== undefined ? layer.container.addChildAt(element, at) : layer.container.addChild(element);
-                this.graphicsArray[array].add(element);
-                element.on('destroyed', () => {
-                    this.graphicsArray[array].delete(element);
-                });
-            }
-        }
-
         // Add the node to the container
-        if (node.circle) { add(node.circle, sourceLayer, 'circles'); }
-        if (node.text) { add(node.text, sourceLayer, 'names'); }
+        if (node.circle) { this.add(node.circle, sourceLayer, 'circles'); }
+        if (node.text) { this.add(node.text, sourceLayer, 'names'); }
 
         // Add links
         // @ts-ignore
         for (const link of Object.values(node.forward).concat(Object.values(node.reverse)).map(link => link as GraphLink)) {
-            const linkID = getLinkID(link);
-            const extendedLink = this.instances.linksSet.extendedElementsMap.get(linkID);
+            this.addLinkToContainer(link);
+        }
+    }
 
-            const targetLayer = this.nodeLookup[link.target.id]?.graphLayer;
-            const layer = targetLayer
-                ? targetLayer.level < sourceLayer.level && this.instances.settings.layersOrder === "ASC"
-                    ? targetLayer
-                    : sourceLayer
-                : sourceLayer;
+    addLinkToContainer(link: GraphLink) {
+        const sourceLayer = this.nodeLookup[link.source.id]?.graphLayer;
+        if (!sourceLayer) return;
 
-            if (!extendedLink?.container) {
-                const pixiElement = extendedLink?.graphicsWrapper?.pixiElement;
-                if (pixiElement) { add(pixiElement, layer, 'linksPixiElements', 0); }
-                if (link.arrow) { add(link.arrow, layer, 'arrows', 0); }
-                if (link.px) { add(link.px, layer, 'links', 0); }
-            }
-            else {
-                if (extendedLink.container) { add(extendedLink.container, layer, 'linksContainer', 0); }
-            }
+        const linkID = getLinkID(link);
+        const extendedLink = this.instances.linksSet.extendedElementsMap.get(linkID);
+
+        const targetLayer = this.nodeLookup[link.target.id]?.graphLayer;
+        const layer = targetLayer
+            ? targetLayer.level < sourceLayer.level && this.instances.settings.layersOrder === "ASC"
+                ? targetLayer
+                : sourceLayer
+            : sourceLayer;
+
+        if (!extendedLink?.container) {
+            const pixiElement = extendedLink?.graphicsWrapper?.pixiElement;
+            if (pixiElement) { this.add(pixiElement, layer, 'linksPixiElements', 0); }
+            if (link.arrow) { this.add(link.arrow, layer, 'arrows', 0); }
+            if (link.px) { this.add(link.px, layer, 'links', 0); }
+        }
+        else {
+            if (extendedLink.container) { this.add(extendedLink.container, layer, 'linksContainer', 0); }
         }
     }
 
@@ -357,6 +400,10 @@ export class LayersManager {
             }
         }
         this.layerGroups = [];
+
+        this.notInLayers.layerGroup.layers[0].container.removeFromParent();
+        this.notInLayers.layerGroup.layers[0].container.destroy();
+        this.notInLayers.layerGroup.layers = [];
     }
 
     // ================================ Static =================================
