@@ -432,9 +432,10 @@
         "viewMatches": "查看匹配项"
     },
     "states": {
+        "defaultState": "默认状态",
+        "editStateName": "编辑状态名称",
         "graphState": "图谱状态",
         "newStateName": "新状态名称",
-        "editStateName": "编辑状态名称",
         "openSettings": "打开状态设置",
         "saveForDefaultState": "保存为默认状态",
         "saveForDefaultStateDesc": "将当前设置保存为默认状态设置",
