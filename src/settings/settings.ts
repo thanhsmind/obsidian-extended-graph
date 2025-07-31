@@ -19,6 +19,7 @@ import {
     PinShapeData,
     PluginInstances,
     QueryData,
+    t,
     TAG_KEY
 } from "src/internal";
 
@@ -203,7 +204,7 @@ export interface ExtendedGraphSettings {
 
 export const DEFAULT_STATE_SETTINGS: GraphStateData = {
     id: DEFAULT_STATE_ID,
-    name: "Vault (default)",
+    name: t("states.defaultState"),
     engineOptions: new EngineOptions(),
     toggleTypes: {},
     logicTypes: {},

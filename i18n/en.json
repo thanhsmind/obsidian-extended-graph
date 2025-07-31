@@ -435,9 +435,10 @@
         "viewMatches": "View matches"
     },
     "states": {
+        "defaultState": "Default state",
+        "editStateName": "Edit state name",
         "graphState": "Graph state",
         "newStateName": "New state name",
-        "editStateName": "Edit state name",
         "openSettings": "Open state settings",
         "saveForDefaultState": "Save for default state",
         "saveForDefaultStateDesc": "Save the current settings as the default state settings",

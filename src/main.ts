@@ -3,6 +3,8 @@ import { GraphView, LocalGraphView } from "obsidian-typings";
 import {
     addCommands,
     DEFAULT_SETTINGS,
+    DEFAULT_STATE_ID,
+    DEFAULT_STATE_SETTINGS,
     ExtendedGraphSettingTab,
     FOLDER_KEY,
     getGraphBannerClass,
@@ -268,6 +270,12 @@ export default class ExtendedGraphPlugin extends Plugin {
                 settings['nodesWithoutLayerOpacity'] = settings['removeNodesWithoutLayers'] ? 0 : 1;
             }
             delete settings['removeNodesWithoutLayers'];
+        }
+        if ("states" in settings && Array.isArray(settings["states"])) {
+            const defaultState = settings["states"].find(state => state["id"] === DEFAULT_STATE_ID);
+            if (defaultState['name'] === "Vault (default)") {
+                defaultState['name'] = DEFAULT_STATE_SETTINGS.name;
+            }
         }
 
         return settings;
