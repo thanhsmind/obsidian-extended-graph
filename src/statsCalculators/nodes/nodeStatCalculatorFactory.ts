@@ -13,7 +13,8 @@ import {
     PluginInstances,
     SentimentCalculator,
     TagsCountCalculator,
-    TopologicalSortCalculator
+    TopologicalSortCalculator,
+    TotallinkCountCalculator
 } from "src/internal";
 import * as centrality from "./centralityCalculator";
 
@@ -34,6 +35,10 @@ export class NodeStatCalculatorFactory {
                 return !settings.invertNodeStats ? new ForwardlinkCountCalculator(stat, true, g) : new BacklinkCountCalculator(stat, true, g);
             case 'forwardUniquelinksCount':
                 return !settings.invertNodeStats ? new ForwardlinkCountCalculator(stat, false, g) : new BacklinkCountCalculator(stat, false, g);
+            case 'totallinksCount':
+                return new TotallinkCountCalculator(stat, true, g);
+            case 'totalUniquelinksCount':
+                return new TotallinkCountCalculator(stat, false, g);
             case 'filenameLength':
                 return new FilenameLengthCalculator(stat, g);
             case 'tagsCount':

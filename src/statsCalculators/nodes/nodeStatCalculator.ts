@@ -1,6 +1,6 @@
 import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
 
-export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'backUniquelinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
+export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'backUniquelinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'totallinksCount' | 'totalUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
 
 export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'default': t("plugin.default"),
@@ -9,6 +9,8 @@ export const nodeStatFunctionLabels: Record<NodeStatFunction, string> = {
     'backUniquelinksCount': t("statsFunctions.backUniquelinksCount"),
     'forwardlinksCount': t("statsFunctions.forwardlinksCount"),
     'forwardUniquelinksCount': t("statsFunctions.forwardUniquelinksCount"),
+    'totallinksCount': t("statsFunctions.totallinksCount"),
+    'totalUniquelinksCount': t("statsFunctions.totalUniquelinksCount"),
     'filenameLength': t("statsFunctions.filenameLength"),
     'tagsCount': t("statsFunctions.tagsCount"),
     'creationTime': t("statsFunctions.creationTime"),
@@ -31,6 +33,8 @@ export const nodeStatFunctionNeedsNLP: Record<NodeStatFunction, boolean> = {
     'backUniquelinksCount': false,
     'forwardlinksCount': false,
     'forwardUniquelinksCount': false,
+    'totallinksCount': false,
+    'totalUniquelinksCount': false,
     'filenameLength': false,
     'tagsCount': false,
     'creationTime': false,
@@ -53,6 +57,8 @@ export const nodeStatFunctionIsDynamic: Record<NodeStatFunction, boolean> = {
     'backUniquelinksCount': true,
     'forwardlinksCount': true,
     'forwardUniquelinksCount': true,
+    'totallinksCount': true,
+    'totalUniquelinksCount': true,
     'filenameLength': false,
     'tagsCount': false,
     'creationTime': false,

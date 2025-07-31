@@ -388,6 +388,8 @@
 		"filenameLength": "Longueur du nom de fichier",
 		"forwardlinksCount": "Nombre de liens sortants",
 		"forwardUniquelinksCount": "Nombre de liens sortants uniques",
+		"totallinksCount": "Nombre de liens",
+		"totalUniquelinksCount": "Nombre de liens uniques",
 		"hub": "Hub centrality (from HITS)",
 		"Jaccard": "Jaccard similarity",
 		"modifiedTime": "Temps depuis la dernière modification",
