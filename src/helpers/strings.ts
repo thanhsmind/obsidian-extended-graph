@@ -1,7 +1,7 @@
 import P from "parsimmon";
 import emojiRegex from "emoji-regex";
 import { t } from "src/internal";
-import { Notice } from "obsidian";
+import { getLanguage, Notice } from "obsidian";
 
 export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -106,6 +106,10 @@ export function testRegexRegex(): void {
             console.error("!!!! Failed to parse: " + s + "\n" + e.stack);
         }
     }
+}
+
+export function strCompare(a: string, b: string): number {
+    return a.localeCompare(b, getLanguage(), { sensitivity: 'base' });
 }
 
 

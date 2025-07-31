@@ -240,6 +240,7 @@
         "layersDisplayLabels": "Display labels in UI",
         "layersDisplayLabelsDesc": "If a layer has a label associated, for example `4_cave`, add the label to the UI",
         "layersInfoDataview": "If you modify layers' levels and labels from this pane, Dataview inline properties will not be updated.",
+        "layersInfoLevelNotFromID": "Level of this setting is not based on the property value",
         "layersNumber": "Maximum number of layers",
         "layersNumberDesc": "Set up the maximum number of active layers that will be shown in the graph view",
         "layersOpacityPlaceholder": "Opacity",

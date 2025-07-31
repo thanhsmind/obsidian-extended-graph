@@ -1,6 +1,6 @@
 import { ButtonComponent, setIcon, Setting, TextComponent, TFile } from "obsidian";
 import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements } from "src/internal";
+import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements, Layer } from "src/internal";
 
 export class SettingLayers extends SettingsSectionPerGraphType {
     layerInfoSettings: LayerSetting[] = [];
@@ -114,12 +114,19 @@ export class SettingLayers extends SettingsSectionPerGraphType {
                 });
             this.elementsBody.push(setting.settingEl);
         }
+
+        if (layers.some(layer => !layer.levelFromID)) {
+            const setting = new Setting(this.containerEl)
+                .setClass("setting-additional-info")
+                .setDesc(t("features.layersInfoLevelNotFromID"))
+                .then(cb => {
+                    setIcon(cb.nameEl, 'asterisk');
+                });
+            this.elementsBody.push(setting.settingEl);
+        }
     }
 
-    private addLayersInfoFromData(layers: {
-        level: number;
-        labels: string[];
-    }[]) {
+    private addLayersInfoFromData(layers: Layer[]) {
         for (const setting of this.layerInfoSettings) {
             setting.settingEl.detach();
         }
@@ -151,137 +158,83 @@ export class SettingLayers extends SettingsSectionPerGraphType {
 
     // =========================================================================
 
-    async updateLayerID(oldLevel: number, newLevel: number, labels: { old: string, new: string }[]) {
+    async updateLayerID(setting: LayerSetting) {
+        const oldLevel = setting.layer.level;
+        let newLevel = parseInt(setting.levelInput.getValue());
+        if (isNaN(newLevel)) {
+            newLevel = oldLevel;
+        }
+        const oldLabel = setting.layer.label;
+        let newLabel = setting.labelInput?.getValue() ?? oldLabel;
+        if (newLabel === "") {
+            newLabel = oldLabel;
+        }
+
+        const oldID = setting.layer.id;
+        const newID = setting.layer.levelFromID ? newLevel.toString() + (newLabel !== "" ? ("_" + newLabel) : "") : newLabel;
+
+        const updateSetting = () => {
+            setting.layer.id = newID;
+            setting.layer.level = newLevel;
+            setting.layer.label = newLabel;
+            setting.levelInput.setValue(newLevel.toString());
+            setting.labelInput?.setValue(newLabel);
+        }
+
+        if (oldLevel === newLevel && oldLabel === newLabel) {
+            updateSetting();
+            return;
+        }
+
+        if (oldLevel !== newLevel && !setting.layer.levelFromID) {
+            PluginInstances.settings.layersLevels[newID] = newLevel
+            // We don't delete the previous one because it might be used by inline dataview properties
+        }
+
         // If there is already a custom opacity for this new level, we don't do anything.
         // But if there isn't, we copy the custom opacity of the old level
+        // We don't remove the old one because there are some inline properties from Dataview that might still use it
         if (oldLevel in PluginInstances.settings.layersCustomOpacity && !(newLevel in PluginInstances.settings.layersCustomOpacity)) {
             PluginInstances.settings.layersCustomOpacity[newLevel] = PluginInstances.settings.layersCustomOpacity[oldLevel];
             await PluginInstances.plugin.saveSettings();
         }
 
-        if (isNaN(newLevel)) {
-            newLevel = oldLevel;
-        }
-
-        const newData: {
-            level: number;
-            labels: string[];
-        }[] = [];
-
-        // If a file has been modified, we need to wait for the file to be cached before we can update the layers
-        const cachedState: { [filepath: string]: boolean } = {};
-
-        // When a file is cached, we check if it should be processed and if so, we add it to the newData
-        const onFileCached = (file: TFile) => {
-            if (file.path in cachedState) {
-                // We collect the data right here to avoid the need of a second loop
-                LayersManager.addLayerIfNeeded(PluginInstances.settings, newData, file);
-                cachedState[file.path] = true;
-            }
-        }
-
-        const onFileCahedDataview = (type: string, file: TFile, oldPath?: string) => {
-            if (type === "update" && file.path in cachedState) {
-                // We collect the data right here to avoid the need of a second loop
-                LayersManager.addLayerIfNeeded(PluginInstances.settings, newData, file);
-                cachedState[file.path] = true;
-            }
-        }
-
-        // We need to iterate over all the files and wait for all of them to be processed
-        let doneIterating: boolean = false;
-
-        const tryFinish = () => {
-            // If all files have been processed, we can update the layers
-            if (doneIterating && Object.values(cachedState).every(v => v)) {
-                // We remove the listener to avoid further changes
-                PluginInstances.app.metadataCache.off("changed", onFileCached);
-                PluginInstances.app.metadataCache.off("dataview:metadata-change", onFileCahedDataview);
-                // We sort the data according to the settings
-                LayersManager.sortData(PluginInstances.settings, newData);
-                // And finally, we display again the data
-                this.addLayersInfoFromData(newData);
-            }
-        }
-
-        // We use a Proxy to detect when all changes are done
-        new Proxy(cachedState, {
-            set(target, p, newValue, receiver) {
-                const res = Reflect.set(target, p, newValue, receiver);
-
-                // If all files have been processed, we can update the layers
-                tryFinish();
-
-                return res;
-            },
-        });
-
-        // Start listening to file changes
-        if (getDataviewAPI(PluginInstances.app)) {
-            // @ts-ignore
-            PluginInstances.app.metadataCache.on("dataview:metadata-change", onFileCahedDataview);
-        }
-        else {
-            PluginInstances.app.metadataCache.on("changed", onFileCached);
-        }
-
         // Then, we process all the frontmatters' files
         const files = PluginInstances.app.vault.getMarkdownFiles();
         for (const file of files) {
-            let modified = false;
-
             await PluginInstances.app.fileManager.processFrontMatter(file, (frontmatter) => {
-
-                for (const label of labels) {
-                    if (label.new === "") {
-                        label.new = label.old;
+                for (const property of PluginInstances.settings.layerProperties) {
+                    // If a layer property exists and is currently equal to the old id, change its value
+                    if (property in frontmatter && frontmatter[property] === oldID) {
+                        frontmatter[property] = newID;
                     }
-
-                    const oldID = oldLevel.toString() + (label.old !== "" ? ("_" + label.old) : "");
-                    const newID = newLevel.toString() + (label.new !== "" ? ("_" + label.new) : "");
-                    if (oldID === newID) continue;
-                    for (const property of PluginInstances.settings.layerProperties) {
-                        // If a layer property exists and is currently equal to the old id, change its value
-                        if (property in frontmatter && frontmatter[property] === oldID) {
-                            frontmatter[property] = newID;
-                            modified = true;
-                        }
-                    }
-                }
-
-                if (modified) {
-                    cachedState[file.path] = false;
-                }
-                else {
-                    LayersManager.addLayerIfNeeded(PluginInstances.settings, newData, file);
                 }
             });
         }
 
-        doneIterating = true;
-        tryFinish();
+        // Update the layer setting
+        updateSetting();
+
+        // Reorder the layers
+        const layers = this.layerInfoSettings.map(s => s.layer);
+        LayersManager.sortData(PluginInstances.settings, layers);
+        this.addLayersInfoFromData(layers);
     }
 }
 
 class LayerSetting extends Setting {
     mainSettings: SettingLayers;
-    layer: {
-        level: number;
-        labels: string[];
-    }
+    layer: Layer
 
     saveButton: ButtonComponent;
     levelInput: TextComponent;
-    labels: { label: string, cb: TextComponent }[] = [];
+    labelInput?: TextComponent;
     opacityInput: TextComponent;
 
     constructor(
         containerEl: HTMLElement,
         mainSettings: SettingLayers,
-        layer: {
-            level: number;
-            labels: string[];
-        }
+        layer: Layer
     ) {
         super(containerEl)
 
@@ -292,7 +245,8 @@ class LayerSetting extends Setting {
 
         this.addSaveButton()
             .addLevelInput()
-            .addLabelsInputs()
+            .addLabelInput()
+            .addLevelOriginIcon()
             .addOpacityInput();
     }
 
@@ -301,16 +255,7 @@ class LayerSetting extends Setting {
             this.saveButton = cb;
             UIElements.setupButton(cb, 'save');
             cb.onClick(() => {
-                this.mainSettings.updateLayerID(
-                    this.layer.level,
-                    parseInt(this.levelInput.getValue()),
-                    this.labels.map(l => {
-                        return {
-                            old: l.label,
-                            new: l.cb.getValue()
-                        };
-                    })
-                );
+                this.mainSettings.updateLayerID(this);
             });
         });
         return this;
@@ -320,24 +265,31 @@ class LayerSetting extends Setting {
         this.addText(cb => {
             this.levelInput = cb;
             cb.inputEl.addClass("number");
-            cb.setValue(this.layer.level.toString());
+            if (this.layer.levelFromDefault) {
+                cb.setPlaceholder(this.layer.level.toString());
+            }
+            else {
+                cb.setValue(this.layer.level.toString());
+            }
         });
         return this;
     }
 
-    private addLabelsInputs(): LayerSetting {
-        const labelsDiv = this.controlEl.createDiv("labels-list");
-        for (const label of this.layer.labels.reverse()) {
-            if (label === "") {
-                continue;
-            }
-            const cb = new TextComponent(labelsDiv);
-            cb.setValue(label);
-            if (label === "") {
-                cb.setDisabled(true);
-            }
-            this.labels.push({ label, cb })
+    private addLabelInput(): LayerSetting {
+        if (this.layer.label === "") {
+            return this;
         }
+        return this.addText(cb => {
+            this.labelInput = cb;
+            this.labelInput.setValue(this.layer.label);
+        })
+    }
+
+    private addLevelOriginIcon(): LayerSetting {
+        if (this.layer.levelFromID) return this;
+
+        const iconDiv = this.controlEl.createDiv("level-origin-icon");
+        setIcon(iconDiv, 'asterisk');
         return this;
     }
 

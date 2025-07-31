@@ -11,6 +11,7 @@ import {
     InteractiveUI,
     makeCompatibleForClass,
     PluginInstances,
+    strCompare,
     t,
     textColor
 } from "src/internal";
@@ -133,7 +134,7 @@ class LegendRow extends Setting {
         })
 
         const sortByName = function (a: HTMLButtonElement, b: HTMLButtonElement) {
-            return b.className.replace("graph-legend", "").toLowerCase().localeCompare(a.className.replace("graph-legend", "").toLowerCase());
+            return strCompare(b.className.replace("graph-legend", ""), a.className.replace("graph-legend", ""));
         };
 
         const sortedChildren = Array.from(this.controlEl.getElementsByClassName("graph-legend")).sort(sortByName);

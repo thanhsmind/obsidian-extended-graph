@@ -830,20 +830,17 @@ body {
         }
     }
 
-    .setting-warning {
+    .setting-warning,
+    .setting-additional-info {
         border-top: 0;
         padding-top: 0;
 
         .setting-item-info {
             display: flex;
             justify-content: flex-end;
-            gap: 0.75em;
             align-items: center;
         }
 
-        svg {
-            color: var(--color-orange);
-        }
 
         .setting-item-description {
             padding-top: 0;
@@ -855,6 +852,23 @@ body {
 
         &.is-hidden {
             display: none;
+        }
+    }
+
+    .setting-warning {
+        .setting-item-info {
+            gap: 0.75em;
+        }
+
+        svg {
+            color: var(--color-orange);
+        }
+    }
+
+    .setting-additional-info {
+        svg {
+            --icon-size: var(--icon-xs);
+            color: var(--text-faint);
         }
     }
 
@@ -923,14 +937,13 @@ body {
             justify-content: space-between;
         }
 
-        .labels-list {
-            flex-grow: 1;
-            display: flex;
-            overflow-y: auto;
+        .setting-item-control > :last-child {
+            margin-left: auto;
+        }
 
-            input {
-                max-width: 8em;
-            }
+        .level-origin-icon {
+            --icon-size: var(--icon-xs);
+            color: var(--text-faint);
         }
     }
 

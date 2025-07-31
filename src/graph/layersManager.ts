@@ -1,13 +1,21 @@
-import { TFile } from "obsidian";
+import { getLanguage, TFile } from "obsidian";
 import { GraphNode } from "obsidian-typings";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID } from "src/internal";
+import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID, strCompare } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export interface Layer {
     id: string;
-    label: string;
     level: number;
+    label: string;
+    levelFromID: boolean;
+    levelFromDefault: boolean;
+}
+
+export interface GraphLayer {
+    id: string;
+    level: number;
+    label: string;
     nodes: string[];
     container: Container;
 }
@@ -15,13 +23,13 @@ export interface Layer {
 export interface LayerGroup {
     level: number;
     alpha: number;
-    layers: Layer[];
+    layers: GraphLayer[];
 }
 
 export class LayersManager {
     layerGroups: LayerGroup[] = [];
     notInLayers: string[] = [];
-    nodeLookup: Record<string, { group: LayerGroup, layer: Layer }> = {};
+    nodeLookup: Record<string, { group: LayerGroup, graphLayer: GraphLayer }> = {};
     graphicsArray: {
         circles: Set<DisplayObject>,
         names: Set<DisplayObject>,
@@ -78,33 +86,33 @@ export class LayersManager {
 
         const file = getFile(nodeID);
         if (file) {
-            const { layerID, parsed } = LayersManager.getNodeLayer(file, this.instances.settings);
-            if (layerID && parsed) {
+            const layer = LayersManager.getNodeLayer(file, this.instances.settings);
+            if (layer) {
                 // Add the node id to the layers
-                let group = this.layerGroups.find(group => group.level === parsed.level);
-                let layer = group?.layers.find(layer => layer.id === layerID);
-                if (group && layer) {
-                    layer.nodes.push(nodeID);
+                let group = this.layerGroups.find(group => group.level === layer.level);
+                let graphLayer = group?.layers.find(l => l.id === layer.id);
+                if (group && graphLayer) {
+                    graphLayer.nodes.push(nodeID);
                 }
                 else {
                     if (!group) {
                         group = {
-                            level: parsed.level,
+                            level: layer.level,
                             layers: [],
                             alpha: 1,
                         };
                         this.layerGroups.push(group);
                     }
-                    layer = {
-                        id: layerID,
-                        label: parsed.label,
-                        level: parsed.level,
+                    graphLayer = {
+                        id: layer.id,
+                        label: layer.label,
+                        level: layer.level,
                         nodes: [nodeID],
-                        container: this.getNewContainer(layerID, parsed.level),
+                        container: this.getNewContainer(layer.id, layer.level),
                     };
-                    group.layers.push(layer);
+                    group.layers.push(graphLayer);
                 }
-                this.nodeLookup[nodeID] = { group, layer };
+                this.nodeLookup[nodeID] = { group, graphLayer };
 
                 return;
             }
@@ -135,10 +143,10 @@ export class LayersManager {
     }
 
     private addToContainer(node: GraphNode) {
-        const sourceLayer = this.nodeLookup[node.id].layer;
+        const sourceLayer = this.nodeLookup[node.id].graphLayer;
         if (!sourceLayer) return;
 
-        const add = (element: DisplayObject, layer: Layer, array: keyof typeof this.graphicsArray, at?: number): void => {
+        const add = (element: DisplayObject, layer: GraphLayer, array: keyof typeof this.graphicsArray, at?: number): void => {
             if (!element.destroyed && element.parent
                 && (element.parent === this.instances.renderer.hanger
                     || (element.parent.name?.startsWith("layer-") && element.parent !== layer.container)
@@ -162,7 +170,7 @@ export class LayersManager {
             const linkID = getLinkID(link);
             const extendedLink = this.instances.linksSet.extendedElementsMap.get(linkID);
 
-            const targetLayer = this.nodeLookup[link.target.id]?.layer;
+            const targetLayer = this.nodeLookup[link.target.id]?.graphLayer;
             const layer = targetLayer
                 ? targetLayer.level < sourceLayer.level && this.instances.settings.layersOrder === "ASC"
                     ? targetLayer
@@ -353,37 +361,39 @@ export class LayersManager {
 
     // ================================ Static =================================
 
-    static parseLayerID(layerID: string): { level: number, label: string } | undefined {
+    static parseLayerID(layerID: string): { level?: number, label: string } {
         const words = layerID.split("_");
-        if (words.length === 0) return;
-        const level = parseInt(words[0]);
-        const label = words.length > 1 ? words.slice(1).join("_") : "";
-        if (isNaN(level)) return;
+        if (words.length === 0) return { label: layerID };
+        let level: number | undefined = parseInt(words[0]);
+        let label = words.length > 1 ? words.slice(1).join("_") : "";
+        if (isNaN(level)) {
+            level = undefined;
+            label = layerID;
+        }
         return { level, label };
     }
 
-    static getNodeLayer(file: TFile, settings: ExtendedGraphSettings): {
-        layerID?: string;
-        parsed?: {
-            level: number;
-            label: string;
-        };
-    } {
+    static getNodeLayer(file: TFile, settings: ExtendedGraphSettings): Layer | null {
         for (const property of settings.layerProperties.filter(p => p !== "")) {
             const values = getFileInteractives(property, file, settings);
             for (const layerID of values) {
                 const parsed = LayersManager.parseLayerID(layerID);
-                if (!parsed) continue;
 
-                return { layerID, parsed };
+                return {
+                    id: layerID,
+                    level: parsed.level ?? settings.layersLevels[file.path] ?? settings.defaultLevelForLayers,
+                    label: parsed.label,
+                    levelFromID: parsed.level !== undefined,
+                    levelFromDefault: parsed.level === undefined && !(file.path in settings.layersLevels),
+                };
             }
         }
-        return {};
+        return null;
     }
 
-    static getAllLayers(settings: ExtendedGraphSettings): { level: number, labels: string[] }[] {
+    static getAllLayers(settings: ExtendedGraphSettings): Layer[] {
         const files = PluginInstances.app.vault.getMarkdownFiles();
-        const results: { level: number, labels: string[] }[] = [];
+        const results: Layer[] = [];
         for (const file of files) {
             LayersManager.addLayerIfNeeded(settings, results, file);
         }
@@ -391,28 +401,24 @@ export class LayersManager {
         return results;
     }
 
-    static sortData(settings: ExtendedGraphSettings, data: { level: number, labels: string[] }[]) {
-        for (const layer of data) {
-            layer.labels = layer.labels.unique().sort();
-        }
-        data.sort((a, b) => a.level - b.level);
+    static sortData(settings: ExtendedGraphSettings, data: Layer[]) {
+        data.sort((a, b) => {
+            if (a.level === b.level) {
+                return strCompare(a.label, b.label);
+            }
+            return a.level - b.level;
+        });
         if (settings.layersOrder === "DESC") {
             data.reverse();
         }
     }
 
-    static addLayerIfNeeded(settings: ExtendedGraphSettings, results: { level: number, labels: string[] }[], file: TFile) {
-        const { layerID, parsed } = LayersManager.getNodeLayer(file, settings);
-        if (layerID && parsed) {
-            let found = results.find(layer => layer.level === parsed.level);
-            if (!found) {
-                found = {
-                    level: parsed.level,
-                    labels: []
-                };
-                results.push(found);
+    static addLayerIfNeeded(settings: ExtendedGraphSettings, results: Layer[], file: TFile) {
+        const layer = LayersManager.getNodeLayer(file, settings);
+        if (layer) {
+            if (!results.some(l => l.id === layer.id)) {
+                results.push(layer);
             }
-            found.labels.push(parsed.label);
         }
     }
 }

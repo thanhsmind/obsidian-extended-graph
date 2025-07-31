@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting, TFile } from "obsidian";
-import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, PluginInstances, t } from "src/internal";
+import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, PluginInstances, strCompare, t } from "src/internal";
 
 type TableType = 'nodes' | 'links' | 'pinned';
 
@@ -432,13 +432,11 @@ export class GraphStateModal extends Modal {
             .sort((a: { id: string, el: HTMLTableRowElement }, b: { id: string, el: HTMLTableRowElement }) => {
                 const aText = a.el.cells[table.sortIndex].textContent ?? "";
                 const bText = b.el.cells[table.sortIndex].textContent ?? "";
-                if (asc) {
-                    return aText.localeCompare(bText);
-                }
-                else {
-                    return bText.localeCompare(aText);
-                }
+                return strCompare(aText, bText);
             });
+        if (!asc) {
+            table.rows.reverse();
+        }
         this.showPageRows(key);
         for (let i = 0, n = table.asc.length; i < n; ++i) {
             if (i === table.sortIndex) {

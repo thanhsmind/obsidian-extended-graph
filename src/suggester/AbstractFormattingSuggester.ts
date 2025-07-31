@@ -1,5 +1,5 @@
 import { AbstractInputSuggest, getLanguage } from "obsidian";
-import { PluginInstances } from "src/internal";
+import { PluginInstances, strCompare } from "src/internal";
 
 export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<HTMLElement> {
     constructor(textInputEl: HTMLInputElement | HTMLDivElement) {
@@ -7,7 +7,7 @@ export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<H
     }
 
     protected override getSuggestions(query: string): HTMLElement[] {
-        return this.getStringSuggestions(query).sort((a, b) => a.localeCompare(b, getLanguage(), { 'sensitivity': 'base' })).map(value => {
+        return this.getStringSuggestions(query).sort((a, b) => strCompare(a, b)).map(value => {
             const match = new RegExp(query, "i").exec(value);
             const el = createDiv();
             if (match && match[0].length > 0) {

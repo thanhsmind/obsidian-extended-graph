@@ -13,6 +13,7 @@ import {
     RuleQuery,
     SourceKey,
     sourceKeyLabels,
+    strCompare,
     t,
     UIElements
 } from "src/internal";
@@ -247,7 +248,7 @@ class RuleSetting extends Setting {
             this.controlEl.insertAfter(cb.selectEl, this.sourceDropdown.selectEl);
             const properties = getAllVaultProperties(this.settings);
             cb.addOptions(
-                properties.sort((a, b) => a.localeCompare(b, getLanguage(), { 'sensitivity': 'base' }))
+                properties.sort((a, b) => strCompare(a, b))
                     .reduce((acc: Record<string, string>, key: string) => (acc[key] = key, acc), {})
             );
             cb.onChange(value => {
