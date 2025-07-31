@@ -308,6 +308,8 @@
         "nodeSizeProperties": "Node size properties",
         "nodeSizePropertiesDesc": "Names of the properties that can be used to specify the size of the node. They must be of type number. A value of 100 is the default.",
         "nodeSizePropertiesAdd": "Add node size property",
+        "nodeSizesRange": "Node size range",
+        "nodeSizesRangeDesc": "Minimum and maximum factors (between 0.1 and 5) that will be used to scale the size of the node",
         "nodeColorsFunction": "Node color function",
         "nodeColorsFunctionDesc": "Select how the graph engine should compute the color of the nodes",
         "nodeColorsPaletteDesc": "Choose the color palette for the nodes",

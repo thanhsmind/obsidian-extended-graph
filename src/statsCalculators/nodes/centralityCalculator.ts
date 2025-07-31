@@ -11,11 +11,9 @@ type CentralityMapping = Record<string, number>;
 
 export abstract class CentralityCalculator extends NodeStatCalculator {
     cm: CentralityMapping;
-    link: string;
 
-    constructor(stat: NodeStat, functionKey: NodeStatFunction, graphologyGraph?: GraphologyGraph, link: string = "") {
+    constructor(stat: NodeStat, functionKey: NodeStatFunction, graphologyGraph?: GraphologyGraph) {
         super(stat, functionKey, graphologyGraph);
-        this.link = link;
     }
 
     override async computeStats(invert: boolean): Promise<void> {
@@ -36,7 +34,6 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
     }
 
     protected abstract computeCentralityMap(g: Graphology): void;
-    abstract getLink(): string;
 }
 
 export class DegreeCentralityCalculator extends CentralityCalculator {
@@ -48,7 +45,7 @@ export class DegreeCentralityCalculator extends CentralityCalculator {
         this.cm = degreeCentrality(g);
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/Degree_(graph_theory)";
     }
 }
@@ -62,7 +59,7 @@ export class EigenvectorCentralityCalculator extends CentralityCalculator {
         this.cm = eigenvectorCentrality(g);
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/Eigenvector_centrality";
     }
 }
@@ -76,7 +73,7 @@ export class ClosenessCentralityCalculator extends CentralityCalculator {
         this.cm = closenessCentrality(g);
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/Closeness_centrality";
     }
 }
@@ -90,7 +87,7 @@ export class BetweennessCentralityCalculator extends CentralityCalculator {
         this.cm = betweennessCentrality(g);
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/Betweenness_centrality";
     }
 }
@@ -105,7 +102,7 @@ export class HubsCalculator extends CentralityCalculator {
         this.cm = hubs;
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/HITS_algorithm";
     }
 }
@@ -120,7 +117,7 @@ export class AuthoritiesCalculator extends CentralityCalculator {
         this.cm = authorities;
     }
 
-    override getLink() {
+    static override getLink() {
         return "https://en.wikipedia.org/wiki/HITS_algorithm";
     }
 }

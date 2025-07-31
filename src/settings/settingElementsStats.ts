@@ -3,7 +3,6 @@ import {
     ExtendedGraphSettingTab,
     getCMapData,
     getNLPPlugin,
-    LinksStatCalculatorFactory,
     LinkStatFunction,
     linkStatFunctionLabels,
     linkStatFunctionNeedsNLP,
@@ -36,6 +35,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.addNodeSizeProperties();
         this.addNodeSizeFunction();
         this.addNodeSizeWarning();
+        this.addNodeSizeRange();
 
         this.addNodeColorFunction();
         this.addNodeColorWarning();
@@ -102,7 +102,37 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         this.elementsBody.push(setting.settingEl);
         this.warningNodeSizeSetting = setting;
-        this.setWarning(setting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
+        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(PluginInstances.settings.nodesSizeFunction));
+    }
+
+    private addNodeSizeRange(): void {
+        const setting = new Setting(this.containerEl)
+            .setName(t("features.nodeSizesRange"))
+            .setDesc(t("features.nodeSizesRangeDesc"))
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.nodesSizeRange.min.toString());
+                cb.onChange(async (value) => {
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.nodesSizeRange.min = Math.clamp(floatValue, 0.1, 5);
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                });
+            })
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setValue(PluginInstances.settings.nodesSizeRange.max.toString());
+                cb.onChange(async (value) => {
+                    const floatValue = parseFloat(value);
+                    if (!isNaN(floatValue)) {
+                        PluginInstances.settings.nodesSizeRange.max = Math.clamp(floatValue, 0.1, 5);
+                        await PluginInstances.plugin.saveSettings();
+                    }
+                });
+            });
+
+        this.elementsBody.push(setting.settingEl);
     }
 
     private addNodeColorFunction(): void {
@@ -138,7 +168,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         this.elementsBody.push(setting.settingEl);
         this.warningNodeColorSetting = setting;
-        this.setWarning(setting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
+        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(PluginInstances.settings.nodesColorFunction));
     }
 
     private addInvertNodeStats(): void {
@@ -315,7 +345,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         PluginInstances.settings.nodesSizeFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
         PluginInstances.plugin.saveSettings();
-        this.setWarning(this.warningNodeSizeSetting, PluginInstances.graphsManager?.nodesSizeCalculator?.getWarning());
+        this.setWarning(this.warningNodeSizeSetting, NodeStatCalculatorFactory.getWarning(functionKey));
     }
 
     private recomputeNodeColors(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
@@ -327,7 +357,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         PluginInstances.settings.nodesColorFunction = functionKey;
         PluginInstances.settings.invertNodeStats = invertNodeStats;
-        this.setWarning(this.warningNodeColorSetting, PluginInstances.graphsManager?.nodesColorCalculator?.getWarning());
+        this.setWarning(this.warningNodeColorSetting, NodeStatCalculatorFactory.getWarning(functionKey));
         PluginInstances.plugin.saveSettings();
     }
 

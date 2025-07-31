@@ -9,7 +9,7 @@ export class CreationTimeCalculator extends NodeStatCalculator {
         return getFile(id)?.stat.ctime || NaN;
     }
 
-    override getWarning(): string {
+    static override getWarning(): string {
         return t("statsFunctions.warningUnreliableOS");
     }
 }

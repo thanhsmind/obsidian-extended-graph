@@ -9,7 +9,7 @@ export class ModifiedTimeCalculator extends NodeStatCalculator {
         return getFile(id)?.stat.mtime || NaN;
     }
 
-    override getWarning(): string {
+    static override getWarning(): string {
         return t("statsFunctions.warningUnreliableOS");
     }
 }

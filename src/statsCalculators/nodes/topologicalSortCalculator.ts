@@ -60,7 +60,7 @@ export class TopologicalSortCalculator extends NodeStatCalculator {
         return this.topologicalWeights.get(id) || 1;
     }
 
-    override getLink(): string {
+    static override getLink(): string {
         return "https://en.wikipedia.org/wiki/Topological_sorting";
     }
 }

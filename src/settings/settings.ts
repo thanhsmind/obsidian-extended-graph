@@ -81,6 +81,7 @@ export interface ExtendedGraphSettings {
     // Nodes sizes
     nodesSizeProperties: string[];
     nodesSizeFunction: NodeStatFunction;
+    nodesSizeRange: { min: number, max: number };
     // Nodes colors
     nodesColorColormap: string;
     nodesColorFunction: NodeStatFunction;
@@ -278,6 +279,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Nodes sizes
     nodesSizeProperties: [""],
     nodesSizeFunction: 'default',
+    nodesSizeRange: { min: 0.5, max: 1.5 },
     // Nodes colors
     nodesColorColormap: 'YlOrRd',
     nodesColorFunction: 'default',
@@ -591,7 +593,7 @@ export class SettingQuery {
         if (newFeatures['elements-stats'] !== oldFeatures['elements-stats'])
             return true;
         if (newFeatures['elements-stats']) {
-            if (['nodesSizeProperties', 'nodesSizeFunction', 'linksSizeFunction'].some(key => !equals(key)))
+            if (['nodesSizeProperties', 'nodesSizeFunction', 'linksSizeFunction', 'nodesSizeRange'].some(key => !equals(key)))
                 return true;
             if (oldSettings.nodesColorFunction === "default" && newSettings.nodesColorFunction !== "default")
                 return true;

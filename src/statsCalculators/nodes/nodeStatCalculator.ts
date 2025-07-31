@@ -114,7 +114,7 @@ export abstract class NodeStatCalculator {
     mapStat(): void {
         switch (this.stat) {
             case 'size':
-                this.normalizeValues(0.5, 1.5);
+                this.normalizeValues(PluginInstances.settings.nodesSizeRange.min, PluginInstances.settings.nodesSizeRange.max);
                 this.cleanNanAndInfiniteValues(1);
                 break;
 
@@ -154,6 +154,6 @@ export abstract class NodeStatCalculator {
 
     abstract getStat(id: string, invert: boolean): Promise<number>;
 
-    getWarning(): string { return ""; }
-    getLink(): string { return ""; }
+    static getWarning(): string { return ""; }
+    static getLink(): string { return ""; }
 }

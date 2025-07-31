@@ -10,6 +10,7 @@ import {
     ModifiedTimeCalculator,
     NodeStat,
     NodeStatCalculator,
+    NodeStatFunction,
     PluginInstances,
     SentimentCalculator,
     TagsCountCalculator,
@@ -67,6 +68,50 @@ export class NodeStatCalculatorFactory {
                 return new SentimentCalculator(stat, g);
             default:
                 return;
+        }
+    }
+
+    static getWarning(fn: NodeStatFunction): string {
+        switch (fn) {
+            case 'constant':
+                return ConstantCalculator.getWarning();
+            case 'backlinksCount':
+            case 'backUniquelinksCount':
+                return BacklinkCountCalculator.getWarning();
+            case 'forwardlinksCount':
+            case 'forwardUniquelinksCount':
+                return ForwardlinkCountCalculator.getWarning();
+            case 'totallinksCount':
+            case 'totalUniquelinksCount':
+                return TotallinkCountCalculator.getWarning();
+            case 'filenameLength':
+                return FilenameLengthCalculator.getWarning();
+            case 'tagsCount':
+                return TagsCountCalculator.getWarning();
+            case 'creationTime':
+                return CreationTimeCalculator.getWarning();
+            case 'modifiedTime':
+                return ModifiedTimeCalculator.getWarning();
+            case 'eccentricity':
+                return EccentricityCalculator.getWarning();
+            case 'closeness':
+                return centrality.ClosenessCentralityCalculator.getWarning();
+            case 'betweenness':
+                return centrality.BetweennessCentralityCalculator.getWarning();
+            case 'degree':
+                return centrality.DegreeCentralityCalculator.getWarning();
+            case 'eigenvector':
+                return centrality.EigenvectorCentralityCalculator.getWarning();
+            case 'hub':
+                return centrality.HubsCalculator.getWarning();
+            case 'authority':
+                return centrality.AuthoritiesCalculator.getWarning();
+            case 'topological':
+                return TopologicalSortCalculator.getWarning();
+            case 'sentiment':
+                return SentimentCalculator.getWarning();
+            default:
+                return "";
         }
     }
 }

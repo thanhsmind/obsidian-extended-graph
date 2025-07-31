@@ -13,7 +13,7 @@ export class EccentricityCalculator extends NodeStatCalculator {
         return eccentricity(connectedGraph, id);
     }
 
-    override getLink(): string {
+    static override getLink(): string {
         return "https://en.wikipedia.org/wiki/Closeness_centrality";
     }
 }
