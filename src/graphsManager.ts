@@ -346,29 +346,36 @@ export class GraphsManager extends Component {
                 const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: file.path }, target: { id: targetID } }));
                 if (!extendedLink) continue;
 
+                // Make sure we have unique types and only types that are not excluded
                 newTypes = new Set<string>([...newTypes].filter(type => !SettingQuery.excludeType(PluginInstances.settings, LINK_KEY, type)));
                 if (newTypes.size === 0) {
                     newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
                 }
 
+                // Get the types that no longer matches the links and the one that still do
                 const { typesToRemove: typesToRemoveForTheLink, typesToAdd: typesToAddForTheLink } = extendedLink.matchesTypes(LINK_KEY, [...newTypes]);
 
+                // Update the typesMap of the linkSet
                 for (const type of typesToRemoveForTheLink) {
                     instances.linksSet.typesMap[LINK_KEY][type].delete(extendedLink.id);
                 }
-
                 for (const type of typesToAddForTheLink) {
                     if (!instances.linksSet.typesMap[LINK_KEY][type]) instances.linksSet.typesMap[LINK_KEY][type] = new Set<string>();
                     instances.linksSet.typesMap[LINK_KEY][type].add(extendedLink.id);
                 }
+
+                // Update the types of the link
                 extendedLink.setTypes(LINK_KEY, new Set<string>(newTypes));
 
+                // Find the types to remove from the linksSet
                 const typesToRemove = typesToRemoveForTheLink.filter(type => {
-                    return instances.nodesSet.typesMap[LINK_KEY][type].size === 0
+                    return instances.linksSet.typesMap[LINK_KEY][type].size === 0
                 });
                 if (typesToRemove.length > 0) {
                     linkManager.removeTypes(typesToRemove);
                 }
+
+                // Add the new types to the manager
                 const managersTypes = linkManager.getTypes();
                 const typesToAdd = typesToAddForTheLink.filter(type => {
                     return !managersTypes.includes(type);
@@ -376,6 +383,8 @@ export class GraphsManager extends Component {
                 if (typesToAdd.length > 0) {
                     linkManager.addTypes(typesToAdd);
                 }
+
+                // Update the graphics elements
                 if (typesToRemove.length === 0 && typesToAdd.length === 0 && (typesToRemoveForTheLink.length > 0 || typesToAddForTheLink.length > 0)) {
                     extendedLink.graphicsWrapper?.resetManagerGraphics(linkManager);
                 }
