@@ -60,7 +60,6 @@ export class StatesManager {
                 instances.colorGroupHaveChanged = stateData.engineOptions.colorGroups !== instances.engine.options.colorGroups;
                 instances.engine.setOptions(stateData.engineOptions);
                 for (const node of instances.renderer.nodes) {
-                    // @ts-ignore
                     node.fontDirty = true;
                 }
             }

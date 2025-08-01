@@ -971,7 +971,6 @@ export class GraphsManager extends Component {
         if (engine && options) {
             engine.setOptions(options);
             for (const node of engine.renderer.nodes) {
-                // @ts-ignore
                 node.fontDirty = true;
             }
         }

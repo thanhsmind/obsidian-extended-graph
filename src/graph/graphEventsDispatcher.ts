@@ -154,7 +154,6 @@ export class GraphEventsDispatcher extends Component {
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
             for (const node of this.instances.renderer.nodes) {
-                // @ts-ignore
                 node.fontDirty = true;
             }
         }

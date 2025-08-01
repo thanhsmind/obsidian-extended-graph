@@ -25,22 +25,18 @@ export class GraphFilter {
         const potentialOrphans: string[] = [];
         let dataNodesEntries = Object.entries(data.nodes);
         for (const [source, node] of dataNodesEntries) {
-            // @ts-ignore
             if (this.flagAsPotentialOrphan(node, source, potentialOrphans)) {
                 continue;
             }
 
             const file = getFile(source);
             if (file) {
-                // @ts-ignore
                 if (this.filterByFolders(node, source, potentialOrphans)) {
                     continue;
                 }
 
-                // @ts-ignore
                 this.filterByTypes(file, node, source, nodesToRemove);
 
-                // @ts-ignore
                 if (this.flagAsPotentialOrphan(node, source, potentialOrphans)) {
                     continue;
                 }
@@ -63,7 +59,6 @@ export class GraphFilter {
     private excludeNodes(data: GraphData) {
         const nodesToRemove: string[] = [];
         for (const [id, node] of Object.entries(data.nodes)) {
-            // @ts-ignore
             if (this.shouldRemoveNode(id, node)) {
                 nodesToRemove.push(id);
             }
@@ -73,9 +68,7 @@ export class GraphFilter {
         for (const id of nodesToRemove) {
             delete data.nodes[id];
 
-            // @ts-ignore
             for (const sourceID of nodesToKeep.filter(source => id in data.nodes[source].links)) {
-                // @ts-ignore
                 delete data.nodes[sourceID].links[id]
             }
         }
@@ -130,7 +123,6 @@ export class GraphFilter {
         if (!this.instances.engine.options.showOrphans) {
             const remainingNodes = Object.values(data.nodes);
             for (const source of potentialOrphans) {
-                // @ts-ignore
                 if (!remainingNodes.find(n => source in n.links)) {
                     delete data.nodes[source];
                 }
@@ -142,7 +134,6 @@ export class GraphFilter {
         const invalidOrphans = Object.entries(data.nodes)
             .filter(([id, node]) =>
                 (node.type === 'unresolved' || node.type === 'tag')
-                // @ts-ignore
                 && !remainingNodes.find(m => id in m.links)
             );
         for (const orphan of invalidOrphans) {
@@ -214,7 +205,6 @@ export class GraphFilter {
             if (!manager.isActiveBasedOnTypes([this.instances.settings.interactiveSettings[manager.name].noneType])) {
                 const noneTargets = Object.keys(node.links).filter(target => !validTypedLinks.has(target));
                 for (const target of noneTargets) {
-                    // @ts-ignore
                     delete node.links[target];
                 }
             }

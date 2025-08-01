@@ -201,7 +201,6 @@ export class LayersManager {
         if (node.text) { this.add(node.text, sourceLayer, 'names'); }
 
         // Add links
-        // @ts-ignore
         for (const link of Object.values(node.forward).concat(Object.values(node.reverse)).map(link => link as GraphLink)) {
             this.addLinkToContainer(link);
         }

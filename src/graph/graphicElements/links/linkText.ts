@@ -107,7 +107,6 @@ export abstract class LinkText extends Container {
             return this.textColor;
         }
 
-        // @ts-ignore
         return this.extendedLink.coreElement.renderer.colors.text.rgb;
     }
 

@@ -81,14 +81,12 @@ export class ExtendedGraphText {
 
             if (this.graphicsWrapper) this.graphicsWrapper.textClone.style = this.coreElement.getTextStyle();
 
-            // @ts-ignore
             this.coreElement.fontDirty = true;
         }
     }
 
     private restoreTextStyle(): void {
         this.coreElement.getTextStyle = this.coreGetTextStyle;
-        // @ts-ignore
         this.coreElement.fontDirty = true;
     }
 
@@ -197,8 +195,8 @@ export class ExtendedGraphText {
             applyOffset();
             coreTextPositionCallback.call(position.scope);
         }
-        // @ts-ignore
-        this.coreElement.moveText = true;
+
+        this.coreElement.moveText = 0;
     }
 
     private restoreTextPositionCallback(): void {

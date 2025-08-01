@@ -362,7 +362,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             if (!this.instances.renderer.nodes.find(node => node.id === target[0])) {
                 continue;
             }
-            // @ts-ignore
             const link = this.instances.linksSet.extendedElementsMap.get(getLinkID(target[1]));
             if (!link) {
                 continue;
@@ -373,7 +372,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             if (!this.instances.renderer.nodes.find(node => node.id === source[0])) {
                 continue;
             }
-            // @ts-ignore
             const link = this.instances.linksSet.extendedElementsMap.get(getLinkID(source[1]));
             if (!link) {
                 continue;

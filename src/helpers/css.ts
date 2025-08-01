@@ -116,10 +116,7 @@ function applyCoreCSSStyle(instances: GraphInstances): void {
         color: ${colorAttributes2hex(colors.line)};
     }
     .graph-view.color-text {
-        color: ${
-        // @ts-ignore
-        colorAttributes2hex(colors.text)
-        };
+        color: ${colorAttributes2hex(colors.text)};
     }
     .graph-view.color-fill-highlight {
         color: ${colorAttributes2hex(colors.fillHighlight)};
