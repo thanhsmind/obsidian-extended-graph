@@ -1,5 +1,4 @@
 import { ButtonComponent, Notice, Setting } from "obsidian";
-import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExtendedGraphSettingTab,
     FOLDER_KEY,
@@ -11,7 +10,8 @@ import {
     SettingsSectionPerGraphType,
     t,
     TAG_KEY,
-    UIElements
+    UIElements,
+    getDataviewPlugin
 } from "src/internal";
 
 export class SettingPropertiesArray extends SettingsSectionPerGraphType {
@@ -183,7 +183,7 @@ export class SettingProperty extends SettingInteractives {
     }
 
     static getAllTypes(key: string): string[] | undefined {
-        if (!getDataviewAPI(PluginInstances.app)) {
+        if (!getDataviewPlugin()) {
             return PluginInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(key);
         }
     }

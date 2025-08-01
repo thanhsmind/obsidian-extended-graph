@@ -1,7 +1,7 @@
 import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
-import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
+import { DataviewApi } from "obsidian-dataview";
 import path from "path";
-import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, PluginInstances, TAG_KEY } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, PluginInstances, TAG_KEY } from "src/internal";
 
 export function getFile(path: string): TFile | null {
     return PluginInstances.app.vault.getFileByPath(path);
@@ -94,7 +94,7 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
 }
 
 function getProperty(settings: ExtendedGraphSettings, key: string, file: TFile): Set<string> {
-    const dv = getDataviewAPI(PluginInstances.app);
+    const dv = getDataviewPlugin();
     const types = new Set<string>();
 
     // With Dataview
@@ -154,7 +154,7 @@ function recursiveCountProperties(value: any, valueToMatch: string): number {
 }
 
 function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): number {
-    const dv = getDataviewAPI(PluginInstances.app);
+    const dv = getDataviewPlugin();
 
     // With Dataview
     if (dv) {
@@ -178,7 +178,7 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
 }
 
 export function getAllVaultProperties(settings: ExtendedGraphSettings): string[] {
-    const dv = getDataviewAPI(PluginInstances.app);
+    const dv = getDataviewPlugin();
     if (!dv) {
         return Object.keys(PluginInstances.app.metadataCache.getAllPropertyInfos());
     }
@@ -200,7 +200,7 @@ function getFolderPath(file: TFile): Set<string> {
 // ================================= LINKS ================================== //
 
 export function getOutlinkTypes(settings: ExtendedGraphSettings, file: TFile): Map<string, Set<string>> {
-    const dv = getDataviewAPI(PluginInstances.app);
+    const dv = getDataviewPlugin();
     return dv ? getOutlinkTypesWithDataview(settings, dv, file) : getOutlinkTypesWithFrontmatter(file);
 }
 
@@ -257,4 +257,27 @@ function getOutlinkTypesWithFrontmatter(file: TFile): Map<string, Set<string>> {
         }
     }
     return linkTypes;
+}
+
+export function getLinks(file: TFile) {
+    const cache = PluginInstances.app.metadataCache.getFileCache(file);
+    const links: string[] = [];
+    if (cache) {
+        if (cache.links)
+            for (let i = 0; i < cache.links.length; i++) {
+                const linkCache = cache.links[i];
+                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, file.path)?.path ?? linkCache.link);
+            }
+        if (cache.embeds)
+            for (let i = 0; i < cache.embeds.length; i++) {
+                const embedCache = cache.embeds[i];
+                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, file.path)?.path ?? embedCache.link);
+            }
+        if (cache.frontmatterLinks)
+            for (let i = 0; i < cache.frontmatterLinks.length; i++) {
+                const frontmatterLinkCache = cache.frontmatterLinks[i];
+                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(frontmatterLinkCache.link, file.path)?.path ?? frontmatterLinkCache.link);
+            }
+    }
+    return links;
 }

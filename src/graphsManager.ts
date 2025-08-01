@@ -57,7 +57,9 @@ import {
     getNLPPlugin,
     GraphologyGraph,
     nodeStatFunctionIsDynamic,
-    linkStatFunctionIsDynamic
+    linkStatFunctionIsDynamic,
+    getDataviewPlugin,
+    getLinks
 } from "./internal";
 
 
@@ -96,10 +98,23 @@ export class GraphsManager extends Component {
 
     private registerEvents() {
         this.onMetadataCacheChange = this.onMetadataCacheChange.bind(this);
-        this.registerEvent(PluginInstances.app.metadataCache.on('changed', (file, data, cache) => {
-            if (!this.isCoreGraphLoaded()) return;
-            this.onMetadataCacheChange(file, data, cache)
-        }));
+        if (getDataviewPlugin()) {
+            // @ts-ignore
+            this.registerEvent(PluginInstances.app.metadataCache.on('dataview:metadata-change',
+                (type: string, file: TFile, oldPath?: string) => {
+                    if (!this.isCoreGraphLoaded()) return;
+                    if (type === "update") {
+                        this.onMetadataCacheChange(file);
+                    }
+                }
+            ));
+        }
+        else {
+            this.registerEvent(PluginInstances.app.metadataCache.on('changed', (file, data, cache) => {
+                if (!this.isCoreGraphLoaded()) return;
+                this.onMetadataCacheChange(file, data, cache);
+            }));
+        }
 
         this.onDelete = this.onDelete.bind(this);
         this.registerEvent(PluginInstances.app.vault.on('delete', (file) => {
@@ -257,13 +272,14 @@ export class GraphsManager extends Component {
      * @param data - The new content of the markdown file
      * @param cache - The new cached metadata
      */
-    private onMetadataCacheChange(file: TFile, data: string, cache: CachedMetadata) {
+    private onMetadataCacheChange(file: TFile, data?: string, cache?: CachedMetadata) {
         for (const instances of this.allInstances.values()) {
             if (!instances.graph || !instances.renderer) return;
 
             // Update nodes interactives
             const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path) as ExtendedGraphFileNode;
             if (!extendedNode) return;
+            console.log(extendedNode);
             for (const [key, manager] of instances.nodesSet.managers) {
                 let newTypes = [...getFileInteractives(key, file, instances.settings)];
                 newTypes = newTypes.filter(type => !SettingQuery.excludeType(PluginInstances.settings, key, type));
@@ -297,21 +313,50 @@ export class GraphsManager extends Component {
                 }
             }
 
-            // Update links interactives
-            let newOutlinkTypes = getOutlinkTypes(instances.settings, file);
+            // Handle links
             const linkManager = instances.linksSet.managers.get(LINK_KEY);
             if (!linkManager) return;
+
+            // Remove extendedLinks that are no longer valids
+            const newOutLinks = getLinks(file);
+            const extendedOutlinks = Array.from(instances.linksSet.extendedElementsMap.values()).filter(
+                link => link.coreElement.source.id === file.path
+            );
+            const idsToRemove: string[] = [];
+            for (const extendedOutlink of extendedOutlinks) {
+                if (!newOutLinks.contains(extendedOutlink.coreElement.target.id)) {
+                    extendedOutlink.graphicsWrapper?.disconnect();
+                    idsToRemove.push(extendedOutlink.id);
+                }
+            }
+            for (const id of idsToRemove) {
+                instances.linksSet.extendedElementsMap.delete(id);
+            }
+
+            // Get the new map target-to-types
+            const newOutlinkTypes = getOutlinkTypes(instances.settings, file);
+            for (const target of newOutLinks) {
+                if (!newOutlinkTypes.has(target)) {
+                    newOutlinkTypes.set(target, new Set());
+                }
+            }
+
+            // Update the types
             for (let [targetID, newTypes] of newOutlinkTypes) {
                 const extendedLink = instances.linksSet.extendedElementsMap.get(getLinkID({ source: { id: file.path }, target: { id: targetID } }));
                 if (!extendedLink) continue;
+
                 newTypes = new Set<string>([...newTypes].filter(type => !SettingQuery.excludeType(PluginInstances.settings, LINK_KEY, type)));
                 if (newTypes.size === 0) {
                     newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
                 }
+
                 const { typesToRemove: typesToRemoveForTheLink, typesToAdd: typesToAddForTheLink } = extendedLink.matchesTypes(LINK_KEY, [...newTypes]);
+
                 for (const type of typesToRemoveForTheLink) {
                     instances.linksSet.typesMap[LINK_KEY][type].delete(extendedLink.id);
                 }
+
                 for (const type of typesToAddForTheLink) {
                     if (!instances.linksSet.typesMap[LINK_KEY][type]) instances.linksSet.typesMap[LINK_KEY][type] = new Set<string>();
                     instances.linksSet.typesMap[LINK_KEY][type].add(extendedLink.id);
@@ -334,20 +379,6 @@ export class GraphsManager extends Component {
                 if (typesToRemove.length === 0 && typesToAdd.length === 0 && (typesToRemoveForTheLink.length > 0 || typesToAddForTheLink.length > 0)) {
                     extendedLink.graphicsWrapper?.resetManagerGraphics(linkManager);
                 }
-            }
-
-            const extendedOutlinks = Array.from(instances.linksSet.extendedElementsMap.values()).filter(
-                link => link.coreElement.source.id === file.path
-            );
-            const idsToRemove: string[] = [];
-            for (const extendedOutlink of extendedOutlinks) {
-                if (!newOutlinkTypes.has(extendedOutlink.coreElement.target.id)) {
-                    extendedOutlink.graphicsWrapper?.disconnect();
-                    idsToRemove.push(extendedOutlink.id);
-                }
-            }
-            for (const id of idsToRemove) {
-                instances.linksSet.extendedElementsMap.delete(id);
             }
         }
     }

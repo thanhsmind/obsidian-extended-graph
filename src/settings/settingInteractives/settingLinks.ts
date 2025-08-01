@@ -1,9 +1,9 @@
 import { ButtonComponent, Setting } from "obsidian";
-import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     canonicalizeVarName,
     ExcludeFoldersModal,
     ExtendedGraphSettingTab,
+    getDataviewPlugin,
     INVALID_KEYS,
     isPropertyKeyValid,
     LINK_KEY,
@@ -193,7 +193,7 @@ export class SettingLinks extends SettingInteractives {
     static getAllTypes() {
         let allTypes = new Set<string>();
 
-        const dv = getDataviewAPI(PluginInstances.app);
+        const dv = getDataviewPlugin();
         if (dv) {
             for (const page of dv.pages()) {
                 for (const [key, value] of Object.entries(page)) {

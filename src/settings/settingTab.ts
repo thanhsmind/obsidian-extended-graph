@@ -1,5 +1,4 @@
 import { Notice, PluginSettingTab, Setting, ToggleComponent } from "obsidian";
-import { getAPI as getDataviewAPI } from "obsidian-dataview";
 import {
     ExportConfigModal,
     ImportConfigModal,
@@ -26,7 +25,8 @@ import {
     SettingFilter,
     t,
     SettingInput as SettingInputs,
-    SettingLayers
+    SettingLayers,
+    getDataviewPlugin
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
@@ -152,7 +152,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     private addCanonicalPropertiesWithDataview() {
-        if (getDataviewAPI(PluginInstances.app)) {
+        if (getDataviewPlugin()) {
             new Setting(this.containerEl)
                 .setName(t("features.canonicalizePropertiesWithDataview"))
                 .setDesc(t("features.canonicalizePropertiesWithDataviewDesc"))

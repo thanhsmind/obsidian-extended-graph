@@ -1,5 +1,6 @@
 import { getIcon, Plugin } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
+import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
 import { canonicalizeVarName, GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, NLPPlugin, PluginInstances } from "src/internal";
 
 
@@ -104,6 +105,12 @@ export function getGraphBannerPlugin(): GraphBannerPlugin | undefined {
 }
 
 // ======================== Dataview
+
+export function getDataviewPlugin(): DataviewApi | undefined {
+    const dv = getDataviewAPI(PluginInstances.app);
+
+    return dv;
+}
 
 export function getDataviewPageProperties(canonicalizeProperties: boolean, page: any): string[] {
     const properties: string[] = [];

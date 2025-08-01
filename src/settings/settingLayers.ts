@@ -1,6 +1,5 @@
-import { ButtonComponent, setIcon, Setting, TextComponent, TFile } from "obsidian";
-import { getAPI as getDataviewAPI } from "obsidian-dataview";
-import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements, Layer } from "src/internal";
+import { ButtonComponent, setIcon, Setting, TextComponent } from "obsidian";
+import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements, Layer, getDataviewPlugin } from "src/internal";
 
 export class SettingLayers extends SettingsSectionPerGraphType {
     layerInfoSettings: LayerSetting[] = [];
@@ -109,7 +108,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
         const layers = LayersManager.getAllLayers(PluginInstances.settings);
         this.addLayersInfoFromData(layers);
 
-        if (getDataviewAPI(PluginInstances.app)) {
+        if (getDataviewPlugin()) {
             const setting = new Setting(this.containerEl)
                 .setClass("setting-warning")
                 .setDesc(t("features.layersInfoDataview"))
