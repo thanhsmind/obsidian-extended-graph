@@ -1,5 +1,4 @@
-import { addIcon, getIcon, ItemView, MarkdownView, normalizePath, Notice, Plugin, WorkspaceLeaf } from 'obsidian';
-import { GraphView, LocalGraphView } from "obsidian-typings";
+import { addIcon, getIcon, MarkdownView, normalizePath, Notice, Plugin, WorkspaceLeaf } from 'obsidian';
 import {
     addCommands,
     DEFAULT_SETTINGS,
@@ -13,12 +12,10 @@ import {
     INVALID_KEYS,
     isGraphBannerLoaded,
     LINK_KEY,
-    Pinner,
     PluginInstances,
     ProxysManager,
     rgb2hex,
     StatesManager,
-    t,
     TAG_KEY
 } from './internal';
 

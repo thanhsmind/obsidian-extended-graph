@@ -26,7 +26,8 @@ import {
     t,
     SettingInput as SettingInputs,
     SettingLayers,
-    getDataviewPlugin
+    getDataviewPlugin,
+    validateFilename
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
@@ -102,7 +103,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 cb.setTooltip(t("controls.exportSettings"));
                 cb.onClick(() => {
                     const modal = new ExportConfigModal((name: string) => {
-                        if (name.trim() === "") {
+                        if (!validateFilename(name)) {
                             return false;
                         }
                         let filepath = PluginInstances.configurationDirectory + "/" + name + ".json";

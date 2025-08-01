@@ -15,9 +15,7 @@ export class ExportConfigModal extends Modal {
         this.callback = callback;
 
         this.scope.register(null, "Enter", (e: KeyboardEvent) => {
-            if (this.callback(this.input.getValue())) {
-                this.close();
-            }
+            this.validate(this.input.getValue());
         });
     }
 
@@ -37,16 +35,12 @@ export class ExportConfigModal extends Modal {
                 cb.setIcon("upload");
                 cb.setCta();
                 cb.buttonEl.addEventListener('click', e => {
-                    const value = this.dropdown.getValue();
-                    if (value !== "") {
-                        this.callback(value);
-                    }
-                    this.close();
+                    this.validate(this.input.getValue());
                 });
             });
 
         new Setting(this.contentEl)
-            .setName(t("controls.orCreateCongig"))
+            .setName(t("controls.orCreateConfig"))
             .addText((text) => {
                 this.input = text;
             })
@@ -54,16 +48,18 @@ export class ExportConfigModal extends Modal {
                 cb.setIcon("upload");
                 cb.setCta();
                 cb.buttonEl.addEventListener('click', e => {
-                    const value = this.input.getValue();
-                    if (value !== "") {
-                        this.callback(value);
-                    }
-                    this.close();
+                    this.validate(this.input.getValue());
                 })
             });
     }
 
     onClose(): void {
         this.contentEl.empty();
+    }
+
+    private validate(value: string) {
+        if (this.callback(value)) {
+            this.close();
+        }
     }
 }

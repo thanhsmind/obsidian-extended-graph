@@ -17,3 +17,7 @@ i18next.addResourceBundle('en', 'extended-graph', en);
 i18next.addResourceBundle('fr', 'extended-graph', fr);
 i18next.addResourceBundle('zh', 'extended-graph', zh);
 export const t = i18next.getFixedT(null, "extended-graph");
+export const tObsidian = i18next.getFixedT(null, "default");
+
+// To see the Obsidian translations, in "onload" of the plugin, call:
+// console.log(i18next.getDataByLanguage("en")["default"])

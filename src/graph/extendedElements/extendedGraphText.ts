@@ -107,7 +107,7 @@ export class ExtendedGraphText {
 
     private onMouseEnter(): void {
         if (!this.coreElement.text) return;
-        this.restoreText();
+        this.setText(this.getPropertyName() ?? this.coreElement.getDisplayText());
         this.coreElement.text.zIndex = 10;
     }
 
@@ -134,10 +134,7 @@ export class ExtendedGraphText {
             text = text.slice(0, this.instances.settings.numberOfCharacters);
         }
 
-        if (text !== this.coreElement.text.text) {
-            this.coreElement.text.text = text;
-            this.graphicsWrapper?.updateBackgroundAfterTextChange();
-        }
+        this.setText(text);
     }
 
     private getPropertyName(): string | undefined {
@@ -156,9 +153,16 @@ export class ExtendedGraphText {
 
     private restoreText() {
         if (!this.coreElement.text) return;
-        const newText = this.getPropertyName() ?? this.coreElement.getDisplayText();
+        const newText = this.coreElement.getDisplayText();
         if (this.coreElement.text.text !== newText) {
-            this.coreElement.text.text = this.coreElement.getDisplayText();
+            this.coreElement.text.text = newText;
+        }
+    }
+
+    private setText(text: string) {
+        if (!this.coreElement.text) return;
+        if (this.coreElement.text.text !== text) {
+            this.coreElement.text.text = text;
             this.graphicsWrapper?.updateBackgroundAfterTextChange();
         }
     }

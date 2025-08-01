@@ -1,7 +1,7 @@
 import P from "parsimmon";
 import emojiRegex from "emoji-regex";
-import { t } from "src/internal";
-import { getLanguage, Notice } from "obsidian";
+import { PluginInstances, t, tObsidian } from "src/internal";
+import { getLanguage, Notice, Platform } from "obsidian";
 
 export function capitalizeFirstLetter(val: string) {
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -111,6 +111,26 @@ export function testRegexRegex(): void {
 export function strCompare(a: string, b: string): number {
     return a.localeCompare(b, getLanguage(), { sensitivity: 'base' });
 }
+
+export function validateFilename(name: string): boolean {
+    if (name.trim() === "") {
+        new Notice(tObsidian("plugins.file-explorer.msg-empty-file-name"));
+        return false;
+    }
+
+    if (name.startsWith(".")) {
+        new Notice(tObsidian("plugins.file-explorer.msg-bad-dotfile"));
+        return false;
+    }
+
+    const invalidCharacters = Platform.isWin ? '*"\\/<>:|?' : "\\/:" + (Platform.isAndroidApp ? '*?<>"' : "");
+    if (new RegExp("[" + invalidCharacters.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") + "]").test(name)) {
+        new Notice(tObsidian("plugins.file-explorer.msg-invalid-characters") + invalidCharacters.split("").join(" "));
+        return false;
+    }
+    return true;
+}
+
 
 
 // Code from the Dataview plugin, under MIT License
