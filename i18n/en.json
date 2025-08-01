@@ -440,6 +440,8 @@
         "graphState": "Graph state",
         "newStateName": "New state name",
         "openSettings": "Open state settings",
+        "saveConfigsWithState": "Save configuration with state",
+        "saveConfigsWithStateDesc": "When saving a state, the plugin will automatically saves the config under the same name (cleaned from invalid characters)",
         "saveForDefaultState": "Save for default state",
         "saveForDefaultStateDesc": "Save the current settings as the default state settings",
         "saveForNormalState": "Save for native state",

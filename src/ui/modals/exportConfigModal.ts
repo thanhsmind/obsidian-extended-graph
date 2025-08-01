@@ -1,14 +1,14 @@
 import { DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
 import path from "path";
-import { PluginInstances, t } from "src/internal";
+import { getAllConfigFiles, PluginInstances, t } from "src/internal";
 
 export class ExportConfigModal extends Modal {
-    callback: (name: string) => boolean;
+    callback: (name: string, fullpath: boolean) => boolean;
     input: TextComponent;
     dropdown: DropdownComponent;
     name?: string;
 
-    constructor(callback: (name: string) => boolean) {
+    constructor(callback: (name: string, fullpath: boolean) => boolean) {
         super(PluginInstances.app);
         this.setTitle(t("controls.setConfigName"));
         this.modalEl.addClass("graph-modal-export-config");
@@ -24,18 +24,20 @@ export class ExportConfigModal extends Modal {
             .setName(t("controls.overrideConfig"))
             .addDropdown(async (cb) => {
                 this.dropdown = cb;
-                const dir = PluginInstances.configurationDirectory;
                 cb.addOption("", "");
-                const files = (await PluginInstances.app.vault.adapter.exists(dir))
-                    ? (await PluginInstances.app.vault.adapter.list(dir)).files
-                    : [];
-                cb.addOptions(Object.fromEntries(files.map(file => [file, path.basename(file, ".json")])));
+                const files = await getAllConfigFiles();
+                cb.addOptions(Object.fromEntries(files.map(file => [
+                    file,
+                    path.basename(file, ".json") + (PluginInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
+                ])));
             })
             .addButton((cb) => {
                 cb.setIcon("upload");
                 cb.setCta();
                 cb.buttonEl.addEventListener('click', e => {
-                    this.validate(this.input.getValue());
+                    if (this.callback(this.dropdown.getValue(), true)) {
+                        this.close();
+                    }
                 });
             });
 
@@ -58,7 +60,7 @@ export class ExportConfigModal extends Modal {
     }
 
     private validate(value: string) {
-        if (this.callback(value)) {
+        if (this.callback(value, false)) {
             this.close();
         }
     }

@@ -59,11 +59,14 @@ export interface ExtendedGraphSettings {
 
     // Graph settings
     backupGraphOptions: EngineOptions;
+    openInNewTab: boolean;
+    canonicalizePropertiesWithDataview: boolean;
+
+    // States
     states: GraphStateData[];
     startingStateID: string;
     syncDefaultState: boolean;
-    openInNewTab: boolean;
-    canonicalizePropertiesWithDataview: boolean;
+    saveConfigsWithState: boolean;
 
     // Color palettes
     customColorMaps: Record<string, {
@@ -262,11 +265,14 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Graph settings
     backupGraphOptions: new EngineOptions(),
+    openInNewTab: false,
+    canonicalizePropertiesWithDataview: true,
+
+    // States
     states: [DEFAULT_STATE_SETTINGS],
     startingStateID: DEFAULT_STATE_ID,
     syncDefaultState: false,
-    openInNewTab: false,
-    canonicalizePropertiesWithDataview: true,
+    saveConfigsWithState: false,
 
     // Color palettes
     customColorMaps: {},
@@ -696,4 +702,12 @@ function deepEquals(x: any, y: any): boolean {
         ok(x).length === ok(y).length &&
         ok(x).every(key => deepEquals(x[key], y[key]))
     ) : (x === y);
+}
+
+export async function getAllConfigFiles(): Promise<string[]> {
+    const dir = PluginInstances.configurationDirectory;
+    const files = (await PluginInstances.app.vault.adapter.exists(dir))
+        ? (await PluginInstances.app.vault.adapter.list(dir)).files
+        : [];
+    return files;
 }

@@ -11,6 +11,7 @@ export class SettingAutomation extends SettingsSection {
         this.addAutoEnable();
         this.addStartingState();
         this.addSyncDefaultState();
+        this.addSaveConfigWithState();
         this.addOpenInNewTab();
         this.addResetAfterChanges();
     }
@@ -49,6 +50,20 @@ export class SettingAutomation extends SettingsSection {
                 cb.setValue(PluginInstances.settings.syncDefaultState);
                 cb.onChange((value) => {
                     PluginInstances.settings.syncDefaultState = value;
+                    PluginInstances.plugin.saveSettings();
+                })
+            }
+            ).settingEl);
+    }
+
+    private addSaveConfigWithState() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("states.saveConfigsWithState"))
+            .setDesc(t("states.saveConfigsWithStateDesc"))
+            .addToggle(cb => {
+                cb.setValue(PluginInstances.settings.saveConfigsWithState);
+                cb.onChange((value) => {
+                    PluginInstances.settings.saveConfigsWithState = value;
                     PluginInstances.plugin.saveSettings();
                 })
             }

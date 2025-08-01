@@ -102,12 +102,14 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 cb.setIcon("upload");
                 cb.setTooltip(t("controls.exportSettings"));
                 cb.onClick(() => {
-                    const modal = new ExportConfigModal((name: string) => {
-                        if (!validateFilename(name)) {
-                            return false;
+                    const modal = new ExportConfigModal((name: string, fullpath: boolean) => {
+                        const filepath = fullpath ? name : PluginInstances.configurationDirectory + "/" + name + ".json";
+                        if (!fullpath) {
+                            if (!validateFilename(name)) {
+                                return false;
+                            }
                         }
-                        let filepath = PluginInstances.configurationDirectory + "/" + name + ".json";
-                        PluginInstances.plugin.exportSettings(filepath);
+                        PluginInstances.plugin.exportSettings(filepath, PluginInstances.settings);
                         return true;
                     });
                     modal.open();

@@ -279,7 +279,6 @@ export class GraphsManager extends Component {
             // Update nodes interactives
             const extendedNode = instances.nodesSet.extendedElementsMap.get(file.path) as ExtendedGraphFileNode;
             if (!extendedNode) return;
-            console.log(extendedNode);
             for (const [key, manager] of instances.nodesSet.managers) {
                 let newTypes = [...getFileInteractives(key, file, instances.settings)];
                 newTypes = newTypes.filter(type => !SettingQuery.excludeType(PluginInstances.settings, key, type));
@@ -681,8 +680,8 @@ export class GraphsManager extends Component {
         const globalUI = this.setGlobalUI(view);
         globalUI.menu.disableUI();
 
-        const actuallyEnablePlugin = () => {
-            const instances = this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
+        const actuallyEnablePlugin = async () => {
+            const instances = await this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
 
             if (PluginInstances.settings.enableFeatures[instances.type]["elements-stats"]) {
                 if (this.nodesSizeCalculator?.functionKey !== PluginInstances.settings.nodesSizeFunction
@@ -721,12 +720,12 @@ export class GraphsManager extends Component {
         }
     }
 
-    private addGraph(view: GraphView | LocalGraphView, stateID: string, reloadState: boolean): GraphInstances {
+    private async addGraph(view: GraphView | LocalGraphView, stateID: string, reloadState: boolean): Promise<GraphInstances> {
         let instances = this.allInstances.get(view.leaf.id);
         if (instances) return instances;
 
         instances = new GraphInstances(view);
-        instances.stateData = PluginInstances.statesManager.getStateDataById(stateID);
+        await instances.setState(stateID);
         new GraphEventsDispatcher(instances, reloadState);
         if (stateID) {
             instances.statesUI.setValue(stateID);
@@ -824,10 +823,10 @@ export class GraphsManager extends Component {
         }
     }
 
-    resetPlugin(view: GraphView | LocalGraphView, reloadState: boolean = true): void {
+    resetPlugin(view: GraphView | LocalGraphView, reloadState: boolean = true, stateID?: string): void {
         this.isResetting = true;
         const instances = this.allInstances.get(view.leaf.id);
-        const stateID = instances?.stateData?.id;
+        stateID = stateID ?? instances?.stateData?.id;
         const scale = instances?.renderer.targetScale ?? false;
         this.disablePlugin(view);
         this.enablePlugin(view, stateID, reloadState);

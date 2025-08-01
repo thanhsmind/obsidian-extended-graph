@@ -1,9 +1,11 @@
 import { Notice } from "obsidian";
 import { GraphPlugin, GraphView, LocalGraphView } from "obsidian-typings";
 import {
+    cleanFilename,
     DEFAULT_STATE_ID,
     EngineOptions,
     FOLDER_KEY,
+    getAllConfigFiles,
     getEngine,
     GraphInstances,
     GraphState,
@@ -12,12 +14,18 @@ import {
     InteractiveManager,
     InteractiveUI,
     PluginInstances,
-    t
+    t,
+    validateFilename
 } from "src/internal";
 
 
 
 export class StatesManager {
+    cacheStatesConfigs: { [stateID: string]: string } = {};
+
+    constructor() {
+        this.mapStatesConfig();
+    }
 
     // ================================ GETTERS ================================
 
@@ -46,6 +54,11 @@ export class StatesManager {
     changeState(instances: GraphInstances, id: string) {
         let stateData = this.getStateDataById(id);
         if (!stateData) return;
+
+        if (PluginInstances.settings.saveConfigsWithState && !PluginInstances.graphsManager.isResetting && this.cacheStatesConfigs[id]) {
+            PluginInstances.graphsManager.resetPlugin(instances.view, true, id);
+            return;
+        }
 
         stateData = this.validateStateData(stateData);
 
@@ -146,15 +159,23 @@ export class StatesManager {
      * @param graph - The current graph.
      * @param id - The ID of the state to save.
      */
-    async saveState(instance: GraphInstances, id: string): Promise<void> {
+    async saveState(instances: GraphInstances, id: string): Promise<void> {
         if (id === DEFAULT_STATE_ID) return;
         const stateData = PluginInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
         const state = new GraphState(stateData.name);
         state.saveState(stateData);
         state.setID(id);
-        state.saveGraph(instance);
+        state.saveGraph(instances);
         await this.onStateNeedsSaving(state.data);
+
+        if (instances.settings.saveConfigsWithState) {
+            let filename = cleanFilename(state.data.name);
+            if (!validateFilename(filename, false)) filename = "state_" + state.data.id;
+            const filepath = PluginInstances.configurationDirectory + "/" + filename + ".json";
+            PluginInstances.plugin.exportSettings(filepath, instances.settings, state);
+            this.cacheStatesConfigs[state.data.id] = filepath;
+        }
     }
 
     async onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false): Promise<void> {
@@ -230,6 +251,7 @@ export class StatesManager {
             new Notice(`${t("plugin.name")}: ${t("notices.stateDeleted")} (${state.name})`);
             this.updateAllStates();
         });
+        delete this.cacheStatesConfigs[id];
     }
 
     // ============================= DISPLAY STATE =============================
@@ -239,5 +261,28 @@ export class StatesManager {
         if (!instances) return;
         const modal = new GraphStateModal(instances);
         modal.open();
+    }
+
+    // ================================ CONFIGS ================================
+
+    private async mapStatesConfig(): Promise<void> {
+        const configFiles = await getAllConfigFiles();
+        const stateIDs = PluginInstances.settings.states.map(state => state.id);
+
+        for (const file of configFiles) {
+            const importedSettings = await PluginInstances.plugin.loadConfigFile(file);
+
+            if (importedSettings.stateID && stateIDs.contains(importedSettings.stateID)) {
+                this.cacheStatesConfigs[importedSettings.stateID] = file;
+            }
+        }
+    }
+
+    getConfigFilepath(stateID: string): string | undefined {
+        return this.cacheStatesConfigs[stateID];
+    }
+
+    getStateFromConfig(filepath: string): string | undefined {
+        return Object.keys(this.cacheStatesConfigs).find(stateID => this.cacheStatesConfigs[stateID] === filepath);
     }
 }

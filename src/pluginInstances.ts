@@ -1,4 +1,4 @@
-import { App } from "obsidian";
+import { App, normalizePath } from "obsidian";
 import {
     ExtendedGraphSettings,
     FoldersSet,
@@ -23,7 +23,8 @@ import {
     NodeStatCalculator,
     LinkStatCalculator,
     LayersManager,
-    LayersUI
+    LayersUI,
+    getAllConfigFiles
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -43,7 +44,7 @@ export class PluginInstances {
 
 export class GraphInstances {
     readonly view: GraphView | LocalGraphView;
-    readonly settings: ExtendedGraphSettings;
+    settings: ExtendedGraphSettings;
     readonly type: GraphType;
     readonly engine: GraphEngine;
     readonly renderer: GraphRenderer;
@@ -113,6 +114,21 @@ export class GraphInstances {
                 this.settings.interactiveSettings[canonicalizedProperty] = this.settings.interactiveSettings[property];
                 delete this.settings.interactiveSettings[property];
             }
+        }
+    }
+
+    async setState(stateID: string) {
+        this.stateData = PluginInstances.statesManager.getStateDataById(stateID);
+
+        // Find if there is a specific settings to load
+        if (PluginInstances.settings.saveConfigsWithState && PluginInstances.statesManager.cacheStatesConfigs[stateID]) {
+            const importedSettings = await PluginInstances.plugin.loadConfigFile(PluginInstances.statesManager.cacheStatesConfigs[stateID]);
+
+            // Delete the stateID value
+            delete importedSettings["stateID"];
+
+            // Set the settings
+            this.settings = importedSettings;
         }
     }
 }

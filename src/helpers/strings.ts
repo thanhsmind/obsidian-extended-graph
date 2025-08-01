@@ -112,23 +112,41 @@ export function strCompare(a: string, b: string): number {
     return a.localeCompare(b, getLanguage(), { sensitivity: 'base' });
 }
 
-export function validateFilename(name: string): boolean {
+function getInvalidCharacters(): string {
+    return Platform.isWin ? '*"\\/<>:|?' : "\\/:" + (Platform.isAndroidApp ? '*?<>"' : "");
+}
+
+function getInvalidCharactersRegExp() {
+    return new RegExp("[" + getInvalidCharacters().replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") + "]");
+}
+
+export function validateFilename(name: string, notice: boolean = true): boolean {
     if (name.trim() === "") {
-        new Notice(tObsidian("plugins.file-explorer.msg-empty-file-name"));
+        if (notice) new Notice(tObsidian("plugins.file-explorer.msg-empty-file-name"));
         return false;
     }
 
     if (name.startsWith(".")) {
-        new Notice(tObsidian("plugins.file-explorer.msg-bad-dotfile"));
+        if (notice) new Notice(tObsidian("plugins.file-explorer.msg-bad-dotfile"));
         return false;
     }
 
-    const invalidCharacters = Platform.isWin ? '*"\\/<>:|?' : "\\/:" + (Platform.isAndroidApp ? '*?<>"' : "");
-    if (new RegExp("[" + invalidCharacters.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") + "]").test(name)) {
-        new Notice(tObsidian("plugins.file-explorer.msg-invalid-characters") + invalidCharacters.split("").join(" "));
+    if (getInvalidCharactersRegExp().test(name)) {
+        if (notice) new Notice(tObsidian("plugins.file-explorer.msg-invalid-characters") + getInvalidCharacters().split("").join(" "));
         return false;
     }
     return true;
+}
+
+export function cleanFilename(name: string): string {
+    name = name.replace(getInvalidCharactersRegExp(), "");
+    if (name.startsWith(".")) {
+        name = name.slice(1);
+    }
+    if (name === "") {
+        name = "_";
+    }
+    return name;
 }
 
 

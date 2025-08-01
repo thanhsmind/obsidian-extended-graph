@@ -1,6 +1,6 @@
 import { DropdownComponent, Modal, Setting } from "obsidian";
 import path from "path";
-import { PluginInstances, t } from "src/internal";
+import { getAllConfigFiles, PluginInstances, t } from "src/internal";
 
 export class ImportConfigModal extends Modal {
     callback: (filepath: string) => void;
@@ -17,12 +17,12 @@ export class ImportConfigModal extends Modal {
         new Setting(this.contentEl)
             .addDropdown(async (cb) => {
                 this.dropdown = cb;
-                const dir = PluginInstances.configurationDirectory;
                 cb.addOption("", "");
-                const files = (await PluginInstances.app.vault.adapter.exists(dir))
-                    ? (await PluginInstances.app.vault.adapter.list(dir)).files
-                    : [];
-                cb.addOptions(Object.fromEntries(files.map(file => [file, path.basename(file, ".json")])));
+                const files = await getAllConfigFiles();
+                cb.addOptions(Object.fromEntries(files.map(file => [
+                    file,
+                    path.basename(file, ".json") + (PluginInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
+                ])));
             })
             .addButton((cb) => {
                 cb.setIcon("download");

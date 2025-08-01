@@ -4,11 +4,13 @@ import {
     DEFAULT_SETTINGS,
     DEFAULT_STATE_ID,
     DEFAULT_STATE_SETTINGS,
+    ExtendedGraphSettings,
     ExtendedGraphSettingTab,
     FOLDER_KEY,
     getGraphBannerClass,
     getGraphBannerPlugin,
     GraphsManager,
+    GraphState,
     INVALID_KEYS,
     isGraphBannerLoaded,
     LINK_KEY,
@@ -334,32 +336,76 @@ export default class ExtendedGraphPlugin extends Plugin {
         await this.saveData(PluginInstances.settings);
     }
 
-    async importSettings(filepath: string): Promise<void> {
+    async loadConfigFile(filepath: string) {
         filepath = normalizePath(filepath);
         const data = await this.app.vault.adapter.read(filepath);
         let json = JSON.parse(data);
 
+        const stateID = json["stateID"];
+
         json = this.migrateSettings(json);
+
+        // Delete settings that we don't want to override
+        delete json.states;
+        delete json.backupGraphOptions;
+        delete json.customColorMaps;
+        delete json.collapseState;
+        delete json.collapseLegend;
+        delete json.resetAfterChanges;
+        delete json.collapsedSettings;
+        delete json.multipleNodesData;
+
         this.loadSettingsRec(PluginInstances.settings, json);
 
-        PluginInstances.settings = json;
-        await this.saveSettings();
+        if (stateID) json["stateID"] = stateID;
+
+        return json as ExtendedGraphSettings & { stateID?: string };
     }
 
-    async exportSettings(filepath: string): Promise<void> {
+    async importSettings(filepath: string): Promise<void> {
+        // Load config file
+        const importedSettings = await this.loadConfigFile(filepath);
+
+        // Delete the stateID value if it exists
+        delete importedSettings["stateID"];
+
+        // Set and save the settings
+        PluginInstances.settings = importedSettings;
+        await this.saveSettings();
+
+        // Just in case the migration modified something
+        this.exportSettings(filepath, PluginInstances.settings);
+    }
+
+    async exportSettings(filepath: string, settings: ExtendedGraphSettings, state?: GraphState): Promise<void> {
         this.app.vault.adapter.mkdir(PluginInstances.configurationDirectory);
         filepath = normalizePath(filepath);
 
-        const settings = structuredClone(PluginInstances.settings) as Partial<typeof PluginInstances.settings>;
+        const clonedSettings = structuredClone(settings) as Partial<typeof PluginInstances.settings> & { stateID?: string };
 
-        // Remove settings that are internal (not set by the user)
-        delete settings.collapseState;
-        delete settings.collapseLegend;
-        delete settings.resetAfterChanges;
-        delete settings.collapsedSettings;
-        delete settings.multipleNodesData;
+        // Remove settings that we don't want to save
+        delete clonedSettings.states;
+        delete clonedSettings.backupGraphOptions;
+        delete clonedSettings.customColorMaps;
+        delete clonedSettings.collapseState;
+        delete clonedSettings.collapseLegend;
+        delete clonedSettings.resetAfterChanges;
+        delete clonedSettings.collapsedSettings;
+        delete clonedSettings.multipleNodesData;
 
-        const data = JSON.stringify(PluginInstances.settings, null, 2);
+        // If exported alongside a state, we save the id
+        if (state) {
+            clonedSettings.stateID = state.data.id;
+        }
+        else {
+            // Else, make sure we don't override the state id if it exists
+            const stateID = PluginInstances.statesManager.getStateFromConfig(filepath);
+            if (stateID) {
+                clonedSettings.stateID = stateID;
+            }
+        }
+
+        const data = JSON.stringify(clonedSettings, null, 2);
         await this.app.vault.adapter.write(filepath, data);
     }
 
