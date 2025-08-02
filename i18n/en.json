@@ -146,6 +146,8 @@
         "excludeTargetFolders": "Exclude target folders",
         "excludeTargetFoldersDesc": "Exclude backward links with target inside some folders (i.e. links going in one of these folders)",
         "excludedFolders": "Excluded folders",
+        "externalLinks": "Add external links",
+        "externalLinksDesc": "Add external URLs as attachment nodes in the graph view. Types for these links are not supported.",
         "noExclusionFilter": "No excluded filter is applied right now. Add one below.",
         "withExclusionFilter": "Files matching the following filters won't have back/forward links in the graph:",
         "fadeInElements": "Fade in new elements",

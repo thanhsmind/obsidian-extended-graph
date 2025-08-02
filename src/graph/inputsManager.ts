@@ -38,7 +38,7 @@ export class InputsManager {
     }
 
     private changeNodeOnClick(): void {
-        if (this.instances.settings.openInNewTab) {
+        if (this.instances.settings.openInNewTab || this.instances.settings.externalLinks !== "none") {
             this.onNodeClick = this.onNodeClick.bind(this);
             this.coreOnNodeClick = this.instances.renderer.onNodeClick;
             this.instances.renderer.onNodeClick = this.onNodeClick;
@@ -183,11 +183,29 @@ export class InputsManager {
     // ============================== NODE CLICKS ==============================
 
     private onNodeClick(e: UserEvent | null, id: string, type: string): void {
-        if ("tag" !== type)
-            PluginInstances.app.workspace.openLinkText(id, "", "tab");
-        else {
-            if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
+        if (this.instances.settings.externalLinks !== "none" && "attachment" === type) {
+            try {
+                let url: URL | undefined;
+                for (const urls of Object.values(this.instances.nodesSet.cachedExternalLinks)) {
+                    url = urls.find(url => this.instances.nodesSet.convertExternalLink(url) === id);
+                    if (url) break;
+                }
+                if (url) {
+                    window.open(url.href, "");
+                    return;
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
         }
+
+        if (this.instances.settings.openInNewTab && "tag" !== type) {
+            PluginInstances.app.workspace.openLinkText(id, "", "tab");
+            return;
+        }
+
+        if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
     }
 
     private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {

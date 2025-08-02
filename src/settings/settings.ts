@@ -24,6 +24,7 @@ import {
     TAG_KEY
 } from "src/internal";
 
+export type ExternalLinkOption = 'none' | 'domain' | 'href';
 
 type InteractiveSettings = {
     colormap: string;
@@ -136,6 +137,7 @@ export interface ExtendedGraphSettings {
     animationSpeedForDots: number;
     interactivesBrightness: { light: number, dark: number };
     fadeInElements: boolean;
+    externalLinks: ExternalLinkOption;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -356,6 +358,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     animationSpeedForDots: 1,
     interactivesBrightness: { light: 1, dark: 1 },
     fadeInElements: false,
+    externalLinks: "none",
 
     // Links
     allowMultipleLinkTypes: false,
@@ -692,7 +695,7 @@ export class SettingQuery {
             return true;
         if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
             'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
-            'fadeInElements'].some(key => !equals(key)))
+            'fadeInElements', 'externalLinks'].some(key => !equals(key)))
             return true;
 
         // Automation

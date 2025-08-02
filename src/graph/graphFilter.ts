@@ -20,6 +20,8 @@ export class GraphFilter {
         // Filter out nodes
         this.excludeNodes(data);
 
+        this.addExternalLinks(data);
+
         let nodesToRemove: string[] = [];
 
         const potentialOrphans: string[] = [];
@@ -31,11 +33,11 @@ export class GraphFilter {
 
             const file = getFile(source);
             if (file) {
-                if (this.filterByFolders(node, source, potentialOrphans)) {
+                if (this.filterLinksByFolders(node, source, potentialOrphans)) {
                     continue;
                 }
 
-                this.filterByTypes(file, node, source, nodesToRemove);
+                this.filterLinksByTypes(file, node, source, nodesToRemove);
 
                 if (this.flagAsPotentialOrphan(node, source, potentialOrphans)) {
                     continue;
@@ -143,7 +145,7 @@ export class GraphFilter {
         return data;
     }
 
-    private filterByFolders(node: GraphNodeData, source: string, potentialOrphans: string[]): boolean {
+    private filterLinksByFolders(node: GraphNodeData, source: string, potentialOrphans: string[]): boolean {
         const matchFolder = (file: string, folder: string): boolean => {
             return regExpFromString(folder)?.test(file) ?? file.startsWith(folder);
         };
@@ -174,7 +176,7 @@ export class GraphFilter {
         return false;
     }
 
-    private filterByTypes(file: TFile, node: GraphNodeData, source: string, nodesToRemove: string[]) {
+    private filterLinksByTypes(file: TFile, node: GraphNodeData, source: string, nodesToRemove: string[]) {
         for (const [key, manager] of this.instances.linksSet.managers) {
             const typedLinks = getOutlinkTypes(this.instances.settings, file); // id -> types
             const validTypedLinks = new Map([...typedLinks.entries()].reduce((acc: [string, Set<string>][], curr: [string, Set<string>]) => {
@@ -219,5 +221,25 @@ export class GraphFilter {
             return true;
         }
         return false;
+    }
+
+    private addExternalLinks(data: GraphData) {
+        if (!this.instances.engine.options.showAttachments) return;
+
+        const nodeIDs = Object.keys(data.nodes);
+        for (const nodeID of nodeIDs) {
+            const links = this.instances.nodesSet.getExternalLinks(nodeID);
+            data.numLinks += links.length;
+            for (const link of links) {
+                data.nodes[nodeID].links[link] = true;
+                if (!(link in data.nodes)) {
+                    data.nodes[link] = {
+                        color: this.instances.renderer.colors.fillAttachment,
+                        type: "attachment",
+                        links: {}
+                    };
+                }
+            }
+        }
     }
 }

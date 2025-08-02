@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExternalLinkOption, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
@@ -9,6 +9,7 @@ export class SettingBeta extends SettingsSection {
 
     protected override addBody() {
         this.addRevertAction();
+        this.addExternalLinks();
     }
 
     private addRevertAction() {
@@ -23,5 +24,24 @@ export class SettingBeta extends SettingsSection {
                 }));
 
         this.elementsBody.push(setting.settingEl);
+    }
+
+    private addExternalLinks() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("features.externalLinks"))
+            .setDesc(t("features.externalLinksDesc"))
+            .addDropdown(cb => {
+                const options: Record<ExternalLinkOption, string> = {
+                    none: "None",
+                    domain: "Domain",
+                    href: "Href",
+                };
+                cb.addOptions(options);
+                cb.setValue(PluginInstances.settings.externalLinks);
+                cb.onChange(async (value) => {
+                    PluginInstances.settings.externalLinks = value as ExternalLinkOption;
+                    await PluginInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 }

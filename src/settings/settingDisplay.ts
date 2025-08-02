@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, getCMapData, PluginInstances, SettingColorPalette, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
 
 export class SettingDisplay extends SettingsSection {
 

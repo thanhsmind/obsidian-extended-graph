@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { MarkdownRenderer, TFile } from "obsidian";
 import { Assets, Graphics, IPointData, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
@@ -36,6 +36,24 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     // ================================ LOADING ================================
+
+    override load(id?: string) {
+        if (this.instances.settings.externalLinks !== "none") {
+            if (id) {
+                this.cacheExternalLinks(id).then((linksAdded) => {
+                    if (linksAdded) this.instances.engine.render();
+                });
+            }
+            else {
+                this.cacheAllExternalLinks().then((linksAdded) => {
+                    if (linksAdded.some(r => r)) { // Only rerender if external links have been added
+                        this.instances.engine.render();
+                    }
+                });
+            }
+        }
+        return super.load(id);
+    }
 
     protected override handleMissingElements(ids: Set<string>): void {
         this.applyBackgroundColor(ids);
@@ -389,5 +407,59 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 coreNode.fy = null;
             }
         }
+    }
+
+    // ======================= EXTERNAL LINKS ===========================
+
+    cachedExternalLinks: Record<string, URL[]> = {};
+
+    private async cacheAllExternalLinks(): Promise<boolean[]> {
+        const promises: Promise<boolean>[] = [];
+        for (const id in this.instances.renderer.nodeLookup) {
+            promises.push(this.cacheExternalLinks(id));
+        }
+        return Promise.all(promises);
+    }
+
+    private async cacheExternalLinks(id: string): Promise<boolean> {
+        if (id in this.cachedExternalLinks) return false;
+
+        const file = getFile(id);
+        if (!file) {
+            this.cachedExternalLinks[id] = [];
+            return false;
+        }
+
+        const data = await PluginInstances.app.vault.cachedRead(file);
+        const div = createDiv();
+        await MarkdownRenderer.render(
+            PluginInstances.app,
+            data,
+            div,
+            id,
+            PluginInstances.plugin
+        );
+
+        const links: URL[] = [];
+        for (const link of Array.from(div.getElementsByClassName("external-link"))) {
+            const href = link.getAttr("href");
+            if (href) {
+                links.push(new URL(href));
+            }
+        }
+        this.cachedExternalLinks[id] = links;
+        return links.length > 0;
+    }
+
+    convertExternalLink(url: URL): string {
+        return this.instances.settings.externalLinks === "domain" ? url.hostname : url.origin + url.pathname;
+    }
+
+    getExternalLinks(id: string): string[] {
+        if (id in this.cachedExternalLinks) {
+            return this.cachedExternalLinks[id].map(url => this.convertExternalLink(url)).unique();
+        }
+
+        return [];
     }
 }
