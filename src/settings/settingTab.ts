@@ -27,7 +27,8 @@ import {
     SettingInput as SettingInputs,
     SettingLayers,
     getDataviewPlugin,
-    validateFilename
+    validateFilename,
+    SettingLocal as SettingLocalGraph
 } from "src/internal";
 import ExtendedGraphPlugin from "src/main";
 
@@ -48,14 +49,14 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         const settingLinks = new SettingLinks(this);
         const settingFolders = new SettingFolders(this);
         const settingElementsStats = new SettingElementsStats(this);
-        const settingDisplay = new SettingDisplay(this);
+        const settingLocalGraph = new SettingLocalGraph(this);
         this.settingsWithPalettes.push(
             settingsTags,
             settingsProperties,
             settingLinks,
             settingFolders,
             settingElementsStats,
-            settingDisplay
+            settingLocalGraph
         )
 
         this.sections.push(new SettingAutomation(this));
@@ -72,7 +73,8 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         this.sections.push(settingElementsStats);
         this.sections.push(new SettingNames(this));
         this.sections.push(new SettingZoom(this));
-        this.sections.push(settingDisplay);
+        this.sections.push(settingLocalGraph);
+        this.sections.push(new SettingDisplay(this));
         this.sections.push(new SettingFilter(this));
         this.sections.push(new SettingInputs(this));
         this.sections.push(new SettingPerformance(this));

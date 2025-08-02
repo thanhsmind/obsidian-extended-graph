@@ -1,9 +1,10 @@
 import { getIcon } from "obsidian";
-import { GraphColorAttributes, GraphNode } from "obsidian-typings";
+import { GraphColorAttributes, GraphNode, LocalGraphView } from "obsidian-typings";
 import { Graphics } from "pixi.js";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     colorizeSVG,
+    DEFAULT_SETTINGS,
     evaluateCMap,
     ExtendedGraphElement,
     ExtendedGraphText,
@@ -11,6 +12,7 @@ import {
     getListOfSubpaths,
     getSvgFromIconic,
     getSvgFromIconize,
+    hex2int,
     isEmoji,
     isNumber,
     NodeGraphicsWrapper,
@@ -25,6 +27,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     isPinned: boolean = false;
     pinnedPosition?: { x: number, y: number };
     extendedText: ExtendedGraphText;
+    isCurrentNode: boolean;
 
     // Size
     graphicsWrapperScale: number = 1;
@@ -40,6 +43,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // ============================== CONSTRUCTOR ==============================
 
     protected override additionalConstruct() {
+        this.isCurrentNode = this.instances.type === "localgraph" && (this.instances.view as LocalGraphView).file?.path === this.id;
         this.extendedText = new ExtendedGraphText(this.instances, this.coreElement);
         this.getIcon();
         this.radius = NodeShape.RADIUS;
@@ -88,7 +92,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     protected needToChangeColor(): boolean {
-        return this.instances.type === "localgraph" && this.instances.settings.colorBasedOnDepth;
+        return this.instances.type === "localgraph" && (
+            this.instances.settings.colorBasedOnDepth
+            || (this.instances.settings.currentNode.useColor && this.isCurrentNode)
+        );
     }
 
     protected needToUpdateGraphicsColor(): boolean { return false; }
@@ -224,26 +231,31 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     // =============================== NODE SIZE ===============================
 
     private computeRadius() {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) return;
+        let setByProperty = false;
+        if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
+            const properties = this.instances.settings.nodesSizeProperties.filter(p => p !== "");
+            if (properties.length === 0) return;
 
-        const properties = this.instances.settings.nodesSizeProperties.filter(p => p !== "");
-        if (properties.length === 0) return;
+            const file = getFile(this.id);
+            if (!file) return;
 
-        const file = getFile(this.id);
-        if (!file) return;
-
-        let found = false;
-        for (const property of properties) {
-            const values = getFileInteractives(property, file, this.instances.settings);
-            for (const value of values) {
-                if (isNumber(value)) {
-                    this.radius = parseInt(value);
-                    if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
-                    found = true;
-                    break;
+            for (const property of properties) {
+                const values = getFileInteractives(property, file, this.instances.settings);
+                for (const value of values) {
+                    if (isNumber(value)) {
+                        this.radius = parseInt(value);
+                        if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
+                        setByProperty = true;
+                        break;
+                    }
                 }
+                if (setByProperty) break;
             }
-            if (found) break;
+        }
+
+
+        if (!setByProperty && this.isCurrentNode && this.instances.settings.currentNode.size !== DEFAULT_SETTINGS.currentNode.size) {
+            this.radius = this.instances.settings.currentNode.size;
         }
     }
 
@@ -273,16 +285,27 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         const isHighlighted = this.coreElement.renderer.getHighlightNode() === this.coreElement;
         const isFocused = this.coreElement.type === "focused";
         const originalColor: GraphColorAttributes = Reflect.apply(target, thisArg, args);
-        const overrideColor: GraphColorAttributes = (needToChangeColor && !(isFocused || isHighlighted)) ? (this.getFillColor.call(this, ...args) ?? originalColor) : originalColor;
+        let overrideColor = originalColor;
+        if (needToChangeColor) {
+            if (!(isHighlighted)) {
+                overrideColor = this.getFillColor.call(this, ...args) ?? originalColor;
+            }
+        }
 
         if (needToUpdateGraphicsColor) {
-            this.graphicsWrapper?.updateFillColor(overrideColor.rgb, isFocused || isHighlighted);
+            this.graphicsWrapper?.updateFillColor(overrideColor.rgb, isHighlighted);
         }
 
         return overrideColor;
     }
 
     protected getFillColor(): GraphColorAttributes | undefined {
+        if (this.isCurrentNode && this.instances.settings.currentNode.useColor) {
+            return {
+                rgb: hex2int(this.instances.settings.currentNode.color),
+                a: this.instances.renderer.colors.fillFocused.a
+            }
+        }
         return;
     };
 

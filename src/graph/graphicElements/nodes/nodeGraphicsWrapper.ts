@@ -44,17 +44,23 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     }
 
     private initShape() {
-        if (!this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) return;
-        const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(this.extendedElement.instances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
-            return (a[1].index ?? 0) - (b[1].index ?? 0);
-        }));
-        for (const shape of Object.keys(shapeQueries)) {
-            const queriesMatcher = new QueryMatcher(shapeQueries[shape]);
-            const file = getFile(this.extendedElement.id);
-            if (!file) return;
-            if (queriesMatcher.doesMatch(file, this.extendedElement.instances.settings)) {
-                this.shape = shape as ShapeEnum;
-                return;
+        if (this.extendedElement.isCurrentNode && this.extendedElement.instances.settings.currentNode.shape !== ShapeEnum.CIRCLE) {
+            this.shape = this.extendedElement.instances.settings.currentNode.shape;
+            return;
+        }
+
+        if (this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
+            const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(this.extendedElement.instances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+                return (a[1].index ?? 0) - (b[1].index ?? 0);
+            }));
+            for (const shape of Object.keys(shapeQueries)) {
+                const queriesMatcher = new QueryMatcher(shapeQueries[shape]);
+                const file = getFile(this.extendedElement.id);
+                if (!file) return;
+                if (queriesMatcher.doesMatch(file, this.extendedElement.instances.settings)) {
+                    this.shape = shape as ShapeEnum;
+                    return;
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ import {
     PinShapeData,
     PluginInstances,
     QueryData,
+    ShapeEnum,
     t,
     TAG_KEY
 } from "src/internal";
@@ -115,6 +116,16 @@ export interface ExtendedGraphSettings {
     // Export SVG
     exportSVGOptions: ExportSVGOptions;
 
+    // Local graph
+    colorBasedOnDepth: boolean;
+    depthColormap: string;
+    currentNode: {
+        useColor: boolean,
+        color: string, // Hex codes, so it's easier to human read
+        size: number,
+        shape: ShapeEnum
+    }
+
     // Display settings
     fadeOnDisable: boolean;
     focusScaleFactor: number;
@@ -125,8 +136,6 @@ export interface ExtendedGraphSettings {
     animationSpeedForDots: number;
     interactivesBrightness: { light: number, dark: number };
     fadeInElements: boolean;
-    colorBasedOnDepth: boolean;
-    depthColormap: string;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -327,6 +336,16 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
         'star10': { combinationLogic: 'AND', index: shapeQueriesIndex++, rules: [] },
     },
 
+    // Local graph
+    colorBasedOnDepth: false,
+    depthColormap: "rainbow",
+    currentNode: {
+        useColor: false,
+        color: "#000000",
+        size: 100,
+        shape: ShapeEnum.CIRCLE
+    },
+
     // Display settings
     fadeOnDisable: false,
     focusScaleFactor: 1.8,
@@ -337,8 +356,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     animationSpeedForDots: 1,
     interactivesBrightness: { light: 1, dark: 1 },
     fadeInElements: false,
-    colorBasedOnDepth: false,
-    depthColormap: "rainbow",
 
     // Links
     allowMultipleLinkTypes: false,
@@ -664,17 +681,19 @@ export class SettingQuery {
                 return true;
         }
 
+        // Local graph
+        if (['colorBasedOnDepth', 'currentNode'].some(key => !equals(key)))
+            if (newSettings.colorBasedOnDepth && !equals('depthColormap')) {
+                return true;
+            }
 
         // Display settings
         if (oldFeatures['linksSameColorAsNode'] !== newFeatures['linksSameColorAsNode'])
             return true;
         if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
             'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
-            'fadeInElements', 'colorBasedOnDepth'].some(key => !equals(key)))
+            'fadeInElements'].some(key => !equals(key)))
             return true;
-        if (newSettings.colorBasedOnDepth && !equals('depthColormap')) {
-            return true;
-        }
 
         // Automation
         if (['openInNewTab'].some(key => !equals(key)))

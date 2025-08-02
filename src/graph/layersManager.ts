@@ -409,7 +409,7 @@ export class LayersManager {
         this.destroyContainers();
 
         this.layerGroups = [];
-        this.notInLayers.layerGroup.layers = [];
+        this.notInLayers.layerGroup.layers[0].nodes = [];
     }
 
     // ================================ Static =================================

@@ -2,7 +2,6 @@ import { Setting } from "obsidian";
 import { ExtendedGraphSettingTab, FeatureSetting, getCMapData, PluginInstances, SettingColorPalette, SettingsSection, t } from "src/internal";
 
 export class SettingDisplay extends SettingsSection {
-    depthColormapSetting: SettingColorPalette;
 
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'display', t("features.ids.display"), t("features.otherDisplay"), 'monitor', "");
@@ -18,7 +17,6 @@ export class SettingDisplay extends SettingsSection {
         this.addFadeInElements();
         this.addAnimateDotsOnLinks();
         this.addAnimationSpeedForDot();
-        this.addColorBasedOnDepth();
         this.addHorizontalLegend();
     }
 
@@ -172,52 +170,6 @@ export class SettingDisplay extends SettingsSection {
                         }
                     })
             }).settingEl);
-    }
-
-    private addColorBasedOnDepth() {
-        this.elementsBody.push(new Setting(this.containerEl)
-            .setName(t("features.colorBasedOnDepth"))
-            .setDesc(t("features.colorBasedOnDepthDesc"))
-            .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.colorBasedOnDepth)
-                    .onChange(async (value) => {
-                        PluginInstances.settings.colorBasedOnDepth = value;
-                        PluginInstances.plugin.saveSettings();
-                        this.depthColormapSetting.setVisibility(value);
-                    })
-            }).settingEl);
-
-        this.depthColormapSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'depth-color')
-            .setName(t("features.depthPalette"))
-            .setDesc(t("features.depthPaletteDesc"));
-
-        this.depthColormapSetting.setValue(PluginInstances.settings.depthColormap);
-
-        this.depthColormapSetting.onPaletteChange((palette: string) => {
-            PluginInstances.settings.depthColormap = palette;
-            PluginInstances.plugin.saveSettings();
-        });
-
-        this.depthColormapSetting.setVisibility(PluginInstances.settings.colorBasedOnDepth);
-
-        // Push to body list
-        this.elementsBody.push(this.depthColormapSetting.settingEl);
-    }
-
-    onCustomPaletteModified(oldName: string, newName: string): void {
-        // Check if the colormap is no longer in the settings
-        if (!getCMapData(PluginInstances.settings.depthColormap, PluginInstances.settings)) {
-            // If the old name matches AND the new name is valid, change the name
-            if (PluginInstances.settings.depthColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
-                PluginInstances.settings.depthColormap = newName;
-            }
-            // Otherwise, reset it
-            else {
-                PluginInstances.settings.depthColormap = "rainbow";
-            }
-        }
-        this.depthColormapSetting.populateCustomOptions();
-        this.depthColormapSetting.setValue(PluginInstances.settings.depthColormap);
     }
 
     private addHorizontalLegend() {
