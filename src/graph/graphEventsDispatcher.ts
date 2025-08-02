@@ -681,6 +681,7 @@ export class GraphEventsDispatcher extends Component {
         this.unbindStageEvents();
         this.inputsManager.unbindStageEvents();
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        this.instances.layersManager?.destroyContainers();
         for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
             PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
         }

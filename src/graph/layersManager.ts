@@ -99,6 +99,18 @@ export class LayersManager {
         }
     }
 
+    destroyContainers() {
+        this.moveElementsOutOfContainers();
+        for (const group of this.layerGroups) {
+            for (const layer of group.layers) {
+                layer.container.removeFromParent();
+                layer.container.destroy();
+            }
+        }
+        this.notInLayers.layerGroup.layers[0].container.removeFromParent();
+        this.notInLayers.layerGroup.layers[0].container.destroy();
+    }
+
     // ============================== Add a node ===============================
 
     addNode(nodeID: string) {
@@ -193,6 +205,7 @@ export class LayersManager {
     }
 
     private addToContainer(node: GraphNode) {
+        if (!this.isEnabled) return;
         const sourceLayer = this.nodeLookup[node.id].graphLayer;
         if (!sourceLayer) return;
 
@@ -207,6 +220,7 @@ export class LayersManager {
     }
 
     addLinkToContainer(link: GraphLink) {
+        if (!this.isEnabled) return;
         const sourceLayer = this.nodeLookup[link.source.id]?.graphLayer;
         if (!sourceLayer) return;
 
@@ -391,17 +405,10 @@ export class LayersManager {
 
     unload(): void {
         this.isEnabled = false;
-        this.moveElementsOutOfContainers();
-        for (const group of this.layerGroups) {
-            for (const layer of group.layers) {
-                layer.container.removeFromParent();
-                layer.container.destroy();
-            }
-        }
-        this.layerGroups = [];
 
-        this.notInLayers.layerGroup.layers[0].container.removeFromParent();
-        this.notInLayers.layerGroup.layers[0].container.destroy();
+        this.destroyContainers();
+
+        this.layerGroups = [];
         this.notInLayers.layerGroup.layers = [];
     }
 
