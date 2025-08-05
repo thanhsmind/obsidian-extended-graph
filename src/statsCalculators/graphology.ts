@@ -1,10 +1,10 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { getFile, GraphInstances, linkStatFunctionIsDynamic, nodeStatFunctionIsDynamic, PluginInstances, SettingTags } from 'src/internal';
+import { GraphInstances, PluginInstances } from 'src/internal';
 import { reverse } from 'graphology-operators';
 import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { LocalGraphView } from 'obsidian-typings';
-import { getAllTags, TagCache } from 'obsidian';
+import { TagCache } from 'obsidian';
 
 export class GraphologyGraph {
     graphology?: Graphology;
@@ -119,7 +119,7 @@ export class GraphologyGraph {
 
         if (this.instances.type === "localgraph" && this.instances.settings.depthColormap) {
             const mainNode = (this.instances.view as LocalGraphView).file?.path;
-            if (mainNode) {
+            if (mainNode && this.graphology.hasNode(mainNode)) {
                 const paths = undirectedSingleSourceLength(this.graphology, mainNode);
                 for (const target in paths) {
                     this.graphology.setNodeAttribute(target, 'depth', paths[target]);
