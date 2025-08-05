@@ -150,10 +150,12 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
     }
 
     disable() {
+        console.log("Disable", this.id);
         this.isEnabled = false;
     }
 
     enable() {
+        console.log("Enable", this.id);
         this.isEnabled = true;
         this.init();
     }

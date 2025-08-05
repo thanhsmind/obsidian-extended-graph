@@ -13,6 +13,14 @@ export class LinksSet extends AbstractSet<GraphLink> {
         this.coreCollection = this.instances.renderer.links;
     }
 
+    // ================================ LOADING ================================
+
+    protected override handleMissingElement(extendedLink: ExtendedGraphLink): void {
+
+    }
+
+
+
     // =========================== EXTENDED ELEMENTS ===========================
 
     protected override createExtendedElement(link: GraphLink): ExtendedGraphLink {

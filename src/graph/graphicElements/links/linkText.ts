@@ -14,6 +14,7 @@ export abstract class LinkText extends Container {
         super();
         this.extendedLink = extendedLink;
         this.hasFaded = !this.extendedLink.instances.settings.fadeInElements;
+        this.zIndex = 2;
 
         this.text = new Text(text);
 

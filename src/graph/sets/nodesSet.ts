@@ -55,49 +55,42 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return super.load(id);
     }
 
-    protected override handleMissingElements(ids: Set<string>): void {
-        this.applyBackgroundColor(ids);
-        this.loadAssets(ids);
+    protected override handleMissingElement(extendedNode: ExtendedGraphNode): void {
+        this.applyBackgroundColor(extendedNode);
+        this.loadAsset(extendedNode);
     }
 
-    private applyBackgroundColor(ids: Set<string>) {
+    private applyBackgroundColor(extendedNode: ExtendedGraphNode) {
         const backgroundColor = getBackgroundColor(this.instances.renderer);
-        for (const id of ids) {
-            const extendedNode = this.extendedElementsMap.get(id);
-            if (!extendedNode || !extendedNode.graphicsWrapper) continue;
-            extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
-        }
+        if (!extendedNode.graphicsWrapper) return;
+        extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
     }
 
     // ================================ IMAGES =================================
 
-    private loadAssets(ids: Set<string>): void {
+    private loadAsset(extendedNode: ExtendedGraphNode): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['imagesFromProperty']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
             && !this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']
             && !this.instances.settings.enableFeatures[this.instances.type]['icons']) return;
 
 
-        for (const id of ids) {
-            this.getImageURI(id).then(imageURI => {
-                if (imageURI) {
-                    if (imageURI.type === "image") {
-                        Assets.load(imageURI.uri).then((texture: Texture) => {
-                            this.initNodeImages(id, texture);
-                        });
-                    }
-                    else if (imageURI.type === "icon") {
-                        const extendedNode = this.extendedElementsMap.get(id);
-                        extendedNode?.graphicsWrapper?.initIcon();
-                    }
+        this.getImageURI(extendedNode).then(imageURI => {
+            if (imageURI) {
+                if (imageURI.type === "image") {
+                    Assets.load(imageURI.uri).then((texture: Texture) => {
+                        this.initNodeImages(extendedNode, texture);
+                    });
                 }
-            });
-        }
+                else if (imageURI.type === "icon") {
+                    extendedNode.graphicsWrapper?.initIcon();
+                }
+            }
+        });
     }
 
-    private async getImageURI(id: string): Promise<{ uri: string, type: 'icon' | 'image' } | null> {
-        let extendedNode = this.extendedElementsMap.get(id);
-        if (!extendedNode || !extendedNode.graphicsWrapper) return null;
+    private async getImageURI(extendedNode: ExtendedGraphNode): Promise<{ uri: string, type: 'icon' | 'image' } | null> {
+        if (!extendedNode.graphicsWrapper) return null;
 
         let imageUri: string | null = null;
 
@@ -110,18 +103,18 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 && (extendedNode.coreElement.type === ""
                     || extendedNode.coreElement.type === "focused")) {
                 for (const property of this.instances.settings.imageProperties) {
-                    imageUri = await Media.getImageUriFromProperty(property, id);
+                    imageUri = await Media.getImageUriFromProperty(property, extendedNode.id);
                     if (imageUri) break;
                 }
             }
             if (!imageUri && this.instances.settings.enableFeatures[this.instances.type]['imagesFromEmbeds']
                 && (extendedNode.coreElement.type === ""
                     || extendedNode.coreElement.type === "focused")) {
-                imageUri = await Media.getImageUriFromEmbeds(id);
+                imageUri = await Media.getImageUriFromEmbeds(extendedNode.id);
             }
             if (this.instances.settings.enableFeatures[this.instances.type]['imagesForAttachments']
                 && extendedNode.coreElement.type === "attachment") {
-                imageUri = await Media.getImageUriForAttachment(id);
+                imageUri = await Media.getImageUriForAttachment(extendedNode.id);
             }
 
             if (imageUri) return { uri: imageUri, type: 'image' }
@@ -136,9 +129,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return null;
     }
 
-    private initNodeImages(id: string, texture: Texture): void {
-        const extendedNode = this.extendedElementsMap.get(id);
-        if (!extendedNode || !extendedNode.graphicsWrapper) return;
+    private initNodeImages(extendedNode: ExtendedGraphNode, texture: Texture): void {
+        if (!extendedNode.graphicsWrapper) return;
         if (extendedNode.coreElement.type === "tag" || extendedNode.coreElement.type === "unresolved") return;
 
         try {

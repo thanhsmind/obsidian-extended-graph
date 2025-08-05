@@ -132,15 +132,23 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             }
             else {
                 missingElements.add(id);
-                const extendedElement = this.createExtendedElement(coreElement);
-                extendedElement.init();
+                this.createExtendedElement(coreElement);
             }
             this.instances.layersManager?.addNode(id);
         }
         return missingElements;
     }
 
-    protected handleMissingElements(ids: Set<string>): void { }
+    protected handleMissingElements(ids: Set<string>): void {
+        for (const id of ids) {
+            const extendedElement = this.extendedElementsMap.get(id);
+            if (!extendedElement) return;
+            extendedElement.init();
+            this.handleMissingElement(extendedElement);
+        }
+    }
+
+    protected abstract handleMissingElement(extendedElement: ExtendedGraphElement<T>): void;
 
     // =============================== UNLOADING ===============================
 

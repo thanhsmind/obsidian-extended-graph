@@ -742,34 +742,7 @@ export class GraphEventsDispatcher extends Component {
                 const link = this.instances.linksSet.extendedElementsMap.get(id);
                 if (!link) continue;
                 link.graphicsWrapper?.pixiElement.updateFrame();
-                if (link.texts) {
-                    const linkLength = lengthSegment(
-                        1,
-                        link.coreElement.source.circle?.position ?? { x: 0, y: 0 },
-                        link.coreElement.target.circle?.position ?? { x: 0, y: 0 }
-                    );
-                    // const minSegmentLength = 110;
-                    const visibleTexts = link.texts.filter(text => this.instances.linksSet.managers.get(LINK_KEY)?.isActive(text.text.text));
-                    const segmentLength = linkLength / visibleTexts.length;
-                    let i = 0;
-                    for (const text of link.texts) {
-                        if (visibleTexts.contains(text)) {
-                            if (Math.floor((i - segmentLength) / 110) < Math.floor(i / 110)) {
-                                text.isRendered = true;
-                                text.updateFrame();
-                            }
-                            else {
-                                text.isRendered = false;
-                                text.visible = false;
-                            }
-                            i += segmentLength;
-                        }
-                        else {
-                            text.isRendered = false;
-                            text.visible = false;
-                        }
-                    }
-                }
+                link.updateRenderedTexts();
             }
         }
     }
@@ -933,8 +906,12 @@ export class GraphEventsDispatcher extends Component {
     onInteractivesLogicChanged(key: string) {
         if (key === LINK_KEY) {
             for (const [id, extendedLink] of this.instances.linksSet.extendedElementsMap) {
-                if (extendedLink.isEnabled && extendedLink.isAnyManagerDisabled()) {
+                const shouldDisable = extendedLink.isAnyManagerDisabled();
+                if (extendedLink.isEnabled && shouldDisable) {
                     extendedLink.disable();
+                }
+                else if (!extendedLink.isEnabled && !shouldDisable) {
+                    extendedLink.enable();
                 }
             }
         }

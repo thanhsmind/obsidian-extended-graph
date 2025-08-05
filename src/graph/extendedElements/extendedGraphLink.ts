@@ -21,7 +21,8 @@ import {
     SettingQuery,
     LinkTextCurveSingleType,
     LinkTextLineMultiTypes,
-    LinkTextLineSingleType
+    LinkTextLineSingleType,
+    lengthSegment
 } from "src/internal";
 
 
@@ -57,12 +58,18 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     private findSiblingLink(): void {
+        if (this.instances.settings.enableFeatures[this.instances.type].links && this.instances.settings.curvedLinks) return;
+
         const siblingID = getLinkID({ source: { id: this.coreElement.target.id }, target: { id: this.coreElement.source.id } })
         this.siblingLink = this.instances.linksSet.extendedElementsMap.get(siblingID);
         if (this.siblingLink) {
-            this.siblingLink.siblingLink = this;
-            if (this.siblingLink.firstSibling) {
-                this.firstSibling = false;
+            this.firstSibling = !!this.coreElement.line?.visible;
+
+            // If the sibling was initialized first and still has no sibling
+            // We need to mirror this relationship
+            if (!this.siblingLink.siblingLink) {
+                this.siblingLink.siblingLink = this;
+                this.siblingLink.updateDisplayedTexts();
             }
         }
     }
@@ -71,7 +78,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.changeCoreLinkThickness();
         this.proxyLine();
         this.createContainer();
-        if ((this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics
+        if ((this.isCurveLine()
             || this.graphicsWrapper?.pixiElement instanceof LinkLineMultiTypesGraphics
         ) && this.coreElement.line) {
             this.coreElement.line.renderable = false;
@@ -111,6 +118,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                 : new LineLinkGraphicsWrapper(this);
             this.graphicsWrapper.createGraphics();
         }
+    }
+
+    private isCurveLine(): boolean {
+        return this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics;
+    }
+
+    private isRendered(): boolean {
+        return !!this.coreElement.line?.visible || (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks);
     }
 
     // ========================= LINK SIZE (THICKNESS) =========================
@@ -247,7 +262,10 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             && this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph
         ) {
             const manager = this.managers.get(LINK_KEY);
-            const type = this.getActiveType(LINK_KEY);
+            let type = this.getActiveType(LINK_KEY);
+            if (!this.isCurveLine() && (!type || type === this.instances.settings.interactiveSettings[LINK_KEY].noneType) && this.siblingLink) {
+                type = this.siblingLink.getActiveType(LINK_KEY);
+            }
             if (manager && type && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
                 return manager.getColor(type);
             }
@@ -264,6 +282,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                 ) {
                     const color = calculator.linksStats[this.coreElement.source.id][this.coreElement.target.id]?.value;
                     if (color) return color;
+                }
+                if (!this.isCurveLine() && this.siblingLink) {
+                    if (this.siblingLink.coreElement.source.id in calculator.linksStats
+                        && this.siblingLink.coreElement.target.id in calculator.linksStats[this.siblingLink.coreElement.source.id]
+                    ) {
+                        const color = calculator.linksStats[this.siblingLink.coreElement.source.id][this.siblingLink.coreElement.target.id]?.value;
+                        if (color) return color;
+                    }
                 }
             }
         }
@@ -290,7 +316,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             this.animatedDot.destroy();
             this.animatedDot = undefined;
         }
-        if (this.instances.settings.enableFeatures[this.instances.type]['links'] && this.instances.settings.curvedLinks) {
+        if (this.isCurveLine()) {
             this.animatedDot = new AnimatedDotOnCurve(this);
             this.coreElement.renderer.hanger.addChild(this.animatedDot);
         }
@@ -306,8 +332,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     // Do that every frame with requestAnimationFrame
     async animate(): Promise<void> {
         this.coreElement.renderer.idleFrames = 0;
-        if (this.instances.settings.enableFeatures[this.instances.type]['links']
-            && this.instances.settings.curvedLinks
+        if (this.isCurveLine()
             && this.graphicsWrapper?.pixiElement
         ) {
             this.animatedDot?.updateFrame((this.graphicsWrapper.pixiElement as LinkCurveGraphics).bezier);
@@ -391,7 +416,14 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     // ================================ GETTERS ================================
 
-    getID(): string {
+    /*override isAnyManagerDisabled(): boolean {
+        if (this.siblingLink) {
+            return super.isAnyManagerDisabled() && ExtendedGraphElement.prototype.isAnyManagerDisabled.call(this.siblingLink);
+        }
+        return super.isAnyManagerDisabled();
+    }*/
+
+    override getID(): string {
         return getLinkID(this.coreElement);
     }
 
@@ -409,6 +441,13 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         super.disable();
         this.extendedArrow?.unload();
         this.graphicsWrapper?.disconnect();
+
+        if (this.texts) {
+            for (const text of this.texts) {
+                text.isRendered = false;
+                text.visible = false;
+            }
+        }
     }
 
 
@@ -460,7 +499,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             let types = [...this.getTypes(LINK_KEY)]
                 .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
                     && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
-            if (!(this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) && this.siblingLink) {
+            if (!this.isCurveLine() && this.siblingLink) {
                 let siblingTypes = [...this.siblingLink.getTypes(LINK_KEY)]
                     .filter(type => this.managers.get(LINK_KEY)?.isActive(type)
                         && type !== this.instances.settings.interactiveSettings[LINK_KEY].noneType);
@@ -472,7 +511,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         else {
             let activeType = this.getActiveType(LINK_KEY);
             if (!activeType || activeType === this.instances.settings.interactiveSettings[LINK_KEY].noneType) {
-                if (this.graphicsWrapper?.pixiElement instanceof LinkCurveGraphics) {
+                if (this.isCurveLine()) {
                     return [];
                 }
 
@@ -502,6 +541,37 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             if (activeTypes.length === 0) return;
             this.texts[0].setDisplayedText(activeTypes[0]);
             this.texts[0].applyCSSChanges();
+        }
+    }
+
+    updateRenderedTexts() {
+        if (!this.texts || !this.isEnabled) return;
+
+        const linkLength = lengthSegment(
+            1,
+            this.coreElement.source.circle?.position ?? { x: 0, y: 0 },
+            this.coreElement.target.circle?.position ?? { x: 0, y: 0 }
+        );
+        // const minSegmentLength = 110;
+        const visibleTexts = this.texts.filter(text => this.instances.linksSet.managers.get(LINK_KEY)?.isActive(text.text.text));
+        const segmentLength = linkLength / visibleTexts.length;
+        let i = 0;
+        for (const text of this.texts) {
+            if (visibleTexts.contains(text)) {
+                if (Math.floor((i - segmentLength) / 110) < Math.floor(i / 110)) {
+                    text.isRendered = true;
+                    text.updateFrame();
+                }
+                else {
+                    text.isRendered = false;
+                    text.visible = false;
+                }
+                i += segmentLength;
+            }
+            else {
+                text.isRendered = false;
+                text.visible = false;
+            }
         }
     }
 
