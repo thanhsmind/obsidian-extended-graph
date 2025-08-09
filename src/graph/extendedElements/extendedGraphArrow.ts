@@ -40,7 +40,8 @@ export class ExtendedGraphArrow {
         ) return;
 
         const link = this.extendedLink.coreElement;
-        if (link.arrow) {
+        const arrow = link.arrow;
+        if (arrow) {
             const modifyingFunctions: ((target: Graphics, prop: string | symbol, value: any) => boolean)[] = [];
             if (this.instances.settings.invertArrows) modifyingFunctions.push(this.invertArrow.bind(this));
             if (needToColorArrows) modifyingFunctions.push(this.colorArrow.bind(this));
@@ -50,7 +51,7 @@ export class ExtendedGraphArrow {
                 return modifyingFunctions.some(fn => fn(target, prop, value));
             }).bind(this)
 
-            PluginInstances.proxysManager.registerProxy<typeof link.arrow>(
+            PluginInstances.proxysManager.registerProxy<typeof arrow>(
                 this.extendedLink.coreElement,
                 "arrow",
                 {
@@ -60,9 +61,9 @@ export class ExtendedGraphArrow {
                     }
                 }
             );
-            link.arrow.addListener('destroyed', () => {
+            arrow.addEventListener('destroyed', () => {
                 PluginInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
-            })
+            });
         }
     }
 

@@ -56,6 +56,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     protected override handleMissingElement(extendedNode: ExtendedGraphNode): void {
+        this.instances.layersManager?.addNode(extendedNode.id);
         this.applyBackgroundColor(extendedNode);
         this.loadAsset(extendedNode);
     }

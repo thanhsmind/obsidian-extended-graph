@@ -1,4 +1,4 @@
-import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkCurveSingleTypeGraphics, LinkCurveMultiTypesGraphics, LinkCurveGraphics, fadeIn } from "src/internal";
+import { ExtendedGraphLink, GraphicsWrapper, InteractiveManager, LinkCurveSingleTypeGraphics, LinkCurveMultiTypesGraphics, LinkCurveGraphics, fadeIn, getIndexInHanger } from "src/internal";
 
 
 export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
@@ -76,7 +76,7 @@ export class CurveLinkGraphicsWrapper implements GraphicsWrapper {
         if (!hanger.getChildByName(this.pixiElement.name) && this.extendedElement.coreElement.px) {
             this.pixiElement.extendedLink = this.extendedElement;
             if (this.extendedElement.coreElement.arrow) this.extendedElement.coreElement.arrow.renderable = false;
-            const index = hanger.getChildIndex(this.extendedElement.coreElement.px);
+            const index = getIndexInHanger(this.extendedElement.coreElement.renderer.hanger, this.extendedElement.coreElement.px);
             hanger.addChildAt(this.pixiElement, index);
             if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
                 fadeIn(this.pixiElement);

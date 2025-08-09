@@ -75,6 +75,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     override modifyCoreElement(): void {
+        this.modifyClearGraphics();
         this.changeCoreLinkThickness();
         this.proxyLine();
         this.createContainer();
@@ -85,7 +86,27 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
     }
 
+    coreClearGraphics?: () => void;
+    private modifyClearGraphics(): void {
+        if (this.coreClearGraphics) return;
+        this.coreClearGraphics = this.coreElement.clearGraphics;
+        this.coreElement.clearGraphics = (() => {
+
+            PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
+            PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
+            if (this.coreClearGraphics) {
+                this.coreElement.clearGraphics = this.coreClearGraphics;
+                this.coreClearGraphics = undefined;
+                this.coreElement.clearGraphics();
+            }
+        }).bind(this);
+    }
+
     override restoreCoreElement(): void {
+        if (this.coreClearGraphics) {
+            this.coreElement.clearGraphics = this.coreClearGraphics;
+            this.coreClearGraphics = undefined;
+        }
         this.restoreCoreLinkThickness();
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
@@ -226,7 +247,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     private proxyLine(): void {
         if (!SettingQuery.needToChangeLinkColor(this.instances)) return;
-        const link = this.coreElement
+        const link = this.coreElement;
         if (link.line) {
             const getStrokeColor = this.getStrokeColor.bind(this);
             PluginInstances.proxysManager.registerProxy<typeof link.line>(

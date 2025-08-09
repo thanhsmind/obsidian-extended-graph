@@ -1,6 +1,6 @@
 import { Component, Notice, WorkspaceWindow } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
-import { Container, DisplayObject, Text } from "pixi.js";
+import { Container, DisplayObject, Graphics, Text } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import {
     applyCSSStyle,
@@ -16,6 +16,7 @@ import {
     GraphInstances,
     GraphologyGraph,
     InputsManager,
+    LayersUI,
     LegendUI,
     lengthSegment,
     LINK_KEY,
@@ -105,6 +106,7 @@ export class GraphEventsDispatcher extends Component {
 
     private initializeUI(): void {
         this.initializeLegendUI();
+        this.initializeLayersUI();
 
         this.instances.statesUI = new StatesUI(this.instances);
         this.instances.statesUI.updateStatesList();
@@ -130,6 +132,13 @@ export class GraphEventsDispatcher extends Component {
         if (!foldersManager) return;
         this.instances.foldersUI = new GCFolders(this.instances, foldersManager);
         this.instances.foldersUI.display();
+    }
+
+    private initializeLayersUI(): void {
+        if (this.instances.settings.enableFeatures[this.instances.type].layers) {
+            this.instances.layersUI = new LayersUI(this.instances);
+            this.addChild(this.instances.layersUI);
+        }
     }
 
     private hasAdditionalProperties(settings: ExtendedGraphSettings): boolean {
@@ -168,6 +177,10 @@ export class GraphEventsDispatcher extends Component {
 
             if (this.isLocalResetting) {
                 this.isLocalResetting = false;
+                if (this.instances.layersManager?.isEnabled) {
+                    this.instances.layersManager.updateLayers();
+                    this.instances.engine.render();
+                }
             }
             else {
                 this.bindStageEvents();
@@ -183,7 +196,11 @@ export class GraphEventsDispatcher extends Component {
                 if (this.reloadStateDuringInit) {
                     PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
                 }
-                if (this.instances.stateData?.enableLayers) {
+                if (this.instances.layersManager?.isEnabled) {
+                    this.instances.layersManager.updateLayers();
+                    this.instances.engine.render();
+                }
+                else if (this.instances.stateData?.enableLayers) {
                     this.instances.layersManager?.enable();
                 }
             }
@@ -688,16 +705,22 @@ export class GraphEventsDispatcher extends Component {
         for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();
         }
+
+        this.showDestroyed(this.instances.renderer.hanger);
     }
 
-    private showDestroyed(el: any) {
+    private showDestroyed(el: any, trace: string[] = [], depth: number = 1) {
         if (!("children" in el)) return;
         for (const child of el.children) {
             if (child.destroyed) {
+                console.debug(depth);
+                console.debug(trace);
                 console.debug(child);
             }
             else {
-                this.showDestroyed(child);
+                const trace2 = [...trace]
+                trace2.push(Object.getPrototypeOf(child).constructor.name);
+                this.showDestroyed(child, trace2, depth + 1);
             }
         }
     }

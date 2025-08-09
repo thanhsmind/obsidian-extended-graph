@@ -1,4 +1,4 @@
-import { ExtendedGraphLink, fadeIn, GraphicsWrapper, InteractiveManager, LinkLineMultiTypesGraphics } from "src/internal";
+import { ExtendedGraphLink, fadeIn, getIndexInHanger, GraphicsWrapper, InteractiveManager, LinkLineMultiTypesGraphics } from "src/internal";
 
 
 export class LineLinkGraphicsWrapper implements GraphicsWrapper {
@@ -74,7 +74,7 @@ export class LineLinkGraphicsWrapper implements GraphicsWrapper {
         if (!hanger.getChildByName(this.pixiElement.name) && this.extendedElement.coreElement.px) {
             this.pixiElement.extendedLink = this.extendedElement;
             if (this.extendedElement.coreElement.arrow) this.extendedElement.coreElement.arrow.renderable = false;
-            const index = hanger.getChildIndex(this.extendedElement.coreElement.px);
+            const index = getIndexInHanger(this.extendedElement.coreElement.renderer.hanger, this.extendedElement.coreElement.px);
             hanger.addChildAt(this.pixiElement, index);
             if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
                 fadeIn(this.pixiElement);

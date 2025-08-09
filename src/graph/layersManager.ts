@@ -99,18 +99,6 @@ export class LayersManager {
         }
     }
 
-    destroyContainers() {
-        this.moveElementsOutOfContainers();
-        for (const group of this.layerGroups) {
-            for (const layer of group.layers) {
-                layer.container.removeFromParent();
-                layer.container.destroy();
-            }
-        }
-        this.notInLayers.layerGroup.layers[0].container.removeFromParent();
-        this.notInLayers.layerGroup.layers[0].container.destroy();
-    }
-
     // ============================== Add a node ===============================
 
     addNode(nodeID: string) {
@@ -303,7 +291,7 @@ export class LayersManager {
 
     // ================== Recompute layers order and opacity ===================
 
-    private updateLayers(): void {
+    updateLayers(): void {
         if (!this.isEnabled) return;
         this.sortLayers();
         this.updateOpacity();
@@ -404,12 +392,39 @@ export class LayersManager {
     // ================================ Unload =================================
 
     unload(): void {
-        this.isEnabled = false;
+        if (!this.instances.dispatcher.isLocalResetting) {
+            this.isEnabled = false;
+        }
 
         this.destroyContainers();
 
+        this.nodeLookup = {};
         this.layerGroups = [];
+        this.notInLayers.nodeIDs = [];
         this.notInLayers.layerGroup.layers[0].nodes = [];
+    }
+
+    destroyContainers() {
+        // Apparently, the method moveElementsOutOfContainers calls async methods
+        // Because it takes a few milliseconds after the return to really get every
+        // element removed from the containers
+        for (const group of this.layerGroups) {
+            for (const layer of group.layers) {
+                layer.container.on('childRemoved', (child, container) => {
+                    if (container.children.length === 0) {
+                        container.removeFromParent();
+                        container.destroy();
+                    }
+                })
+            }
+        }
+        this.notInLayers.layerGroup.layers[0].container.on('childRemoved', (child, container) => {
+            if (container.children.length === 0) {
+                container.removeFromParent();
+                container.destroy();
+            }
+        })
+        this.moveElementsOutOfContainers();
     }
 
     // ================================ Static =================================

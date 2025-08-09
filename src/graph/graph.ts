@@ -22,8 +22,6 @@ export class Graph extends Component {
         // Layers
         if (this.instances.settings.enableFeatures[this.instances.type].layers) {
             this.instances.layersManager = new LayersManager(this.instances);
-            this.instances.layersUI = new LayersUI(this.instances);
-            this.addChild(this.instances.layersUI);
         }
 
         // Sets

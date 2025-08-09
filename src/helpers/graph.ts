@@ -1,6 +1,6 @@
 import { WorkspaceLeaf } from "obsidian";
 import { GraphEngine, GraphView, LocalGraphView } from "obsidian-typings";
-import { DisplayObject } from 'pixi.js';
+import { Container, DisplayObject } from 'pixi.js';
 
 export function getGraphView(leaf: WorkspaceLeaf): GraphView | LocalGraphView | undefined {
     if (leaf.view.getViewType() === "graph") {
@@ -47,4 +47,10 @@ export function fadeIn(element: DisplayObject & { hasFaded: boolean, maxAlpha?: 
     element.alpha = 0;
     element.hasFaded = false;
     requestAnimationFrame(increaseAlpha);
+}
+
+export function getIndexInHanger(hanger: Container, element: DisplayObject): number {
+    if (hanger.children.contains(element)) return hanger.getChildIndex(element);
+    else if (element.parent) return getIndexInHanger(hanger, element.parent);
+    else return 0;
 }
