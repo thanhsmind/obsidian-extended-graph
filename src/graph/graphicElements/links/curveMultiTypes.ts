@@ -1,6 +1,6 @@
 import { IDestroyOptions } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { hex2int, lengthQuadratic, lengthSegment, LinkCurveGraphics, ManagerGraphics, pixiColor2int, quadratic, tangentQuadratic } from "src/internal";
+import { hex2int, lengthQuadratic, lengthSegment, LINK_KEY, LinkCurveGraphics, ManagerGraphics, pixiColor2int, quadratic, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -64,12 +64,15 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
                     P1 = bezierB[1];
 
                     // Draw bezierA
-                    this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
+                    const color = this.extendedLink.instances.settings.interactiveSettings[LINK_KEY].showOnGraph ? this.manager.getColor(type) : this.color;
+                    this.lineStyle({ width: thickness, color: color });
                     this.quadraticCurveTo(bezierA[1].x, bezierA[1].y, bezierA[2].x, bezierA[2].y);
                     this.setTypePosition(type, bezierA[0], bezierA[1], bezierA[2]);
                     ++i;
                 }
-                arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                if (this.extendedLink.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
+                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                }
             }
             if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
                 && this.extendedLink.instances.settings.arrowColorBool

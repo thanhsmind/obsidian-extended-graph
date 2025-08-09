@@ -126,8 +126,10 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     protected override needGraphicsWrapper(): boolean {
         if (this.instances.settings.enableFeatures[this.instances.type]['links']
-            && (this.instances.settings.curvedLinks || this.instances.settings.allowMultipleLinkTypes)) {
-            return true; // Always for curved links
+            && (this.instances.settings.curvedLinks
+                || (this.instances.settings.allowMultipleLinkTypes &&
+                    (this.instances.settings.allowMultipleLinkTypes || this.instances.settings.interactiveSettings[LINK_KEY].showOnGraph)))) {
+            return true;
         }
         return false;
     }

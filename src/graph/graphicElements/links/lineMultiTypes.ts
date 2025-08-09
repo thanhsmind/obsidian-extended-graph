@@ -159,7 +159,8 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                     for (const type of activeTypes) {
                         const t = step * (1 + i);
 
-                        this.lineStyle({ width: thickness, color: this.manager.getColor(type) });
+                        const color = this.extendedLink.instances.settings.interactiveSettings[LINK_KEY].showOnGraph ? this.manager.getColor(type) : this.color;
+                        this.lineStyle({ width: thickness, color: color });
                         const newPosition = {
                             x: (1 - t) * P0_.x + t * P2_.x,
                             y: (1 - t) * P0_.y + t * P2_.y
@@ -172,7 +173,9 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
                         previousPosition = newPosition;
                         ++i;
                     }
-                    arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                    if (this.extendedLink.instances.settings.interactiveSettings[LINK_KEY].showOnGraph) {
+                        arrowColor = this.manager.getColor(activeTypes[activeTypes.length - 1]);
+                    }
                 }
                 if (this.extendedLink.instances.settings.enableFeatures[this.extendedLink.instances.type]['arrows']
                     && this.extendedLink.instances.settings.arrowColorBool
