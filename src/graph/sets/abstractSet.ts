@@ -307,4 +307,12 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         extendedElement.types.get(key)?.add(type);
         extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
     }
+
+    // ========================== VAULT MODIFICATIONS ==========================
+
+    delete(element: ExtendedGraphElement<T>) {
+        element.graphicsWrapper?.disconnect();
+        element.graphicsWrapper?.destroyGraphics();
+        this.extendedElementsMap.delete(element.id);
+    }
 }

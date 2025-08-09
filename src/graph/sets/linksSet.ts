@@ -85,4 +85,15 @@ export class LinksSet extends AbstractSet<GraphLink> {
         }
     }
 
+    // ========================== VAULT MODIFICATIONS ==========================
+
+    delete(extendedLink: ExtendedGraphLink) {
+        if (extendedLink.texts) {
+            for (const text of extendedLink.texts) {
+                text.destroy();
+            }
+        }
+        super.delete(extendedLink);
+    }
+
 }

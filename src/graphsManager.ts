@@ -321,15 +321,10 @@ export class GraphsManager extends Component {
             const extendedOutlinks = Array.from(instances.linksSet.extendedElementsMap.values()).filter(
                 link => link.coreElement.source.id === file.path
             );
-            const idsToRemove: string[] = [];
             for (const extendedOutlink of extendedOutlinks) {
                 if (!newOutLinks.contains(extendedOutlink.coreElement.target.id)) {
-                    extendedOutlink.graphicsWrapper?.disconnect();
-                    idsToRemove.push(extendedOutlink.id);
+                    instances.linksSet.delete(extendedOutlink);
                 }
-            }
-            for (const id of idsToRemove) {
-                instances.linksSet.extendedElementsMap.delete(id);
             }
 
             // Get the new map target-to-types
