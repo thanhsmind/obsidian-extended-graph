@@ -74,8 +74,8 @@ export class SettingLayers extends SettingsSectionPerGraphType {
 
     private addRemoveNodesWithoutLayer() {
         this.elementsBody.push(new Setting(this.containerEl)
-            .setName(t("features.layersRemoveIfNoLayer"))
-            .setDesc(t("features.layersRemoveIfNoLayerDesc"))
+            .setName(t("features.layersOpacityIfNoLayer"))
+            .setDesc(t("features.layersOpacityIfNoLayerDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.setValue(PluginInstances.settings.nodesWithoutLayerOpacity.toString())
