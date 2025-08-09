@@ -89,6 +89,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             this.addTypes(key, types, id, missingTypes);
         }
 
+        //missingTypes.add(this.instances.settings.interactiveSettings[key].noneType);
         this.managers.get(key)?.addTypes(missingTypes);
 
         return isElementMissing;
@@ -100,9 +101,9 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
             if (this.isTypeValid(key, type)) {
                 if (!this.managers.get(key)?.interactives.has(type)) {
                     missingTypes.add(type);
-                    if (!this.typesMap[key].hasOwnProperty(type)) {
-                        this.typesMap[key][type] = new Set<string>();
-                    }
+                }
+                if (!this.typesMap[key].hasOwnProperty(type)) {
+                    this.typesMap[key][type] = new Set<string>();
                 }
                 this.typesMap[key][type].add(id);
                 hasType = true;
@@ -298,8 +299,12 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         for (const id of ids) {
             const extendedElement = this.extendedElementsMap.get(id);
             if (!extendedElement) return;
-            extendedElement.types.get(key)?.add(type);
-            extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
+            this.updateTypeColorForElement(extendedElement, key, type, color);
         }
+    }
+
+    protected updateTypeColorForElement(extendedElement: ExtendedGraphElement<T>, key: string, type: string, color: Color.Color): void {
+        extendedElement.types.get(key)?.add(type);
+        extendedElement.graphicsWrapper?.managerGraphicsMap?.get(key)?.updateValues();
     }
 }

@@ -117,6 +117,7 @@ export abstract class LinkText extends Container {
     }
 
     updateTextColor() {
+        if (!this.text.style) return;
         this.text.style.fill = this.getTextColor();
     }
 

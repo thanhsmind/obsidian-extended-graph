@@ -1,5 +1,6 @@
 import { TFile } from "obsidian";
 import { GraphLink } from "obsidian-typings";
+import * as Color from 'src/colors/color-bits';
 import { AbstractSet, ExtendedGraphLink, getFile, getLinkID, getOutlinkTypes, GraphInstances, InteractiveManager } from "src/internal";
 
 export class LinksSet extends AbstractSet<GraphLink> {
@@ -71,6 +72,17 @@ export class LinksSet extends AbstractSet<GraphLink> {
                 }
             }
         });
+    }
+
+    // ================================ COLORS =================================
+
+    protected override updateTypeColorForElement(extendedLink: ExtendedGraphLink, key: string, type: string, color: Color.Color): void {
+        super.updateTypeColorForElement(extendedLink, key, type, color);
+        if (extendedLink.texts) {
+            for (const text of extendedLink.texts) {
+                text.updateTextColor();
+            }
+        }
     }
 
 }

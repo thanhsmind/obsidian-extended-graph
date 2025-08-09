@@ -63,6 +63,9 @@ export class InteractiveManager extends Component {
     }
 
     isActiveBasedOnTypes(nodeTypes: string[]): boolean {
+        // Add the types if they don't exist
+        this.addTypes(nodeTypes.filter(type => !this.interactives.has(type)));
+
         const activeTypes = this.getTypes().filter(type => this.isActive(type));
         switch (GraphStateDataQuery.getLogicType(this.instances, this.name)) {
             case "AND":
@@ -133,6 +136,7 @@ export class InteractiveManager extends Component {
 
     update(types: Set<string>): void {
         this.interactives.clear();
+        //types.add(this.instances.settings.interactiveSettings[this.name].noneType);
         this.addTypes(types);
     }
 
