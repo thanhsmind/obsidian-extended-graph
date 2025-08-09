@@ -151,9 +151,15 @@ export abstract class ExtendedGraphElement<T extends GraphNode | GraphLink> {
 
     disable() {
         this.isEnabled = false;
+        if (this.id.contains("media")) {
+            console.log(this.id, "Disabled");
+        }
     }
 
     enable() {
+        if (this.id.contains("media")) {
+            console.log(this.id, "Enabled");
+        }
         this.isEnabled = true;
         this.init();
     }

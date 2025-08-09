@@ -79,7 +79,7 @@ export abstract class LinkCurveGraphics extends Graphics implements ManagerGraph
 
         if (!target.circle || !source.circle) {
             this.destroy();
-            this.extendedLink.disable();
+            //this.extendedLink.disable();
             return false;
         }
 

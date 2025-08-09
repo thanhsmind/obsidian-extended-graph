@@ -40,7 +40,9 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         else {
             this.color = this.extendedLink.coreElement.renderer.colors.line.rgb;
         }
-        this.redraw();
+        if (this.extendedLink.isEnabled) {
+            this.redraw();
+        }
     }
 
     private initArrow() {
@@ -77,7 +79,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
 
         if (!target.circle || !source.circle) {
             this.destroy();
-            this.extendedLink.disable();
+            //this.extendedLink.disable();
             return;
         }
 
