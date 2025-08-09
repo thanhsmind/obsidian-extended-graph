@@ -1,5 +1,5 @@
 import { Texture } from "pixi.js";
-import { ExtendedGraphAttachmentNode, fadeIn, NodeGraphicsWrapper, NodeImage } from "src/internal";
+import { ExtendedGraphAttachmentNode, fadeIn, NodeGraphicsWrapper, NodeImage, pixiAddChild, pixiAddChildAt } from "src/internal";
 
 export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
@@ -28,10 +28,10 @@ export class AttachmentNodeGraphicsWrapper extends NodeGraphicsWrapper {
             const opacityLayer = this.pixiElement.getChildByName("opacity-layer");
             if (opacityLayer) {
                 const opacityLayerIndex = this.pixiElement.getChildIndex(opacityLayer);
-                this.pixiElement.addChildAt(this.nodeImage, opacityLayerIndex);
+                pixiAddChildAt(this.pixiElement, this.nodeImage, opacityLayerIndex);
             }
             else {
-                this.pixiElement.addChild(this.nodeImage);
+                pixiAddChild(this.pixiElement, this.nodeImage);
             }
             if (this.extendedElement.instances.settings.fadeInElements && !this.nodeImage.hasFaded) {
                 fadeIn(this.nodeImage);

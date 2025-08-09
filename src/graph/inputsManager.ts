@@ -1,6 +1,6 @@
 import { Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
-import { Pinner, RadialMenuManager, t } from "src/internal";
+import { Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export class InputsManager {
@@ -89,7 +89,7 @@ export class InputsManager {
             // Get start position, and add rectangle if needed
             this.selectionStartPosition = e.getLocalPosition(this.instances.renderer.hanger);
             if (this.selectionRectangle.parent !== this.instances.renderer.hanger) {
-                this.instances.renderer.hanger.addChild(this.selectionRectangle);
+                pixiAddChild(this.instances.renderer.hanger, this.selectionRectangle);
             }
             this.selectionRectangle.clear();
             this.selectionRectangle.visible = true;

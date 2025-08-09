@@ -1,6 +1,6 @@
 import { IDestroyOptions, Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { ExtendedGraphLink, hex2int, InteractiveManager, lengthSegment, LINK_KEY, LinkArrow, ManagerGraphics, pixiColor2int } from "src/internal";
+import { ExtendedGraphLink, hex2int, InteractiveManager, lengthSegment, LINK_KEY, LinkArrow, ManagerGraphics, pixiAddChild, pixiColor2int } from "src/internal";
 
 
 export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraphics {
@@ -46,7 +46,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
     private initArrow() {
         if (this.destroyed) return;
         this.arrow = new LinkArrow(this.extendedLink);
-        this.addChild(this.arrow);
+        pixiAddChild(this, this.arrow);
     }
 
     protected redraw(): void {

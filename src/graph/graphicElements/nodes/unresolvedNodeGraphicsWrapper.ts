@@ -1,5 +1,5 @@
 import { ColorSource } from "node_modules/@pixi/color/lib/Color";
-import { ExtendedGraphUnresolvedNode, NodeGraphicsWrapper, NodeShape } from "src/internal";
+import { ExtendedGraphUnresolvedNode, NodeGraphicsWrapper, NodeShape, pixiAddChildAt } from "src/internal";
 
 export class UnresolvedNodeGraphicsWrapper extends NodeGraphicsWrapper {
     // Interface instance values
@@ -25,7 +25,7 @@ export class UnresolvedNodeGraphicsWrapper extends NodeGraphicsWrapper {
         this.innerCircle = new NodeShape(this.shape);
         this.innerCircle.alpha = 5;
         this.innerCircle.scale.set(this.innerCircle.getDrawingResolution() * (1 - this.extendedElement.instances.settings.borderUnresolved));
-        this.pixiElement.addChildAt(this.innerCircle, 0);
+        pixiAddChildAt(this.pixiElement, this.innerCircle, 0);
     }
 
     // ============================ UPDATE GRAPHICS ============================

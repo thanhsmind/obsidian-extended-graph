@@ -7,7 +7,9 @@ import {
     InteractiveManager,
     NodeGraphicsWrapper,
     NodeImage,
-    NodeShape
+    NodeShape,
+    pixiAddChild,
+    pixiAddChildAt
 } from "src/internal";
 
 export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
@@ -59,7 +61,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
             this.background.drawFill(this.getFillColor().rgb);
         }
         this.background.scale.set(this.background.getDrawingResolution());
-        this.pixiElement.addChildAt(this.background, 0);
+        pixiAddChildAt(this.pixiElement, this.background, 0);
     }
 
     initNodeImage(texture: Texture | undefined) {
@@ -75,10 +77,10 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
             const opacityLayer = this.pixiElement.getChildByName("opacity-layer");
             if (opacityLayer) {
                 const opacityLayerIndex = this.pixiElement.getChildIndex(opacityLayer);
-                this.pixiElement.addChildAt(this.nodeImage, opacityLayerIndex);
+                pixiAddChildAt(this.pixiElement, this.nodeImage, opacityLayerIndex);
             }
             else {
-                this.pixiElement.addChild(this.nodeImage);
+                pixiAddChild(this.pixiElement, this.nodeImage);
             }
             if (!this.pixiElement.parent) {
                 this.connect();
@@ -92,7 +94,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
     protected createManagerGraphics(manager: InteractiveManager, types: Set<string>, layer: number) {
         const arcsCircle = new ArcsCircle(this.extendedElement, types, manager, layer, this.shape);
         this.managerGraphicsMap?.set(manager.name, arcsCircle);
-        this.pixiElement.addChild(arcsCircle);
+        pixiAddChild(this.pixiElement, arcsCircle);
     }
 
     resetManagerGraphics(manager: InteractiveManager) {

@@ -1,5 +1,5 @@
 import { Sprite, Texture, Text, ColorSource } from "pixi.js";
-import { ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics } from "src/internal";
+import { ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics, pixiAddChild } from "src/internal";
 
 
 export class TextGraphicsWrapper implements GraphicsWrapper {
@@ -37,8 +37,7 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
     connect(): void {
         const coreElement = this.extendedElement.coreElement;
         if (coreElement.text) {
-            coreElement.text.addChild(this.pixiElement);
-            coreElement.text.addChild(this.textClone);
+            pixiAddChild(coreElement.text, this.pixiElement, this.textClone);
         }
     }
 

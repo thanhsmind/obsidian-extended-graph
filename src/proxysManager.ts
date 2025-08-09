@@ -38,12 +38,19 @@ export class ProxysManager {
         return proxy;
     }
 
-    private isProxy(target: any) {
+    isProxy(target: any) {
         return util.types.isProxy(target);
     }
 
     private getTargetForOwner(owner: any, property: string): Target | undefined {
         return [...this.coreTargets.values()].find(el => el.owner === owner && property === property);
+    }
+
+    getTargetForProxy(proxy: Object | null | undefined) {
+        if (proxy === null || proxy === undefined) {
+            return;
+        }
+        return this.coreTargets.get(proxy)?.coreTarget;
     }
 
     unregisterProxy(proxy: Object | null | undefined) {

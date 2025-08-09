@@ -1,4 +1,4 @@
-import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics } from "src/internal";
+import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt } from "src/internal";
 import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
@@ -24,14 +24,14 @@ export abstract class LinkText extends Container {
 
         if (this.needsGraphicsBackground()) {
             this.background = new Graphics();
-            this.addChild(this.background, this.text);
+            pixiAddChild(this, this.background, this.text);
         }
         else if (this.needsSpriteBackground()) {
             this.background = new Sprite(Texture.WHITE);
-            this.addChild(this.background, this.text);
+            pixiAddChild(this, this.background, this.text);
         }
         else {
-            this.addChild(this.text);
+            pixiAddChild(this, this.text);
         }
 
         this.applyCSSChanges();
@@ -47,7 +47,7 @@ export abstract class LinkText extends Container {
 
     connect() {
         if (this.destroyed) return;
-        this.extendedLink.coreElement.renderer.hanger.addChild(this);
+        pixiAddChild(this.extendedLink.coreElement.renderer.hanger, this);
         if (this.extendedLink.instances.settings.fadeInElements && !this.hasFaded) {
             fadeIn(this);
         }
@@ -164,11 +164,11 @@ export abstract class LinkText extends Container {
             this.background.removeFromParent();
             this.background.destroy();
             this.background = new Graphics();
-            this.addChildAt(this.background, 0);
+            pixiAddChildAt(this, this.background, 0);
         }
         if (!this.background) {
             this.background = new Graphics();
-            this.addChildAt(this.background, 0);
+            pixiAddChildAt(this, this.background, 0);
         }
         this.background.clear();
         const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.managers.get(LINK_KEY)?.getColor(this.text.text) ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
@@ -185,11 +185,11 @@ export abstract class LinkText extends Container {
             this.background.removeFromParent();
             this.background.destroy();
             this.background = new Sprite(Texture.WHITE);
-            this.addChildAt(this.background, 0);
+            pixiAddChildAt(this, this.background, 0);
         }
         if (!this.background) {
             this.background = new Sprite(Texture.WHITE);
-            this.addChildAt(this.background, 0);
+            pixiAddChildAt(this, this.background, 0);
         }
         this.background.tint = this.style.backgroundColor.rgb;
         this.background.alpha = this.style.backgroundColor.a;

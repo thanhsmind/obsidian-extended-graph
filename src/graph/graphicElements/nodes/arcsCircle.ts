@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { ExtendedGraphNode, getFile, getNumberOfFileInteractives, InteractiveManager, ManagerGraphics, NodeShape, ShapeEnum } from "src/internal";
+import { ExtendedGraphNode, getFile, getNumberOfFileInteractives, InteractiveManager, ManagerGraphics, NodeShape, pixiAddChild, ShapeEnum } from "src/internal";
 
 export class Arc {
     type: string;
@@ -91,7 +91,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
                     }
                 }
                 this.graphics.set(type, arc);
-                this.addChild(arc.graphic);
+                pixiAddChild(this, arc.graphic);
             }
             else {
 

@@ -1,5 +1,5 @@
 import { Graphics, Sprite, Texture } from "pixi.js";
-import { NodeShape, ShapeEnum } from "src/internal";
+import { NodeShape, pixiAddChild, ShapeEnum } from "src/internal";
 
 export class NodeImage extends Sprite {
     opacityLayer: Graphics;
@@ -16,7 +16,7 @@ export class NodeImage extends Sprite {
         // Mask
         const mask = new NodeShape(shape).drawMask();
         this.mask = mask;
-        this.addChild(mask);
+        pixiAddChild(this, mask);
 
         // Size
         const scaleNoBorder = 2 * 100 * NodeShape.getSizeFactor(shape) / this.textureSize;

@@ -7,6 +7,8 @@ import {
     getFile,
     GraphicsWrapper,
     NodeShape,
+    pixiAddChild,
+    pixiAddChildAt,
     PluginInstances,
     QueryData,
     QueryMatcher,
@@ -91,7 +93,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         this.opacityLayer.scale.set(this.opacityLayer.getDrawingResolution());
         this.opacityLayer.alpha = 0;
         this.opacityLayer.name = "opacity-layer";
-        this.pixiElement.addChild(this.opacityLayer);
+        pixiAddChild(this.pixiElement, this.opacityLayer);
     }
 
     initIcon() {
@@ -115,7 +117,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
                 this.iconSprite.height = 200;
                 this.iconSprite.width = 200;
                 this.iconSprite.tint = color;
-                this.pixiElement.addChild(this.iconSprite);
+                pixiAddChild(this.pixiElement, this.iconSprite);
             }
 
             // Lower resolution, better performance
@@ -137,7 +139,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
             });
             this.emojiText.name = "icon";
             this.emojiText.anchor.set(0.5, 0.5);
-            this.pixiElement.addChild(this.emojiText);
+            pixiAddChild(this.pixiElement, this.emojiText);
         }
 
         // Hide circle
@@ -148,7 +150,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         this.iconBackgroundLayer.alpha = 10;
         this.iconBackgroundLayer.zIndex = -1;
         this.updateIconBackgroundLayerColor(getBackgroundColor(this.extendedElement.instances.renderer));
-        this.pixiElement.addChildAt(this.iconBackgroundLayer, 0);
+        pixiAddChildAt(this.pixiElement, this.iconBackgroundLayer, 0);
     }
 
     updateIconBackgroundLayerColor(backgroundColor: ColorSource): void {
@@ -195,7 +197,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
 
     connect(): void {
         if (this.extendedElement.coreElement.circle && !this.extendedElement.coreElement.circle.getChildByName(this.name)) {
-            this.extendedElement.coreElement.circle.addChild(this.pixiElement);
+            pixiAddChild(this.extendedElement.coreElement.circle, this.pixiElement);
             if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
                 fadeIn(this.pixiElement);
             }
@@ -230,7 +232,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
             icon.width = 80;
             icon.position.set(100, -100);
 
-            this.pixiElement.addChild(icon);
+            pixiAddChild(this.pixiElement, icon);
             if (!this.pixiElement.parent) {
                 this.connect();
             }

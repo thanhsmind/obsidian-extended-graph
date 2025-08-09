@@ -1,7 +1,7 @@
 import { getLanguage, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container, DisplayObject } from "pixi.js";
-import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID, strCompare } from "src/internal";
+import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID, pixiAddChild, pixiAddChildAt, strCompare } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export interface Layer {
@@ -161,7 +161,7 @@ export class LayersManager {
         const container = new Container();
         container.name = "layer-" + id;
         container.zIndex = this.instances.settings.layersOrder === "ASC" ? level : -1 * level;
-        this.instances.renderer.hanger.addChild(container);
+        pixiAddChild(this.instances.renderer.hanger, container);
         return container;
     }
 
@@ -184,10 +184,11 @@ export class LayersManager {
                 || (element.parent.name?.startsWith("layer-") && element.parent !== layer.container)
             )
         ) {
-            at !== undefined ? layer.container.addChildAt(element, at) : layer.container.addChild(element);
-            this.graphicsArray[array].add(element);
-            element.on('destroyed', () => {
-                this.graphicsArray[array].delete(element);
+            const coreElement = PluginInstances.proxysManager.getTargetForProxy(element) ?? element;
+            at !== undefined ? pixiAddChildAt(layer.container, coreElement, at) : pixiAddChild(layer.container, coreElement);
+            this.graphicsArray[array].add(coreElement);
+            coreElement.on('destroyed', () => {
+                this.graphicsArray[array].delete(coreElement);
             });
         }
     }
@@ -236,22 +237,22 @@ export class LayersManager {
     private moveElementsOutOfContainers() {
         // Make sure we add them back in the correct order
         for (const element of this.graphicsArray.links) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
         for (const element of this.graphicsArray.arrows) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
         for (const element of this.graphicsArray.linksPixiElements) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
         for (const element of this.graphicsArray.linksContainer) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
         for (const element of this.graphicsArray.circles) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
         for (const element of this.graphicsArray.names) {
-            this.instances.renderer.hanger.addChild(element);
+            pixiAddChild(this.instances.renderer.hanger, element);
         }
 
         this.graphicsArray.links.clear();

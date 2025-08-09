@@ -22,7 +22,8 @@ import {
     LinkTextCurveSingleType,
     LinkTextLineMultiTypes,
     LinkTextLineSingleType,
-    lengthSegment
+    lengthSegment,
+    pixiAddChild
 } from "src/internal";
 
 
@@ -204,23 +205,23 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
         if (this.coreElement.px) {
             this.coreElement.px.removeFromParent();
-            container.addChild(this.coreElement.px);
+            pixiAddChild(container, this.coreElement.px);
             this.coreElement.px.addListener('destroyed', this.removeContainer);
         }
         if (this.coreElement.arrow) {
             this.coreElement.arrow.removeFromParent();
-            container.addChild(this.coreElement.arrow);
+            pixiAddChild(container, this.coreElement.arrow);
             this.coreElement.arrow.addListener('destroyed', this.removeContainer);
         }
         if (this.graphicsWrapper?.pixiElement) {
             this.graphicsWrapper.pixiElement.removeFromParent();
-            container.addChild(this.graphicsWrapper.pixiElement);
+            pixiAddChild(container, this.graphicsWrapper.pixiElement);
             this.graphicsWrapper.pixiElement.addListener('destroyed', this.removeContainer);
         }
         container.filters = [new OutlineFilter(
             1, getPrimaryColor(this.coreElement.renderer), 0.1, 1, false
         )];
-        this.coreElement.renderer.hanger.addChild(container);
+        pixiAddChild(this.coreElement.renderer.hanger, container);
     }
 
     private removeContainer(): void {
@@ -239,7 +240,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         if (!this.container) return;
 
         for (const child of this.container.children.filter(c => !c.destroyed)) {
-            this.coreElement.renderer.hanger.addChild(child);
+            pixiAddChild(this.coreElement.renderer.hanger, child);
         }
         this.container.destroy();
         this.container = undefined;
@@ -341,12 +342,11 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
         if (this.isCurveLine()) {
             this.animatedDot = new AnimatedDotOnCurve(this);
-            this.coreElement.renderer.hanger.addChild(this.animatedDot);
         }
         else {
             this.animatedDot = new AnimatedDotOnLine(this);
-            this.coreElement.renderer.hanger.addChild(this.animatedDot);
         }
+        pixiAddChild(this.coreElement.renderer.hanger, this.animatedDot);
         this.animationLoop();
     }
 

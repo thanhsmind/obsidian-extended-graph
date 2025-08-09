@@ -700,7 +700,7 @@ export class GraphEventsDispatcher extends Component {
         PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         this.instances.layersManager?.destroyContainers();
         for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
-            PluginInstances.proxysManager.unregisterProxy(el.coreElement.text)
+            PluginInstances.proxysManager.unregisterProxy(el.coreElement.text);
         }
         for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();

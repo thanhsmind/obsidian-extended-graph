@@ -11,6 +11,8 @@ import {
     getFileInteractives,
     GraphInstances,
     InteractiveManager,
+    pixiAddChild,
+    pixiAddChildAt,
     PluginInstances,
     randomColor,
     SettingQuery
@@ -39,7 +41,7 @@ export class FolderBlob {
         this.initTextStyle();
         this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
         this.text.resolution = 2;
-        this.area.addChild(this.text);
+        pixiAddChild(this.area, this.text);
     }
 
     initTextStyle() {
@@ -191,7 +193,7 @@ export class FoldersSet {
         if (this.container && !this.container.destroyed) return;
         this.container = new Container();
         this.container.name = "Blobs";
-        this.instances.renderer.hanger.addChildAt(this.container, 0);
+        pixiAddChildAt(this.instances.renderer.hanger, this.container, 0);
 
         for (const blob of this.foldersMap.values()) {
             if (blob.area.destroyed) {
@@ -276,7 +278,7 @@ export class FoldersSet {
                 this.foldersMap.set(path, blob);
                 blob.updateGraphics(this.instances.renderer.scale);
                 if (!blobExists) {
-                    this.container.addChild(blob.area);
+                    pixiAddChild(this.container, blob.area);
                 }
             }
         }
