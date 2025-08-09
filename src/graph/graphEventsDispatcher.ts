@@ -115,7 +115,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private initializeLegendUI(): void {
-        const settings = PluginInstances.settings;
+        const settings = this.instances.settings;
         if (settings.enableFeatures[this.instances.type]['links'] || settings.enableFeatures[this.instances.type]['tags'] || this.hasAdditionalProperties(settings)) {
             this.instances.legendUI = new LegendUI(this.instances);
             this.addChild(this.instances.legendUI);
@@ -123,7 +123,7 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private initializeFoldersUI(): void {
-        if (!PluginInstances.settings.enableFeatures[this.instances.type]['folders']) return;
+        if (!this.instances.settings.enableFeatures[this.instances.type]['folders']) return;
 
         const graphControls = PluginInstances.graphsManager.globalUIs.get(this.instances.view.leaf.id)?.control;
         if (!graphControls) return;

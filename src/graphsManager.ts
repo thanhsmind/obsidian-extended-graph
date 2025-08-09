@@ -65,16 +65,16 @@ import {
 
 
 export class GraphsManager extends Component {
-    globalUIs = new Map<string, { menu: MenuUI, control: GraphControlsUI }>();
-    optionsBackup = new Map<string, GraphPluginInstanceOptions>();
-    allInstances = new Map<string, GraphInstances>();
+    globalUIs: Map<string, { menu: MenuUI, control: GraphControlsUI }> = new Map();
+    optionsBackup: Map<string, GraphPluginInstanceOptions> = new Map();
+    allInstances: Map<string, GraphInstances> = new Map();
     activeFile: TFile | null = null;
 
     lastBackup: string;
     localGraphID: string | null = null;
 
     isHandlingMarkdownViewChange: boolean = false;
-    isResetting: boolean = false;
+    isResetting: Map<string, boolean> = new Map();
 
     statusBarItem: HTMLElement;
 
@@ -665,7 +665,7 @@ export class GraphsManager extends Component {
     // ============================= ENABLE PLUGIN =============================
 
     enablePlugin(view: GraphView | LocalGraphView, stateID?: string, reloadState: boolean = true): void {
-        if (!this.isResetting) {
+        if (!this.isResetting.get(view.leaf.id)) {
             this.backupOptions(view);
         }
 
@@ -720,13 +720,13 @@ export class GraphsManager extends Component {
         if (instances) return instances;
 
         instances = new GraphInstances(view);
-        await instances.setState(stateID);
+        this.allInstances.set(view.leaf.id, instances);
+        instances.setState(stateID);
         new GraphEventsDispatcher(instances, reloadState);
         if (stateID) {
             instances.statesUI.setValue(stateID);
         }
 
-        this.allInstances.set(view.leaf.id, instances);
         instances.dispatcher.load();
         view.addChild(instances.dispatcher);
 
@@ -755,7 +755,7 @@ export class GraphsManager extends Component {
     }
 
     onPluginLoaded(view: GraphView | LocalGraphView): void {
-        this.isResetting = false;
+        this.isResetting.set(view.leaf.id, false);
         this.globalUIs.get(view.leaf.id)?.menu.enableUI();
     }
 
@@ -764,7 +764,7 @@ export class GraphsManager extends Component {
 
     disablePlugin(view: GraphView | LocalGraphView): void {
         this.disablePluginFromLeafID(view.leaf.id);
-        if (!this.isResetting) {
+        if (!this.isResetting.get(view.leaf.id)) {
             view.renderer.changed();
         }
     }
@@ -798,7 +798,7 @@ export class GraphsManager extends Component {
 
         if (this.localGraphID === view.leaf.id) this.localGraphID = null;
 
-        if (!this.isResetting) {
+        if (!this.isResetting.get(view.leaf.id)) {
             if (view._loaded) {
                 this.applyNormalState(view);
             }
@@ -819,7 +819,7 @@ export class GraphsManager extends Component {
     }
 
     resetPlugin(view: GraphView | LocalGraphView, reloadState: boolean = true, stateID?: string): void {
-        this.isResetting = true;
+        this.isResetting.set(view.leaf.id, true);
         const instances = this.allInstances.get(view.leaf.id);
         stateID = stateID ?? instances?.stateData?.id;
         const scale = instances?.renderer.targetScale ?? false;
@@ -829,7 +829,6 @@ export class GraphsManager extends Component {
         if (newDispatcher && scale) {
             newDispatcher.renderer.targetScale = scale;
         }
-        //this.isResetting = false;
     }
 
     // ===================== CHANGE CURRENT MARKDOWN FILE ======================
@@ -863,7 +862,7 @@ export class GraphsManager extends Component {
                 if (localInstances) {
                     const instances = this.allInstances.get(localInstances.view.leaf.id);
                     if (instances) {
-                        this.isResetting = true;
+                        this.isResetting.set(this.localGraphID, true);
                         instances.dispatcher.reloadLocalDispatcher();
                     }
                 }

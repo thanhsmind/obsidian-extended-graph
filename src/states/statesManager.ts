@@ -4,6 +4,7 @@ import {
     cleanFilename,
     DEFAULT_STATE_ID,
     EngineOptions,
+    ExtendedGraphSettings,
     FOLDER_KEY,
     getAllConfigFiles,
     getEngine,
@@ -14,6 +15,7 @@ import {
     InteractiveManager,
     InteractiveUI,
     PluginInstances,
+    SettingQuery,
     t,
     validateFilename
 } from "src/internal";
@@ -21,7 +23,7 @@ import {
 
 
 export class StatesManager {
-    cacheStatesConfigs: { [stateID: string]: string } = {};
+    cacheStatesConfigs: { [stateID: string]: { filepath: string, settings: ExtendedGraphSettings } } = {};
 
     constructor() {
         this.mapStatesConfig();
@@ -41,11 +43,12 @@ export class StatesManager {
      * @param name - The name of the new state.
      * @returns string - The ID of the new state.
      */
-    newState(instance: GraphInstances, name: string): string {
+    newState(instances: GraphInstances, name: string): string {
         const state = new GraphState(name);
         state.setID();
-        state.saveGraph(instance);
+        state.saveGraph(instances);
         this.onStateNeedsSaving(state.data);
+        this.saveConfigForState(instances, state);
         return state.data.id;
     }
 
@@ -55,9 +58,16 @@ export class StatesManager {
         let stateData = this.getStateDataById(id);
         if (!stateData) return;
 
-        if (PluginInstances.settings.saveConfigsWithState && !PluginInstances.graphsManager.isResetting && this.cacheStatesConfigs[id]) {
-            PluginInstances.graphsManager.resetPlugin(instances.view, true, id);
-            return;
+        // If the config has changed, we need to reset the plugin in order to restart with all the correct settings
+        const config = this.getConfig(id);
+        if (PluginInstances.settings.saveConfigsWithState && !PluginInstances.graphsManager.isResetting.get(instances.view.leaf.id) && config) {
+            if (SettingQuery.needReload(instances.settings, config, instances.type)) {
+                PluginInstances.graphsManager.resetPlugin(instances.view, true, id);
+                return;
+            }
+            else {
+                instances.settings = config;
+            }
         }
 
         stateData = this.validateStateData(stateData);
@@ -168,13 +178,26 @@ export class StatesManager {
         state.setID(id);
         state.saveGraph(instances);
         await this.onStateNeedsSaving(state.data);
+        this.saveConfigForState(instances, state);
+    }
 
-        if (instances.settings.saveConfigsWithState) {
-            let filename = cleanFilename(state.data.name);
-            if (!validateFilename(filename, false)) filename = "state_" + state.data.id;
-            const filepath = PluginInstances.configurationDirectory + "/" + filename + ".json";
-            PluginInstances.plugin.exportSettings(filepath, instances.settings, state);
-            this.cacheStatesConfigs[state.data.id] = filepath;
+    async saveConfigForState(instances: GraphInstances, state: GraphState) {
+        if (!instances.settings.saveConfigsWithState) return;
+
+        let filename = cleanFilename(state.data.name);
+        if (!validateFilename(filename, false)) filename = "state_" + state.data.id;
+        const filepath = PluginInstances.configurationDirectory + "/" + filename + ".json";
+        PluginInstances.plugin.exportSettings(filepath, instances.settings, state);
+        this.cacheStatesConfigs[state.data.id] = {
+            filepath: filepath,
+            settings: await (() => {
+                return PluginInstances.plugin.loadConfigFile(filepath).then(
+                    config => {
+                        delete config["stateID"];
+                        return config;
+                    }
+                )
+            })(),
         }
     }
 
@@ -273,16 +296,30 @@ export class StatesManager {
             const importedSettings = await PluginInstances.plugin.loadConfigFile(file);
 
             if (importedSettings.stateID && stateIDs.contains(importedSettings.stateID)) {
-                this.cacheStatesConfigs[importedSettings.stateID] = file;
+                this.cacheStatesConfigs[importedSettings.stateID] = {
+                    filepath: file,
+                    settings: await (() => {
+                        return PluginInstances.plugin.loadConfigFile(file).then(
+                            config => {
+                                delete config["stateID"];
+                                return config
+                            }
+                        )
+                    })(),
+                };
             }
         }
     }
 
-    getConfigFilepath(stateID: string): string | undefined {
-        return this.cacheStatesConfigs[stateID];
+    hasConfig(stateID: string): boolean {
+        return stateID in this.cacheStatesConfigs;
+    }
+
+    getConfig(stateID: string): ExtendedGraphSettings | undefined {
+        return this.cacheStatesConfigs[stateID]?.settings;
     }
 
     getStateFromConfig(filepath: string): string | undefined {
-        return Object.keys(this.cacheStatesConfigs).find(stateID => this.cacheStatesConfigs[stateID] === filepath);
+        return Object.keys(this.cacheStatesConfigs).find(stateID => this.cacheStatesConfigs[stateID].filepath === filepath);
     }
 }

@@ -173,10 +173,10 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
 
     override hide(): void {
         if (PluginInstances.graphsManager && PluginInstances.settings.resetAfterChanges) {
-            if (SettingQuery.needReload(this.originalSettings, 'graph')) {
+            if (SettingQuery.needReload(this.originalSettings, PluginInstances.settings, 'graph')) {
                 PluginInstances.graphsManager.resetAllPlugins('graph');
             }
-            if (SettingQuery.needReload(this.originalSettings, 'localgraph')) {
+            if (SettingQuery.needReload(this.originalSettings, PluginInstances.settings, 'localgraph')) {
                 PluginInstances.graphsManager.resetAllPlugins('localgraph');
             }
         }

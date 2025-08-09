@@ -568,8 +568,7 @@ export class SettingQuery {
         }
     }
 
-    static needReload(oldSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
-        const newSettings = PluginInstances.settings;
+    static needReload(oldSettings: ExtendedGraphSettings, newSettings: ExtendedGraphSettings, graphtype: GraphType): boolean {
         const oldFeatures = oldSettings.enableFeatures[graphtype];
         const newFeatures = newSettings.enableFeatures[graphtype];
 
