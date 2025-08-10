@@ -313,7 +313,7 @@
         "namesVerticalOffset": "Vertical offset",
         "namesVerticalOffsetDesc": "Vertical offset of the text. Positive value will push the text lower, and positive value will move it higher.",
         "namesDynamicVerticalOffset": "Dynamic vertical offset",
-        "namesDynamicVerticalOffsetDesc": "Dynamically adapt the vertical position of the text to the size of the arrows.",
+        "namesDynamicVerticalOffsetDesc": "Dynamically adapt the vertical position of the text to avoid any overlapping with node's elements (arrows, arcs, shape)",
         "noLineHighlight": "No line highlight",
         "noLineHighlightDesc": "When hovering a node, don't highlight the connected links",
         "nodeSizesFunction": "Node size function",

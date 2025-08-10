@@ -215,19 +215,21 @@ export class ExtendedGraphText {
 
     private applyDynamicOffset(): void {
         const node = this.coreElement;
-        if (!node.text || !node.circle) return;
-        const renderer = this.instances.renderer;
-        let value = node.text.y;
-        const arrowFixedSize = this.instances.settings.enableFeatures[this.instances.type]['arrows'] && this.instances.settings.arrowFixedSize;
-        const arrowCustomScale = this.instances.settings.enableFeatures[this.instances.type]['arrows'] ? this.instances.settings.arrowScale : 1;
-
-        const scale = 2 * Math.sqrt(renderer.fLineSizeMult)
-            * (arrowFixedSize ? renderer.nodeScale : 1 / renderer.scale)
-            * arrowCustomScale;
-        // 5 is the original offset of the core plugin
-        // 4 is the size/height of the arrow
-        value = value - 5 + 4 * arrowCustomScale * scale;
-        node.text.position._y = value;
+        const text = node.text;
+        const circle = node.circle;
+        if (!text || !circle) return;
+        let value = text.y;
+        // Get the lowest point with arrows
+        let lowestPoint = Object.values(node.reverse).reduce((acc, link) => {
+            if (!link.arrow) return value;
+            const bounds = link.arrow.getBounds();
+            return Math.max(value, text.parent.toLocal({ x: bounds.left, y: bounds.bottom }).y);
+        }, value);
+        // Get the lowest point with the node and its children (arcs, shape, etc.)
+        const bounds = circle.getBounds();
+        lowestPoint = Math.max(lowestPoint, text.parent.toLocal({ x: bounds.left, y: bounds.bottom }).y);
+        // Apply the new value
+        text.position._y = lowestPoint;
     }
 
     private applyStaticOffset(): void {
