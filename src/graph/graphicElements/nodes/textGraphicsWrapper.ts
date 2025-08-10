@@ -1,5 +1,5 @@
 import { Sprite, Texture, Text, ColorSource } from "pixi.js";
-import { ExtendedGraphText, getBackgroundColor, GraphicsWrapper, ManagerGraphics, pixiAddChild } from "src/internal";
+import { CSSBridge, ExtendedGraphText, GraphicsWrapper, ManagerGraphics, pixiAddChild } from "src/internal";
 
 
 export class TextGraphicsWrapper implements GraphicsWrapper {
@@ -66,7 +66,7 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
         this.pixiElement.anchor.set(0.5, 0);
         this.textClone.anchor.set(0.5, 0);
         // Change the color
-        this.pixiElement.tint = getBackgroundColor(coreElement.renderer);
+        this.pixiElement.tint = CSSBridge.getBackgroundColor(coreElement.renderer);
         // Use a higher alpha than 1 in order to have a better opacity (which changes when hovering or zooming in/out)
         this.pixiElement.alpha = 2;
 

@@ -1,4 +1,4 @@
-import { colorAttributes2hex, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, getBackgroundColor, getLinkLabelStyle, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt } from "src/internal";
+import { CSSBridge, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt } from "src/internal";
 import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
@@ -73,8 +73,7 @@ export abstract class LinkText extends Container {
     }
 
     computeCSSStyle() {
-        this.style = getLinkLabelStyle(
-            this.extendedLink.instances,
+        this.style = this.extendedLink.instances.cssBridge.getLinkLabelStyle(
             {
                 source: this.extendedLink.coreElement.source.id,
                 target: this.extendedLink.coreElement.target.id
@@ -92,7 +91,7 @@ export abstract class LinkText extends Container {
             fill: this.getTextColor(),
         });
         if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
-            style.stroke = new Color(getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
+            style.stroke = new Color(CSSBridge.getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
             style.strokeThickness = 8;
         }
         return style;
@@ -141,7 +140,7 @@ export abstract class LinkText extends Container {
 
 
         if (this.needsGraphicsBackground()) {
-            this.drawGraphics(getBackgroundColor(this.extendedLink.coreElement.renderer));
+            this.drawGraphics(CSSBridge.getBackgroundColor(this.extendedLink.coreElement.renderer));
         }
         else if (this.needsSpriteBackground()) {
             this.drawSprite();
@@ -179,7 +178,7 @@ export abstract class LinkText extends Container {
         this.background.clear();
         const lineColor = this.style.borderColor.a > 0 ? this.style.borderColor.rgb : this.extendedLink.managers.get(LINK_KEY)?.getColor(this.text.text) ?? this.extendedLink.coreElement.renderer.colors.line.rgb;
         if (this.style.backgroundColor.a > 0) {
-            backgroundColor = colorAttributes2hex(this.style.backgroundColor);
+            backgroundColor = CSSBridge.colorAttributes2hex(this.style.backgroundColor);
         }
         this.background.lineStyle(this.style.borderWidth, lineColor, 1, 1)
             .beginFill(backgroundColor)

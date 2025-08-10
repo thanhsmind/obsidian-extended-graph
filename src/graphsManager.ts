@@ -260,7 +260,7 @@ export class GraphsManager extends Component {
 
     private onCSSChange() {
         for (const instances of this.allInstances.values()) {
-            instances.dispatcher.onCSSChange();
+            instances.cssBridge.onCSSChange();
         }
     }
 
@@ -743,8 +743,8 @@ export class GraphsManager extends Component {
             instances.statesUI.setValue(stateID);
         }
 
-        instances.dispatcher.load();
-        view.addChild(instances.dispatcher);
+        instances.graphEventsDispatcher.load();
+        view.addChild(instances.graphEventsDispatcher);
 
         if (view.getViewType() === "localgraph" && !isGraphBannerView(view)) {
             this.localGraphID = view.leaf.id;
@@ -802,7 +802,7 @@ export class GraphsManager extends Component {
     private unloadDispatcher(leafID: string) {
         const instances = this.allInstances.get(leafID);
         if (instances) {
-            instances.dispatcher.unload();
+            instances.graphEventsDispatcher.unload();
         }
         else {
             this.globalUIs.get(leafID)?.menu.enableUI();
@@ -879,7 +879,7 @@ export class GraphsManager extends Component {
                     const instances = this.allInstances.get(localInstances.view.leaf.id);
                     if (instances) {
                         this.isResetting.set(this.localGraphID, true);
-                        instances.dispatcher.reloadLocalDispatcher();
+                        instances.graphEventsDispatcher.reloadLocalDispatcher();
                     }
                 }
             }
@@ -990,7 +990,7 @@ export class GraphsManager extends Component {
 
     onNodeMenuOpened(menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) {
         if (source === "graph-context-menu" && leaf && file instanceof TFile) {
-            this.allInstances.get(leaf.id)?.dispatcher.inputsManager.onNodeMenuOpened(menu, file);
+            this.allInstances.get(leaf.id)?.graphEventsDispatcher.inputsManager.onNodeMenuOpened(menu, file);
         }
     }
 

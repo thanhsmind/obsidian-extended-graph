@@ -1,5 +1,5 @@
 import { Menu, MenuPositionDef } from "obsidian";
-import { FOLDER_KEY, FolderBlob, getCSSSplitRGB, getThemeColor, GraphInstances, GraphStateModal, LINK_KEY, TAG_KEY, textColor } from "src/internal";
+import { CSSBridge, FOLDER_KEY, FolderBlob, GraphInstances, GraphStateModal, LINK_KEY, TAG_KEY, textColor } from "src/internal";
 
 interface RadialMenuItem {
     id: string;
@@ -92,7 +92,7 @@ export class RadialMenu extends Menu {
 
         for (let i = 0; i < items.length; ++i) {
             this.addItem((item) => {
-                const darkInterp = textColor(getThemeColor(this.menuManager.instances.renderer, items[i].color), "dark", "light") === "dark" ? "100%" : "0%";
+                const darkInterp = textColor(this.menuManager.instances.cssBridge.getThemeColor(items[i].color), "dark", "light") === "dark" ? "100%" : "0%";
                 item.dom.style.setProperty("--dark-text-interp", darkInterp);
                 item.dom.style.setProperty("--color-rgb", `var(--color-${items[i].color}-rgb)`);
                 item.dom.style.setProperty("--rotation", `${-22.5 + (i - 1) * 45}deg`);
@@ -294,10 +294,10 @@ export class RadialMenuManager {
 
     private onPin(): void {
         if (this.instances.nodesSet.isNodePinned(this.nodeID)) {
-            this.instances.dispatcher.inputsManager.unpinNodeFromId(this.nodeID);
+            this.instances.graphEventsDispatcher.inputsManager.unpinNodeFromId(this.nodeID);
         }
         else {
-            this.instances.dispatcher.inputsManager.pinNodeFromId(this.nodeID);
+            this.instances.graphEventsDispatcher.inputsManager.pinNodeFromId(this.nodeID);
         }
     }
 
@@ -316,7 +316,7 @@ export class RadialMenuManager {
 
             const typeELement = div.createDiv("interactive-item");
             typeELement.textContent = type.text;
-            typeELement.style.setProperty("--bg-color", getCSSSplitRGB(color));
+            typeELement.style.setProperty("--bg-color", CSSBridge.getCSSSplitRGB(color));
             typeELement.style.setProperty("--text-color", textColor(color));
             typeELement.toggleClass("is-hidden", !!type.id && !manager.isActive(type.id));
         }

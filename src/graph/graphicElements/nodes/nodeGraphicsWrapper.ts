@@ -3,7 +3,6 @@ import { GraphColorAttributes } from 'obsidian-typings';
 import {
     ExtendedGraphNode,
     fadeIn,
-    getBackgroundColor,
     getFile,
     GraphicsWrapper,
     NodeShape,
@@ -12,7 +11,8 @@ import {
     ExtendedGraphInstances,
     QueryData,
     QueryMatcher,
-    ShapeEnum
+    ShapeEnum,
+    CSSBridge
 } from 'src/internal';
 
 const NODE_CIRCLE_X: number = 100;
@@ -151,7 +151,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
         this.iconBackgroundLayer.alpha = 10;
         this.iconBackgroundLayer.zIndex = -1;
-        this.updateIconBackgroundLayerColor(getBackgroundColor(this.extendedElement.instances.renderer));
+        this.updateIconBackgroundLayerColor(CSSBridge.getBackgroundColor(this.extendedElement.instances.renderer));
         pixiAddChildAt(this.pixiElement, this.iconBackgroundLayer, 0);
     }
 

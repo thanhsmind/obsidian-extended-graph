@@ -14,6 +14,7 @@ export * from "./states/statesManager";
 export * from "./colors/colormaps";
 export * from "./colors/colors";
 
+export * from "./graph/cssBridge";
 export * from "./graph/graph";
 export * from "./graph/graphEventsDispatcher";
 export * from "./graph/interactiveEventsDispatcher";
@@ -164,7 +165,6 @@ export * from "./ui/modals/shapeQueryModal";
 export * from "./ui/modals/stateModal";
 
 export * from "./helpers/array";
-export * from "./helpers/css";
 export * from "./helpers/graph";
 export * from "./helpers/html";
 export * from "./helpers/math";

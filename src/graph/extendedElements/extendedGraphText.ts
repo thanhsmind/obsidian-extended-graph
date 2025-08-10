@@ -1,7 +1,7 @@
 
 import { GraphNode } from "obsidian-typings";
 import { TextStyle } from "pixi.js";
-import { getFile, getFileInteractives, getNodeTextStyle, GraphInstances, isNodeTextStyleDefault, TextGraphicsWrapper } from "src/internal";
+import { CSSBridge, getFile, getFileInteractives, GraphInstances, TextGraphicsWrapper } from "src/internal";
 
 export class ExtendedGraphText {
     coreElement: GraphNode;
@@ -58,13 +58,14 @@ export class ExtendedGraphText {
     updateTextStyle(): void {
         if (!this.coreElement.text || !this.instances.extendedStyleEl) return;
 
-        const customStyle = getNodeTextStyle(this.instances, this.coreElement.id);
+        const customStyle = this.instances.cssBridge.getNodeTextStyle(this.coreElement.id);
+        console.log(customStyle.fill);
 
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
 
-        if (fontNode !== customStyle.fontFamily && !isNodeTextStyleDefault(customStyle)) {
+        if (fontNode !== customStyle.fontFamily && !CSSBridge.isNodeTextStyleDefault(customStyle)) {
             this.coreElement.getTextStyle = () => {
                 const coreStyle = this.coreGetTextStyle();
                 coreStyle.fontFamily = customStyle.fontFamily + ", " + fontNode;

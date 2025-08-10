@@ -2,15 +2,12 @@ import { Component, Notice } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphLink } from "obsidian-typings";
 import { Container, DisplayObject, Text } from "pixi.js";
 import {
-    applyCSSStyle,
     ExtendedGraphSettings,
     FOLDER_KEY,
     GCFolders,
     getFile,
     getFileInteractives,
-    getFolderStyle,
     getLinkID,
-    getNodeTextStyle,
     Graph,
     GraphInstances,
     GraphologyGraph,
@@ -28,7 +25,8 @@ import {
     SettingQuery,
     StatesUI,
     t,
-    InteractiveEventsDispatcher
+    InteractiveEventsDispatcher,
+    CSSBridge
 } from "src/internal";
 import { GraphFilter } from "./graphFilter";
 
@@ -86,10 +84,13 @@ export class GraphEventsDispatcher extends Component {
      */
     constructor(instances: GraphInstances, reloadState: boolean) {
         super();
-        instances.dispatcher = this;
+        instances.graphEventsDispatcher = this;
         this.instances = instances;
 
         this.reloadStateDuringInit = reloadState;
+
+        this.instances.cssBridge = new CSSBridge(instances);
+        this.addChild(this.instances.cssBridge);
 
         this.instances.interactiveEventsDispatcher = new InteractiveEventsDispatcher(instances)
         this.addChild(this.instances.interactiveEventsDispatcher);
@@ -153,7 +154,6 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is loaded.
      */
     onload(): void {
-        this.createStyleElementsForCSSBridge();
         this.loadCurrentStateEngineOptions();
         this.initGraphologyStats();
         this.createSetDataProxy();
@@ -532,7 +532,6 @@ export class GraphEventsDispatcher extends Component {
      * Called when the component is unloaded.
      */
     onunload(): void {
-        this.removeStylingForCSSBridge();
         this.unbindStageEvents();
         ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.setData);
@@ -697,6 +696,7 @@ export class GraphEventsDispatcher extends Component {
     // ============================== GRAPH CYCLE ==============================
 
     private beforeDestroyGraphics() {
+        this.instances.cssBridge.unload();
         this.unbindStageEvents();
         this.inputsManager.unbindStageEvents();
         ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
@@ -729,7 +729,7 @@ export class GraphEventsDispatcher extends Component {
 
     private afterInitGraphics() {
         setTimeout(() => {
-            this.createStyleElementsForCSSBridge();
+            this.instances.cssBridge.load();
             for (const el of this.instances.linksSet.extendedElementsMap.values()) {
                 el.init();
             }
@@ -841,57 +841,5 @@ export class GraphEventsDispatcher extends Component {
     changeState(stateID: string) {
         this.setLastFilteringActionAsStateChange(stateID);
         ExtendedGraphInstances.statesManager.changeState(this.instances, stateID);
-    }
-
-    // ================================== CSS ==================================
-
-    private createStyleElementsForCSSBridge(): void {
-        if (!this.instances.settings.enableCSS) return;
-        if (!ExtendedGraphInstances.app.customCss.enabledSnippets.has(ExtendedGraphInstances.settings.cssSnippetFilename)) return;
-
-        // Get the document inside the iframe
-        const doc = this.instances.renderer.iframeEl.contentDocument;
-        if (!doc) return;
-
-        // Remove existing styling, just in case
-        this.removeStylingForCSSBridge();
-
-        // Add the styling elements
-        this.instances.coreStyleEl = doc.createElement("style");
-        this.instances.coreStyleEl.setAttribute('type', "text/css");
-        doc.head.appendChild(this.instances.coreStyleEl);
-
-        this.instances.extendedStyleEl = doc.createElement("style");
-        this.instances.extendedStyleEl.setAttribute('type', "text/css");
-        doc.head.appendChild(this.instances.extendedStyleEl);
-
-        // Compute
-        this.computeStylingFromCSSBridge();
-    }
-
-    private computeStylingFromCSSBridge(): void {
-        applyCSSStyle(this.instances);
-
-        this.instances.stylesData = {
-            nodeText: getNodeTextStyle(this.instances),
-            folder: getFolderStyle(this.instances)
-        }
-    }
-
-    private removeStylingForCSSBridge(): void {
-        this.instances.coreStyleEl?.remove();
-        this.instances.extendedStyleEl?.remove();
-    }
-
-    onCSSChange() {
-        this.computeStylingFromCSSBridge();
-        if (this.instances.nodesSet) {
-            this.instances.nodesSet.onCSSChange();
-            this.instances.linksSet.onCSSChange();
-            if (this.instances.settings.enableCSS) {
-                this.instances.foldersSet?.onCSSChange();
-            }
-            this.instances.renderer.changed();
-        }
     }
 }

@@ -64,7 +64,7 @@ export class StatesUI extends Component {
                     this.currentStateID = value;
                     this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
                     this.displaySaveDeleteButton();
-                    this.instances.dispatcher.changeState(value);
+                    this.instances.graphEventsDispatcher.changeState(value);
                 })
             })
             .addExtraButton(cb => {

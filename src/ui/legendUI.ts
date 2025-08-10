@@ -3,7 +3,6 @@ import * as Color from 'src/colors/color-bits';
 import {
     CombinationLogic,
     FOLDER_KEY,
-    getCSSSplitRGB,
     GraphInstances,
     GraphStateData,
     GraphStateDataQuery,
@@ -13,7 +12,8 @@ import {
     ExtendedGraphInstances,
     strCompare,
     t,
-    textColor
+    textColor,
+    CSSBridge
 } from "src/internal";
 
 class LegendRow extends Setting {
@@ -125,7 +125,7 @@ class LegendRow extends Setting {
                     this.toggle(type);
                 })
                 .then(cb => {
-                    cb.buttonEl.style.setProperty(this.cssBGColorVariable, getCSSSplitRGB(color));
+                    cb.buttonEl.style.setProperty(this.cssBGColorVariable, CSSBridge.getCSSSplitRGB(color));
                     cb.buttonEl.style.setProperty(this.cssTextColorVariable, textColor(color));
                     if (type === this.manager.instances.settings.interactiveSettings[this.name].noneType) {
                         cb.buttonEl.addClass("graph-legend-none");
@@ -149,7 +149,7 @@ class LegendRow extends Setting {
             this.addLegend(type, color)
         }
         else {
-            (button as HTMLElement).style.setProperty(this.cssBGColorVariable, getCSSSplitRGB(color));
+            (button as HTMLElement).style.setProperty(this.cssBGColorVariable, CSSBridge.getCSSSplitRGB(color));
             (button as HTMLElement).style.setProperty(this.cssTextColorVariable, textColor(color));
         }
     }

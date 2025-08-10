@@ -5,7 +5,6 @@ import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import {
     CSSFolderStyle,
-    DEFAULT_FOLDER_STYLE,
     FOLDER_KEY,
     getFile,
     getFileInteractives,
@@ -15,7 +14,8 @@ import {
     pixiAddChildAt,
     ExtendedGraphInstances,
     randomColor,
-    SettingQuery
+    SettingQuery,
+    CSSBridge
 } from "src/internal";
 
 export class FolderBlob {
@@ -264,7 +264,7 @@ export class FoldersSet {
             let blobExists = true;
             if (!blob) {
                 blobExists = false;
-                blob = new FolderBlob(path, this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE, manager ? manager.getColor(path) : undefined);
+                blob = new FolderBlob(path, this.instances.stylesData?.folder ?? CSSBridge.DEFAULT_FOLDER_STYLE, manager ? manager.getColor(path) : undefined);
                 blob.initGraphics(this.instances.settings.folderShowFullPath);
             }
             else if (blob.area.destroyed || !blob.area.parent) {
@@ -322,7 +322,7 @@ export class FoldersSet {
 
     onCSSChange() {
         for (const blob of this.foldersMap.values()) {
-            blob.folderStyle = this.instances.stylesData?.folder ?? DEFAULT_FOLDER_STYLE;
+            blob.folderStyle = this.instances.stylesData?.folder ?? CSSBridge.DEFAULT_FOLDER_STYLE;
             blob.initTextStyle();
         }
     }

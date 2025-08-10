@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting, TFile } from "obsidian";
-import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, ExtendedGraphInstances, strCompare, t } from "src/internal";
+import { ExtendedElementsSuggester, getFile, GraphInstances, GraphState, NodeShape, ExtendedGraphInstances, strCompare, t, CSSBridge } from "src/internal";
 
 type TableType = 'nodes' | 'links' | 'pinned';
 
@@ -101,7 +101,7 @@ export class GraphStateModal extends Modal {
                         const span = cell.createEl("span");
                         span.addClass("tag");
                         if (!manager.isActive(type)) span.addClass("is-disabled");
-                        span.style.setProperty("--interactive-color", getCSSSplitRGB(manager.getColor(type)));
+                        span.style.setProperty("--interactive-color", CSSBridge.getCSSSplitRGB(manager.getColor(type)));
                         span.setText(type);
                     }
                 }
@@ -178,7 +178,7 @@ export class GraphStateModal extends Modal {
                         const span = cell.createEl("span");
                         span.addClass("tag");
                         if (!manager.isActive(type)) span.addClass("is-disabled");
-                        span.style.setProperty("--interactive-color", getCSSSplitRGB(manager.getColor(type)));
+                        span.style.setProperty("--interactive-color", CSSBridge.getCSSSplitRGB(manager.getColor(type)));
                         span.setText(type);
                     }
                 }

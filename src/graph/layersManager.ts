@@ -393,7 +393,7 @@ export class LayersManager {
     // ================================ Unload =================================
 
     unload(): void {
-        if (!this.instances.dispatcher.isLocalResetting) {
+        if (!this.instances.graphEventsDispatcher.isLocalResetting) {
             this.isEnabled = false;
         }
 

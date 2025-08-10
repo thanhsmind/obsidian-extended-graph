@@ -84,7 +84,7 @@ export class InteractiveEventsDispatcher extends Component {
      * @param types - An array of types to be enabled.
      */
     onInteractivesEnabled(key: string, types: string[]) {
-        this.instances.dispatcher.setLastFilteringActionAsInteractive(key, types);
+        this.instances.graphEventsDispatcher.setLastFilteringActionAsInteractive(key, types);
 
         if (key === LINK_KEY) {
             this.instances.graph.enableLinkTypes(types);
@@ -207,19 +207,19 @@ export class InteractiveEventsDispatcher extends Component {
     }
 
     private disableFolders(paths: string[]) {
-        this.instances.dispatcher.listenStage = false;
+        this.instances.graphEventsDispatcher.listenStage = false;
         for (const path of paths) {
             this.removeBBox(path);
         }
-        this.instances.dispatcher.listenStage = true;
+        this.instances.graphEventsDispatcher.listenStage = true;
     }
 
     private enableFolders(paths: string[]) {
-        this.instances.dispatcher.listenStage = false;
+        this.instances.graphEventsDispatcher.listenStage = false;
         for (const path of paths) {
             this.addBBox(path);
         }
-        this.instances.dispatcher.listenStage = true;
+        this.instances.graphEventsDispatcher.listenStage = true;
     }
 
     private addBBox(path: string) {

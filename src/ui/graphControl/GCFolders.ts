@@ -1,6 +1,6 @@
 import { Setting, ToggleComponent } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { FOLDER_KEY, GCSection, getCSSSplitRGB, GraphInstances, InteractiveManager, InteractiveUI, t } from "src/internal";
+import { CSSBridge, FOLDER_KEY, GCSection, GraphInstances, InteractiveManager, InteractiveUI, t } from "src/internal";
 
 export class GCFolders extends GCSection implements InteractiveUI {
     foldersManager: InteractiveManager;
@@ -80,7 +80,7 @@ export class GCFolders extends GCSection implements InteractiveUI {
     // ================================ SET UP =================================
 
     update(key: string, path: string, color: Color.Color): void {
-        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", getCSSSplitRGB(color));
+        this.settingsMap.get(path)?.setting.settingEl.style.setProperty("--folder-color-rgb", CSSBridge.getCSSSplitRGB(color));
     }
 
     add(key: string, path: string, color: Color.Color): void {

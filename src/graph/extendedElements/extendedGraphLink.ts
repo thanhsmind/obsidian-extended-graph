@@ -8,7 +8,6 @@ import {
     CurveLinkGraphicsWrapper,
     ExtendedGraphArrow,
     ExtendedGraphElement,
-    getPrimaryColor,
     LineLinkGraphicsWrapper,
     LINK_KEY,
     LinkCurveGraphics,
@@ -219,7 +218,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             this.graphicsWrapper.pixiElement.addListener('destroyed', this.removeContainer);
         }
         container.filters = [new OutlineFilter(
-            1, getPrimaryColor(this.coreElement.renderer), 0.1, 1, false
+            1, this.instances.cssBridge.getPrimaryColor(), 0.1, 1, false
         )];
         pixiAddChild(this.coreElement.renderer.hanger, container);
     }

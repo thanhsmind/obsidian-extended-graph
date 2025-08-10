@@ -9,7 +9,6 @@ import {
     ExtendedGraphNode,
     FOLDER_KEY,
     FolderBlob,
-    getBackgroundColor,
     getLinkID,
     getSVGNode,
     GraphInstances,
@@ -20,7 +19,8 @@ import {
     ExtendedGraphInstances,
     polar2Cartesian,
     t,
-    textColor
+    textColor,
+    CSSBridge
 } from "src/internal";
 import { Notice } from 'obsidian';
 
@@ -41,7 +41,7 @@ export abstract class ExportGraphToSVG {
 
     constructor(renderer: GraphRenderer) {
         this.renderer = renderer;
-        this.backgroundColor = getBackgroundColor(this.renderer);
+        this.backgroundColor = CSSBridge.getBackgroundColor(this.renderer);
         this.backgroundColorHex = int2hex(this.backgroundColor);
     }
 

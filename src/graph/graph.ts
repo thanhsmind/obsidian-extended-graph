@@ -80,7 +80,7 @@ export class Graph extends Component {
 
     onload(): void {
         this.initSets().then(() => {
-            this.instances.dispatcher.onGraphReady();
+            this.instances.graphEventsDispatcher.onGraphReady();
         }).catch(e => {
             console.error(e);
         });

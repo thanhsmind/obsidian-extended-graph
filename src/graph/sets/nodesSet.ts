@@ -8,7 +8,6 @@ import {
     ExtendedGraphNode,
     ExtendedGraphUnresolvedNode,
     FileNodeGraphicsWrapper,
-    getBackgroundColor,
     getFile,
     getFileInteractives,
     GraphInstances,
@@ -16,7 +15,8 @@ import {
     Media,
     NodeShape,
     Pinner,
-    ExtendedGraphInstances
+    ExtendedGraphInstances,
+    CSSBridge
 } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
@@ -65,7 +65,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private applyBackgroundColor(extendedNode: ExtendedGraphNode) {
-        const backgroundColor = getBackgroundColor(this.instances.renderer);
+        const backgroundColor = CSSBridge.getBackgroundColor(this.instances.renderer);
         if (!extendedNode.graphicsWrapper) return;
         extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
     }
@@ -240,14 +240,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
     // ================================== CSS ==================================
 
     updateOpacityLayerColor() {
-        const color = getBackgroundColor(this.instances.renderer);
+        const color = CSSBridge.getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
     }
 
     onCSSChange(): void {
-        const color = getBackgroundColor(this.instances.renderer);
+        const color = CSSBridge.getBackgroundColor(this.instances.renderer);
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
@@ -344,8 +344,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
             return;
         }
 
-        if (!this.instances.dispatcher.inputsManager.isDragging) {
-            this.instances.dispatcher.inputsManager.isDragging = true;
+        if (!this.instances.graphEventsDispatcher.inputsManager.isDragging) {
+            this.instances.graphEventsDispatcher.inputsManager.isDragging = true;
 
             for (const id in this.selectedNodes) {
                 const coreNode = this.selectedNodes[id].node;
