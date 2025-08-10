@@ -201,7 +201,6 @@ export class InputsManager {
                             for (const noteURLValue of noteURLValues) {
                                 try {
                                     const noteURL = new URL(noteURLValue);
-                                    console.log("Comparing", id, "and", noteURL);
                                     if (noteURL.toString() === id
                                         || noteURL.hostname === id
                                         || (noteURL.origin + noteURL.pathname) === id

@@ -66,6 +66,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     override modifyCoreElement(): void {
         this.proxyGetSize();
         this.proxyGetFillColor();
+        this.proxyInitGraphics();
         this.proxyRender();
 
         this.coreElement.circle?.addListener('destroyed', () => this.restoreCoreElement());
@@ -117,6 +118,21 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         );
     }
 
+    private proxyInitGraphics(): void {
+        const onInitGraphicsCalled = this.onInitGraphicsCalled.bind(this);
+        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.initGraphics>(
+            this.coreElement,
+            "initGraphics",
+            {
+                apply(target, thisArg, args) {
+                    const applied = Reflect.apply(target, thisArg, args);
+                    onInitGraphicsCalled();
+                    return applied;
+                }
+            }
+        );
+    }
+
     private proxyRender(): void {
         // TODO: for now, I check the setting only here because I know it's the only reason
         // we have something to do when node.render is being called.
@@ -152,6 +168,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     override restoreCoreElement(): void {
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
+        PluginInstances.proxysManager.unregisterProxy(this.coreElement.initGraphics);
         PluginInstances.proxysManager.unregisterProxy(this.coreElement.render);
     }
 
@@ -223,6 +240,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     // ================================ RENDER =================================
+
+    private onInitGraphicsCalled() {
+        this.graphicsWrapper?.connect();
+    }
 
     private onRenderCalled() {
         this.extendedText.makeVisibleIfNeighborHighlighted();
