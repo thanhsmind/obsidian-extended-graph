@@ -59,7 +59,6 @@ export class ExtendedGraphText {
         if (!this.coreElement.text || !this.instances.extendedStyleEl) return;
 
         const customStyle = this.instances.cssBridge.getNodeTextStyle(this.coreElement.id);
-        console.log(customStyle.fill);
 
         const fontNode = (typeof this.coreElement.text.style.fontFamily === "string")
             ? this.coreElement.text.style.fontFamily
