@@ -1,5 +1,7 @@
+import Graphology from 'graphology';
+import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { TFile } from "obsidian";
-import { GraphColorAttributes, GraphData, GraphNode } from "obsidian-typings";
+import { GraphColorAttributes, GraphData, GraphNode, LocalGraphView } from "obsidian-typings";
 import { getFile, getFileInteractives, getOutlinkTypes, regExpFromString, TAG_KEY } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
@@ -226,9 +228,11 @@ export class GraphFilter {
     private addExternalLinks(data: GraphData) {
         if (!this.instances.engine.options.showAttachments) return;
 
+        let addedLinks: string[] = [];
         const nodeIDs = Object.keys(data.nodes);
         for (const nodeID of nodeIDs) {
             const links = this.instances.nodesSet.getExternalLinks(nodeID);
+            addedLinks = addedLinks.concat(links);
             data.numLinks += links.length;
             for (const link of links) {
                 data.nodes[nodeID].links[link] = true;
@@ -238,6 +242,39 @@ export class GraphFilter {
                         type: "attachment",
                         links: {}
                     };
+                }
+            }
+        }
+
+        // If this is a local graph, we have to make sure we don't add nodes
+        // that are too deep.
+        // We clean it after adding them in order to keep the neighbor links if
+        // they exist
+        // So for example the following should not exist with a depth of 2:
+        // Main --> A --> B --> external link
+        // But this would work:
+        // Main --> A --> external link
+        //            --> B --> external link
+        if (this.instances.type === "localgraph" && addedLinks.length > 0) {
+            const mainNode = (this.instances.view as LocalGraphView).file?.path;
+            const maxDepth = this.instances.engine.options.localJumps ?? 1;
+            const graphology = new Graphology();
+            for (const source in data.nodes) {
+                if (!graphology.hasNode(source)) {
+                    graphology.addNode(source);
+                }
+                for (const target in data.nodes[source].links) {
+                    if (!graphology.hasNode(target)) {
+                        graphology.addNode(target);
+                    }
+                    graphology.addDirectedEdge(source, target);
+                }
+            }
+            const paths = undirectedSingleSourceLength(graphology, mainNode);
+            for (const externalLink of addedLinks) {
+                if (paths[externalLink] > maxDepth) {
+                    delete data.nodes[externalLink];
+                    data.numLinks--;
                 }
             }
         }
