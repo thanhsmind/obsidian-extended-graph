@@ -232,9 +232,9 @@ export class GraphFilter {
         const nodeIDs = Object.keys(data.nodes);
         for (const nodeID of nodeIDs) {
             const URLs = this.instances.nodesSet.getExternalLinks(nodeID);
-            data.numLinks += URLs.length;
             for (const url of URLs) {
                 if (url.href) {
+                    data.numLinks++;
                     data.nodes[nodeID].links[url.href] = true;
                     if (!(url.href in data.nodes)) {
                         addedURLs.push(url.href);
@@ -246,6 +246,7 @@ export class GraphFilter {
                     }
                 }
                 if (url.domain) {
+                    data.numLinks++;
                     if (!(url.domain in data.nodes)) {
                         addedURLs.push(url.domain);
                         data.nodes[url.domain] = {
