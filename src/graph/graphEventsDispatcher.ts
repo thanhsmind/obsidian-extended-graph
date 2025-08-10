@@ -708,7 +708,7 @@ export class GraphEventsDispatcher extends Component {
             el.restoreCoreElement();
         }
 
-        this.showDestroyed(this.instances.renderer.hanger);
+        //this.showDestroyed(this.instances.renderer.hanger);
     }
 
     private showDestroyed(el: any, trace: string[] = [], depth: number = 1) {

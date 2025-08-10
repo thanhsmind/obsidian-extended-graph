@@ -10,7 +10,7 @@ export class LayersUI extends Component {
     levelsArea: HTMLDivElement;
     activeLayersBorder: HTMLDivElement;
 
-    statusBarResizeObserver: ResizeObserver;
+    statusBarResizeObserver?: ResizeObserver;
 
     constructor(instances: GraphInstances) {
         super();
@@ -108,26 +108,31 @@ export class LayersUI extends Component {
     }
 
     private computePosition() {
-        // With status bar
+        this.setHeight = this.setHeight.bind(this);
+
+        // Observer status bar changes
         const statusBar = this.root.doc.querySelector(".status-bar");
         if (statusBar) {
-            const setHeight = () => {
-                const statusBarTop = statusBar.getBoundingClientRect().bottom - statusBar.getBoundingClientRect().height;
-                const viewBottom = this.instances.view.containerEl.getBoundingClientRect().bottom;
-                const bottom = Math.max(0, viewBottom - statusBarTop) + 5;
-                this.root.style.setProperty("bottom", bottom + "px");
-            }
-            (statusBar as HTMLDivElement).addEventListener("resize", () => {
-                setHeight();
-            });
             this.statusBarResizeObserver = new ResizeObserver(entries => {
                 for (let entry of entries) {
-                    setHeight();
+                    this.setHeight();
                 }
             });
             this.statusBarResizeObserver.observe(statusBar);
-            setHeight();
         }
+
+        // Observe iframe
+        this.instances.renderer.iframeEl.addEventListener("load", this.setHeight);
+
+        this.setHeight();
+    }
+
+    private setHeight() {
+        const statusBar = this.root.doc.querySelector(".status-bar");
+        const statusBarTop = statusBar?.getBoundingClientRect().top;
+        const viewBottom = this.instances.view.containerEl.getBoundingClientRect().bottom;
+        const bottom = statusBarTop ? Math.max(0, viewBottom - statusBarTop) + 12 : 12;
+        this.root.style.setProperty("bottom", bottom + "px");
     }
 
     open() {
@@ -146,6 +151,7 @@ export class LayersUI extends Component {
 
     onunload(): void {
         this.root.detach();
-        this.statusBarResizeObserver.disconnect();
+        this.statusBarResizeObserver?.disconnect();
+        this.instances.renderer.iframeEl.removeEventListener("load", this.setHeight);
     }
 }
