@@ -36,6 +36,6 @@ export class SettingTags extends SettingInteractives {
     }
 
     static getAllTypes(): string[] {
-        return Object.keys(ExtendedGraphInstances.app.metadataCache.getTags());
+        return Object.keys(ExtendedGraphInstances.app.metadataCache.getTags()).map(tag => tag.replace("#", ""));
     }
 }
