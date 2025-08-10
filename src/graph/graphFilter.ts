@@ -228,20 +228,38 @@ export class GraphFilter {
     private addExternalLinks(data: GraphData) {
         if (!this.instances.engine.options.showAttachments) return;
 
-        let addedLinks: string[] = [];
+        let addedURLs: string[] = [];
         const nodeIDs = Object.keys(data.nodes);
         for (const nodeID of nodeIDs) {
-            const links = this.instances.nodesSet.getExternalLinks(nodeID);
-            addedLinks = addedLinks.concat(links);
-            data.numLinks += links.length;
-            for (const link of links) {
-                data.nodes[nodeID].links[link] = true;
-                if (!(link in data.nodes)) {
-                    data.nodes[link] = {
-                        color: this.instances.renderer.colors.fillAttachment,
-                        type: "attachment",
-                        links: {}
-                    };
+            const URLs = this.instances.nodesSet.getExternalLinks(nodeID);
+            data.numLinks += URLs.length;
+            for (const url of URLs) {
+                if (url.href) {
+                    data.nodes[nodeID].links[url.href] = true;
+                    if (!(url.href in data.nodes)) {
+                        addedURLs.push(url.href);
+                        data.nodes[url.href] = {
+                            color: this.instances.renderer.colors.fillAttachment,
+                            type: "attachment",
+                            links: {}
+                        };
+                    }
+                }
+                if (url.domain) {
+                    if (!(url.domain in data.nodes)) {
+                        addedURLs.push(url.domain);
+                        data.nodes[url.domain] = {
+                            color: this.instances.renderer.colors.fillAttachment,
+                            type: "attachment",
+                            links: {}
+                        };
+                    }
+                    if (url.href) {
+                        data.nodes[url.href].links[url.domain] = true;
+                    }
+                    else {
+                        data.nodes[nodeID].links[url.domain] = true;
+                    }
                 }
             }
         }
@@ -255,7 +273,7 @@ export class GraphFilter {
         // But this would work:
         // Main --> A --> external link
         //            --> B --> external link
-        if (this.instances.type === "localgraph" && addedLinks.length > 0) {
+        if (this.instances.type === "localgraph" && addedURLs.length > 0) {
             const mainNode = (this.instances.view as LocalGraphView).file?.path;
             const maxDepth = this.instances.engine.options.localJumps ?? 1;
             const graphology = new Graphology();
@@ -271,7 +289,7 @@ export class GraphFilter {
                 }
             }
             const paths = undirectedSingleSourceLength(graphology, mainNode);
-            for (const externalLink of addedLinks) {
+            for (const externalLink of addedURLs) {
                 if (paths[externalLink] > maxDepth) {
                     delete data.nodes[externalLink];
                     data.numLinks--;

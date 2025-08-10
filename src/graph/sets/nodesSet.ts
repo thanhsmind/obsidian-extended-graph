@@ -444,11 +444,20 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return links.length > 0;
     }
 
-    convertExternalLink(url: URL): string {
-        return this.instances.settings.externalLinks === "domain" ? url.hostname : url.origin + url.pathname;
+    convertExternalLink(url: URL): { domain?: string, href?: string } {
+        switch (this.instances.settings.externalLinks) {
+            case "domain":
+                return { domain: url.hostname };
+            case "href":
+                return { href: url.origin + url.pathname };
+            case "domain_and_href":
+                return { domain: url.hostname, href: url.origin + url.pathname };
+            case "none":
+                return {};
+        }
     }
 
-    getExternalLinks(id: string): string[] {
+    getExternalLinks(id: string): { domain?: string, href?: string }[] {
         if (id in this.cachedExternalLinks) {
             return this.cachedExternalLinks[id].map(url => this.convertExternalLink(url)).unique();
         }

@@ -24,7 +24,7 @@ import {
     TAG_KEY
 } from "src/internal";
 
-export type ExternalLinkOption = 'none' | 'domain' | 'href';
+export type ExternalLinkOption = 'none' | 'domain' | 'href' | 'domain_and_href';
 
 type InteractiveSettings = {
     colormap: string;

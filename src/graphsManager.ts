@@ -273,7 +273,6 @@ export class GraphsManager extends Component {
      * @param cache - The new cached metadata
      */
     private onMetadataCacheChange(file: TFile, data?: string, cache?: CachedMetadata) {
-        console.log("Cache changed for", file.path);
         for (const instances of this.allInstances.values()) {
             if (!instances.graph || !instances.renderer) return;
 
@@ -387,13 +386,15 @@ export class GraphsManager extends Component {
 
             // Check if we need to re-render because an external link was added
             if (instances.settings.externalLinks !== "none") {
-                const previousURLs = instances.nodesSet.getExternalLinks(file.path);
+                const flattenURLs = (urls: { domain?: string; href?: string; }[]) => {
+                    return urls.flatMap(url => [url.domain, url.href]).filter(url => url !== undefined).unique();
+                }
+                const previousURLs = flattenURLs(instances.nodesSet.getExternalLinks(file.path));
                 instances.nodesSet.cacheExternalLinks(file.path, true).then((hasLinks) => {
-                    const newURLs = instances.nodesSet.getExternalLinks(file.path);
+                    const newURLs = flattenURLs(instances.nodesSet.getExternalLinks(file.path));
                     const symDifference = previousURLs.filter(url => !newURLs.includes(url))
                         .concat(newURLs.filter(url => !previousURLs.includes(url)));
                     if (symDifference.length > 0) {
-                        console.log("Render because an external link was added or removed");
                         instances.engine.render();
                     }
                 });

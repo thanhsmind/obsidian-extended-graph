@@ -35,6 +35,7 @@ export class SettingBeta extends SettingsSection {
                     none: "None",
                     domain: "Domain",
                     href: "Href",
+                    domain_and_href: "Domain and href"
                 };
                 cb.addOptions(options);
                 cb.setValue(PluginInstances.settings.externalLinks);
