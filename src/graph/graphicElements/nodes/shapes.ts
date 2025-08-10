@@ -35,6 +35,7 @@ export class NodeShape extends Graphics {
 
     constructor(shape: ShapeEnum) {
         super();
+        //this.eventMode = "auto";
         this.shape = shape;
         this.n = NodeShape.getN(shape);
         this.type = NodeShape.getType(shape);

@@ -41,6 +41,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
      */
     constructor(extendedNode: ExtendedGraphNode, types: Set<string>, manager: InteractiveManager, circleLayer: number, shape: ShapeEnum) {
         super();
+        this.eventMode = "none";
         this.name = manager.name;
         this.extendedNode = extendedNode;
         this.types = types;
@@ -79,6 +80,7 @@ export class ArcsCircle extends Graphics implements ManagerGraphics {
                 arc.index = index;
                 arc.size = arcSize;
                 arc.graphic = new Graphics();
+                arc.graphic.eventMode = "none";
                 arc.graphic.name = this.getArcName(type);
                 arc.color = this.manager.getColor(type);
                 arc.weight = 1;

@@ -8,6 +8,7 @@ export class AnimatedDotOnCurve extends Graphics {
     constructor(extendedLink: ExtendedGraphLink) {
         super();
 
+        this.eventMode = "none";
         this.extendedLink = extendedLink;
         this.init();
     }

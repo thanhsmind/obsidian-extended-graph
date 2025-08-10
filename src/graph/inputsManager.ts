@@ -17,6 +17,7 @@ export class InputsManager {
         this.instances = instances;
 
         this.selectionRectangle = new Graphics();
+        this.selectionRectangle.eventMode = "none";
 
         this.bindStageEvents();
         this.changeNodeOnClick();

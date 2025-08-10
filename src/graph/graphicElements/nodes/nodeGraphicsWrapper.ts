@@ -112,6 +112,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
             this.pixiElement.sortableChildren = true;
             const createSprite = (texture: Texture) => {
                 this.iconSprite = new Sprite(texture);
+                this.iconSprite.eventMode = "none";
                 this.iconSprite.name = "icon";
                 this.iconSprite.anchor.set(0.5, 0.5);
                 this.iconSprite.height = 200;
@@ -137,6 +138,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
                 fontSize: 150,
                 align: "center",
             });
+            this.emojiText.eventMode = "none";
             this.emojiText.name = "icon";
             this.emojiText.anchor.set(0.5, 0.5);
             pixiAddChild(this.pixiElement, this.emojiText);
@@ -226,6 +228,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
 
         Assets.load(ExtendedGraphInstances.pinSVGDataUrl).then(texture => {
             const icon = new Sprite(texture);
+            icon.eventMode = "none";
             icon.name = "pin";
             icon.anchor.set(1, 0);
             icon.height = 80;

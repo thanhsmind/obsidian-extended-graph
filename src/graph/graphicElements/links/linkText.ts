@@ -17,6 +17,7 @@ export abstract class LinkText extends Container {
         this.zIndex = 2;
 
         this.text = new Text(text);
+        this.text.eventMode = "none";
 
         this.computeCSSStyle();
         this.text.style = this.getTextStyle();
@@ -24,10 +25,12 @@ export abstract class LinkText extends Container {
 
         if (this.needsGraphicsBackground()) {
             this.background = new Graphics();
+            this.background.eventMode = "none";
             pixiAddChild(this, this.background, this.text);
         }
         else if (this.needsSpriteBackground()) {
             this.background = new Sprite(Texture.WHITE);
+            this.background.eventMode = "none";
             pixiAddChild(this, this.background, this.text);
         }
         else {
@@ -165,10 +168,12 @@ export abstract class LinkText extends Container {
             this.background.removeFromParent();
             this.background.destroy();
             this.background = new Graphics();
+            this.background.eventMode = "none";
             pixiAddChildAt(this, this.background, 0);
         }
         if (!this.background) {
             this.background = new Graphics();
+            this.background.eventMode = "none";
             pixiAddChildAt(this, this.background, 0);
         }
         this.background.clear();
@@ -186,10 +191,12 @@ export abstract class LinkText extends Container {
             this.background.removeFromParent();
             this.background.destroy();
             this.background = new Sprite(Texture.WHITE);
+            this.background.eventMode = "none";
             pixiAddChildAt(this, this.background, 0);
         }
         if (!this.background) {
             this.background = new Sprite(Texture.WHITE);
+            this.background.eventMode = "none";
             pixiAddChildAt(this, this.background, 0);
         }
         this.background.tint = this.style.backgroundColor.rgb;

@@ -16,6 +16,7 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
 
     constructor(manager: InteractiveManager, types: Set<string>, name: string, link: ExtendedGraphLink) {
         super();
+        this.eventMode = "none";
         this.manager = manager;
         this.types = types;
         this.name = "line:" + name;

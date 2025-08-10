@@ -6,8 +6,9 @@ export class LinkArrow extends Graphics {
 
     constructor(extendedLink: ExtendedGraphLink) {
         super();
-        this.extendedLink = extendedLink;
 
+        this.eventMode = "none";
+        this.extendedLink = extendedLink;
         this.init();
     }
 
@@ -24,7 +25,6 @@ export class LinkArrow extends Graphics {
         this.lineTo(0, 0);
         this.endFill();
         this.name = "arrow";
-        this.eventMode = "none";
         this.zIndex = 1;
         this.pivot.set(0, 0);
         this.alpha = this.extendedLink.coreElement.renderer.colors.arrow.a;

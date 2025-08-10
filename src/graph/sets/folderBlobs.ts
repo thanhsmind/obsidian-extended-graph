@@ -40,6 +40,7 @@ export class FolderBlob {
 
         this.initTextStyle();
         this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
+        this.text.eventMode = "none";
         this.text.resolution = 2;
         pixiAddChild(this.area, this.text);
     }

@@ -50,9 +50,15 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
         const coreElement = this.extendedElement.coreElement;
         if (!coreElement.text) return;
 
-        if (!this.pixiElement || this.pixiElement.destroyed) this.pixiElement = new Sprite(Texture.WHITE);
+        if (!this.pixiElement || this.pixiElement.destroyed) {
+            this.pixiElement = new Sprite(Texture.WHITE);
+            this.pixiElement.eventMode = "none";
+        }
         // Clone the text to create a second one
-        if (!this.textClone || this.textClone.destroyed) this.textClone = new Text(coreElement.text.text, coreElement.getTextStyle());
+        if (!this.textClone || this.textClone.destroyed) {
+            this.textClone = new Text(coreElement.text.text, coreElement.getTextStyle());
+            this.textClone.eventMode = "none";
+        }
         // Compute the size
         this.pixiElement.width = (this.textClone.getBounds().width + this.textClone.width) / 2;
         this.pixiElement.height = (this.textClone.getBounds().height + this.textClone.height) / 2;
