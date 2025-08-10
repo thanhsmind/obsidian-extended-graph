@@ -1,6 +1,6 @@
 import { Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
-import { Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
+import { getFileInteractives, Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, PluginInstances } from "src/pluginInstances";
 
 export class InputsManager {
@@ -185,13 +185,44 @@ export class InputsManager {
     private onNodeClick(e: UserEvent | null, id: string, type: string): void {
         if (this.instances.settings.externalLinks !== "none" && "attachment" === type) {
             try {
-                let url: URL | undefined;
+                let targetURL: URL | undefined;
                 for (const urls of Object.values(this.instances.nodesSet.cachedExternalLinks)) {
-                    url = urls.find(url => this.instances.nodesSet.convertExternalLink(url) === id);
-                    if (url) break;
+                    targetURL = urls.find(url => {
+                        const urlData = this.instances.nodesSet.convertExternalLink(url);
+                        return urlData.domain === id || urlData.href === id || url.toString() === id;
+                    });
+                    if (targetURL) break;
                 }
-                if (url) {
-                    window.open(url.href, "");
+                if (targetURL) {
+                    // First, let's see if we find a *Link Note*
+                    for (const file of PluginInstances.app.vault.getMarkdownFiles()) {
+                        for (const property of PluginInstances.settings.externalLinksProperties) {
+                            const noteURLValues = getFileInteractives(property, file);
+                            for (const noteURLValue of noteURLValues) {
+                                try {
+                                    const noteURL = new URL(noteURLValue);
+                                    console.log("Comparing", id, "and", noteURL);
+                                    if (noteURL.toString() === id
+                                        || noteURL.hostname === id
+                                        || (noteURL.origin + noteURL.pathname) === id
+                                    ) {
+                                        if (this.instances.settings.openInNewTab) {
+                                            PluginInstances.app.workspace.openLinkText(file.path, "", "tab");
+                                        }
+                                        else {
+                                            PluginInstances.app.workspace.openLinkText(file.path, "", Keymap.isModEvent(e));
+                                        }
+                                        return;
+                                    }
+                                } catch (error) {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    // If not, open the web viewer or navigator
+                    window.open(targetURL.href, "");
                     return;
                 }
             }

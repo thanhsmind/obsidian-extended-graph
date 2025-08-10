@@ -138,6 +138,7 @@ export interface ExtendedGraphSettings {
     interactivesBrightness: { light: number, dark: number };
     fadeInElements: boolean;
     externalLinks: ExternalLinkOption;
+    externalLinksProperties: string[];
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -359,6 +360,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     interactivesBrightness: { light: 1, dark: 1 },
     fadeInElements: false,
     externalLinks: "none",
+    externalLinksProperties: ["url"],
 
     // Links
     allowMultipleLinkTypes: false,

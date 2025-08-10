@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, ExternalLinkOption, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExternalLinkOption, PluginInstances, SettingMultiPropertiesModal, SettingsSection, t } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
@@ -44,5 +44,21 @@ export class SettingBeta extends SettingsSection {
                     await PluginInstances.plugin.saveSettings();
                 })
             }).settingEl);
+
+        this.elementsBody.push(new Setting(this.settingTab.containerEl)
+            .setName(t("features.externalLinksProperties"))
+            .setDesc(t("features.externalLinksPropertiesDesc"))
+            .addExtraButton(cb => {
+                cb.setIcon('mouse-pointer-click');
+                cb.onClick(() => {
+                    const modal = new SettingMultiPropertiesModal(
+                        t("features.externalLinksProperties"),
+                        t("features.externalLinksPropertiesAdd"),
+                        PluginInstances.settings.externalLinksProperties
+                    );
+                    modal.open();
+                })
+            }
+            ).settingEl);
     }
 }
