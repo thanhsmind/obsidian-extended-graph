@@ -27,6 +27,7 @@ export class SettingBeta extends SettingsSection {
     }
 
     private addExternalLinks() {
+
         this.elementsBody.push(new Setting(this.containerEl)
             .setName(t("features.externalLinks"))
             .setDesc(t("features.externalLinksDesc"))

@@ -106,7 +106,9 @@ export function getGraphBannerPlugin(): GraphBannerPlugin | undefined {
 
 // ======================== Dataview
 
-export function getDataviewPlugin(): DataviewApi | undefined {
+export function getDataviewPlugin(ignoreInlineLinks: boolean): DataviewApi | undefined {
+    if (ignoreInlineLinks) return; // We need the dataview plugin only for inline properties
+
     const dv = getDataviewAPI(ExtendedGraphInstances.app);
 
     return dv;

@@ -203,6 +203,7 @@ export interface ExtendedGraphSettings {
 
     // Filters
     filterAbstractFiles: { regex: string, flag: string }[];
+    ignoreInlineLinks: boolean;
 
     // Internal settings (not set by the user)
     collapseState: boolean;
@@ -425,6 +426,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Filters
     filterAbstractFiles: [],
+    ignoreInlineLinks: false,
 
     // Internal settings (not set by the user)
     collapseState: true,
@@ -707,8 +709,8 @@ export class SettingQuery {
         if (['customColorMaps'].some(key => !equals(key)))
             return true;
 
-        // FIlters
-        if (['filterAbstractFiles'].some(key => !equals(key)))
+        // Filters
+        if (['filterAbstractFiles', 'ignoreInlineLinks'].some(key => !equals(key)))
             return true;
 
         // Other

@@ -108,7 +108,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
         const layers = LayersManager.getAllLayers(ExtendedGraphInstances.settings);
         this.addLayersInfoFromData(layers);
 
-        if (getDataviewPlugin()) {
+        if (getDataviewPlugin(false)) {
             const setting = new Setting(this.containerEl)
                 .setClass("setting-warning")
                 .setDesc(t("features.layersInfoDataview"))

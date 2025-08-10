@@ -157,7 +157,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     private addCanonicalPropertiesWithDataview() {
-        if (getDataviewPlugin()) {
+        if (getDataviewPlugin(false)) {
             new Setting(this.containerEl)
                 .setName(t("features.canonicalizePropertiesWithDataview"))
                 .setDesc(t("features.canonicalizePropertiesWithDataviewDesc"))

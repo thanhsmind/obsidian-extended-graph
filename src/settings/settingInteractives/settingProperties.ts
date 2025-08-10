@@ -183,7 +183,7 @@ export class SettingProperty extends SettingInteractives {
     }
 
     static getAllTypes(key: string): string[] | undefined {
-        if (!getDataviewPlugin()) {
+        if (!getDataviewPlugin(false)) {
             return ExtendedGraphInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(key);
         }
     }

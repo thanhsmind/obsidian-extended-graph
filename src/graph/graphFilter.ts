@@ -18,7 +18,7 @@ export class GraphFilter {
         this.instances = instances;
     }
 
-    filterNodes(data: GraphData): GraphData {
+    filterData(data: GraphData): GraphData {
         // Filter out nodes
         this.excludeNodes(data);
 
@@ -39,6 +39,7 @@ export class GraphFilter {
                     continue;
                 }
 
+                this.ignoreInlineLinks(file, node);
                 this.filterLinksByTypes(file, node, source, nodesToRemove);
 
                 if (this.flagAsPotentialOrphan(node, source, potentialOrphans)) {
@@ -178,6 +179,26 @@ export class GraphFilter {
         return false;
     }
 
+    private ignoreInlineLinks(file: TFile, node: GraphNodeData) {
+        if (!this.instances.settings.ignoreInlineLinks) return;
+        if (!node.links) return;
+
+        const frontmatterLinks = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
+        if (!frontmatterLinks) {
+            node.links = {};
+            return;
+        }
+
+        const validLinks = frontmatterLinks.map(cache => ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(cache.link, file.path)?.path ?? cache.link);
+
+        for (const target of Object.keys(node.links)) {
+            if (!validLinks.contains(target)) {
+                delete node.links[target];
+                console.log(target);
+            }
+        }
+    }
+
     private filterLinksByTypes(file: TFile, node: GraphNodeData, source: string, nodesToRemove: string[]) {
         for (const [key, manager] of this.instances.linksSet.managers) {
             const typedLinks = getOutlinkTypes(this.instances.settings, file); // id -> types
@@ -227,6 +248,7 @@ export class GraphFilter {
 
     private addExternalLinks(data: GraphData) {
         if (!this.instances.engine.options.showAttachments) return;
+        if (this.instances.settings.ignoreInlineLinks) return;
 
         let addedURLs: string[] = [];
         const nodeIDs = Object.keys(data.nodes);

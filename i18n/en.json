@@ -197,6 +197,8 @@
         "imagePropertiesAdd": "Add image property",
         "imageBorderWidth": "Border width (%)",
         "imageBorderWidthDesc": "Percentage of the node's background that will stay visible as a border",
+        "ignoreInlineLinks": "Ignore inline links",
+        "ignoreInlineLinksDesc": "Links defined inside the note and outside of the frontmatter will not be added to the graph",
         "interactives": {
             "alreadyExists": "Already exists",
             "arcsAdd": "Add arcs",

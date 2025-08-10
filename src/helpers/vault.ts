@@ -21,7 +21,7 @@ export function getFileInteractives(interactive: string, file: TFile, settings?:
     }
 }
 
-export function getNumberOfFileInteractives(interactive: string, file: TFile, type: string): number {
+export function getNumberOfFileInteractives(interactive: string, file: TFile, type: string, ignoreInlineLinks: boolean): number {
     if (file.extension !== "md") return 0;
     switch (interactive) {
         case TAG_KEY:
@@ -29,7 +29,7 @@ export function getNumberOfFileInteractives(interactive: string, file: TFile, ty
         case FOLDER_KEY:
             return 1;
         default:
-            return getNumberOfProperties(interactive, file, type);
+            return getNumberOfProperties(interactive, file, type, ignoreInlineLinks);
     }
 }
 
@@ -94,7 +94,7 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
 }
 
 function getProperty(settings: ExtendedGraphSettings, key: string, file: TFile): Set<string> {
-    const dv = getDataviewPlugin();
+    const dv = getDataviewPlugin(settings.ignoreInlineLinks);
     const types = new Set<string>();
 
     // With Dataview
@@ -153,8 +153,8 @@ function recursiveCountProperties(value: any, valueToMatch: string): number {
     return 0;
 }
 
-function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): number {
-    const dv = getDataviewPlugin();
+function getNumberOfProperties(key: string, file: TFile, valueToMatch: string, ignoreInlineLinks: boolean): number {
+    const dv = getDataviewPlugin(ignoreInlineLinks);
 
     // With Dataview
     if (dv) {
@@ -178,7 +178,7 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
 }
 
 export function getAllVaultProperties(settings: ExtendedGraphSettings): string[] {
-    const dv = getDataviewPlugin();
+    const dv = getDataviewPlugin(settings.ignoreInlineLinks);
     if (!dv) {
         return Object.keys(ExtendedGraphInstances.app.metadataCache.getAllPropertyInfos());
     }
@@ -200,7 +200,7 @@ function getFolderPath(file: TFile): Set<string> {
 // ================================= LINKS ================================== //
 
 export function getOutlinkTypes(settings: ExtendedGraphSettings, file: TFile): Map<string, Set<string>> {
-    const dv = getDataviewPlugin();
+    const dv = getDataviewPlugin(settings.ignoreInlineLinks);
     return dv ? getOutlinkTypesWithDataview(settings, dv, file) : getOutlinkTypesWithFrontmatter(file);
 }
 

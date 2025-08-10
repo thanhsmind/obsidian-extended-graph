@@ -671,7 +671,7 @@ export class GraphEventsDispatcher extends Component {
 
     private updateData(data: GraphData): GraphData | undefined {
         // Filter out nodes
-        data = this.instances.filter.filterNodes(data);
+        data = this.instances.filter.filterData(data);
 
         const showNotice = this.lastFilteringAction?.userChange || true;
         if (this.lastFilteringAction) this.lastFilteringAction.userChange = false;

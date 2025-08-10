@@ -7,10 +7,24 @@ export class SettingFilter extends SettingsSection {
     }
 
     protected override addBody(): void {
+        this.addIgnoreInlineLinks();
         this.addNewFilterSetting();
         for (const filter of ExtendedGraphInstances.settings.filterAbstractFiles) {
             this.addRegex(filter);
         }
+    }
+
+    private addIgnoreInlineLinks() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("features.ignoreInlineLinks"))
+            .setDesc(t("features.ignoreInlineLinksDesc"))
+            .addToggle(cb => {
+                cb.setValue(ExtendedGraphInstances.settings.ignoreInlineLinks);
+                cb.onChange(async (value) => {
+                    ExtendedGraphInstances.settings.ignoreInlineLinks = value;
+                    await ExtendedGraphInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 
     private addNewFilterSetting() {

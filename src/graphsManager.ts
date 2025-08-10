@@ -98,7 +98,7 @@ export class GraphsManager extends Component {
 
     private registerEvents() {
         this.onMetadataCacheChange = this.onMetadataCacheChange.bind(this);
-        if (getDataviewPlugin()) {
+        if (getDataviewPlugin(false)) {
             // @ts-ignore
             this.registerEvent(ExtendedGraphInstances.app.metadataCache.on('dataview:metadata-change',
                 (type: string, file: TFile, oldPath?: string) => {
