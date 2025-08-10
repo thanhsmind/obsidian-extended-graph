@@ -1,7 +1,7 @@
 import { WorkspaceLeaf } from "obsidian";
 import { GraphEngine, GraphView, LocalGraphView } from "obsidian-typings";
 import { Container, DisplayObject } from 'pixi.js';
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 
 export function getGraphView(leaf: WorkspaceLeaf): GraphView | LocalGraphView | undefined {
     if (leaf.view.getViewType() === "graph") {
@@ -57,9 +57,9 @@ export function getIndexInHanger(hanger: Container, element: DisplayObject): num
 }
 
 export function pixiAddChild(parent: Container, ...children: DisplayObject[]) {
-    return (PluginInstances.proxysManager.getTargetForProxy(parent) ?? parent).addChild(...children.map(child => PluginInstances.proxysManager.getTargetForProxy(child) ?? child));
+    return (ExtendedGraphInstances.proxysManager.getTargetForProxy(parent) ?? parent).addChild(...children.map(child => ExtendedGraphInstances.proxysManager.getTargetForProxy(child) ?? child));
 }
 
 export function pixiAddChildAt(parent: Container, child: DisplayObject, index: number) {
-    return (PluginInstances.proxysManager.getTargetForProxy(parent) ?? parent).addChildAt(PluginInstances.proxysManager.getTargetForProxy(child) ?? child, index);
+    return (ExtendedGraphInstances.proxysManager.getTargetForProxy(parent) ?? parent).addChildAt(ExtendedGraphInstances.proxysManager.getTargetForProxy(child) ?? child, index);
 }

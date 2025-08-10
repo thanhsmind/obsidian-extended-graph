@@ -32,7 +32,7 @@ import {
     NodeStatCalculatorFactory,
     LinkStatCalculator,
     linkStatFunctionNeedsNLP,
-    PluginInstances,
+    ExtendedGraphInstances,
     GraphInstances,
     WorkspaceExt,
     getFileInteractives,
@@ -100,7 +100,7 @@ export class GraphsManager extends Component {
         this.onMetadataCacheChange = this.onMetadataCacheChange.bind(this);
         if (getDataviewPlugin()) {
             // @ts-ignore
-            this.registerEvent(PluginInstances.app.metadataCache.on('dataview:metadata-change',
+            this.registerEvent(ExtendedGraphInstances.app.metadataCache.on('dataview:metadata-change',
                 (type: string, file: TFile, oldPath?: string) => {
                     if (!this.isCoreGraphLoaded()) return;
                     if (type === "update") {
@@ -110,84 +110,84 @@ export class GraphsManager extends Component {
             ));
         }
         else {
-            this.registerEvent(PluginInstances.app.metadataCache.on('changed', (file, data, cache) => {
+            this.registerEvent(ExtendedGraphInstances.app.metadataCache.on('changed', (file, data, cache) => {
                 if (!this.isCoreGraphLoaded()) return;
                 this.onMetadataCacheChange(file, data, cache);
             }));
         }
 
         this.onDelete = this.onDelete.bind(this);
-        this.registerEvent(PluginInstances.app.vault.on('delete', (file) => {
+        this.registerEvent(ExtendedGraphInstances.app.vault.on('delete', (file) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onDelete(file);
         }));
 
         this.onRename = this.onRename.bind(this);
-        this.registerEvent(PluginInstances.app.vault.on('rename', (file, oldPath) => {
+        this.registerEvent(ExtendedGraphInstances.app.vault.on('rename', (file, oldPath) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onRename(file, oldPath);
         }));
 
         this.onCSSChange = this.onCSSChange.bind(this);
-        this.registerEvent(PluginInstances.app.workspace.on('css-change', () => {
+        this.registerEvent(ExtendedGraphInstances.app.workspace.on('css-change', () => {
             if (!this.isCoreGraphLoaded()) return;
             this.onCSSChange();
         }));
 
-        this.registerEvent(PluginInstances.app.workspace.on('layout-change', () => {
+        this.registerEvent(ExtendedGraphInstances.app.workspace.on('layout-change', () => {
             if (!this.isCoreGraphLoaded()) return;
-            PluginInstances.plugin.onLayoutChange();
+            ExtendedGraphInstances.plugin.onLayoutChange();
         }));
 
         this.onActiveLeafChange = this.onActiveLeafChange.bind(this);
-        this.registerEvent(PluginInstances.app.workspace.on('active-leaf-change', (leaf) => {
+        this.registerEvent(ExtendedGraphInstances.app.workspace.on('active-leaf-change', (leaf) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onActiveLeafChange(leaf);
         }));
 
         this.onFileOpen = this.onFileOpen.bind(this);
-        this.registerEvent(PluginInstances.app.workspace.on('file-open', (file) => {
+        this.registerEvent(ExtendedGraphInstances.app.workspace.on('file-open', (file) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onFileOpen(file);
         }));
 
         this.updatePaletteForInteractive = this.updatePaletteForInteractive.bind(this);
-        this.registerEvent((PluginInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
+        this.registerEvent((ExtendedGraphInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-colorpalette-changed', (key: string) => {
             if (!this.isCoreGraphLoaded()) return;
             this.updatePaletteForInteractive(key);
         }));
 
         this.updateColorForInteractiveType = this.updateColorForInteractiveType.bind(this);
-        this.registerEvent((PluginInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
+        this.registerEvent((ExtendedGraphInstances.app.workspace as WorkspaceExt).on('extended-graph:settings-interactive-color-changed', (key: string, type: string) => {
             if (!this.isCoreGraphLoaded()) return;
             this.updateColorForInteractiveType(key, type);
         }));
 
         this.onNodeMenuOpened = this.onNodeMenuOpened.bind(this);
-        this.registerEvent(PluginInstances.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
+        this.registerEvent(ExtendedGraphInstances.app.workspace.on('file-menu', (menu: Menu, file: TAbstractFile, source: string, leaf?: WorkspaceLeaf) => {
             if (!this.isCoreGraphLoaded()) return;
             this.onNodeMenuOpened(menu, file, source, leaf);
         }));
     }
 
     private addStatusBarItem(): void {
-        this.statusBarItem = PluginInstances.plugin.addStatusBarItem();
+        this.statusBarItem = ExtendedGraphInstances.plugin.addStatusBarItem();
         this.statusBarItem.addClasses(['plugin-extended-graph']);
     }
 
     private isCoreGraphLoaded(): boolean {
-        return !!PluginInstances.app.internalPlugins.getPluginById("graph")?._loaded;
+        return !!ExtendedGraphInstances.app.internalPlugins.getPluginById("graph")?._loaded;
     }
 
     initializeNodesSizeCalculator(): void {
         try {
             this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-            this.nodesSizeCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
+            this.nodesSizeCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats);
         } catch (error) {
             console.error(error);
-            new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
-            PluginInstances.settings.nodesSizeFunction = 'default';
-            PluginInstances.plugin.saveSettings();
+            new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
+            ExtendedGraphInstances.settings.nodesSizeFunction = 'default';
+            ExtendedGraphInstances.plugin.saveSettings();
             this.nodesSizeCalculator = undefined;
         }
     }
@@ -195,12 +195,12 @@ export class GraphsManager extends Component {
     initializeNodesColorCalculator(): void {
         try {
             this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-            this.nodesColorCalculator?.computeStats(PluginInstances.settings.invertNodeStats);
+            this.nodesColorCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats);
         } catch (error) {
             console.error(error);
-            new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[PluginInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
-            PluginInstances.settings.nodesColorFunction = 'default';
-            PluginInstances.plugin.saveSettings();
+            new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
+            ExtendedGraphInstances.settings.nodesColorFunction = 'default';
+            ExtendedGraphInstances.plugin.saveSettings();
             this.nodesColorCalculator = undefined;
         }
     }
@@ -213,9 +213,9 @@ export class GraphsManager extends Component {
             }
         } catch (error) {
             console.error(error);
-            PluginInstances.settings.linksSizeFunction = 'default';
-            PluginInstances.plugin.saveSettings();
-            new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[PluginInstances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
+            ExtendedGraphInstances.settings.linksSizeFunction = 'default';
+            ExtendedGraphInstances.plugin.saveSettings();
+            new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
             this.linksSizeCalculator = undefined;
         }
     }
@@ -228,27 +228,27 @@ export class GraphsManager extends Component {
             }
         } catch (error) {
             console.error(error);
-            PluginInstances.settings.linksColorFunction = 'default';
-            PluginInstances.plugin.saveSettings();
-            new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[PluginInstances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
+            ExtendedGraphInstances.settings.linksColorFunction = 'default';
+            ExtendedGraphInstances.plugin.saveSettings();
+            new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
             this.linksColorCalculator = undefined;
         }
     }
 
     private canUseLinkStatFunction(stat: LinkStat): boolean {
-        const fn = stat === 'color' ? PluginInstances.settings.linksColorFunction : PluginInstances.settings.linksSizeFunction;
+        const fn = stat === 'color' ? ExtendedGraphInstances.settings.linksColorFunction : ExtendedGraphInstances.settings.linksSizeFunction;
 
         if (!getNLPPlugin() && linkStatFunctionNeedsNLP[fn]) {
             new Notice(`${t("notices.nlpPluginRequired")} (${fn})`);
             if (stat === 'color') {
                 this.linksColorCalculator = undefined;
-                PluginInstances.settings.linksColorFunction = 'default';
+                ExtendedGraphInstances.settings.linksColorFunction = 'default';
             }
             else {
                 this.linksSizeCalculator = undefined;
-                PluginInstances.settings.linksSizeFunction = 'default';
+                ExtendedGraphInstances.settings.linksSizeFunction = 'default';
             }
-            PluginInstances.plugin.saveSettings();
+            ExtendedGraphInstances.plugin.saveSettings();
             return false;
         }
         return true;
@@ -281,7 +281,7 @@ export class GraphsManager extends Component {
             if (!extendedNode) return;
             for (const [key, manager] of instances.nodesSet.managers) {
                 let newTypes = [...getFileInteractives(key, file, instances.settings)];
-                newTypes = newTypes.filter(type => !SettingQuery.excludeType(PluginInstances.settings, key, type));
+                newTypes = newTypes.filter(type => !SettingQuery.excludeType(ExtendedGraphInstances.settings, key, type));
                 if (newTypes.length === 0) {
                     newTypes.push(instances.settings.interactiveSettings[key].noneType);
                 }
@@ -340,7 +340,7 @@ export class GraphsManager extends Component {
                     if (!extendedLink) continue;
 
                     // Make sure we have unique types and only types that are not excluded
-                    newTypes = new Set<string>([...newTypes].filter(type => !SettingQuery.excludeType(PluginInstances.settings, LINK_KEY, type)));
+                    newTypes = new Set<string>([...newTypes].filter(type => !SettingQuery.excludeType(ExtendedGraphInstances.settings, LINK_KEY, type)));
                     if (newTypes.size === 0) {
                         newTypes.add(instances.settings.interactiveSettings[LINK_KEY].noneType);
                     }
@@ -527,7 +527,7 @@ export class GraphsManager extends Component {
                     pinner.pinNode(newPath, extendedNode.coreElement.x, extendedNode.coreElement.y);
                 }
             }
-            for (const state of PluginInstances.settings.states) {
+            for (const state of ExtendedGraphInstances.settings.states) {
                 if (!state.pinNodes) break;
                 const pinNodes = structuredClone(Object.entries(state.pinNodes));
                 for (const [currentPath, pos] of pinNodes) {
@@ -536,7 +536,7 @@ export class GraphsManager extends Component {
                         state.pinNodes[newPath] = pos;
                     }
                 }
-                PluginInstances.statesManager.onStateNeedsSaving(state, false);
+                ExtendedGraphInstances.statesManager.onStateNeedsSaving(state, false);
             }
         }
     }
@@ -561,8 +561,8 @@ export class GraphsManager extends Component {
             this.backupOptions(view);
         }
 
-        if (PluginInstances.settings.enableFeatures[view.getViewType()]['auto-enabled']) {
-            this.enablePlugin(view, PluginInstances.settings.startingStateID);
+        if (ExtendedGraphInstances.settings.enableFeatures[view.getViewType()]['auto-enabled']) {
+            this.enablePlugin(view, ExtendedGraphInstances.settings.startingStateID);
         }
     }
 
@@ -646,14 +646,14 @@ export class GraphsManager extends Component {
 
     updateSizeFunctionForNodesStat(): void {
         for (const [leafID, instances] of this.allInstances) {
-            instances.settings.nodesSizeFunction = PluginInstances.settings.nodesSizeFunction;
+            instances.settings.nodesSizeFunction = ExtendedGraphInstances.settings.nodesSizeFunction;
             instances.renderer.changed();
         }
     }
 
     updatePaletteForNodesStat(): void {
         for (const [leafID, instances] of this.allInstances) {
-            instances.settings.nodesColorFunction = PluginInstances.settings.nodesColorFunction;
+            instances.settings.nodesColorFunction = ExtendedGraphInstances.settings.nodesColorFunction;
             instances.renderer.changed();
         }
     }
@@ -692,25 +692,25 @@ export class GraphsManager extends Component {
         globalUI.menu.disableUI();
 
         const actuallyEnablePlugin = async () => {
-            const instances = await this.addGraph(view, stateID ?? PluginInstances.settings.startingStateID, reloadState);
+            const instances = await this.addGraph(view, stateID ?? ExtendedGraphInstances.settings.startingStateID, reloadState);
 
-            if (PluginInstances.settings.enableFeatures[instances.type]["elements-stats"]) {
-                if (this.nodesSizeCalculator?.functionKey !== PluginInstances.settings.nodesSizeFunction
+            if (ExtendedGraphInstances.settings.enableFeatures[instances.type]["elements-stats"]) {
+                if (this.nodesSizeCalculator?.functionKey !== ExtendedGraphInstances.settings.nodesSizeFunction
                     && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "size" })
                 ) {
                     this.initializeNodesSizeCalculator();
                 }
-                if (this.nodesColorCalculator?.functionKey !== PluginInstances.settings.nodesColorFunction
+                if (this.nodesColorCalculator?.functionKey !== ExtendedGraphInstances.settings.nodesColorFunction
                     && !SettingQuery.needDynamicGraphology(instances, { element: "node", stat: "color" })
                 ) {
                     this.initializeNodesColorCalculator();
                 }
-                if (this.linksSizeCalculator?.functionKey !== PluginInstances.settings.linksSizeFunction
+                if (this.linksSizeCalculator?.functionKey !== ExtendedGraphInstances.settings.linksSizeFunction
                     && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "size" })
                 ) {
                     this.initializeLinksSizeCalculator();
                 }
-                if (this.linksColorCalculator?.functionKey !== PluginInstances.settings.linksColorFunction
+                if (this.linksColorCalculator?.functionKey !== ExtendedGraphInstances.settings.linksColorFunction
                     && !SettingQuery.needDynamicGraphology(instances, { element: "link", stat: "color" })
                 ) {
                     this.initializeLinksColorCalculator();
@@ -723,8 +723,8 @@ export class GraphsManager extends Component {
         }
 
 
-        if (PluginInstances.settings.syncDefaultState) {
-            PluginInstances.statesManager.saveForDefaultState(view).then(() => actuallyEnablePlugin());
+        if (ExtendedGraphInstances.settings.syncDefaultState) {
+            ExtendedGraphInstances.statesManager.saveForDefaultState(view).then(() => actuallyEnablePlugin());
         }
         else {
             actuallyEnablePlugin();
@@ -754,17 +754,17 @@ export class GraphsManager extends Component {
     }
 
     isNodeLimitExceededForView(view: GraphView | LocalGraphView): boolean {
-        if (view.renderer.nodes.length > PluginInstances.settings.maxNodes) {
-            new Notice(`${t("notices.nodeLimiteExceeded")} (${view.renderer.nodes.length}). ${t("notices.nodeLimitIs")} ${PluginInstances.settings.maxNodes}. ${t("notices.changeInSettings")}.`);
+        if (view.renderer.nodes.length > ExtendedGraphInstances.settings.maxNodes) {
+            new Notice(`${t("notices.nodeLimiteExceeded")} (${view.renderer.nodes.length}). ${t("notices.nodeLimitIs")} ${ExtendedGraphInstances.settings.maxNodes}. ${t("notices.changeInSettings")}.`);
             return true;
         }
         return false;
     }
 
     isNodeLimitExceededForData(data: GraphData, notice: boolean = true): boolean {
-        if (Object.keys(data.nodes).length > PluginInstances.settings.maxNodes) {
+        if (Object.keys(data.nodes).length > ExtendedGraphInstances.settings.maxNodes) {
             if (notice)
-                new Notice(`${t("notices.nodeLimiteExceeded")} (${Object.keys(data.nodes).length}). ${t("notices.nodeLimitIs")} ${PluginInstances.settings.maxNodes}. ${t("plugin.name")} ${t("notices.disabled")}. ${t("notices.changeInSettings")}.`);
+                new Notice(`${t("notices.nodeLimiteExceeded")} (${Object.keys(data.nodes).length}). ${t("notices.nodeLimitIs")} ${ExtendedGraphInstances.settings.maxNodes}. ${t("plugin.name")} ${t("notices.disabled")}. ${t("notices.changeInSettings")}.`);
             return true;
         }
         return false;
@@ -889,7 +889,7 @@ export class GraphsManager extends Component {
                     // If there is a Graph Banner plugin graph, center it on the correct node.
                     // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
                     // which means that nodes get a new position after the zooming.
-                    const leaves = PluginInstances.app.workspace.getLeavesOfType('markdown').filter(leaf => leaf.view instanceof MarkdownView && (leaf.view as MarkdownView).file === file);
+                    const leaves = ExtendedGraphInstances.app.workspace.getLeavesOfType('markdown').filter(leaf => leaf.view instanceof MarkdownView && (leaf.view as MarkdownView).file === file);
                     for (const leaf of leaves) {
                         if (!(leaf.view instanceof MarkdownView)) continue;
                         const view = leaf.view as MarkdownView;
@@ -940,8 +940,8 @@ export class GraphsManager extends Component {
         this.optionsBackup.set(view.leaf.id, options);
         //delete options.search;
         this.lastBackup = view.leaf.id;
-        PluginInstances.settings.backupGraphOptions = options;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.backupGraphOptions = options;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     restoreBackupInGraphJson() {
@@ -971,7 +971,7 @@ export class GraphsManager extends Component {
     }
 
     getCorePluginInstance(): GraphPluginInstance | undefined {
-        return PluginInstances.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
+        return ExtendedGraphInstances.app.internalPlugins.getPluginById("graph")?.instance as GraphPluginInstance;
     }
 
     applyNormalState(view: GraphView | LocalGraphView) {
@@ -1018,7 +1018,7 @@ export class GraphsManager extends Component {
         if (!node) return;
 
         let scale = renderer.scale;
-        if (targetScale === undefined) targetScale = PluginInstances.settings.zoomFactor;
+        if (targetScale === undefined) targetScale = ExtendedGraphInstances.settings.zoomFactor;
         let panX = renderer.panX
         let panY = renderer.panY;
         renderer.targetScale = Math.min(8, Math.max(1 / 128, targetScale));

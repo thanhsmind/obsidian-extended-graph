@@ -5,7 +5,7 @@
  * Released under the GNU General Public License v3.0
  */
 
-import { GraphologyGraph, LinkStat, LinkStatCalculator, PluginInstances } from "src/internal";
+import { GraphologyGraph, LinkStat, LinkStatCalculator, ExtendedGraphInstances } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 import { CacheItem, getAllTags, getLinkpath, HeadingCache, ListItemCache, ReferenceCache, TagCache } from "obsidian";
 import tokenizer from "sbd";
@@ -43,7 +43,7 @@ export class CoCitationsCalculator extends LinkStatCalculator {
         if (!g) return NaN;
 
         const source = link.source;
-        const mdCache = PluginInstances.app.metadataCache;
+        const mdCache = ExtendedGraphInstances.app.metadataCache;
         const results: Record<string, number> = {};
 
         g.forEachInNeighbor(source, async (pre) => {
@@ -68,7 +68,7 @@ export class CoCitationsCalculator extends LinkStatCalculator {
                 return linkFile.path === source;
             })
 
-            const cachedRead = await PluginInstances.app.vault.cachedRead(file);
+            const cachedRead = await ExtendedGraphInstances.app.vault.cachedRead(file);
             const lines = cachedRead.split('\n');
 
             // Find the sentence the link is in

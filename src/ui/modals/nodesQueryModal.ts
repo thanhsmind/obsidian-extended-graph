@@ -6,7 +6,7 @@ import {
     InteractivesSuggester,
     LogicKey,
     logicKeyLabel,
-    PluginInstances,
+    ExtendedGraphInstances,
     QueryData,
     QueryMatcher,
     QueryMatchesModal,
@@ -34,7 +34,7 @@ export class NodesQueryModal extends Modal {
     settings?: ExtendedGraphSettings;
 
     constructor(title: string, queryData: QueryData, callback: (queryData: QueryData) => void, settings?: ExtendedGraphSettings) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.setTitle(title);
         this.modalEl.addClass("graph-modal-nodes-query");
         this.callback = callback;
@@ -94,7 +94,7 @@ export class NodesQueryModal extends Modal {
     protected addRule(queryRecord?: Record<string, string>) {
         const ruleSetting = new RuleSetting(
             this.contentEl,
-            this.settings ?? PluginInstances.settings,
+            this.settings ?? ExtendedGraphInstances.settings,
             this.removeRule.bind(this),
             this.onChange.bind(this),
             queryRecord

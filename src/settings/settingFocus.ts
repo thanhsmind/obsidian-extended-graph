@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSectionPerGraphType, t } from "src/internal";
 
 export class SettingFocus extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -18,12 +18,12 @@ export class SettingFocus extends SettingsSectionPerGraphType {
                 .setDesc(t("features.focusScaleDesc"))
                 .addText(cb => {
                     cb.inputEl.addClass("number");
-                    cb.setValue(PluginInstances.settings.focusScaleFactor.toString())
+                    cb.setValue(ExtendedGraphInstances.settings.focusScaleFactor.toString())
                         .onChange(async (value) => {
                             const n = parseFloat(value);
                             if (n) {
-                                PluginInstances.settings.focusScaleFactor = n;
-                                await PluginInstances.plugin.saveSettings();
+                                ExtendedGraphInstances.settings.focusScaleFactor = n;
+                                await ExtendedGraphInstances.plugin.saveSettings();
                             }
                         })
                 }).settingEl

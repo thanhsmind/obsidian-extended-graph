@@ -1,5 +1,5 @@
 import { Modal, Setting, TextComponent } from "obsidian";
-import { PluginInstances, UIElements } from "src/internal";
+import { ExtendedGraphInstances, UIElements } from "src/internal";
 
 export class NewNameModal extends Modal {
     callback: (name: string) => boolean;
@@ -7,7 +7,7 @@ export class NewNameModal extends Modal {
     name?: string;
 
     constructor(title: string, callback: (name: string) => boolean, name?: string) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.setTitle(title);
         this.modalEl.addClass("graph-modal-new");
         this.callback = callback;

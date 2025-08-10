@@ -7,7 +7,7 @@ import {
     INVALID_KEYS,
     isPropertyKeyValid,
     LINK_KEY,
-    PluginInstances,
+    ExtendedGraphInstances,
     SettingInteractives,
     t
 } from "src/internal";
@@ -36,11 +36,11 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.excludeSourceFolders"))
             .setDesc(t("features.excludeSourceFoldersDesc"))
             .addButton(cb => {
-                this.setManageNumber(cb, PluginInstances.settings.excludedSourcesFolder.length);
+                this.setManageNumber(cb, ExtendedGraphInstances.settings.excludedSourcesFolder.length);
                 cb.onClick(() => {
-                    const modal = new ExcludeFoldersModal(PluginInstances.settings.excludedSourcesFolder);
+                    const modal = new ExcludeFoldersModal(ExtendedGraphInstances.settings.excludedSourcesFolder);
                     modal.open();
-                    modal.onClose = () => this.setManageNumber(cb, PluginInstances.settings.excludedSourcesFolder.length);
+                    modal.onClose = () => this.setManageNumber(cb, ExtendedGraphInstances.settings.excludedSourcesFolder.length);
                 });
             }).settingEl);
 
@@ -48,11 +48,11 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.excludeTargetFolders"))
             .setDesc(t("features.excludeTargetFoldersDesc"))
             .addButton(cb => {
-                this.setManageNumber(cb, PluginInstances.settings.excludedTargetsFolder.length);
+                this.setManageNumber(cb, ExtendedGraphInstances.settings.excludedTargetsFolder.length);
                 cb.onClick(() => {
-                    const modal = new ExcludeFoldersModal(PluginInstances.settings.excludedTargetsFolder);
+                    const modal = new ExcludeFoldersModal(ExtendedGraphInstances.settings.excludedTargetsFolder);
                     modal.open();
-                    modal.onClose = () => this.setManageNumber(cb, PluginInstances.settings.excludedTargetsFolder.length);
+                    modal.onClose = () => this.setManageNumber(cb, ExtendedGraphInstances.settings.excludedTargetsFolder.length);
                 });
             }).settingEl);
     }
@@ -66,10 +66,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.linksAllowMultipleTypes"))
             .setDesc(t("features.linksAllowMultipleTypesDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.allowMultipleLinkTypes);
+                cb.setValue(ExtendedGraphInstances.settings.allowMultipleLinkTypes);
                 cb.onChange(value => {
-                    PluginInstances.settings.allowMultipleLinkTypes = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.allowMultipleLinkTypes = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -79,10 +79,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.removeSources"))
             .setDesc(t("features.removeSourcesDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.disableSource);
+                cb.setValue(ExtendedGraphInstances.settings.disableSource);
                 cb.onChange(value => {
-                    PluginInstances.settings.disableSource = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.disableSource = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -92,10 +92,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.removeTargets"))
             .setDesc(t("features.removeTargetsDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.disableTarget);
+                cb.setValue(ExtendedGraphInstances.settings.disableTarget);
                 cb.onChange(value => {
-                    PluginInstances.settings.disableTarget = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.disableTarget = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -105,10 +105,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.interactives.colorLinks"))
             .setDesc(t("features.interactives.colorLinksDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.setValue(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
-                    PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -116,10 +116,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.interactives.displayLinkTypeLabel"))
             .setDesc(t("features.interactives.displayLinkTypeLabelDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.displayLinkTypeLabel);
+                cb.setValue(ExtendedGraphInstances.settings.displayLinkTypeLabel);
                 cb.onChange(value => {
-                    PluginInstances.settings.displayLinkTypeLabel = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.displayLinkTypeLabel = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -127,10 +127,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.interactives.colorLinkTypeLabel"))
             .setDesc(t("features.interactives.colorLinkTypeLabelDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.colorLinkTypeLabel);
+                cb.setValue(ExtendedGraphInstances.settings.colorLinkTypeLabel);
                 cb.onChange(value => {
-                    PluginInstances.settings.colorLinkTypeLabel = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.colorLinkTypeLabel = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -140,10 +140,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.interactives.curvedLinks"))
             .setDesc(t("features.interactives.curvedLinksDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.curvedLinks);
+                cb.setValue(ExtendedGraphInstances.settings.curvedLinks);
                 cb.onChange(value => {
-                    PluginInstances.settings.curvedLinks = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.curvedLinks = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -151,16 +151,16 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.interactives.curvedFactor"))
             .setDesc(t("features.interactives.curvedFactorDesc"))
             .addSlider(cb => {
-                const preview = document.createTextNode(PluginInstances.settings.curvedFactor.toString());
+                const preview = document.createTextNode(ExtendedGraphInstances.settings.curvedFactor.toString());
                 if (preview) {
                     cb.sliderEl.parentElement?.insertBefore(preview, cb.sliderEl);
                 }
                 cb.setLimits(-2, 2, 0.2)
-                    .setValue(PluginInstances.settings.curvedFactor)
+                    .setValue(ExtendedGraphInstances.settings.curvedFactor)
                     .onChange(value => {
-                        PluginInstances.settings.curvedFactor = value;
-                        PluginInstances.plugin.saveSettings();
-                        if (preview) preview.textContent = PluginInstances.settings.curvedFactor.toString();
+                        ExtendedGraphInstances.settings.curvedFactor = value;
+                        ExtendedGraphInstances.plugin.saveSettings();
+                        if (preview) preview.textContent = ExtendedGraphInstances.settings.curvedFactor.toString();
                     })
             }).settingEl);
     }
@@ -170,10 +170,10 @@ export class SettingLinks extends SettingInteractives {
             .setName(t("features.linksOutline"))
             .setDesc(t("features.linksOutlineDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.outlineLinks);
+                cb.setValue(ExtendedGraphInstances.settings.outlineLinks);
                 cb.onChange(value => {
-                    PluginInstances.settings.outlineLinks = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.outlineLinks = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -197,22 +197,22 @@ export class SettingLinks extends SettingInteractives {
         if (dv) {
             for (const page of dv.pages()) {
                 for (const [key, value] of Object.entries(page)) {
-                    if (key === "file" || PluginInstances.settings.imageProperties.contains(key) || INVALID_KEYS[LINK_KEY].includes(key)) continue;
+                    if (key === "file" || ExtendedGraphInstances.settings.imageProperties.contains(key) || INVALID_KEYS[LINK_KEY].includes(key)) continue;
                     if (value === null || value === undefined || value === '') continue;
 
                     // Check if the key is a canonicalized version of another key
-                    if (!PluginInstances.settings.canonicalizePropertiesWithDataview && key === canonicalizeVarName(key) && Object.keys(page).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
+                    if (!ExtendedGraphInstances.settings.canonicalizePropertiesWithDataview && key === canonicalizeVarName(key) && Object.keys(page).some(k => canonicalizeVarName(k) === canonicalizeVarName(key) && k !== key)) {
                         continue;
                     }
 
                     if ((typeof value === "object") && ("path" in value)) {
-                        allTypes.add(PluginInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
+                        allTypes.add(ExtendedGraphInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
                     }
 
                     if (Array.isArray(value)) {
                         for (const link of value) {
                             if (link && (typeof link === "object") && ("path" in link)) {
-                                allTypes.add(PluginInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
+                                allTypes.add(ExtendedGraphInstances.settings.canonicalizePropertiesWithDataview ? canonicalizeVarName(key) : key);
                             }
                         }
                     }
@@ -221,10 +221,10 @@ export class SettingLinks extends SettingInteractives {
 
         }
         else {
-            for (const file of PluginInstances.app.vault.getFiles()) {
-                const frontmatterLinks = PluginInstances.app.metadataCache.getCache(file.path)?.frontmatterLinks;
+            for (const file of ExtendedGraphInstances.app.vault.getFiles()) {
+                const frontmatterLinks = ExtendedGraphInstances.app.metadataCache.getCache(file.path)?.frontmatterLinks;
                 if (!frontmatterLinks) continue;
-                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => !PluginInstances.settings.imageProperties.contains(k) && !INVALID_KEYS[LINK_KEY].includes(k));
+                const types = frontmatterLinks.map(l => l.key.split('.')[0]).filter(k => !ExtendedGraphInstances.settings.imageProperties.contains(k) && !INVALID_KEYS[LINK_KEY].includes(k));
                 allTypes = new Set<string>([...allTypes, ...types]);
             }
         }

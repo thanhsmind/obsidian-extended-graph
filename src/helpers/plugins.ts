@@ -1,13 +1,13 @@
 import { getIcon, Plugin } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
 import { DataviewApi, getAPI as getDataviewAPI } from "obsidian-dataview";
-import { canonicalizeVarName, GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, NLPPlugin, PluginInstances } from "src/internal";
+import { canonicalizeVarName, GraphBannerPlugin, IconicPlugin, IconizePlugin, isEmoji, NLPPlugin, ExtendedGraphInstances } from "src/internal";
 
 
 // ======================== Iconic
 
 export function getIconicPlugin(): IconicPlugin | null {
-    return PluginInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
+    return ExtendedGraphInstances.app.plugins.getPlugin('iconic') as IconicPlugin;
 }
 
 export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
@@ -18,7 +18,7 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, col
         || !(typeof iconic.getFileItem === "function")) return null;
 
     // Check for an icon ruling
-    const page = PluginInstances.app.vault.getFolderByPath(path) ? 'folder' : 'file';
+    const page = ExtendedGraphInstances.app.vault.getFolderByPath(path) ? 'folder' : 'file';
     const data = iconic.ruleManager.checkRuling(page, path) ?? iconic.getFileItem(path);
 
     // SVG icon
@@ -45,7 +45,7 @@ export function getSvgFromIconic(path: string): { svg: SVGSVGElement | null, col
 // ======================== Iconize
 
 export function getSvgFromIconize(path: string): { svg: SVGSVGElement | null, color: string | null, emoji: string | null } | null {
-    const iconize: IconizePlugin | null = PluginInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
+    const iconize: IconizePlugin | null = ExtendedGraphInstances.app.plugins.getPlugin('obsidian-icon-folder') as IconizePlugin;
     if (!iconize
         || !iconize.hasOwnProperty("api")
         || !iconize.api.hasOwnProperty("getIconByName")
@@ -101,13 +101,13 @@ export function isGraphBannerView(view: LocalGraphView | GraphView) {
 }
 
 export function getGraphBannerPlugin(): GraphBannerPlugin | undefined {
-    return PluginInstances.app.plugins.getPlugin('graph-banner') as GraphBannerPlugin
+    return ExtendedGraphInstances.app.plugins.getPlugin('graph-banner') as GraphBannerPlugin
 }
 
 // ======================== Dataview
 
 export function getDataviewPlugin(): DataviewApi | undefined {
-    const dv = getDataviewAPI(PluginInstances.app);
+    const dv = getDataviewAPI(ExtendedGraphInstances.app);
 
     return dv;
 }
@@ -131,7 +131,7 @@ export function getDataviewPageProperties(canonicalizeProperties: boolean, page:
 // ======================== NLP
 
 export function getNLPPlugin(): NLPPlugin | undefined {
-    const nlp = PluginInstances.app.plugins.getPlugin("nlp") as NLPPlugin;
+    const nlp = ExtendedGraphInstances.app.plugins.getPlugin("nlp") as NLPPlugin;
     if (!nlp) {
         return;
     } else if (!nlp?.settings?.refreshDocsOnLoad) {

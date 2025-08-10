@@ -1,4 +1,4 @@
-import { AbstractFormattingSuggester, ExtendedGraphSettings, FOLDER_KEY, getFileInteractives, getOutlinkTypes, PluginInstances, SettingLinks, SettingProperty, SettingTags, SourceKey, TAG_KEY } from "src/internal";
+import { AbstractFormattingSuggester, ExtendedGraphSettings, FOLDER_KEY, getFileInteractives, getOutlinkTypes, ExtendedGraphInstances, SettingLinks, SettingProperty, SettingTags, SourceKey, TAG_KEY } from "src/internal";
 
 export class InteractivesSuggester extends AbstractFormattingSuggester {
     key: SourceKey | undefined;
@@ -27,7 +27,7 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
                     values = properties;
                 }
                 else {
-                    const files = PluginInstances.app.vault.getMarkdownFiles();
+                    const files = ExtendedGraphInstances.app.vault.getMarkdownFiles();
                     for (const file of files) {
                         values = values.concat([...getFileInteractives(this.propertyKey, file, this.settings)]);
                     }
@@ -38,13 +38,13 @@ export class InteractivesSuggester extends AbstractFormattingSuggester {
                 break;
             case 'folder':
             case 'folderRec':
-                values = PluginInstances.app.vault.getAllFolders().map(folder => folder.path);
+                values = ExtendedGraphInstances.app.vault.getAllFolders().map(folder => folder.path);
                 break;
             case 'file':
-                values = PluginInstances.app.vault.getFiles().map(file => file.basename);
+                values = ExtendedGraphInstances.app.vault.getFiles().map(file => file.basename);
                 break;
             case 'path':
-                values = PluginInstances.app.vault.getFiles().map(file => file.path);
+                values = ExtendedGraphInstances.app.vault.getFiles().map(file => file.path);
                 break;
             default:
                 break;

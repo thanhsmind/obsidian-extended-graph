@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSectionPerGraphType, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingNames extends SettingsSectionPerGraphType {
@@ -26,16 +26,16 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setDesc(t("features.namesNumberOfCharactersDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.numberOfCharacters?.toString() || '')
+                cb.setValue(ExtendedGraphInstances.settings.numberOfCharacters?.toString() || '')
                     .onChange(async (value) => {
                         const intValue = parseInt(value);
                         if (!isNaN(intValue)) {
-                            PluginInstances.settings.numberOfCharacters = intValue;
+                            ExtendedGraphInstances.settings.numberOfCharacters = intValue;
                         }
                         else {
-                            PluginInstances.settings.numberOfCharacters = null;
+                            ExtendedGraphInstances.settings.numberOfCharacters = null;
                         }
-                        await PluginInstances.plugin.saveSettings();
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     })
             }).settingEl);
     }
@@ -45,10 +45,10 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(t("features.namesShowOnlyFileName"))
             .setDesc(t("features.namesShowOnlyFileNameDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.showOnlyFileName);
+                cb.setValue(ExtendedGraphInstances.settings.showOnlyFileName);
                 cb.onChange(value => {
-                    PluginInstances.settings.showOnlyFileName = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.showOnlyFileName = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -58,10 +58,10 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(t("features.namesNoExtension"))
             .setDesc(t("features.namesNoExtensionDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.noExtension);
+                cb.setValue(ExtendedGraphInstances.settings.noExtension);
                 cb.onChange(value => {
-                    PluginInstances.settings.noExtension = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.noExtension = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -76,7 +76,7 @@ export class SettingNames extends SettingsSectionPerGraphType {
                     const modal = new SettingMultiPropertiesModal(
                         t("features.namesUseProperties"),
                         t("features.namesUsePropertiesAdd"),
-                        PluginInstances.settings.usePropertiesForName
+                        ExtendedGraphInstances.settings.usePropertiesForName
                     );
                     modal.open();
                 })
@@ -89,10 +89,10 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(t("features.namesBackground"))
             .setDesc(t("features.namesBackgroundDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.addBackgroundToName);
+                cb.setValue(ExtendedGraphInstances.settings.addBackgroundToName);
                 cb.onChange(value => {
-                    PluginInstances.settings.addBackgroundToName = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.addBackgroundToName = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -102,11 +102,11 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(t("features.namesDynamicVerticalOffset"))
             .setDesc(t("features.namesDynamicVerticalOffsetDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.dynamicVerticalOffset);
+                cb.setValue(ExtendedGraphInstances.settings.dynamicVerticalOffset);
                 cb.onChange(value => {
                     this.verticalOffset.setDisabled(value);
-                    PluginInstances.settings.dynamicVerticalOffset = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.dynamicVerticalOffset = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -117,14 +117,14 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setDesc(t("features.namesVerticalOffsetDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.nameVerticalOffset.toString());
+                cb.setValue(ExtendedGraphInstances.settings.nameVerticalOffset.toString());
                 cb.onChange(value => {
                     const intValue = parseInt(value);
-                    PluginInstances.settings.nameVerticalOffset = isNaN(intValue) ? 0 : intValue;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.nameVerticalOffset = isNaN(intValue) ? 0 : intValue;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             });
-        this.verticalOffset.setDisabled(PluginInstances.settings.dynamicVerticalOffset);
+        this.verticalOffset.setDisabled(ExtendedGraphInstances.settings.dynamicVerticalOffset);
 
         this.elementsBody.push(this.verticalOffset.settingEl);
     }
@@ -134,10 +134,10 @@ export class SettingNames extends SettingsSectionPerGraphType {
             .setName(t("features.namesShowWhenNeighborHighlighted"))
             .setDesc(t("features.namesShowWhenNeighborHighlightedDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.showNamesWhenNeighborHighlighted);
+                cb.setValue(ExtendedGraphInstances.settings.showNamesWhenNeighborHighlighted);
                 cb.onChange(value => {
-                    PluginInstances.settings.showNamesWhenNeighborHighlighted = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.showNamesWhenNeighborHighlighted = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }

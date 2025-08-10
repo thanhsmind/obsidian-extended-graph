@@ -1,6 +1,6 @@
 import P from "parsimmon";
 import emojiRegex from "emoji-regex";
-import { PluginInstances, t, tObsidian } from "src/internal";
+import { ExtendedGraphInstances, t, tObsidian } from "src/internal";
 import { getLanguage, Notice, Platform } from "obsidian";
 
 export function capitalizeFirstLetter(val: string) {

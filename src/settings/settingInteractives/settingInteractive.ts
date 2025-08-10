@@ -9,7 +9,7 @@ import {
     InteractivesColorSuggester,
     InteractivesSelectionModal,
     LINK_KEY,
-    PluginInstances,
+    ExtendedGraphInstances,
     randomColor,
     SettingColorPalette,
     SettingsSectionPerGraphType,
@@ -39,7 +39,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         this.addNoneTypeSetting();
         this.addColorPaletteSetting();
         this.addSpecificColorHeaderSetting();
-        for (const interactive of PluginInstances.settings.interactiveSettings[this.interactiveKey].colors) {
+        for (const interactive of ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colors) {
             if (this.canBeRecursive && interactive.recursive === undefined) {
                 interactive.recursive = false;
             }
@@ -49,20 +49,20 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     }
 
     protected addNoneTypeSetting() {
-        this.noneType = PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType;
+        this.noneType = ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].noneType;
         const setting = new Setting(this.containerEl)
             .setName(t("features.interactives.noneTypeID"))
             .setDesc(t("features.interactives.noneTypeIDDesc") + this.interactiveKey)
             .addText(cb => cb
-                .setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType)
+                .setValue(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].noneType)
                 .onChange(async (value) => {
                     value = value.trim();
                     if (value == this.noneType) return;
-                    PluginInstances.settings.interactiveSettings[this.interactiveKey].noneType = value;
+                    ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].noneType = value;
                     //INVALID_KEYS[this.interactiveKey].remove(this.noneType);
                     //INVALID_KEYS[this.interactiveKey].push(value);
                     this.noneType = value;
-                    await PluginInstances.plugin.saveSettings();
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 }));
         this.elementsBody.push(setting.settingEl);
     }
@@ -71,13 +71,13 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
         this.settingColorPalette = new SettingColorPalette(this.containerEl, this.settingTab, this.interactiveKey)
             .setDesc(t("features.interactives.paletteDesc") + this.interactiveKey);
 
-        this.settingColorPalette.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
+        this.settingColorPalette.setValue(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap);
 
         this.settingColorPalette.onPaletteChange((palette: string) => {
-            const oldName = PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap;
-            PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = palette;
-            PluginInstances.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
-            PluginInstances.plugin.saveSettings();
+            const oldName = ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap;
+            ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap = palette;
+            ExtendedGraphInstances.plugin.app.workspace.trigger('extended-graph:settings-colorpalette-changed', this.interactiveKey);
+            ExtendedGraphInstances.plugin.saveSettings();
             this.settingTab.onCustomPaletteModified(oldName, palette);
         });
 
@@ -93,7 +93,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
                 UIElements.setupButton(cb, 'add');
                 cb.onClick((e) => {
                     const data = { type: "", color: int2hex(randomColor()), recursive: this.canBeRecursive ? false : undefined };
-                    PluginInstances.settings.interactiveSettings[this.interactiveKey].colors.push(data);
+                    ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colors.push(data);
                     this.addColor(data);
                 })
             });
@@ -116,7 +116,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 
     protected getAllTypes(): string[] {
         let allTypes = new Set<string>();
-        const files = PluginInstances.app.vault.getFiles();
+        const files = ExtendedGraphInstances.app.vault.getFiles();
         for (const file of files) {
             allTypes = new Set<string>([...allTypes, ...getFileInteractives(this.interactiveKey, file)]);
         }
@@ -124,7 +124,7 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
     }
 
     protected addColor(data: { type: string, color: HexString, recursive?: boolean }): SettingColor {
-        const setting = new SettingColor(this.containerEl, PluginInstances.plugin, this.interactiveKey, data, this.isValueValid.bind(this));
+        const setting = new SettingColor(this.containerEl, ExtendedGraphInstances.plugin, this.interactiveKey, data, this.isValueValid.bind(this));
         this.elementsBody.push(setting.settingEl);
 
         this.colors = this.colors.filter(setting => setting.settingEl.parentElement);
@@ -136,18 +136,18 @@ export abstract class SettingInteractives extends SettingsSectionPerGraphType {
 
     onCustomPaletteModified(oldName: string, newName: string): void {
         // Check if the colormap is no longer in the settings
-        if (!getCMapData(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap, PluginInstances.settings)) {
+        if (!getCMapData(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap, ExtendedGraphInstances.settings)) {
             // If the old name matches AND the new name is valid, change the name
-            if (PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap === oldName && getCMapData(newName, PluginInstances.settings)) {
-                PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = newName;
+            if (ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap === oldName && getCMapData(newName, ExtendedGraphInstances.settings)) {
+                ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap = newName;
             }
             // Otherwise, reset it
             else {
-                PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap = "rainbow";
+                ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap = "rainbow";
             }
         }
         this.settingColorPalette.populateCustomOptions();
-        this.settingColorPalette.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].colormap);
+        this.settingColorPalette.setValue(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].colormap);
     }
 
     protected abstract isValueValid(name: string): boolean;
@@ -192,7 +192,7 @@ export class SettingColor extends Setting {
         // Input
         this.addSearch(cb => {
             this.textComponent = cb;
-            const suggester = new InteractivesColorSuggester(cb.inputEl, PluginInstances.settings,
+            const suggester = new InteractivesColorSuggester(cb.inputEl, ExtendedGraphInstances.settings,
                 (value) => {
                     this.toggleWarning();
                     this.save();
@@ -265,7 +265,7 @@ export class SettingColor extends Setting {
 
     private toggleWarning() {
         const newType = this.textComponent.getValue().trim();
-        this.warningDiv.toggleClass("is-hidden", !PluginInstances.settings.interactiveSettings[this.key].colors.find(data => data.type === newType && data !== this.data));
+        this.warningDiv.toggleClass("is-hidden", !ExtendedGraphInstances.settings.interactiveSettings[this.key].colors.find(data => data.type === newType && data !== this.data));
     }
 
     private save() {
@@ -294,9 +294,9 @@ export class SettingColor extends Setting {
     }
 
     protected remove() {
-        PluginInstances.settings.interactiveSettings[this.key].colors.remove(this.data);
-        PluginInstances.plugin.saveSettings().then(() => {
-            PluginInstances.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.data.type);
+        ExtendedGraphInstances.settings.interactiveSettings[this.key].colors.remove(this.data);
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
+            ExtendedGraphInstances.app.workspace.trigger(`extended-graph:settings-interactive-color-changed`, this.key, this.data.type);
         });
 
         this.settingEl.remove();

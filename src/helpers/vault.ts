@@ -1,14 +1,14 @@
 import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
 import { DataviewApi } from "obsidian-dataview";
 import path from "path";
-import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, PluginInstances, TAG_KEY } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, ExtendedGraphInstances, TAG_KEY } from "src/internal";
 
 export function getFile(path: string): TFile | null {
-    return PluginInstances.app.vault.getFileByPath(path);
+    return ExtendedGraphInstances.app.vault.getFileByPath(path);
 }
 
 export function getFileInteractives(interactive: string, file: TFile, settings?: ExtendedGraphSettings): Set<string> {
-    if (PluginInstances.app.metadataCache.isUserIgnored(file.path)) return new Set();
+    if (ExtendedGraphInstances.app.metadataCache.isUserIgnored(file.path)) return new Set();
 
     if (file.extension !== "md") return new Set<string>();
     switch (interactive) {
@@ -17,7 +17,7 @@ export function getFileInteractives(interactive: string, file: TFile, settings?:
         case FOLDER_KEY:
             return getFolderPath(file);
         default:
-            return getProperty(settings ?? PluginInstances.settings, interactive, file);
+            return getProperty(settings ?? ExtendedGraphInstances.settings, interactive, file);
     }
 }
 
@@ -36,7 +36,7 @@ export function getNumberOfFileInteractives(interactive: string, file: TFile, ty
 // ================================== TAGS ================================== //
 
 function getTags(file: TFile): Set<string> {
-    const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
+    const metadataCache = ExtendedGraphInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return new Set<string>();
 
     const tags = getAllTags(metadataCache)?.map(t => t.replace('#', ''));
@@ -46,7 +46,7 @@ function getTags(file: TFile): Set<string> {
 }
 
 function getNumberOfTags(file: TFile, tag: string): number {
-    const metadataCache = PluginInstances.app.metadataCache.getCache(file.path);
+    const metadataCache = ExtendedGraphInstances.app.metadataCache.getCache(file.path);
     if (!metadataCache) return 0;
 
     const tagWithHash = "#" + tag.replace('#', ''); // Ensure the tag starts with '#'
@@ -120,7 +120,7 @@ function getProperty(settings: ExtendedGraphSettings, key: string, file: TFile):
 
     // Links in the frontmatter
     else {
-        const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
+        const frontmatter = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.frontmatter;
         if (frontmatter?.hasOwnProperty(key)) {
             const values = frontmatter[key];
             recursiveGetProperties(values, types);
@@ -136,7 +136,7 @@ function recursiveCountProperties(value: any, valueToMatch: string): number {
     }
     else if (value && (typeof value === "object") && ("path" in value)) {
         const targetFile = getFile(value.path);
-        if (targetFile && PluginInstances.app.metadataCache.fileToLinktext(targetFile, value.path, true) === valueToMatch) {
+        if (targetFile && ExtendedGraphInstances.app.metadataCache.fileToLinktext(targetFile, value.path, true) === valueToMatch) {
             return 1;
         }
         else if (!targetFile && value.path === valueToMatch) {
@@ -167,7 +167,7 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
 
     // Links in the frontmatter
     else {
-        const frontmatter = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatter;
+        const frontmatter = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.frontmatter;
         if (frontmatter?.hasOwnProperty(key)) {
             const values = frontmatter[key];
             return recursiveCountProperties(values, valueToMatch);
@@ -180,7 +180,7 @@ function getNumberOfProperties(key: string, file: TFile, valueToMatch: string): 
 export function getAllVaultProperties(settings: ExtendedGraphSettings): string[] {
     const dv = getDataviewPlugin();
     if (!dv) {
-        return Object.keys(PluginInstances.app.metadataCache.getAllPropertyInfos());
+        return Object.keys(ExtendedGraphInstances.app.metadataCache.getAllPropertyInfos());
     }
     else {
         return dv.pages().values.reduce((acc: string[], page: any) => {
@@ -244,12 +244,12 @@ function getOutlinkTypesWithDataview(settings: ExtendedGraphSettings, dv: Datavi
 
 function getOutlinkTypesWithFrontmatter(file: TFile): Map<string, Set<string>> {
     const linkTypes = new Map<string, Set<string>>();
-    const frontmatterLinks = PluginInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
+    const frontmatterLinks = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.frontmatterLinks;
     if (frontmatterLinks && frontmatterLinks.length > 0) {
         // For each link in the frontmatters, check if target matches
         for (const linkCache of frontmatterLinks) {
             const linkType = linkCache.key.split('.')[0];
-            const targetID = PluginInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, ".")?.path;
+            const targetID = ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, ".")?.path;
             if (targetID) {
                 if (!linkTypes.has(targetID)) linkTypes.set(targetID, new Set<string>());
                 linkTypes.get(targetID)?.add(linkType);
@@ -260,23 +260,23 @@ function getOutlinkTypesWithFrontmatter(file: TFile): Map<string, Set<string>> {
 }
 
 export function getLinks(file: TFile) {
-    const cache = PluginInstances.app.metadataCache.getFileCache(file);
+    const cache = ExtendedGraphInstances.app.metadataCache.getFileCache(file);
     const links: string[] = [];
     if (cache) {
         if (cache.links)
             for (let i = 0; i < cache.links.length; i++) {
                 const linkCache = cache.links[i];
-                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, file.path)?.path ?? linkCache.link);
+                links.push(ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(linkCache.link, file.path)?.path ?? linkCache.link);
             }
         if (cache.embeds)
             for (let i = 0; i < cache.embeds.length; i++) {
                 const embedCache = cache.embeds[i];
-                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, file.path)?.path ?? embedCache.link);
+                links.push(ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(embedCache.link, file.path)?.path ?? embedCache.link);
             }
         if (cache.frontmatterLinks)
             for (let i = 0; i < cache.frontmatterLinks.length; i++) {
                 const frontmatterLinkCache = cache.frontmatterLinks[i];
-                links.push(PluginInstances.app.metadataCache.getFirstLinkpathDest(frontmatterLinkCache.link, file.path)?.path ?? frontmatterLinkCache.link);
+                links.push(ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(frontmatterLinkCache.link, file.path)?.path ?? frontmatterLinkCache.link);
             }
     }
     return links;

@@ -1,6 +1,6 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { GraphInstances, PluginInstances } from 'src/internal';
+import { GraphInstances, ExtendedGraphInstances } from 'src/internal';
 import { reverse } from 'graphology-operators';
 import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { LocalGraphView } from 'obsidian-typings';
@@ -16,16 +16,16 @@ export class GraphologyGraph {
         this.buildGraphology = this.buildGraphology.bind(this);
         this.instances = instances;
 
-        if (PluginInstances.app.metadataCache.isCacheClean()) {
+        if (ExtendedGraphInstances.app.metadataCache.isCacheClean()) {
             this.buildGraphology();
         }
         else {
-            PluginInstances.app.metadataCache.on("resolved", this.buildGraphology);
+            ExtendedGraphInstances.app.metadataCache.on("resolved", this.buildGraphology);
         }
     }
 
     buildGraphology() {
-        PluginInstances.app.metadataCache.off("resolved", this.buildGraphology);
+        ExtendedGraphInstances.app.metadataCache.off("resolved", this.buildGraphology);
 
         if (this.graphology) {
             this.graphology.clear();
@@ -41,14 +41,14 @@ export class GraphologyGraph {
             }
 
             // Add links
-            const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
-            const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
+            const resolvedLinks = ExtendedGraphInstances.app.metadataCache.resolvedLinks;
+            const unresolvedLinks = ExtendedGraphInstances.app.metadataCache.unresolvedLinks;
             for (const link of this.instances.renderer.links) {
                 let count = 1;
 
                 // Get the number of occurences in the vault
                 if (link.target.id.startsWith("#")) {
-                    count = PluginInstances.app.metadataCache.getCache(link.source.id)?.tags?.reduce((acc: number, cache: TagCache) => {
+                    count = ExtendedGraphInstances.app.metadataCache.getCache(link.source.id)?.tags?.reduce((acc: number, cache: TagCache) => {
                         return acc + (cache.tag === link.target.id ? 1 : 0);
                     }, 0) ?? 1;
                 }
@@ -69,10 +69,10 @@ export class GraphologyGraph {
 
         else {
             // Add existing files and tags
-            const files = PluginInstances.app.vault.getFiles();
+            const files = ExtendedGraphInstances.app.vault.getFiles();
             for (const file of files) {
                 this.graphology.addNode(file.path);
-                const fileTags = PluginInstances.app.metadataCache.getFileCache(file)?.tags ?? [];
+                const fileTags = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.tags ?? [];
                 for (const tagCache of fileTags) {
                     if (!this.graphology.hasNode(tagCache.tag)) {
                         this.graphology.addNode(tagCache.tag);
@@ -90,7 +90,7 @@ export class GraphologyGraph {
             }
 
             // Add unresolved links
-            const resolvedLinks = PluginInstances.app.metadataCache.resolvedLinks;
+            const resolvedLinks = ExtendedGraphInstances.app.metadataCache.resolvedLinks;
             for (const [source, references] of Object.entries(resolvedLinks)) {
                 for (const [target, count] of Object.entries(references)) {
                     this.graphology.addEdge(source, target, { count: count });
@@ -98,7 +98,7 @@ export class GraphologyGraph {
             }
 
             // Add unresolved links and files
-            const unresolvedLinks = PluginInstances.app.metadataCache.unresolvedLinks;
+            const unresolvedLinks = ExtendedGraphInstances.app.metadataCache.unresolvedLinks;
             for (const [source, references] of Object.entries(unresolvedLinks)) {
                 for (const [target, count] of Object.entries(references)) {
                     if (!this.graphology.hasNode(target)) this.graphology.addNode(target);

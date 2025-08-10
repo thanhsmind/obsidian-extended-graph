@@ -1,4 +1,4 @@
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 import { InteractivesSuggester } from "./InteractivesSuggester";
 
 export class InteractivesColorSuggester extends InteractivesSuggester {
@@ -11,10 +11,10 @@ export class InteractivesColorSuggester extends InteractivesSuggester {
 
         let alreadyExistingValues: string[] = [];
         if (this.key && this.key !== 'property') {
-            alreadyExistingValues = PluginInstances.settings.interactiveSettings[this.key].colors.map(c => c.type);
+            alreadyExistingValues = ExtendedGraphInstances.settings.interactiveSettings[this.key].colors.map(c => c.type);
         }
         else if (this.key === 'property' && this.propertyKey) {
-            alreadyExistingValues = PluginInstances.settings.interactiveSettings[this.propertyKey].colors.map(c => c.type);
+            alreadyExistingValues = ExtendedGraphInstances.settings.interactiveSettings[this.propertyKey].colors.map(c => c.type);
         }
 
         if (type !== this.typeToInclude && alreadyExistingValues.contains(type)) {

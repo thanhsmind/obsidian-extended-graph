@@ -1,6 +1,6 @@
 import { Component, ExtraButtonComponent, setIcon } from "obsidian";
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { PluginInstances, t } from "src/internal";
+import { ExtendedGraphInstances, t } from "src/internal";
 
 export class MenuUI extends Component {
     view: GraphView | LocalGraphView;
@@ -28,9 +28,9 @@ export class MenuUI extends Component {
             //.setIcon("sparkles")
             .onClick(() => {
                 if (!this.enabled) {
-                    PluginInstances.graphsManager.enablePlugin(this.view);
+                    ExtendedGraphInstances.graphsManager.enablePlugin(this.view);
                 } else {
-                    PluginInstances.graphsManager.disablePlugin(this.view);
+                    ExtendedGraphInstances.graphsManager.disablePlugin(this.view);
                 }
             })
             .then(cb => {
@@ -45,7 +45,7 @@ export class MenuUI extends Component {
             .setIcon("rotate-ccw")
             .onClick(() => {
                 if (this.enabled) {
-                    PluginInstances.graphsManager.resetPlugin(this.view);
+                    ExtendedGraphInstances.graphsManager.resetPlugin(this.view);
                 }
             })
             .then(cb => {

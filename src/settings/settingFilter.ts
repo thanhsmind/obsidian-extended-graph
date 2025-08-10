@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FilesSuggester, PluginInstances, SettingsSection, t, UIElements } from "src/internal";
+import { ExtendedGraphSettingTab, FilesSuggester, ExtendedGraphInstances, SettingsSection, t, UIElements } from "src/internal";
 
 export class SettingFilter extends SettingsSection {
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -8,7 +8,7 @@ export class SettingFilter extends SettingsSection {
 
     protected override addBody(): void {
         this.addNewFilterSetting();
-        for (const filter of PluginInstances.settings.filterAbstractFiles) {
+        for (const filter of ExtendedGraphInstances.settings.filterAbstractFiles) {
             this.addRegex(filter);
         }
     }
@@ -20,10 +20,10 @@ export class SettingFilter extends SettingsSection {
             cb.onClick(async () => {
                 const lastDiv = this.elementsBody.last() ?? setting.settingEl;
                 const newFilter = { regex: "", flag: "" };
-                PluginInstances.settings.filterAbstractFiles.push(newFilter);
+                ExtendedGraphInstances.settings.filterAbstractFiles.push(newFilter);
                 const regexSetting = this.addRegex(newFilter);
                 lastDiv.insertAdjacentElement('afterend', regexSetting.settingEl);
-                await PluginInstances.plugin.saveSettings();
+                await ExtendedGraphInstances.plugin.saveSettings();
             });
         });
 
@@ -35,12 +35,12 @@ export class SettingFilter extends SettingsSection {
             .addSearch(search => {
                 new FilesSuggester(search.inputEl, (value: string) => {
                     filter.regex = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
                 search.setValue(filter.regex);
                 search.onChange((value) => {
                     filter.regex = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             })
             .addText(cb => {
@@ -48,15 +48,15 @@ export class SettingFilter extends SettingsSection {
                     .setValue(filter.flag)
                     .onChange((value) => {
                         filter.flag = value;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.plugin.saveSettings();
                     });
             });
 
         setting.addExtraButton(cb => {
             UIElements.setupExtraButton(cb, 'delete');
             cb.onClick(() => {
-                PluginInstances.settings.filterAbstractFiles.remove(filter);
-                PluginInstances.plugin.saveSettings();
+                ExtendedGraphInstances.settings.filterAbstractFiles.remove(filter);
+                ExtendedGraphInstances.plugin.saveSettings();
                 setting.settingEl.remove();
                 this.elementsBody.remove(setting.settingEl);
             });

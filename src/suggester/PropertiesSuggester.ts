@@ -1,4 +1,4 @@
-import { AbstractFormattingSuggester, getAllVaultProperties, PluginInstances } from "src/internal";
+import { AbstractFormattingSuggester, getAllVaultProperties, ExtendedGraphInstances } from "src/internal";
 
 export class PropertiesSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
@@ -9,7 +9,7 @@ export class PropertiesSuggester extends AbstractFormattingSuggester {
     }
 
     protected getStringSuggestions(query: string): string[] {
-        const values = getAllVaultProperties(PluginInstances.settings);
+        const values = getAllVaultProperties(ExtendedGraphInstances.settings);
         const filteredValues = values.filter(value => new RegExp(query, "i").exec(value));
         return [...new Set(filteredValues)];
     }

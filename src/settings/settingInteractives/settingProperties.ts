@@ -4,7 +4,7 @@ import {
     FOLDER_KEY,
     isPropertyKeyValid,
     LINK_KEY,
-    PluginInstances,
+    ExtendedGraphInstances,
     AddPropertyInteractiveModal,
     SettingInteractives,
     SettingsSectionPerGraphType,
@@ -23,7 +23,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
         super(settingTab, 'properties', '', t("features.ids.properties"), t("features.interactives.properties"), 'archive', t("features.interactives.propertiesDesc"));
 
-        for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
+        for (const key of Object.keys(ExtendedGraphInstances.settings.additionalProperties)) {
             this.settingInteractives.push(new SettingProperty(key, settingTab, this));
         }
     }
@@ -62,7 +62,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     }
 
     isKeyValid(key: string) {
-        if (PluginInstances.settings.additionalProperties.hasOwnProperty(key)) {
+        if (ExtendedGraphInstances.settings.additionalProperties.hasOwnProperty(key)) {
             new Notice(t("features.interactives.propertyAlreadyExists"));
             return false;
         }
@@ -84,11 +84,11 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
     protected addProperty(key: string): boolean {
         if (!this.isKeyValid(key)) return false;
 
-        PluginInstances.settings.additionalProperties[key] = {
+        ExtendedGraphInstances.settings.additionalProperties[key] = {
             'graph': true,
             'localgraph': true
         };
-        PluginInstances.settings.interactiveSettings[key] = {
+        ExtendedGraphInstances.settings.interactiveSettings[key] = {
             colormap: "rainbow",
             colors: [],
             unselected: [],
@@ -97,7 +97,7 @@ export class SettingPropertiesArray extends SettingsSectionPerGraphType {
             showOnGraph: true,
             enableByDefault: true,
         }
-        PluginInstances.plugin.saveSettings().then(() => {
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
             const setting = new SettingProperty(key, this.settingTab, this);
             this.settingInteractives.push(setting);
             setting.containerEl = this.propertiesContainer;
@@ -152,19 +152,19 @@ export class SettingProperty extends SettingInteractives {
             .setName(t("features.interactives.arcsAdd"))
             .setDesc(t("features.interactives.arcsAddPropertyDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
+                cb.setValue(ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph);
                 cb.onChange(value => {
-                    PluginInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey].showOnGraph = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
 
     remove(): void {
-        delete PluginInstances.settings.additionalProperties[this.interactiveKey];
-        delete PluginInstances.settings.interactiveSettings[this.interactiveKey];
+        delete ExtendedGraphInstances.settings.additionalProperties[this.interactiveKey];
+        delete ExtendedGraphInstances.settings.interactiveSettings[this.interactiveKey];
         this.array.settingInteractives.remove(this);
-        PluginInstances.plugin.saveSettings().then(() => {
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
             this.settingHeader.settingEl.remove();
             this.elementsBody.forEach(el => el.remove());
         });
@@ -184,7 +184,7 @@ export class SettingProperty extends SettingInteractives {
 
     static getAllTypes(key: string): string[] | undefined {
         if (!getDataviewPlugin()) {
-            return PluginInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(key);
+            return ExtendedGraphInstances.app.metadataCache.getFrontmatterPropertyValuesForKey(key);
         }
     }
 }

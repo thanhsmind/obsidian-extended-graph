@@ -11,7 +11,7 @@ import {
     NodeStat,
     NodeStatCalculator,
     NodeStatFunction,
-    PluginInstances,
+    ExtendedGraphInstances,
     SentimentCalculator,
     TagsCountCalculator,
     TopologicalSortCalculator,
@@ -22,7 +22,7 @@ import * as centrality from "./centralityCalculator";
 
 export class NodeStatCalculatorFactory {
     static getCalculator(stat: NodeStat, instances?: GraphInstances): NodeStatCalculator | undefined {
-        const settings = (instances ?? PluginInstances).settings;
+        const settings = (instances ?? ExtendedGraphInstances).settings;
         const g = instances?.graphologyGraph;
         const fn = stat === 'size' ? settings.nodesSizeFunction : settings.nodesColorFunction;
         switch (fn) {

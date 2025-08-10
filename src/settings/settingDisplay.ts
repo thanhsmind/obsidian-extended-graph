@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 
 export class SettingDisplay extends SettingsSection {
 
@@ -27,16 +27,16 @@ export class SettingDisplay extends SettingsSection {
             .setDesc(t("features.borderUnresolvedDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.borderUnresolved.toString())
+                cb.setValue(ExtendedGraphInstances.settings.borderUnresolved.toString())
                     .onChange(async (value) => {
                         if (value === '') {
-                            PluginInstances.settings.borderUnresolved = '';
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.borderUnresolved = '';
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                         const floatValue = parseFloat(value);
                         if (!isNaN(floatValue)) {
-                            PluginInstances.settings.borderUnresolved = Math.clamp(floatValue, 0, 1);
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.borderUnresolved = Math.clamp(floatValue, 0, 1);
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             }).settingEl);
@@ -56,10 +56,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("features.noLineHighlight"))
             .setDesc(t("features.noLineHighlightDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.noLineHighlight || false);
+                cb.setValue(ExtendedGraphInstances.settings.noLineHighlight || false);
                 cb.onChange(value => {
-                    PluginInstances.settings.noLineHighlight = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.noLineHighlight = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -69,10 +69,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("features.interactives.arcsSpread"))
             .setDesc(t("features.interactives.arcsSpreadDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.spreadArcs || false);
+                cb.setValue(ExtendedGraphInstances.settings.spreadArcs || false);
                 cb.onChange(value => {
-                    PluginInstances.settings.spreadArcs = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.spreadArcs = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -82,10 +82,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("features.interactives.arcWeight"))
             .setDesc(t("features.interactives.arcWeightDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.weightArcs || false);
+                cb.setValue(ExtendedGraphInstances.settings.weightArcs || false);
                 cb.onChange(value => {
-                    PluginInstances.settings.weightArcs = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.weightArcs = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -97,32 +97,32 @@ export class SettingDisplay extends SettingsSection {
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.inputEl.insertAdjacentText('beforebegin', t("plugin.light"));
-                cb.setValue(PluginInstances.settings.interactivesBrightness.light.toString());
+                cb.setValue(ExtendedGraphInstances.settings.interactivesBrightness.light.toString());
                 cb.onChange(value => {
                     if (value === '') {
-                        PluginInstances.settings.interactivesBrightness.light = 1;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.interactivesBrightness.light = 1;
+                        ExtendedGraphInstances.plugin.saveSettings();
                     }
                     const floatValue = parseFloat(value);
                     if (!isNaN(floatValue)) {
-                        PluginInstances.settings.interactivesBrightness.light = Math.max(floatValue, 0);
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.interactivesBrightness.light = Math.max(floatValue, 0);
+                        ExtendedGraphInstances.plugin.saveSettings();
                     }
                 })
             })
             .addText(cb => {
                 cb.inputEl.addClass("number");
                 cb.inputEl.insertAdjacentText('beforebegin', t("plugin.dark"));
-                cb.setValue(PluginInstances.settings.interactivesBrightness.dark.toString());
+                cb.setValue(ExtendedGraphInstances.settings.interactivesBrightness.dark.toString());
                 cb.onChange(value => {
                     if (value === '') {
-                        PluginInstances.settings.interactivesBrightness.dark = 1;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.interactivesBrightness.dark = 1;
+                        ExtendedGraphInstances.plugin.saveSettings();
                     }
                     const floatValue = parseFloat(value);
                     if (!isNaN(floatValue)) {
-                        PluginInstances.settings.interactivesBrightness.dark = Math.max(floatValue, 0);
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.interactivesBrightness.dark = Math.max(floatValue, 0);
+                        ExtendedGraphInstances.plugin.saveSettings();
                     }
                 })
             })
@@ -134,10 +134,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("features.fadeInElements"))
             .setDesc(t("features.fadeInElementsDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.fadeInElements);
+                cb.setValue(ExtendedGraphInstances.settings.fadeInElements);
                 cb.onChange(value => {
-                    PluginInstances.settings.fadeInElements = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.fadeInElements = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             }).settingEl);
     }
@@ -147,10 +147,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("features.animateDotsOnLinks"))
             .setDesc(t("features.animateDotsOnLinksDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.animateDotsOnLinks || false);
+                cb.setValue(ExtendedGraphInstances.settings.animateDotsOnLinks || false);
                 cb.onChange(value => {
-                    PluginInstances.settings.animateDotsOnLinks = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.animateDotsOnLinks = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             }).settingEl);
     }
@@ -161,12 +161,12 @@ export class SettingDisplay extends SettingsSection {
             .setDesc(t("features.animateDotsOnLinksSpeedDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.animationSpeedForDots.toString())
+                cb.setValue(ExtendedGraphInstances.settings.animationSpeedForDots.toString())
                     .onChange(async (value) => {
                         const floatValue = parseFloat(value);
                         if (!isNaN(floatValue) && floatValue > 0) {
-                            PluginInstances.settings.animationSpeedForDots = floatValue;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.animationSpeedForDots = floatValue;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             }).settingEl);
@@ -177,10 +177,10 @@ export class SettingDisplay extends SettingsSection {
             .setName(t("UI.horizontalLegend"))
             .setDesc(t("UI.horizontalLegendDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.horizontalLegend);
+                cb.setValue(ExtendedGraphInstances.settings.horizontalLegend);
                 cb.onChange(value => {
-                    PluginInstances.settings.horizontalLegend = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.horizontalLegend = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             }).settingEl);
     }

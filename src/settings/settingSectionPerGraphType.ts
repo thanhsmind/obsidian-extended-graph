@@ -1,5 +1,5 @@
 import { ToggleComponent } from "obsidian";
-import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, makeCompatibleForClass, PluginInstances, SettingsSection } from "src/internal";
+import { ExtendedGraphSettingTab, Feature, GraphType, graphTypeLabels, makeCompatibleForClass, ExtendedGraphInstances, SettingsSection } from "src/internal";
 
 
 export abstract class SettingsSectionPerGraphType extends SettingsSection {
@@ -22,9 +22,9 @@ export abstract class SettingsSectionPerGraphType extends SettingsSection {
     }
 
     protected addToggle(graphType: GraphType) {
-        let enable = PluginInstances.settings.enableFeatures[graphType][this.feature];
+        let enable = ExtendedGraphInstances.settings.enableFeatures[graphType][this.feature];
         if (this.feature === 'property-key') {
-            enable = PluginInstances.settings.additionalProperties[this.interactiveKey][graphType];
+            enable = ExtendedGraphInstances.settings.additionalProperties[this.interactiveKey][graphType];
         }
         const toggle = this.settingHeader.controlEl.createDiv();
         toggle.addClass("toggle-labelled");
@@ -40,11 +40,11 @@ export abstract class SettingsSectionPerGraphType extends SettingsSection {
 
     private toggle(graphType: GraphType, enable: boolean) {
         if (this.feature === 'property-key') {
-            PluginInstances.settings.additionalProperties[this.interactiveKey][graphType] = enable;
+            ExtendedGraphInstances.settings.additionalProperties[this.interactiveKey][graphType] = enable;
         }
         else {
-            PluginInstances.settings.enableFeatures[graphType][this.feature] = enable;
+            ExtendedGraphInstances.settings.enableFeatures[graphType][this.feature] = enable;
         }
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

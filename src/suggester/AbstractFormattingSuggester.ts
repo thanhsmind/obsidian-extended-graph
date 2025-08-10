@@ -1,9 +1,9 @@
 import { AbstractInputSuggest, getLanguage } from "obsidian";
-import { PluginInstances, strCompare } from "src/internal";
+import { ExtendedGraphInstances, strCompare } from "src/internal";
 
 export abstract class AbstractFormattingSuggester extends AbstractInputSuggest<HTMLElement> {
     constructor(textInputEl: HTMLInputElement | HTMLDivElement) {
-        super(PluginInstances.app, textInputEl);
+        super(ExtendedGraphInstances.app, textInputEl);
     }
 
     protected override getSuggestions(query: string): HTMLElement[] {

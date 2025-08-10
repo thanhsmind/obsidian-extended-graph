@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t } from "src/internal";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'backUniquelinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'totallinksCount' | 'totalUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
 
@@ -90,10 +90,10 @@ export abstract class NodeStatCalculator {
 
     async computeStats(invert: boolean): Promise<void> {
         if (!this.graphologyGraph) {
-            if (!PluginInstances.graphologyGraph) {
-                PluginInstances.graphologyGraph = new GraphologyGraph();
+            if (!ExtendedGraphInstances.graphologyGraph) {
+                ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
             }
-            this.graphologyGraph = PluginInstances.graphologyGraph;
+            this.graphologyGraph = ExtendedGraphInstances.graphologyGraph;
         }
         this.graphologyGraph.registerListener(async (graph) => {
             await this.getStats(invert);
@@ -114,7 +114,7 @@ export abstract class NodeStatCalculator {
     mapStat(): void {
         switch (this.stat) {
             case 'size':
-                this.normalizeValues(PluginInstances.settings.nodesSizeRange.min, PluginInstances.settings.nodesSizeRange.max);
+                this.normalizeValues(ExtendedGraphInstances.settings.nodesSizeRange.min, ExtendedGraphInstances.settings.nodesSizeRange.max);
                 this.cleanNanAndInfiniteValues(1);
                 break;
 
@@ -122,7 +122,7 @@ export abstract class NodeStatCalculator {
                 this.normalizeValues(0, 100);
                 this.cleanNanAndInfiniteValues(50);
                 this.filesStats.forEach(({ measure, value }, path) => {
-                    this.filesStats.set(path, { measure: measure, value: evaluateCMap(value / 100, PluginInstances.settings.nodesColorColormap, PluginInstances.settings) });
+                    this.filesStats.set(path, { measure: measure, value: evaluateCMap(value / 100, ExtendedGraphInstances.settings.nodesColorColormap, ExtendedGraphInstances.settings) });
                 });
                 break;
 

@@ -14,7 +14,7 @@ import {
     GraphStateModal,
     InteractiveManager,
     InteractiveUI,
-    PluginInstances,
+    ExtendedGraphInstances,
     SettingQuery,
     t,
     validateFilename
@@ -32,7 +32,7 @@ export class StatesManager {
     // ================================ GETTERS ================================
 
     getStateDataById(id: string): GraphStateData | undefined {
-        return PluginInstances.settings.states.find(v => v.id === id);
+        return ExtendedGraphInstances.settings.states.find(v => v.id === id);
     }
 
     // ============================= CREATE STATE ==============================
@@ -60,9 +60,9 @@ export class StatesManager {
 
         // If the config has changed, we need to reset the plugin in order to restart with all the correct settings
         const config = this.getConfig(id);
-        if (PluginInstances.settings.saveConfigsWithState && !PluginInstances.graphsManager.isResetting.get(instances.view.leaf.id) && config) {
+        if (ExtendedGraphInstances.settings.saveConfigsWithState && !ExtendedGraphInstances.graphsManager.isResetting.get(instances.view.leaf.id) && config) {
             if (SettingQuery.needReload(instances.settings, config, instances.type)) {
-                PluginInstances.graphsManager.resetPlugin(instances.view, true, id);
+                ExtendedGraphInstances.graphsManager.resetPlugin(instances.view, true, id);
                 return;
             }
             else {
@@ -116,11 +116,11 @@ export class StatesManager {
 
     private updateManagers(stateData: GraphStateData, managers: Map<string, InteractiveManager>, interactiveUI: InteractiveUI | null): void {
         for (const [key, manager] of managers) {
-            if (!PluginInstances.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
-                PluginInstances.settings.interactiveSettings[key].enableByDefault = key !== FOLDER_KEY;
-                PluginInstances.plugin.saveSettings();
+            if (!ExtendedGraphInstances.settings.interactiveSettings[key].hasOwnProperty('enableByDefault')) {
+                ExtendedGraphInstances.settings.interactiveSettings[key].enableByDefault = key !== FOLDER_KEY;
+                ExtendedGraphInstances.plugin.saveSettings();
             }
-            const enableByDefault = PluginInstances.settings.interactiveSettings[key].enableByDefault;
+            const enableByDefault = ExtendedGraphInstances.settings.interactiveSettings[key].enableByDefault;
             this.loadStateForInteractiveManager(manager, stateData);
             if (interactiveUI && stateData.toggleTypes) {
                 if (enableByDefault) interactiveUI.enableAllUI(key);
@@ -137,7 +137,7 @@ export class StatesManager {
 
     private loadStateForInteractiveManager(manager: InteractiveManager, stateData: GraphStateData): void {
         if (!stateData.toggleTypes) return;
-        const enableByDefault = PluginInstances.settings.interactiveSettings[manager.name].enableByDefault;
+        const enableByDefault = ExtendedGraphInstances.settings.interactiveSettings[manager.name].enableByDefault;
         const stateTypesToToggle: string[] = stateData.toggleTypes[manager.name] ?? [];
         const toDisable: string[] = [];
         const toEnable: string[] = [];
@@ -171,7 +171,7 @@ export class StatesManager {
      */
     async saveState(instances: GraphInstances, id: string): Promise<void> {
         if (id === DEFAULT_STATE_ID) return;
-        const stateData = PluginInstances.settings.states.find(v => v.id == id);
+        const stateData = ExtendedGraphInstances.settings.states.find(v => v.id == id);
         if (!stateData) return;
         const state = new GraphState(stateData.name);
         state.saveState(stateData);
@@ -186,12 +186,12 @@ export class StatesManager {
 
         let filename = cleanFilename(state.data.name);
         if (!validateFilename(filename, false)) filename = "state_" + state.data.id;
-        const filepath = PluginInstances.configurationDirectory + "/" + filename + ".json";
-        PluginInstances.plugin.exportSettings(filepath, instances.settings, state);
+        const filepath = ExtendedGraphInstances.configurationDirectory + "/" + filename + ".json";
+        ExtendedGraphInstances.plugin.exportSettings(filepath, instances.settings, state);
         this.cacheStatesConfigs[state.data.id] = {
             filepath: filepath,
             settings: await (() => {
-                return PluginInstances.plugin.loadConfigFile(filepath).then(
+                return ExtendedGraphInstances.plugin.loadConfigFile(filepath).then(
                     config => {
                         delete config["stateID"];
                         return config;
@@ -203,7 +203,7 @@ export class StatesManager {
 
     async onStateNeedsSaving(stateData: GraphStateData, notice: boolean = false): Promise<void> {
         this.updateStateArray(stateData);
-        await PluginInstances.plugin.saveSettings().then(() => {
+        await ExtendedGraphInstances.plugin.saveSettings().then(() => {
             if (notice) new Notice(`${t("plugin.name")}: ${t("notices.stateSaved")} (${stateData.name})`);
             this.updateAllStates();
         });
@@ -219,7 +219,7 @@ export class StatesManager {
     }
 
     saveForNormalState(view: GraphView | LocalGraphView) {
-        const coreGraph = (PluginInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
+        const coreGraph = (ExtendedGraphInstances.app.internalPlugins.getPluginById("graph") as GraphPlugin).instance;
 
         const engine = getEngine(view);
         if (!engine) {
@@ -227,24 +227,24 @@ export class StatesManager {
         }
         coreGraph.options = engine.getOptions();
         coreGraph.saveOptions();
-        PluginInstances.graphsManager.backupOptions(view);
+        ExtendedGraphInstances.graphsManager.backupOptions(view);
         new Notice(t("notices.normalStateSave"));
     }
 
     // ============================= UPDATE STATE ==============================
 
     private updateStateArray(stateData: GraphStateData): void {
-        const index = PluginInstances.settings.states.findIndex(v => v.name === stateData.name);
+        const index = ExtendedGraphInstances.settings.states.findIndex(v => v.name === stateData.name);
         if (index >= 0) {
-            PluginInstances.settings.states[index] = stateData;
+            ExtendedGraphInstances.settings.states[index] = stateData;
         }
         else {
-            PluginInstances.settings.states.push(stateData);
+            ExtendedGraphInstances.settings.states.push(stateData);
         }
     }
 
     private updateAllStates(): void {
-        PluginInstances.graphsManager.allInstances.forEach(instances => {
+        ExtendedGraphInstances.graphsManager.allInstances.forEach(instances => {
             instances.statesUI.updateStatesList();
         });
     }
@@ -253,7 +253,7 @@ export class StatesManager {
         const stateData = this.getStateDataById(id);
         if (!stateData || stateData.name === newName) return;
         stateData.name = newName;
-        PluginInstances.plugin.saveSettings().then(() => {
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
             new Notice(`${t("plugin.name")}: ${t("notices.stateRenamed")} (${newName})`);
             this.updateAllStates();
         });
@@ -269,8 +269,8 @@ export class StatesManager {
         if (id === DEFAULT_STATE_ID) return;
         const state = this.getStateDataById(id);
         if (!state) return;
-        PluginInstances.settings.states.remove(state);
-        PluginInstances.plugin.saveSettings().then(() => {
+        ExtendedGraphInstances.settings.states.remove(state);
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
             new Notice(`${t("plugin.name")}: ${t("notices.stateDeleted")} (${state.name})`);
             this.updateAllStates();
         });
@@ -280,7 +280,7 @@ export class StatesManager {
     // ============================= DISPLAY STATE =============================
 
     showGraphState(view: GraphView | LocalGraphView): void {
-        const instances = PluginInstances.graphsManager.allInstances.get(view.leaf.id);
+        const instances = ExtendedGraphInstances.graphsManager.allInstances.get(view.leaf.id);
         if (!instances) return;
         const modal = new GraphStateModal(instances);
         modal.open();
@@ -290,16 +290,16 @@ export class StatesManager {
 
     private async mapStatesConfig(): Promise<void> {
         const configFiles = await getAllConfigFiles();
-        const stateIDs = PluginInstances.settings.states.map(state => state.id);
+        const stateIDs = ExtendedGraphInstances.settings.states.map(state => state.id);
 
         for (const file of configFiles) {
-            const importedSettings = await PluginInstances.plugin.loadConfigFile(file);
+            const importedSettings = await ExtendedGraphInstances.plugin.loadConfigFile(file);
 
             if (importedSettings.stateID && stateIDs.contains(importedSettings.stateID)) {
                 this.cacheStatesConfigs[importedSettings.stateID] = {
                     filepath: file,
                     settings: await (() => {
-                        return PluginInstances.plugin.loadConfigFile(file).then(
+                        return ExtendedGraphInstances.plugin.loadConfigFile(file).then(
                             config => {
                                 delete config["stateID"];
                                 return config

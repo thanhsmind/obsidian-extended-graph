@@ -1,13 +1,13 @@
 import { DropdownComponent, Modal, Setting } from "obsidian";
 import path from "path";
-import { getAllConfigFiles, PluginInstances, t } from "src/internal";
+import { getAllConfigFiles, ExtendedGraphInstances, t } from "src/internal";
 
 export class ImportConfigModal extends Modal {
     callback: (filepath: string) => void;
     dropdown: DropdownComponent;
 
     constructor(callback: (filepath: string) => void) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.setTitle(t("controls.selectConfigToImport"));
         this.modalEl.addClass("graph-modal-import-config");
         this.callback = callback;
@@ -21,7 +21,7 @@ export class ImportConfigModal extends Modal {
                 const files = await getAllConfigFiles();
                 cb.addOptions(Object.fromEntries(files.map(file => [
                     file,
-                    path.basename(file, ".json") + (PluginInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
+                    path.basename(file, ".json") + (ExtendedGraphInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
                 ])));
             })
             .addButton((cb) => {

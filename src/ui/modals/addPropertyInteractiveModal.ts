@@ -1,12 +1,12 @@
 import { Modal, SearchComponent, Setting } from "obsidian";
-import { PluginInstances, PropertiesUnusedSuggester, UIElements } from "src/internal";
+import { ExtendedGraphInstances, PropertiesUnusedSuggester, UIElements } from "src/internal";
 
 export class AddPropertyInteractiveModal extends Modal {
     callback: (name: string) => boolean;
     input: SearchComponent;
 
     constructor(title: string, callback: (name: string) => boolean) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.setTitle(title);
         this.modalEl.addClass("graph-modal-new");
         this.callback = callback;

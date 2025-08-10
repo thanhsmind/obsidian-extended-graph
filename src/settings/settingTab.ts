@@ -2,7 +2,7 @@ import { Notice, PluginSettingTab, Setting, ToggleComponent } from "obsidian";
 import {
     ExportConfigModal,
     ImportConfigModal,
-    PluginInstances,
+    ExtendedGraphInstances,
     SettingFocus,
     SettingFolders,
     SettingImages,
@@ -40,7 +40,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     settingsWithPalettes: { onCustomPaletteModified: (oldName: string, newName: string) => void }[] = [];
 
     constructor(plugin: ExtendedGraphPlugin) {
-        super(PluginInstances.app, plugin);
+        super(ExtendedGraphInstances.app, plugin);
 
         // We need to store those ones localy in order to interact with them
         // when a custom color palette is created/edited/deleted
@@ -82,7 +82,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
     }
 
     override display(): void {
-        this.originalSettings = structuredClone(PluginInstances.settings);
+        this.originalSettings = structuredClone(ExtendedGraphInstances.settings);
         this.containerEl.empty();
         this.containerEl.addClass("extended-graph-settings");
 
@@ -105,13 +105,13 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 cb.setTooltip(t("controls.exportSettings"));
                 cb.onClick(() => {
                     const modal = new ExportConfigModal((name: string, fullpath: boolean) => {
-                        const filepath = fullpath ? name : PluginInstances.configurationDirectory + "/" + name + ".json";
+                        const filepath = fullpath ? name : ExtendedGraphInstances.configurationDirectory + "/" + name + ".json";
                         if (!fullpath) {
                             if (!validateFilename(name)) {
                                 return false;
                             }
                         }
-                        PluginInstances.plugin.exportSettings(filepath, PluginInstances.settings);
+                        ExtendedGraphInstances.plugin.exportSettings(filepath, ExtendedGraphInstances.settings);
                         return true;
                     });
                     modal.open();
@@ -127,7 +127,7 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                             new Notice("Configuration name cannot be empty");
                             return;
                         }
-                        PluginInstances.plugin.importSettings(filepath).then(() => {
+                        ExtendedGraphInstances.plugin.importSettings(filepath).then(() => {
                             this.display();
                         });
                     });
@@ -148,10 +148,10 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
             .setName(t("features.disableNodes"))
             .setDesc(t("features.disableNodesDesc"))
             .addToggle(cb => {
-                cb.setValue(!PluginInstances.settings.fadeOnDisable);
+                cb.setValue(!ExtendedGraphInstances.settings.fadeOnDisable);
                 cb.onChange(value => {
-                    PluginInstances.settings.fadeOnDisable = !value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.fadeOnDisable = !value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             });
     }
@@ -162,22 +162,22 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
                 .setName(t("features.canonicalizePropertiesWithDataview"))
                 .setDesc(t("features.canonicalizePropertiesWithDataviewDesc"))
                 .addToggle(cb => {
-                    cb.setValue(PluginInstances.settings.canonicalizePropertiesWithDataview);
+                    cb.setValue(ExtendedGraphInstances.settings.canonicalizePropertiesWithDataview);
                     cb.onChange(value => {
-                        PluginInstances.settings.canonicalizePropertiesWithDataview = value;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.canonicalizePropertiesWithDataview = value;
+                        ExtendedGraphInstances.plugin.saveSettings();
                     })
                 });
         }
     }
 
     override hide(): void {
-        if (PluginInstances.graphsManager && PluginInstances.settings.resetAfterChanges) {
-            if (SettingQuery.needReload(this.originalSettings, PluginInstances.settings, 'graph')) {
-                PluginInstances.graphsManager.resetAllPlugins('graph');
+        if (ExtendedGraphInstances.graphsManager && ExtendedGraphInstances.settings.resetAfterChanges) {
+            if (SettingQuery.needReload(this.originalSettings, ExtendedGraphInstances.settings, 'graph')) {
+                ExtendedGraphInstances.graphsManager.resetAllPlugins('graph');
             }
-            if (SettingQuery.needReload(this.originalSettings, PluginInstances.settings, 'localgraph')) {
-                PluginInstances.graphsManager.resetAllPlugins('localgraph');
+            if (SettingQuery.needReload(this.originalSettings, ExtendedGraphInstances.settings, 'localgraph')) {
+                ExtendedGraphInstances.graphsManager.resetAllPlugins('localgraph');
             }
         }
         super.hide();
@@ -187,6 +187,6 @@ export class ExtendedGraphSettingTab extends PluginSettingTab {
         for (const setting of this.settingsWithPalettes) {
             setting.onCustomPaletteModified(oldName, newName);
         }
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

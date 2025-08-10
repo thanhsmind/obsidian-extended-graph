@@ -1,5 +1,5 @@
 import { GraphView, LocalGraphView } from "obsidian-typings";
-import { Pinner, PluginInstances, t } from "./internal";
+import { Pinner, ExtendedGraphInstances, t } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { ItemView } from "obsidian";
 
@@ -25,9 +25,9 @@ function addEnableCommands(plugin: ExtendedGraphPlugin) {
         name: t("controls.enableInGraphView"),
         checkCallback: (checking: boolean) => {
             const graphView = getActiveGraphView(plugin);
-            if (graphView && !PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && !ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    PluginInstances.graphsManager.enablePlugin(graphView);
+                    ExtendedGraphInstances.graphsManager.enablePlugin(graphView);
                 }
                 return true;
             }
@@ -39,9 +39,9 @@ function addEnableCommands(plugin: ExtendedGraphPlugin) {
         name: t("controls.disableInGraphView"),
         checkCallback: (checking: boolean) => {
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    PluginInstances.graphsManager.disablePlugin(graphView);
+                    ExtendedGraphInstances.graphsManager.disablePlugin(graphView);
                 }
                 return true;
             }
@@ -54,9 +54,9 @@ function addEnableCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    PluginInstances.graphsManager.resetPlugin(graphView);
+                    ExtendedGraphInstances.graphsManager.resetPlugin(graphView);
                 }
                 return true;
             }
@@ -73,7 +73,7 @@ function addSVGCommands(plugin: ExtendedGraphPlugin) {
             const graphView = getActiveGraphView(plugin);
             if (graphView) {
                 if (!checking) {
-                    PluginInstances.graphsManager.getSVGScreenshot(graphView);
+                    ExtendedGraphInstances.graphsManager.getSVGScreenshot(graphView);
                 }
                 return true;
             }
@@ -90,7 +90,7 @@ function addStateCommands(plugin: ExtendedGraphPlugin) {
             const graphView = getActiveGraphView(plugin);
             if (graphView) {
                 if (!checking) {
-                    PluginInstances.statesManager.saveForDefaultState(graphView);
+                    ExtendedGraphInstances.statesManager.saveForDefaultState(graphView);
                 }
                 return true;
             }
@@ -103,9 +103,9 @@ function addStateCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    PluginInstances.statesManager.saveForNormalState(graphView);
+                    ExtendedGraphInstances.statesManager.saveForNormalState(graphView);
                 }
                 return true;
             }
@@ -118,9 +118,9 @@ function addStateCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    PluginInstances.statesManager.showGraphState(graphView);
+                    ExtendedGraphInstances.statesManager.showGraphState(graphView);
                 }
                 return true;
             }
@@ -135,9 +135,9 @@ function addFolderCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                     instances?.foldersSet?.enableAll();
                 }
                 return true;
@@ -151,9 +151,9 @@ function addFolderCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                     instances?.foldersSet?.enableAllWithAtLeastOneNode();
                 }
                 return true;
@@ -167,9 +167,9 @@ function addFolderCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                     instances?.foldersSet?.disableAll();
                 }
                 return true;
@@ -183,9 +183,9 @@ function addFolderCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                     instances?.foldersSet?.disableAllWithAtLeastOneNode();
                 }
                 return true;
@@ -202,8 +202,8 @@ function addPinCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
-                const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                 if (!instances || Object.keys(instances.nodesSet.selectedNodes).length === 0) {
                     return;
                 }
@@ -221,8 +221,8 @@ function addPinCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
-                const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                 if (!instances || Object.keys(instances.nodesSet.selectedNodes).length === 0) {
                     return;
                 }
@@ -243,9 +243,9 @@ function addPinCommands(plugin: ExtendedGraphPlugin) {
         checkCallback: (checking: boolean) => {
             // Conditions to check
             const graphView = getActiveGraphView(plugin);
-            if (graphView && PluginInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
                 if (!checking) {
-                    const instances = PluginInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
                     if (instances) {
                         new Pinner(instances).unpinAllNodes();
                     }

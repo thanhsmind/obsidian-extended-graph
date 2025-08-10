@@ -10,7 +10,7 @@ import {
     NodeStatFunction,
     nodeStatFunctionLabels,
     nodeStatFunctionNeedsNLP,
-    PluginInstances,
+    ExtendedGraphInstances,
     SettingColorPalette,
     SettingsSectionPerGraphType,
     t
@@ -60,7 +60,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                     const modal = new SettingMultiPropertiesModal(
                         t("features.nodeSizeProperties"),
                         t("features.nodeSizePropertiesAdd"),
-                        PluginInstances.settings.nodesSizeProperties
+                        ExtendedGraphInstances.settings.nodesSizeProperties
                     );
                     modal.open();
                 })
@@ -84,9 +84,9 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                             return true;
                         })
                     ));
-                cb.setValue(PluginInstances.settings.nodesSizeFunction);
+                cb.setValue(ExtendedGraphInstances.settings.nodesSizeFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodesSizes(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
+                    this.recomputeNodesSizes(value as NodeStatFunction, ExtendedGraphInstances.settings.invertNodeStats);
                 });
             });
 
@@ -102,7 +102,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         this.elementsBody.push(setting.settingEl);
         this.warningNodeSizeSetting = setting;
-        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(PluginInstances.settings.nodesSizeFunction));
+        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(ExtendedGraphInstances.settings.nodesSizeFunction));
     }
 
     private addNodeSizeRange(): void {
@@ -111,23 +111,23 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setDesc(t("features.nodeSizesRangeDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.nodesSizeRange.min.toString());
+                cb.setValue(ExtendedGraphInstances.settings.nodesSizeRange.min.toString());
                 cb.onChange(async (value) => {
                     const floatValue = parseFloat(value);
                     if (!isNaN(floatValue)) {
-                        PluginInstances.settings.nodesSizeRange.min = Math.clamp(floatValue, 0.1, 5);
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.nodesSizeRange.min = Math.clamp(floatValue, 0.1, 5);
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     }
                 });
             })
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.nodesSizeRange.max.toString());
+                cb.setValue(ExtendedGraphInstances.settings.nodesSizeRange.max.toString());
                 cb.onChange(async (value) => {
                     const floatValue = parseFloat(value);
                     if (!isNaN(floatValue)) {
-                        PluginInstances.settings.nodesSizeRange.max = Math.clamp(floatValue, 0.1, 5);
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.nodesSizeRange.max = Math.clamp(floatValue, 0.1, 5);
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     }
                 });
             });
@@ -150,9 +150,9 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                             return true;
                         })
                     ));
-                cb.setValue(PluginInstances.settings.nodesColorFunction);
+                cb.setValue(ExtendedGraphInstances.settings.nodesColorFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodeColors(value as NodeStatFunction, PluginInstances.settings.invertNodeStats);
+                    this.recomputeNodeColors(value as NodeStatFunction, ExtendedGraphInstances.settings.invertNodeStats);
                 });
             });
 
@@ -168,7 +168,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
         this.elementsBody.push(setting.settingEl);
         this.warningNodeColorSetting = setting;
-        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(PluginInstances.settings.nodesColorFunction));
+        this.setWarning(setting, NodeStatCalculatorFactory.getWarning(ExtendedGraphInstances.settings.nodesColorFunction));
     }
 
     private addInvertNodeStats(): void {
@@ -176,10 +176,10 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setName(t("features.nodeStatsInvert"))
             .setDesc(t("features.nodeStatsInvertDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.invertNodeStats);
+                cb.setValue(ExtendedGraphInstances.settings.invertNodeStats);
                 cb.onChange((value) => {
-                    this.recomputeNodesSizes(PluginInstances.settings.nodesSizeFunction, value);
-                    this.recomputeNodeColors(PluginInstances.settings.nodesColorFunction, value);
+                    this.recomputeNodesSizes(ExtendedGraphInstances.settings.nodesSizeFunction, value);
+                    this.recomputeNodeColors(ExtendedGraphInstances.settings.nodesColorFunction, value);
                 });
             });
 
@@ -190,13 +190,13 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.nodesPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-nodes')
             .setDesc(t("features.nodeColorsPaletteDesc"));
 
-        this.nodesPaletteSetting.setValue(PluginInstances.settings.nodesColorColormap);
+        this.nodesPaletteSetting.setValue(ExtendedGraphInstances.settings.nodesColorColormap);
 
         this.nodesPaletteSetting.onPaletteChange((palette: string) => {
-            PluginInstances.settings.nodesColorColormap = palette;
-            PluginInstances.plugin.saveSettings();
-            PluginInstances.graphsManager.nodesColorCalculator?.mapStat();
-            PluginInstances.graphsManager.updatePaletteForNodesStat();
+            ExtendedGraphInstances.settings.nodesColorColormap = palette;
+            ExtendedGraphInstances.plugin.saveSettings();
+            ExtendedGraphInstances.graphsManager.nodesColorCalculator?.mapStat();
+            ExtendedGraphInstances.graphsManager.updatePaletteForNodesStat();
         });
 
         // Push to body list
@@ -219,7 +219,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                         })
                     )
                 );
-                cb.setValue(PluginInstances.settings.linksSizeFunction);
+                cb.setValue(ExtendedGraphInstances.settings.linksSizeFunction);
                 cb.onChange((value) => {
                     this.recomputeLinksSizes(value as LinkStatFunction);
                 });
@@ -244,7 +244,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                         })
                     )
                 );
-                cb.setValue(PluginInstances.settings.linksColorFunction);
+                cb.setValue(ExtendedGraphInstances.settings.linksColorFunction);
                 cb.onChange((value) => {
                     this.recomputeLinksColors(value as LinkStatFunction);
                 });
@@ -257,13 +257,13 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.linksPaletteSetting = new SettingColorPalette(this.containerEl, this.settingTab, 'stats-colors-links')
             .setDesc(t("features.linkColorsPaletteDesc"));
 
-        this.linksPaletteSetting.setValue(PluginInstances.settings.linksColorColormap);
+        this.linksPaletteSetting.setValue(ExtendedGraphInstances.settings.linksColorColormap);
 
         this.linksPaletteSetting.onPaletteChange((palette: string) => {
-            PluginInstances.settings.linksColorColormap = palette;
-            PluginInstances.plugin.saveSettings();
-            PluginInstances.graphsManager.linksColorCalculator?.mapStat();
-            PluginInstances.graphsManager.updatePaletteForLinksStat();
+            ExtendedGraphInstances.settings.linksColorColormap = palette;
+            ExtendedGraphInstances.plugin.saveSettings();
+            ExtendedGraphInstances.graphsManager.linksColorCalculator?.mapStat();
+            ExtendedGraphInstances.graphsManager.updatePaletteForLinksStat();
         });
 
         // Push to body list
@@ -275,10 +275,10 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             .setName(t("features.nodeStatsRecomputeOnGraphChange"))
             .setDesc(t("features.nodeStatsRecomputeOnGraphChangeDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.recomputeStatsOnGraphChange);
+                cb.setValue(ExtendedGraphInstances.settings.recomputeStatsOnGraphChange);
                 cb.onChange((value) => {
-                    PluginInstances.settings.recomputeStatsOnGraphChange = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.recomputeStatsOnGraphChange = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             });
 
@@ -289,32 +289,32 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
 
     onCustomPaletteModified(oldName: string, newName: string): void {
         // Check if the colormap is no longer in the settings
-        if (!getCMapData(PluginInstances.settings.nodesColorColormap, PluginInstances.settings)) {
+        if (!getCMapData(ExtendedGraphInstances.settings.nodesColorColormap, ExtendedGraphInstances.settings)) {
             // If the old name matches AND the new name is valid, change the name
-            if (PluginInstances.settings.nodesColorColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
-                PluginInstances.settings.nodesColorColormap = newName;
+            if (ExtendedGraphInstances.settings.nodesColorColormap === oldName && getCMapData(newName, ExtendedGraphInstances.settings)) {
+                ExtendedGraphInstances.settings.nodesColorColormap = newName;
             }
             // Otherwise, reset it
             else {
-                PluginInstances.settings.nodesColorColormap = "rainbow";
+                ExtendedGraphInstances.settings.nodesColorColormap = "rainbow";
             }
         }
         this.nodesPaletteSetting.populateCustomOptions();
-        this.nodesPaletteSetting.setValue(PluginInstances.settings.nodesColorColormap);
+        this.nodesPaletteSetting.setValue(ExtendedGraphInstances.settings.nodesColorColormap);
 
         // Check if the colormap is no longer in the settings
-        if (!getCMapData(PluginInstances.settings.linksColorColormap, PluginInstances.settings)) {
+        if (!getCMapData(ExtendedGraphInstances.settings.linksColorColormap, ExtendedGraphInstances.settings)) {
             // If the old name matches AND the new name is valid, change the name
-            if (PluginInstances.settings.linksColorColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
-                PluginInstances.settings.linksColorColormap = newName;
+            if (ExtendedGraphInstances.settings.linksColorColormap === oldName && getCMapData(newName, ExtendedGraphInstances.settings)) {
+                ExtendedGraphInstances.settings.linksColorColormap = newName;
             }
             // Otherwise, reset it
             else {
-                PluginInstances.settings.linksColorColormap = "rainbow";
+                ExtendedGraphInstances.settings.linksColorColormap = "rainbow";
             }
         }
         this.linksPaletteSetting.populateCustomOptions();
-        this.linksPaletteSetting.setValue(PluginInstances.settings.linksColorColormap);
+        this.linksPaletteSetting.setValue(ExtendedGraphInstances.settings.linksColorColormap);
     }
 
 
@@ -342,9 +342,9 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             this.nodesSizeFunctionDropdown?.setValue(functionKey);
         }
 
-        PluginInstances.settings.nodesSizeFunction = functionKey;
-        PluginInstances.settings.invertNodeStats = invertNodeStats;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.nodesSizeFunction = functionKey;
+        ExtendedGraphInstances.settings.invertNodeStats = invertNodeStats;
+        ExtendedGraphInstances.plugin.saveSettings();
         this.setWarning(this.warningNodeSizeSetting, NodeStatCalculatorFactory.getWarning(functionKey));
     }
 
@@ -355,10 +355,10 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             this.nodesColorFunctionDropdown?.setValue(functionKey);
         }
 
-        PluginInstances.settings.nodesColorFunction = functionKey;
-        PluginInstances.settings.invertNodeStats = invertNodeStats;
+        ExtendedGraphInstances.settings.nodesColorFunction = functionKey;
+        ExtendedGraphInstances.settings.invertNodeStats = invertNodeStats;
         this.setWarning(this.warningNodeColorSetting, NodeStatCalculatorFactory.getWarning(functionKey));
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {
@@ -368,8 +368,8 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             this.linksSizeFunctionDropdown?.setValue(functionKey);
         }
 
-        PluginInstances.settings.linksSizeFunction = functionKey;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.linksSizeFunction = functionKey;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private recomputeLinksColors(functionKey: LinkStatFunction): void {
@@ -379,7 +379,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             this.linksColorFunctionDropdown?.setValue(functionKey);
         }
 
-        PluginInstances.settings.linksColorFunction = functionKey;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.linksColorFunction = functionKey;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

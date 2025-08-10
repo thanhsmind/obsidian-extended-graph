@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 
 export class SettingAutomation extends SettingsSection {
 
@@ -30,13 +30,13 @@ export class SettingAutomation extends SettingsSection {
             .setName(t("states.startingState"))
             .setDesc(t("states.startingStateDesc"))
             .addDropdown(cb => {
-                cb.addOptions(Object.fromEntries(Object.values(PluginInstances.settings.states).map(data => {
+                cb.addOptions(Object.fromEntries(Object.values(ExtendedGraphInstances.settings.states).map(data => {
                     return [data.id, data.name]
                 })));
-                cb.setValue(PluginInstances.settings.startingStateID);
+                cb.setValue(ExtendedGraphInstances.settings.startingStateID);
                 cb.onChange(id => {
-                    PluginInstances.settings.startingStateID = id;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.startingStateID = id;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }
             ).settingEl);
@@ -47,10 +47,10 @@ export class SettingAutomation extends SettingsSection {
             .setName(t("states.syncDefaultState"))
             .setDesc(t("states.syncDefaultStateDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.syncDefaultState);
+                cb.setValue(ExtendedGraphInstances.settings.syncDefaultState);
                 cb.onChange((value) => {
-                    PluginInstances.settings.syncDefaultState = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.syncDefaultState = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }
             ).settingEl);
@@ -61,10 +61,10 @@ export class SettingAutomation extends SettingsSection {
             .setName(t("states.saveConfigsWithState"))
             .setDesc(t("states.saveConfigsWithStateDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.saveConfigsWithState);
+                cb.setValue(ExtendedGraphInstances.settings.saveConfigsWithState);
                 cb.onChange((value) => {
-                    PluginInstances.settings.saveConfigsWithState = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.saveConfigsWithState = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }
             ).settingEl);
@@ -75,10 +75,10 @@ export class SettingAutomation extends SettingsSection {
             .setName(t("features.openInNewTab"))
             .setDesc(t("features.openInNewTabDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.openInNewTab);
+                cb.setValue(ExtendedGraphInstances.settings.openInNewTab);
                 cb.onChange((value) => {
-                    PluginInstances.settings.openInNewTab = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.openInNewTab = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }
             ).settingEl);
@@ -89,10 +89,10 @@ export class SettingAutomation extends SettingsSection {
             .setName(t("features.autoReset"))
             .setDesc(t("features.autoResetDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.resetAfterChanges);
+                cb.setValue(ExtendedGraphInstances.settings.resetAfterChanges);
                 cb.onChange((value) => {
-                    PluginInstances.settings.resetAfterChanges = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.resetAfterChanges = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }
             ).settingEl);

@@ -4,7 +4,7 @@ import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { GraphologyGraph, NodeStat, NodeStatCalculator, NodeStatFunction, PluginInstances } from "src/internal";
+import { GraphologyGraph, NodeStat, NodeStatCalculator, NodeStatFunction, ExtendedGraphInstances } from "src/internal";
 import { reverse } from "graphology-operators";
 
 type CentralityMapping = Record<string, number>;
@@ -18,10 +18,10 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
 
     override async computeStats(invert: boolean): Promise<void> {
         if (!this.graphologyGraph) {
-            if (!PluginInstances.graphologyGraph) {
-                PluginInstances.graphologyGraph = new GraphologyGraph();
+            if (!ExtendedGraphInstances.graphologyGraph) {
+                ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
             }
-            this.graphologyGraph = PluginInstances.graphologyGraph;
+            this.graphologyGraph = ExtendedGraphInstances.graphologyGraph;
         }
         const graphology = this.graphologyGraph.graphology;
         if (!graphology) return;

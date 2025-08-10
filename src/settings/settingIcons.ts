@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSectionPerGraphType, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingIcons extends SettingsSectionPerGraphType {
@@ -26,7 +26,7 @@ export class SettingIcons extends SettingsSectionPerGraphType {
                         const modal = new SettingMultiPropertiesModal(
                             t("features.iconProperties"),
                             t("features.iconPropertiesAdd"),
-                            PluginInstances.settings.iconProperties
+                            ExtendedGraphInstances.settings.iconProperties
                         );
                         modal.open();
                     })
@@ -41,10 +41,10 @@ export class SettingIcons extends SettingsSectionPerGraphType {
                 .setName(t("features.iconUsePlugin"))
                 .setDesc(t("features.iconUsePluginDesc"))
                 .addToggle(cb => {
-                    cb.setValue(PluginInstances.settings.usePluginForIcon);
+                    cb.setValue(ExtendedGraphInstances.settings.usePluginForIcon);
                     cb.onChange((value) => {
-                        PluginInstances.settings.usePluginForIcon = value;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.usePluginForIcon = value;
+                        ExtendedGraphInstances.plugin.saveSettings();
                         this.colorSetting?.setVisibility(value);
                         this.parentSetting?.setVisibility(value);
                     })
@@ -55,26 +55,26 @@ export class SettingIcons extends SettingsSectionPerGraphType {
             .setName(t("features.iconUsePluginColor"))
             .setDesc(t("features.iconUsePluginColorDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.usePluginForIconColor);
+                cb.setValue(ExtendedGraphInstances.settings.usePluginForIconColor);
                 cb.onChange((value) => {
-                    PluginInstances.settings.usePluginForIconColor = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.usePluginForIconColor = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             });
-        this.colorSetting?.setVisibility(PluginInstances.settings.usePluginForIcon);
+        this.colorSetting?.setVisibility(ExtendedGraphInstances.settings.usePluginForIcon);
         this.elementsBody.push(this.colorSetting.settingEl);
 
         this.parentSetting = new Setting(this.settingTab.containerEl)
             .setName(t("features.iconUseParentIcon"))
             .setDesc(t("features.iconUseParentIconDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.useParentIcon);
+                cb.setValue(ExtendedGraphInstances.settings.useParentIcon);
                 cb.onChange((value) => {
-                    PluginInstances.settings.useParentIcon = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.useParentIcon = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             });
-        this.parentSetting?.setVisibility(PluginInstances.settings.usePluginForIcon);
+        this.parentSetting?.setVisibility(ExtendedGraphInstances.settings.usePluginForIcon);
         this.elementsBody.push(this.parentSetting.settingEl);
     }
 }

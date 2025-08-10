@@ -1,9 +1,9 @@
 import { arrayBufferToBase64, MarkdownRenderer, Platform, requestUrl } from "obsidian";
-import { getFile, getLinkDestination, PluginInstances, t } from "src/internal";
+import { getFile, getLinkDestination, ExtendedGraphInstances, t } from "src/internal";
 
 export class Media {
     static async getImageUriFromProperty(keyProperty: string, id: string): Promise<string | null> {
-        const metadata = PluginInstances.app.metadataCache.getCache(id);
+        const metadata = ExtendedGraphInstances.app.metadataCache.getCache(id);
         if (!metadata) return null;
 
         const frontmatter = metadata.frontmatter;
@@ -28,7 +28,7 @@ export class Media {
     }
 
     static async getImageUriFromEmbeds(id: string): Promise<string | null> {
-        const metadata = PluginInstances.app.metadataCache.getCache(id);
+        const metadata = ExtendedGraphInstances.app.metadataCache.getCache(id);
         if (!metadata) return null;
 
         let embeds: string[] = metadata.embeds?.map(c => c.link) ?? [];
@@ -36,14 +36,14 @@ export class Media {
             const file = getFile(id);
             if (!file) return null;
 
-            const data = await PluginInstances.app.vault.cachedRead(file);
+            const data = await ExtendedGraphInstances.app.vault.cachedRead(file);
             const div = createDiv();
             await MarkdownRenderer.render(
-                PluginInstances.app,
+                ExtendedGraphInstances.app,
                 data,
                 div,
                 id,
-                PluginInstances.plugin
+                ExtendedGraphInstances.plugin
             );
             const images = Array.from(div.querySelectorAll("img")).map(img => img.src);
             const videos = Array.from(div.querySelectorAll("video")).map(vid => vid.src);
@@ -61,19 +61,19 @@ export class Media {
     static async getImageUriForAttachment(id: string): Promise<string | null> {
         const file = getFile(id);
         if (file) {
-            return Media.getStaticImageUri(PluginInstances.app.vault.getResourcePath(file));
+            return Media.getStaticImageUri(ExtendedGraphInstances.app.vault.getResourcePath(file));
         }
         return null;
     }
 
     private static async getImageUriFromLink(link: string): Promise<string | null> {
-        const imageFile = PluginInstances.app.metadataCache.getFirstLinkpathDest(link, ".");
+        const imageFile = ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(link, ".");
         if (imageFile) {
-            const src = PluginInstances.app.vault.getResourcePath(imageFile);
+            const src = ExtendedGraphInstances.app.vault.getResourcePath(imageFile);
             return Media.getStaticImageUri(src);
         }
 
-        if (PluginInstances.settings.allowExternalImages) {
+        if (ExtendedGraphInstances.settings.allowExternalImages) {
             try {
                 const validationUrl = new URL(link);
                 if (validationUrl.protocol === 'http:' || validationUrl.protocol === 'https:') {
@@ -87,7 +87,7 @@ export class Media {
             }
         }
 
-        if (PluginInstances.settings.allowExternalLocalImages) {
+        if (ExtendedGraphInstances.settings.allowExternalLocalImages) {
             try {
                 const validationUrl = new URL(link);
                 if (validationUrl.protocol === 'file:') {

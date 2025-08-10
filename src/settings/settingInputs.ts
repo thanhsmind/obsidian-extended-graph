@@ -1,5 +1,5 @@
 import { Modifier, Platform, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 
 export class SettingInput extends SettingsSection {
 
@@ -27,16 +27,16 @@ export class SettingInput extends SettingsSection {
                     'Shift': 'Shift',
                     'Alt': 'Alt'
                 });
-                cb.setValue(PluginInstances.settings.useRadialMenu ? PluginInstances.settings.radialMenuModifier : '');
+                cb.setValue(ExtendedGraphInstances.settings.useRadialMenu ? ExtendedGraphInstances.settings.radialMenuModifier : '');
                 cb.onChange(async (value) => {
                     if (value === '') {
-                        PluginInstances.settings.useRadialMenu = false;
+                        ExtendedGraphInstances.settings.useRadialMenu = false;
                     }
                     else {
-                        PluginInstances.settings.useRadialMenu = true;
-                        PluginInstances.settings.radialMenuModifier = value as Modifier;
+                        ExtendedGraphInstances.settings.useRadialMenu = true;
+                        ExtendedGraphInstances.settings.radialMenuModifier = value as Modifier;
                     }
-                    await PluginInstances.plugin.saveSettings();
+                    await ExtendedGraphInstances.plugin.saveSettings();
                     this.checkCompatibility();
                 })
             });
@@ -57,15 +57,15 @@ export class SettingInput extends SettingsSection {
                     'Shift': 'Shift',
                     'Alt': 'Alt'
                 });
-                cb.setValue(PluginInstances.settings.pinNodeModifier ? PluginInstances.settings.pinNodeModifier : '');
+                cb.setValue(ExtendedGraphInstances.settings.pinNodeModifier ? ExtendedGraphInstances.settings.pinNodeModifier : '');
                 cb.onChange(async (value) => {
                     if (value === '') {
-                        PluginInstances.settings.pinNodeModifier = undefined;
+                        ExtendedGraphInstances.settings.pinNodeModifier = undefined;
                     }
                     else {
-                        PluginInstances.settings.pinNodeModifier = value as Modifier;
+                        ExtendedGraphInstances.settings.pinNodeModifier = value as Modifier;
                     }
-                    await PluginInstances.plugin.saveSettings();
+                    await ExtendedGraphInstances.plugin.saveSettings();
                     this.checkCompatibility();
                 })
             });
@@ -75,8 +75,8 @@ export class SettingInput extends SettingsSection {
 
     private checkCompatibility() {
         const rightClickModifiers = [
-            PluginInstances.settings.radialMenuModifier,
-            PluginInstances.settings.pinNodeModifier
+            ExtendedGraphInstances.settings.radialMenuModifier,
+            ExtendedGraphInstances.settings.pinNodeModifier
         ];
         const rightClickCompatibility = rightClickModifiers.unique().length === rightClickModifiers.length;
 

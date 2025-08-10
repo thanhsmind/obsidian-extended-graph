@@ -1,5 +1,5 @@
 import { Modal, Setting } from "obsidian";
-import { PluginInstances, t } from "src/internal";
+import { ExtendedGraphInstances, t } from "src/internal";
 
 export class InteractivesSelectionModal extends Modal {
     key: string;
@@ -8,7 +8,7 @@ export class InteractivesSelectionModal extends Modal {
     regexSetting: Setting;
 
     constructor(key: string, types: string[]) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.key = key;
         this.types = types;
         this.setTitle(t("features.interactives.selectionFor") + ": " + this.key);
@@ -22,19 +22,19 @@ export class InteractivesSelectionModal extends Modal {
     }
 
     private addRegexArea() {
-        if (!("excludeRegex" in PluginInstances.settings.interactiveSettings[this.key])) {
-            PluginInstances.settings.interactiveSettings[this.key].excludeRegex = { regex: "", flags: "" };
+        if (!("excludeRegex" in ExtendedGraphInstances.settings.interactiveSettings[this.key])) {
+            ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex = { regex: "", flags: "" };
         }
         this.regexSetting = new Setting(this.contentEl)
             .setName(t("query.excludeRegex"))
             .addTextArea(cb => {
-                cb.setValue(PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex);
-                cb.onChange((value) => this.changeExcludeRegex(value, PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags));
+                cb.setValue(ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.regex);
+                cb.onChange((value) => this.changeExcludeRegex(value, ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.flags));
             })
             .addText(cb => {
                 cb.setPlaceholder("flags")
-                    .setValue(PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags)
-                    .onChange((value) => this.changeExcludeRegex(PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex, value));
+                    .setValue(ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.flags)
+                    .onChange((value) => this.changeExcludeRegex(ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.regex, value));
             });
         this.updateRegexDesc();
     }
@@ -42,7 +42,7 @@ export class InteractivesSelectionModal extends Modal {
     private addLabels() {
         const div = this.contentEl.createDiv("items-container");
         for (const type of this.types) {
-            const isActive = !PluginInstances.settings.interactiveSettings[this.key].unselected.includes(type);
+            const isActive = !ExtendedGraphInstances.settings.interactiveSettings[this.key].unselected.includes(type);
             const label = div.createEl("label");
             const text = label.createSpan({ text: type });
             const toggle = label.createEl("input", { type: "checkbox" });
@@ -55,7 +55,7 @@ export class InteractivesSelectionModal extends Modal {
     }
 
     private filterOutLabels() {
-        const excludeRegex = PluginInstances.settings.interactiveSettings[this.key].excludeRegex;
+        const excludeRegex = ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex;
         let nHidden = 0;
         for (const [type, label] of Object.entries(this.labels)) {
             let isHidden = false;
@@ -75,20 +75,20 @@ export class InteractivesSelectionModal extends Modal {
     }
 
     private changeExcludeRegex(regex: string, flags: string) {
-        if (regex === PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex
-            && flags === PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags
+        if (regex === ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.regex
+            && flags === ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.flags
         ) return;
-        PluginInstances.settings.interactiveSettings[this.key].excludeRegex = {
+        ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex = {
             regex, flags
         };
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
         this.filterOutLabels();
         this.updateRegexDesc();
     }
 
     private updateRegexDesc() {
-        const regex = PluginInstances.settings.interactiveSettings[this.key].excludeRegex.regex;
-        const flags = PluginInstances.settings.interactiveSettings[this.key].excludeRegex.flags;
+        const regex = ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.regex;
+        const flags = ExtendedGraphInstances.settings.interactiveSettings[this.key].excludeRegex.flags;
         this.regexSetting.descEl.innerHTML = t("query.excludeRegexDesc") +
             "<ul>" + regex.split("\n").map(r => `<li>/${r}/${flags}</li>`).join("") + "</ul>";
     }
@@ -96,18 +96,18 @@ export class InteractivesSelectionModal extends Modal {
     private selectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.addClass("is-active");
         toggle.checked = true;
-        if (PluginInstances.settings.interactiveSettings[this.key].unselected.includes(label.innerText)) {
-            PluginInstances.settings.interactiveSettings[this.key].unselected.remove(label.innerText);
-            PluginInstances.plugin.saveSettings();
+        if (ExtendedGraphInstances.settings.interactiveSettings[this.key].unselected.includes(label.innerText)) {
+            ExtendedGraphInstances.settings.interactiveSettings[this.key].unselected.remove(label.innerText);
+            ExtendedGraphInstances.plugin.saveSettings();
         }
     }
 
     private deselectInteractive(label: HTMLLabelElement, toggle: HTMLInputElement) {
         label.removeClass("is-active");
         toggle.checked = false;
-        if (!PluginInstances.settings.interactiveSettings[this.key].unselected.includes(label.innerText)) {
-            PluginInstances.settings.interactiveSettings[this.key].unselected.push(label.innerText);
-            PluginInstances.plugin.saveSettings();
+        if (!ExtendedGraphInstances.settings.interactiveSettings[this.key].unselected.includes(label.innerText)) {
+            ExtendedGraphInstances.settings.interactiveSettings[this.key].unselected.push(label.innerText);
+            ExtendedGraphInstances.plugin.saveSettings();
         }
     }
 

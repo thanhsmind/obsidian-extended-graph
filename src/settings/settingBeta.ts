@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, ExternalLinkOption, PluginInstances, SettingMultiPropertiesModal, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExternalLinkOption, ExtendedGraphInstances, SettingMultiPropertiesModal, SettingsSection, t } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
@@ -17,10 +17,10 @@ export class SettingBeta extends SettingsSection {
             .setName(t("beta.revertAction"))
             .setDesc(t("beta.revertActionDesc"))
             .addToggle(cb => cb
-                .setValue(PluginInstances.settings.revertAction)
+                .setValue(ExtendedGraphInstances.settings.revertAction)
                 .onChange(async (value) => {
-                    PluginInstances.settings.revertAction = value;
-                    await PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.revertAction = value;
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 }));
 
         this.elementsBody.push(setting.settingEl);
@@ -38,10 +38,10 @@ export class SettingBeta extends SettingsSection {
                     domain_and_href: "Domain and href"
                 };
                 cb.addOptions(options);
-                cb.setValue(PluginInstances.settings.externalLinks);
+                cb.setValue(ExtendedGraphInstances.settings.externalLinks);
                 cb.onChange(async (value) => {
-                    PluginInstances.settings.externalLinks = value as ExternalLinkOption;
-                    await PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.externalLinks = value as ExternalLinkOption;
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -54,7 +54,7 @@ export class SettingBeta extends SettingsSection {
                     const modal = new SettingMultiPropertiesModal(
                         t("features.externalLinksProperties"),
                         t("features.externalLinksPropertiesAdd"),
-                        PluginInstances.settings.externalLinksProperties
+                        ExtendedGraphInstances.settings.externalLinksProperties
                     );
                     modal.open();
                 })

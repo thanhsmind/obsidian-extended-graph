@@ -3,7 +3,7 @@ import * as Color from 'src/colors/color-bits';
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import path from "path";
 import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
-import { GraphInstances, PluginInstances } from "src/internal";
+import { GraphInstances, ExtendedGraphInstances } from "src/internal";
 
 // =============================== Text Style =============================== //
 
@@ -175,10 +175,10 @@ function applyExtendedCSSStyle(instances: GraphInstances): void {
     }`;
 
     // Then, add custom styling from the snippet
-    const snippetName = PluginInstances.settings.cssSnippetFilename;
-    if (!PluginInstances.app.customCss.enabledSnippets.has(snippetName)) return;
+    const snippetName = ExtendedGraphInstances.settings.cssSnippetFilename;
+    if (!ExtendedGraphInstances.app.customCss.enabledSnippets.has(snippetName)) return;
 
-    const snippet = [...PluginInstances.app.customCss.csscache.entries()].find(p => path.basename(p[0], ".css") === snippetName);
+    const snippet = [...ExtendedGraphInstances.app.customCss.csscache.entries()].find(p => path.basename(p[0], ".css") === snippetName);
     if (!snippet) return;
     instances.extendedStyleEl.innerHTML = css + "\n" + snippet[1];
 }

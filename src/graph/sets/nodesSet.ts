@@ -16,7 +16,7 @@ import {
     Media,
     NodeShape,
     Pinner,
-    PluginInstances
+    ExtendedGraphInstances
 } from "src/internal";
 import { ExtendedGraphTagNode } from "../extendedElements/extendedGraphTagNode";
 import { AttachmentNodeGraphicsWrapper } from "../graphicElements/nodes/attachmentNodeGraphicsWrapper";
@@ -266,7 +266,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         const extendedNode = this.extendedElementsMap.get(file.path);
         if (!extendedNode || !extendedNode.graphicsWrapper) return;
 
-        extendedNode.graphicsWrapper.pixiElement.scale.set(emphasize ? PluginInstances.settings.focusScaleFactor : 1);
+        extendedNode.graphicsWrapper.pixiElement.scale.set(emphasize ? ExtendedGraphInstances.settings.focusScaleFactor : 1);
     }
 
     // =============================== PIN NODES ===============================
@@ -423,14 +423,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
             return false;
         }
 
-        const data = await PluginInstances.app.vault.cachedRead(file);
+        const data = await ExtendedGraphInstances.app.vault.cachedRead(file);
         const div = createDiv();
         await MarkdownRenderer.render(
-            PluginInstances.app,
+            ExtendedGraphInstances.app,
             data,
             div,
             id,
-            PluginInstances.plugin
+            ExtendedGraphInstances.plugin
         );
 
         const links: URL[] = [];

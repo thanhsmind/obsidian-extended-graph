@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { CSSSnippetsSuggester, ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { CSSSnippetsSuggester, ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 
 export class SettingPerformance extends SettingsSection {
 
@@ -19,12 +19,12 @@ export class SettingPerformance extends SettingsSection {
             .setDesc(t("features.performanceDelayDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.delay.toString())
+                cb.setValue(ExtendedGraphInstances.settings.delay.toString())
                     .onChange(async (value) => {
                         const intValue = parseInt(value);
                         if (!isNaN(intValue)) {
-                            PluginInstances.settings.delay = intValue;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.delay = intValue;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             });
@@ -38,12 +38,12 @@ export class SettingPerformance extends SettingsSection {
             .setDesc(t("features.performanceMaxNodesDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.maxNodes.toString())
+                cb.setValue(ExtendedGraphInstances.settings.maxNodes.toString())
                     .onChange(async (value) => {
                         const intValue = parseInt(value);
                         if (!isNaN(intValue)) {
-                            PluginInstances.settings.maxNodes = intValue;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.maxNodes = intValue;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             });
@@ -56,20 +56,20 @@ export class SettingPerformance extends SettingsSection {
             .setName(t("beta.enableCSS"))
             .setDesc(t("beta.enableCSSDesc"))
             .addToggle(cb => cb
-                .setValue(PluginInstances.settings.enableCSS)
+                .setValue(ExtendedGraphInstances.settings.enableCSS)
                 .onChange(value => {
-                    PluginInstances.settings.enableCSS = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.enableCSS = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 }))
             .addSearch(cb => {
-                cb.setValue(PluginInstances.settings.cssSnippetFilename);
+                cb.setValue(ExtendedGraphInstances.settings.cssSnippetFilename);
                 new CSSSnippetsSuggester(cb.inputEl, (value: string) => {
-                    PluginInstances.settings.cssSnippetFilename = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.cssSnippetFilename = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
                 cb.onChange((value) => {
-                    PluginInstances.settings.cssSnippetFilename = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.cssSnippetFilename = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             });
 

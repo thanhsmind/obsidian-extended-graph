@@ -1,5 +1,5 @@
 import { ButtonComponent, setIcon, Setting, TextComponent } from "obsidian";
-import { ExtendedGraphSettingTab, LayersManager, PluginInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements, Layer, getDataviewPlugin } from "src/internal";
+import { ExtendedGraphSettingTab, LayersManager, ExtendedGraphInstances, SettingsSectionPerGraphType, SettingMultiPropertiesModal, t, UIElements, Layer, getDataviewPlugin } from "src/internal";
 
 export class SettingLayers extends SettingsSectionPerGraphType {
     layerInfoSettings: LayerSetting[] = [];
@@ -29,7 +29,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
                     const modal = new SettingMultiPropertiesModal(
                         t("features.layerProperties"),
                         t("features.layerPropertiesAdd"),
-                        PluginInstances.settings.layerProperties
+                        ExtendedGraphInstances.settings.layerProperties
                     );
                     modal.open();
                 })
@@ -43,12 +43,12 @@ export class SettingLayers extends SettingsSectionPerGraphType {
             .setDesc(t("features.layersNumberDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.numberOfActiveLayers.toString())
+                cb.setValue(ExtendedGraphInstances.settings.numberOfActiveLayers.toString())
                     .onChange(async (value) => {
                         const intValue = parseInt(value);
                         if (!isNaN(intValue) && intValue > 0) {
-                            PluginInstances.settings.numberOfActiveLayers = intValue;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.numberOfActiveLayers = intValue;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             }).settingEl);
@@ -62,11 +62,11 @@ export class SettingLayers extends SettingsSectionPerGraphType {
                 cb.addOptions({
                     "ASC": "0-9",
                     "DESC": "9-0"
-                }).setValue(PluginInstances.settings.layersOrder)
+                }).setValue(ExtendedGraphInstances.settings.layersOrder)
                     .onChange(async (value) => {
                         if (value === "ASC" || value === "DESC") {
-                            PluginInstances.settings.layersOrder = value;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.layersOrder = value;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             }).settingEl);
@@ -78,12 +78,12 @@ export class SettingLayers extends SettingsSectionPerGraphType {
             .setDesc(t("features.layersOpacityIfNoLayerDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.nodesWithoutLayerOpacity.toString())
+                cb.setValue(ExtendedGraphInstances.settings.nodesWithoutLayerOpacity.toString())
                     .onChange(async (value) => {
                         const floatValue = parseFloat(value);
                         if (!isNaN(floatValue)) {
-                            PluginInstances.settings.nodesWithoutLayerOpacity = Math.clamp(floatValue, 0, 1);
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.nodesWithoutLayerOpacity = Math.clamp(floatValue, 0, 1);
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     })
             }).settingEl);
@@ -94,10 +94,10 @@ export class SettingLayers extends SettingsSectionPerGraphType {
             .setName(t("features.layersUseCustomOpacity"))
             .setDesc(t("features.layersUseCustomOpacityDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.useLayerCustomOpacity)
+                cb.setValue(ExtendedGraphInstances.settings.useLayerCustomOpacity)
                     .onChange(async (value) => {
-                        PluginInstances.settings.useLayerCustomOpacity = value;
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.useLayerCustomOpacity = value;
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     })
             });
         this.elementsBody.push(setting.settingEl);
@@ -105,7 +105,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
     }
 
     private addLayersInfo() {
-        const layers = LayersManager.getAllLayers(PluginInstances.settings);
+        const layers = LayersManager.getAllLayers(ExtendedGraphInstances.settings);
         this.addLayersInfoFromData(layers);
 
         if (getDataviewPlugin()) {
@@ -151,10 +151,10 @@ export class SettingLayers extends SettingsSectionPerGraphType {
             .setName(t("features.layersDisplayLabels"))
             .setDesc(t("features.layersDisplayLabelsDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.displayLabelsInUI)
+                cb.setValue(ExtendedGraphInstances.settings.displayLabelsInUI)
                     .onChange(async (value) => {
-                        PluginInstances.settings.displayLabelsInUI = value;
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.displayLabelsInUI = value;
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     })
             }).settingEl);
     }
@@ -190,23 +190,23 @@ export class SettingLayers extends SettingsSectionPerGraphType {
         }
 
         if (oldLevel !== newLevel && !setting.layer.levelFromID) {
-            PluginInstances.settings.layersLevels[newID] = newLevel
+            ExtendedGraphInstances.settings.layersLevels[newID] = newLevel
             // We don't delete the previous one because it might be used by inline dataview properties
         }
 
         // If there is already a custom opacity for this new level, we don't do anything.
         // But if there isn't, we copy the custom opacity of the old level
         // We don't remove the old one because there are some inline properties from Dataview that might still use it
-        if (oldLevel in PluginInstances.settings.layersCustomOpacity && !(newLevel in PluginInstances.settings.layersCustomOpacity)) {
-            PluginInstances.settings.layersCustomOpacity[newLevel] = PluginInstances.settings.layersCustomOpacity[oldLevel];
-            await PluginInstances.plugin.saveSettings();
+        if (oldLevel in ExtendedGraphInstances.settings.layersCustomOpacity && !(newLevel in ExtendedGraphInstances.settings.layersCustomOpacity)) {
+            ExtendedGraphInstances.settings.layersCustomOpacity[newLevel] = ExtendedGraphInstances.settings.layersCustomOpacity[oldLevel];
+            await ExtendedGraphInstances.plugin.saveSettings();
         }
 
         // Then, we process all the frontmatters' files
-        const files = PluginInstances.app.vault.getMarkdownFiles();
+        const files = ExtendedGraphInstances.app.vault.getMarkdownFiles();
         for (const file of files) {
-            await PluginInstances.app.fileManager.processFrontMatter(file, (frontmatter) => {
-                for (const property of PluginInstances.settings.layerProperties) {
+            await ExtendedGraphInstances.app.fileManager.processFrontMatter(file, (frontmatter) => {
+                for (const property of ExtendedGraphInstances.settings.layerProperties) {
                     // If a layer property exists and is currently equal to the old id, change its value
                     if (property in frontmatter && frontmatter[property] === oldID) {
                         frontmatter[property] = newID;
@@ -220,7 +220,7 @@ export class SettingLayers extends SettingsSectionPerGraphType {
 
         // Reorder the layers
         const layers = this.layerInfoSettings.map(s => s.layer);
-        LayersManager.sortData(PluginInstances.settings, layers);
+        LayersManager.sortData(ExtendedGraphInstances.settings, layers);
         this.addLayersInfoFromData(layers);
     }
 }
@@ -300,16 +300,16 @@ class LayerSetting extends Setting {
         this.addText(cb => {
             cb.inputEl.addClass("number");
             cb.setPlaceholder(t("features.layersOpacityPlaceholder"));
-            cb.setValue(PluginInstances.settings.layersCustomOpacity[this.layer.level]?.toString() ?? "");
+            cb.setValue(ExtendedGraphInstances.settings.layersCustomOpacity[this.layer.level]?.toString() ?? "");
             cb.onChange(async (value) => {
                 const floatValue = parseFloat(value);
                 if (!isNaN(floatValue)) {
-                    PluginInstances.settings.layersCustomOpacity[this.layer.level] = Math.clamp(floatValue, 0, 1);;
-                    await PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.layersCustomOpacity[this.layer.level] = Math.clamp(floatValue, 0, 1);;
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 }
                 else {
-                    delete PluginInstances.settings.layersCustomOpacity[this.layer.level];
-                    await PluginInstances.plugin.saveSettings();
+                    delete ExtendedGraphInstances.settings.layersCustomOpacity[this.layer.level];
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 }
             });
         });

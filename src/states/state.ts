@@ -4,7 +4,7 @@ import {
     GraphInstances,
     GraphStateData,
     LINK_KEY,
-    PluginInstances,
+    ExtendedGraphInstances,
     TAG_KEY
 } from "src/internal";
 
@@ -22,7 +22,7 @@ export class GraphState {
     saveGraph(instances: GraphInstances) {
         for (const [key, manager] of instances.interactiveManagers) {
             this.data.toggleTypes[key] = manager.getTypes()
-                .filter(type => PluginInstances.settings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
+                .filter(type => ExtendedGraphInstances.settings.interactiveSettings[key].enableByDefault !== manager.isActive(type));
         }
 
         // Pinned nodes
@@ -113,7 +113,7 @@ export class GraphState {
         }
         else {
             if (this.data.engineOptions.search === undefined) {
-                const graphPlugin = PluginInstances.graphsManager.getCorePluginInstance();
+                const graphPlugin = ExtendedGraphInstances.graphsManager.getCorePluginInstance();
                 if (graphPlugin) {
                     this.data.engineOptions.search = graphPlugin.options.search ?? "";
                     hasChanged = true;

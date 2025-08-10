@@ -3,7 +3,7 @@ import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighte
 import { TFile } from "obsidian";
 import { GraphColorAttributes, GraphData, GraphNode, LocalGraphView } from "obsidian-typings";
 import { getFile, getFileInteractives, getOutlinkTypes, regExpFromString, TAG_KEY } from "src/internal";
-import { GraphInstances, PluginInstances } from "src/pluginInstances";
+import { GraphInstances, ExtendedGraphInstances } from "src/pluginInstances";
 
 interface GraphNodeData {
     type: string;
@@ -55,7 +55,7 @@ export class GraphFilter {
 
         data = this.filterOrphans(data, potentialOrphans);
 
-        PluginInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
+        ExtendedGraphInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf, Object.keys(data.nodes).length);
 
         return data;
     }

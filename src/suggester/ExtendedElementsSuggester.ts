@@ -1,6 +1,6 @@
 import { AbstractInputSuggest } from "obsidian";
 import { ExtendedGraphNode, FOLDER_KEY } from "src/internal";
-import { GraphInstances, PluginInstances } from "src/pluginInstances";
+import { GraphInstances, ExtendedGraphInstances } from "src/pluginInstances";
 
 type SetType = 'nodes' | 'pinned' | 'folders';
 
@@ -10,7 +10,7 @@ export class ExtendedElementsSuggester extends AbstractInputSuggest<string> {
     callback: (value: string) => void;
 
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, instances: GraphInstances, set: SetType, callback: (value: string) => void) {
-        super(PluginInstances.app, textInputEl);
+        super(ExtendedGraphInstances.app, textInputEl);
         this.instances = instances;
         this.set = set;
         this.callback = callback;

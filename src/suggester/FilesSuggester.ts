@@ -1,5 +1,5 @@
 import { TAbstractFile } from "obsidian";
-import { AbstractFormattingSuggester, PluginInstances } from "src/internal";
+import { AbstractFormattingSuggester, ExtendedGraphInstances } from "src/internal";
 
 export class FilesSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
@@ -8,7 +8,7 @@ export class FilesSuggester extends AbstractFormattingSuggester {
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, callback: (value: string) => void) {
         super(textInputEl);
         this.callback = callback;
-        this.files = PluginInstances.app.vault.getAllLoadedFiles();
+        this.files = ExtendedGraphInstances.app.vault.getAllLoadedFiles();
     }
 
     protected override getStringSuggestions(query: string): string[] {

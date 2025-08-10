@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSectionPerGraphType, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSectionPerGraphType, t } from "src/internal";
 
 export class SettingArrows extends SettingsSectionPerGraphType {
     constructor(settingTab: ExtendedGraphSettingTab) {
@@ -19,10 +19,10 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setName(t("features.arrowsInvert"))
             .setDesc(t("features.arrowsInvertDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.invertArrows);
+                cb.setValue(ExtendedGraphInstances.settings.invertArrows);
                 cb.onChange(value => {
-                    PluginInstances.settings.invertArrows = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.invertArrows = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -32,10 +32,10 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setName(t("features.arrowsFlat"))
             .setDesc(t("features.arrowsFlatDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.flatArrows);
+                cb.setValue(ExtendedGraphInstances.settings.flatArrows);
                 cb.onChange(value => {
-                    PluginInstances.settings.flatArrows = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.flatArrows = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -46,18 +46,18 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setDesc(t("features.arrowsOpaqueDesc"))
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', t("features.arrowsOpaqueKeepFading"));
-                cb.setValue(PluginInstances.settings.opaqueArrowsButKeepFading);
+                cb.setValue(ExtendedGraphInstances.settings.opaqueArrowsButKeepFading);
                 cb.onChange(value => {
-                    PluginInstances.settings.opaqueArrowsButKeepFading = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.opaqueArrowsButKeepFading = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             })
             .addToggle(cb => {
                 cb.toggleEl.insertAdjacentText('beforebegin', t("features.arrowsOpaqueAlways"));
-                cb.setValue(PluginInstances.settings.alwaysOpaqueArrows);
+                cb.setValue(ExtendedGraphInstances.settings.alwaysOpaqueArrows);
                 cb.onChange(value => {
-                    PluginInstances.settings.alwaysOpaqueArrows = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.alwaysOpaqueArrows = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -68,16 +68,16 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setDesc(t("features.arrowsScaleDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.arrowScale.toString())
+                cb.setValue(ExtendedGraphInstances.settings.arrowScale.toString())
                     .onChange(async (value) => {
                         if (value === '') {
-                            PluginInstances.settings.arrowScale = 1;
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.arrowScale = 1;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                         const floatValue = parseFloat(value);
                         if (!isNaN(floatValue)) {
-                            PluginInstances.settings.arrowScale = Math.max(0.1, floatValue);
-                            await PluginInstances.plugin.saveSettings();
+                            ExtendedGraphInstances.settings.arrowScale = Math.max(0.1, floatValue);
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         }
                     });
             }).settingEl);
@@ -87,10 +87,10 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setName(t("features.arrowsFixedSize"))
             .setDesc(t("features.arrowsFixedSizeDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.arrowFixedSize);
+                cb.setValue(ExtendedGraphInstances.settings.arrowFixedSize);
                 cb.onChange(value => {
-                    PluginInstances.settings.arrowFixedSize = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.arrowFixedSize = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -100,17 +100,17 @@ export class SettingArrows extends SettingsSectionPerGraphType {
             .setName(t("features.arrowsColor"))
             .setDesc(t("features.arrowsColorDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.arrowColorBool);
+                cb.setValue(ExtendedGraphInstances.settings.arrowColorBool);
                 cb.onChange(value => {
-                    PluginInstances.settings.arrowColorBool = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.arrowColorBool = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             })
             .addColorPicker(cb => {
-                cb.setValue(PluginInstances.settings.arrowColor);
+                cb.setValue(ExtendedGraphInstances.settings.arrowColor);
                 cb.onChange(value => {
-                    PluginInstances.settings.arrowColor = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.arrowColor = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }

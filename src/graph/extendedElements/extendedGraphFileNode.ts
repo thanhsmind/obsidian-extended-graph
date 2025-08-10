@@ -1,5 +1,5 @@
 import { GraphColorAttributes } from "obsidian-typings";
-import { evaluateCMap, ExtendedGraphNode, FileNodeGraphicsWrapper, NodeShape, PluginInstances, ShapeEnum } from "src/internal";
+import { evaluateCMap, ExtendedGraphNode, FileNodeGraphicsWrapper, NodeShape, ExtendedGraphInstances, ShapeEnum } from "src/internal";
 
 export class ExtendedGraphFileNode extends ExtendedGraphNode {
     graphicsWrapper: FileNodeGraphicsWrapper;
@@ -49,7 +49,7 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     protected override needToChangeColor() {
         return super.needToChangeColor() ||
             (this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
-                && PluginInstances.settings.nodesColorFunction !== "default");
+                && ExtendedGraphInstances.settings.nodesColorFunction !== "default");
     }
 
     protected override needToUpdateGraphicsColor(): boolean {
@@ -60,8 +60,8 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
 
     protected override getFillColor(): GraphColorAttributes | undefined {
         if ((this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
-            && PluginInstances.settings.nodesColorFunction !== "default")) {
-            const rgb = (this.instances.nodesColorCalculator ?? PluginInstances.graphsManager.nodesColorCalculator)?.filesStats.get(this.id);
+            && ExtendedGraphInstances.settings.nodesColorFunction !== "default")) {
+            const rgb = (this.instances.nodesColorCalculator ?? ExtendedGraphInstances.graphsManager.nodesColorCalculator)?.filesStats.get(this.id);
             if (rgb) return { rgb: rgb.value, a: 1 }
         }
 

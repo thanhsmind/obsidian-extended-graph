@@ -29,7 +29,7 @@ import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
 import { GraphFilter } from "./graph/graphFilter";
 
-export class PluginInstances {
+export class ExtendedGraphInstances {
     static plugin: ExtendedGraphPlugin; // init in main.ts
     static app: App; // init in main.ts
     static settings: ExtendedGraphSettings; // init in main.ts
@@ -83,7 +83,7 @@ export class GraphInstances {
 
     constructor(view: GraphView | LocalGraphView) {
         this.view = view;
-        this.settings = structuredClone(PluginInstances.settings);
+        this.settings = structuredClone(ExtendedGraphInstances.settings);
         this.canonicalizeProperties();
         this.type = this.view.getViewType() === "graph" ? "graph" : "localgraph";
         const engine = getEngine(this.view);
@@ -117,11 +117,11 @@ export class GraphInstances {
     }
 
     setState(stateID: string) {
-        this.stateData = PluginInstances.statesManager.getStateDataById(stateID);
+        this.stateData = ExtendedGraphInstances.statesManager.getStateDataById(stateID);
 
         // Find if there is a specific settings to load
-        if (PluginInstances.settings.saveConfigsWithState) {
-            let importedSettings = PluginInstances.statesManager.getConfig(stateID);
+        if (ExtendedGraphInstances.settings.saveConfigsWithState) {
+            let importedSettings = ExtendedGraphInstances.statesManager.getConfig(stateID);
             if (importedSettings) {
                 // Set the settings
                 this.settings = importedSettings;

@@ -1,5 +1,5 @@
 import { TFolder } from "obsidian";
-import { AbstractFormattingSuggester, PluginInstances } from "src/internal";
+import { AbstractFormattingSuggester, ExtendedGraphInstances } from "src/internal";
 
 export class FoldersSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
@@ -8,7 +8,7 @@ export class FoldersSuggester extends AbstractFormattingSuggester {
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, callback: (value: string) => void) {
         super(textInputEl);
         this.callback = callback;
-        this.folders = PluginInstances.app.vault.getAllFolders();
+        this.folders = ExtendedGraphInstances.app.vault.getAllFolders();
     }
 
     protected override getStringSuggestions(query: string): string[] {

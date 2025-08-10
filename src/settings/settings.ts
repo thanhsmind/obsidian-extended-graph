@@ -17,7 +17,7 @@ import {
     NodeStatFunction,
     nodeStatFunctionIsDynamic,
     PinShapeData,
-    PluginInstances,
+    ExtendedGraphInstances,
     QueryData,
     ShapeEnum,
     t,
@@ -728,9 +728,9 @@ function deepEquals(x: any, y: any): boolean {
 }
 
 export async function getAllConfigFiles(): Promise<string[]> {
-    const dir = PluginInstances.configurationDirectory;
-    const files = (await PluginInstances.app.vault.adapter.exists(dir))
-        ? (await PluginInstances.app.vault.adapter.list(dir)).files
+    const dir = ExtendedGraphInstances.configurationDirectory;
+    const files = (await ExtendedGraphInstances.app.vault.adapter.exists(dir))
+        ? (await ExtendedGraphInstances.app.vault.adapter.list(dir)).files
         : [];
     return files;
 }

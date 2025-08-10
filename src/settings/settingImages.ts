@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, FeatureSetting, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, FeatureSetting, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
 export class SettingImages extends SettingsSection {
@@ -33,7 +33,7 @@ export class SettingImages extends SettingsSection {
                     const modal = new SettingMultiPropertiesModal(
                         t("features.imageProperties"),
                         t("features.imagePropertiesAdd"),
-                        PluginInstances.settings.imageProperties
+                        ExtendedGraphInstances.settings.imageProperties
                     );
                     modal.open();
                 })
@@ -64,16 +64,16 @@ export class SettingImages extends SettingsSection {
             .setName(t("features.imageBorderWidth"))
             .setDesc(t("features.imageBorderWidthDesc"))
             .addSlider(cb => {
-                const preview = document.createTextNode(PluginInstances.settings.borderFactor.toString() + "%");
+                const preview = document.createTextNode(ExtendedGraphInstances.settings.borderFactor.toString() + "%");
                 if (preview) {
                     cb.sliderEl.parentElement?.insertBefore(preview, cb.sliderEl);
                 }
                 cb.setLimits(0, 50, 1)
-                    .setValue(PluginInstances.settings.borderFactor * 100)
+                    .setValue(ExtendedGraphInstances.settings.borderFactor * 100)
                     .onChange(value => {
-                        PluginInstances.settings.borderFactor = value / 100;
-                        if (preview) preview.textContent = PluginInstances.settings.borderFactor.toString() + "%";
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.borderFactor = value / 100;
+                        if (preview) preview.textContent = ExtendedGraphInstances.settings.borderFactor.toString() + "%";
+                        ExtendedGraphInstances.plugin.saveSettings();
                     });
             });
         setting.controlEl.addClass("setting-item-description");
@@ -86,10 +86,10 @@ export class SettingImages extends SettingsSection {
             .setName(t("features.imagesAllowExternal"))
             .setDesc(t("features.imagesAllowExternalDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.allowExternalImages);
+                cb.setValue(ExtendedGraphInstances.settings.allowExternalImages);
                 cb.onChange(value => {
-                    PluginInstances.settings.allowExternalImages = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.allowExternalImages = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
 
@@ -97,10 +97,10 @@ export class SettingImages extends SettingsSection {
             .setName(t("features.imagesAllowExternalLocal"))
             .setDesc(t("features.imagesAllowExternalLocalDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.allowExternalLocalImages);
+                cb.setValue(ExtendedGraphInstances.settings.allowExternalLocalImages);
                 cb.onChange(value => {
-                    PluginInstances.settings.allowExternalLocalImages = value;
-                    PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.allowExternalLocalImages = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }

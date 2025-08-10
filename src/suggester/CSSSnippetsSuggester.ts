@@ -1,5 +1,5 @@
 import { AbstractFormattingSuggester } from "src/internal";
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 
 export class CSSSnippetsSuggester extends AbstractFormattingSuggester {
     callback: (value: string) => void;
@@ -10,7 +10,7 @@ export class CSSSnippetsSuggester extends AbstractFormattingSuggester {
     }
 
     protected getStringSuggestions(query: string): string[] {
-        const values = [...PluginInstances.app.customCss.enabledSnippets];
+        const values = [...ExtendedGraphInstances.app.customCss.enabledSnippets];
 
         let filteredValues = values.filter(value => new RegExp(query, "i").exec(value));
         return [...new Set(filteredValues)];

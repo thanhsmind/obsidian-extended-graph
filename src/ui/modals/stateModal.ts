@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting, TFile } from "obsidian";
-import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, PluginInstances, strCompare, t } from "src/internal";
+import { ExtendedElementsSuggester, getCSSSplitRGB, getFile, GraphInstances, GraphState, NodeShape, ExtendedGraphInstances, strCompare, t } from "src/internal";
 
 type TableType = 'nodes' | 'links' | 'pinned';
 
@@ -22,7 +22,7 @@ export class GraphStateModal extends Modal {
     };
 
     constructor(instances: GraphInstances) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.instances = instances;
         this.state = new GraphState("");
         this.state.saveGraph(instances);

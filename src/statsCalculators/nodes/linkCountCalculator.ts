@@ -1,5 +1,5 @@
 import { Attributes } from "graphology-types";
-import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, PluginInstances } from "src/internal";
+import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, ExtendedGraphInstances } from "src/internal";
 
 export class BacklinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
@@ -21,7 +21,7 @@ export class BacklinkCountCalculator extends NodeStatCalculator {
             }
         }
 
-        const resolvedCounts = Object.values(PluginInstances.app.metadataCache.resolvedLinks).reduce(
+        const resolvedCounts = Object.values(ExtendedGraphInstances.app.metadataCache.resolvedLinks).reduce(
             (acc: number[], value: Record<string, number>) => {
                 if (id in value) {
                     acc.push(value[id]);
@@ -30,7 +30,7 @@ export class BacklinkCountCalculator extends NodeStatCalculator {
             },
             []
         );
-        const unresolvedCounts = Object.values(PluginInstances.app.metadataCache.unresolvedLinks).reduce(
+        const unresolvedCounts = Object.values(ExtendedGraphInstances.app.metadataCache.unresolvedLinks).reduce(
             (acc: number[], value: Record<string, number>) => {
                 if (id in value) {
                     acc.push(value[id]);
@@ -71,9 +71,9 @@ export class ForwardlinkCountCalculator extends NodeStatCalculator {
         }
 
         const links = Object.fromEntries(
-            (id in PluginInstances.app.metadataCache.resolvedLinks ? Object.entries(PluginInstances.app.metadataCache.resolvedLinks[id]) : [])
+            (id in ExtendedGraphInstances.app.metadataCache.resolvedLinks ? Object.entries(ExtendedGraphInstances.app.metadataCache.resolvedLinks[id]) : [])
                 .concat(
-                    (id in PluginInstances.app.metadataCache.unresolvedLinks ? Object.entries(PluginInstances.app.metadataCache.unresolvedLinks[id]) : [])
+                    (id in ExtendedGraphInstances.app.metadataCache.unresolvedLinks ? Object.entries(ExtendedGraphInstances.app.metadataCache.unresolvedLinks[id]) : [])
                 )
         );
         if (!links) {
@@ -106,7 +106,7 @@ export class TotallinkCountCalculator extends NodeStatCalculator {
             }
         }
 
-        const resolvedCounts = Object.entries(PluginInstances.app.metadataCache.resolvedLinks).reduce(
+        const resolvedCounts = Object.entries(ExtendedGraphInstances.app.metadataCache.resolvedLinks).reduce(
             (acc: number[], value: [string, Record<string, number>]) => {
                 if (id === value[0]) {
                     acc = acc.concat(Object.values(value[1]));
@@ -118,7 +118,7 @@ export class TotallinkCountCalculator extends NodeStatCalculator {
             },
             []
         );
-        const unresolvedCounts = Object.entries(PluginInstances.app.metadataCache.unresolvedLinks).reduce(
+        const unresolvedCounts = Object.entries(ExtendedGraphInstances.app.metadataCache.unresolvedLinks).reduce(
             (acc: number[], value: [string, Record<string, number>]) => {
                 if (id === value[0]) {
                     acc = acc.concat(Object.values(value[1]));

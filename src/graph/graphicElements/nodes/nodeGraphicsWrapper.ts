@@ -9,7 +9,7 @@ import {
     NodeShape,
     pixiAddChild,
     pixiAddChildAt,
-    PluginInstances,
+    ExtendedGraphInstances,
     QueryData,
     QueryMatcher,
     ShapeEnum
@@ -97,7 +97,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     }
 
     initIcon() {
-        console.log("initIcon", this.extendedElement.id);
         if (!this.extendedElement.icon) return;
         if (!this.extendedElement.icon.svg && !this.extendedElement.icon.emoji) return;
         if (this.iconSprite?.parent || this.emojiText?.parent) return;
@@ -197,11 +196,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     // ========================== CONNECT/DISCONNECT ===========================
 
     connect(): void {
-        if (!this.extendedElement.coreElement.circle || this.extendedElement.coreElement.circle.getChildByName(this.name)) {
-            console.log(this.extendedElement.id);
-        }
         if (this.extendedElement.coreElement.circle && !this.extendedElement.coreElement.circle.getChildByName(this.name)) {
-            console.log("Connecting", this.extendedElement.id);
             pixiAddChild(this.extendedElement.coreElement.circle, this.pixiElement);
             if (this.extendedElement.instances.settings.fadeInElements && !this.pixiElement.hasFaded) {
                 fadeIn(this.pixiElement);
@@ -229,7 +224,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         const icon = this.pixiElement.getChildByName("pin");
         if (icon) return;
 
-        Assets.load(PluginInstances.pinSVGDataUrl).then(texture => {
+        Assets.load(ExtendedGraphInstances.pinSVGDataUrl).then(texture => {
             const icon = new Sprite(texture);
             icon.name = "pin";
             icon.anchor.set(1, 0);

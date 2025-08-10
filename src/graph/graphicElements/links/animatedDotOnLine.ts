@@ -1,5 +1,5 @@
 import { Graphics } from "pixi.js";
-import { ExtendedGraphLink, PluginInstances } from "src/internal";
+import { ExtendedGraphLink, ExtendedGraphInstances } from "src/internal";
 
 export class AnimatedDotOnLine extends Graphics {
     extendedLink: ExtendedGraphLink;
@@ -28,7 +28,7 @@ export class AnimatedDotOnLine extends Graphics {
         );
         this.scale.set(this.extendedLink.coreElement.renderer.fLineSizeMult / Math.sqrt(this.extendedLink.coreElement.renderer.scale));
 
-        this.t += 0.01 * PluginInstances.settings.animationSpeedForDots;
+        this.t += 0.01 * ExtendedGraphInstances.settings.animationSpeedForDots;
         if (this.t > 1) {
             this.t = 0;
         }

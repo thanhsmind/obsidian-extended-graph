@@ -17,7 +17,7 @@ import {
     LinkLineMultiTypesGraphics,
     LinkText,
     LinkTextCurveMultiTypes,
-    PluginInstances,
+    ExtendedGraphInstances,
     SettingQuery,
     LinkTextCurveSingleType,
     LinkTextLineMultiTypes,
@@ -93,8 +93,8 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         this.coreClearGraphics = this.coreElement.clearGraphics;
         this.coreElement.clearGraphics = (() => {
 
-            PluginInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
-            PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
+            ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.arrow);
+            ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.line);
             if (this.coreClearGraphics) {
                 this.coreElement.clearGraphics = this.coreClearGraphics;
                 this.coreClearGraphics = undefined;
@@ -109,7 +109,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
             this.coreClearGraphics = undefined;
         }
         this.restoreCoreLinkThickness();
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.line);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.line);
         this.extendedArrow?.unload();
         this.removeContainer();
         if (this.coreElement.line) this.coreElement.line.renderable = true;
@@ -156,12 +156,12 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
 
     changeCoreLinkThickness(): void {
         if (this.coreElement.px
-            && PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            && PluginInstances.settings.linksSizeFunction !== "default"
+            && ExtendedGraphInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && ExtendedGraphInstances.settings.linksSizeFunction !== "default"
             && (
-                (PluginInstances.settings.enableFeatures[this.instances.type]['links']
+                (ExtendedGraphInstances.settings.enableFeatures[this.instances.type]['links']
                     && !this.instances.settings.curvedLinks)
-                || (!PluginInstances.settings.enableFeatures[this.instances.type]['links']))) {
+                || (!ExtendedGraphInstances.settings.enableFeatures[this.instances.type]['links']))) {
             this.coreElement.px.scale.y = this.getThicknessScale();
         }
         else {
@@ -176,11 +176,11 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
     }
 
     getThicknessScale(): number {
-        if (!PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            || PluginInstances.settings.linksSizeFunction === "default"
+        if (!ExtendedGraphInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            || ExtendedGraphInstances.settings.linksSizeFunction === "default"
         ) return 1;
 
-        const calculator = this.instances.linksSizeCalculator ?? PluginInstances.graphsManager.linksSizeCalculator;
+        const calculator = this.instances.linksSizeCalculator ?? ExtendedGraphInstances.graphsManager.linksSizeCalculator;
         if (!calculator) return 1;
         if (!(this.coreElement.source.id in calculator.linksStats)) return 1;
         if (!(this.coreElement.target.id in calculator.linksStats[this.coreElement.source.id])) return 1;
@@ -253,7 +253,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         const link = this.coreElement;
         if (link.line) {
             const getStrokeColor = this.getStrokeColor.bind(this);
-            PluginInstances.proxysManager.registerProxy<typeof link.line>(
+            ExtendedGraphInstances.proxysManager.registerProxy<typeof link.line>(
                 this.coreElement,
                 'line',
                 {
@@ -265,7 +265,7 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
                     },
                 }
             );
-            link.line.on('destroyed', () => PluginInstances.proxysManager.unregisterProxy(this.coreElement.line));
+            link.line.on('destroyed', () => ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.line));
         }
     }
 
@@ -296,10 +296,10 @@ export class ExtendedGraphLink extends ExtendedGraphElement<GraphLink> {
         }
 
         // From color stats
-        if (PluginInstances.settings.enableFeatures[this.instances.type]['elements-stats']
-            && PluginInstances.settings.linksColorFunction !== "default"
+        if (ExtendedGraphInstances.settings.enableFeatures[this.instances.type]['elements-stats']
+            && ExtendedGraphInstances.settings.linksColorFunction !== "default"
         ) {
-            const calculator = this.instances.linksColorCalculator ?? PluginInstances.graphsManager.linksColorCalculator;
+            const calculator = this.instances.linksColorCalculator ?? ExtendedGraphInstances.graphsManager.linksColorCalculator;
             if (calculator) {
                 if (this.coreElement.source.id in calculator.linksStats
                     && this.coreElement.target.id in calculator.linksStats[this.coreElement.source.id]

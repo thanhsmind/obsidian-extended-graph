@@ -10,7 +10,7 @@ import {
     InteractiveManager,
     InteractiveUI,
     makeCompatibleForClass,
-    PluginInstances,
+    ExtendedGraphInstances,
     strCompare,
     t,
     textColor
@@ -95,7 +95,7 @@ class LegendRow extends Setting {
             stateData.logicTypes[this.name] = logic;
             this.manager.instances.engine.render();
             this.manager.instances.dispatcher.onInteractivesLogicChanged(this.name);
-            PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
+            ExtendedGraphInstances.statesManager.onStateNeedsSaving(stateData, false);
         }
 
         this.changeCombinationLogicUI(logic);
@@ -232,7 +232,7 @@ class LegendRow extends Setting {
         if (this.isCollapsed) this.expend();
         else this.collapse();
 
-        const stateData = PluginInstances.statesManager.getStateDataById(this.manager.instances.settings.startingStateID);
+        const stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.manager.instances.settings.startingStateID);
         if (stateData) {
             if (this.isCollapsed) {
                 if (!stateData.collapsedLegendRows) {
@@ -245,7 +245,7 @@ class LegendRow extends Setting {
             }
         }
 
-        if (stateData) PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
+        if (stateData) ExtendedGraphInstances.statesManager.onStateNeedsSaving(stateData, false);
     }
 
     collapse() {
@@ -311,7 +311,7 @@ export class LegendUI extends Component implements InteractiveUI {
         if (this.instances.settings.horizontalLegend) this.root.addClass("horizontal-layout");
         this.rowsDiv = this.root.createDiv("graph-legend-rows");
         const hideRowsContainer = createDiv("graph-legend-hide-rows-container");
-        const stateData = PluginInstances.statesManager.getStateDataById(this.instances.settings.startingStateID);
+        const stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.instances.settings.startingStateID);
 
         for (const [key, manager] of this.instances.interactiveManagers) {
             if (key === FOLDER_KEY) continue;
@@ -350,7 +350,7 @@ export class LegendUI extends Component implements InteractiveUI {
 
         this.root.appendChild(hideRowsContainer);
 
-        if (PluginInstances.settings.collapseLegend) {
+        if (ExtendedGraphInstances.settings.collapseLegend) {
             this.close();
         }
         else {
@@ -373,7 +373,7 @@ export class LegendUI extends Component implements InteractiveUI {
                 }
                 stateData.hiddenLegendRows?.push(row.row.name);
             }
-            PluginInstances.statesManager.onStateNeedsSaving(stateData, false);
+            ExtendedGraphInstances.statesManager.onStateNeedsSaving(stateData, false);
         }
     }
 
@@ -452,15 +452,15 @@ export class LegendUI extends Component implements InteractiveUI {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
-        PluginInstances.settings.collapseLegend = false;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapseLegend = false;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     close() {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
-        PluginInstances.settings.collapseLegend = true;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapseLegend = true;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { ButtonComponent, ExtraButtonComponent, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
-import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, PluginInstances, t, UIElements } from "src/internal";
+import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, ExtendedGraphInstances, t, UIElements } from "src/internal";
 
 export class GradientPickerModal extends Modal {
     callback: (palette: string) => void;
@@ -9,7 +9,7 @@ export class GradientPickerModal extends Modal {
     customPalettes: Record<string, { name: string, setting: Setting, canvas: HTMLCanvasElement }> = {};
 
     constructor() {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.setTitle(t("features.interactives.palettePickGradient"));
         this.modalEl.addClass("graph-modal-palette-picker");
     }
@@ -42,7 +42,7 @@ export class GradientPickerModal extends Modal {
         canvasPalette.id = `picker-canvas-palette-${palette}`;
         canvasPalette.width = 100;
         canvasPalette.height = 20;
-        plotColorMapFromName(canvasPalette, palette, PluginInstances.settings);
+        plotColorMapFromName(canvasPalette, palette, ExtendedGraphInstances.settings);
         canvasPalette.onclick = () => {
             this.selectedPalette = palette;
             this.close();
@@ -68,13 +68,13 @@ export class GradientPickerModal extends Modal {
             });
         group.controlEl.addClass("palette-group");
 
-        for (const palette in PluginInstances.settings.customColorMaps) {
+        for (const palette in ExtendedGraphInstances.settings.customColorMaps) {
             this.addCustomPalette(palette, group.controlEl);
         }
     }
 
     private addCustomPalette(name: string, container: HTMLElement) {
-        const data = PluginInstances.settings.customColorMaps[name];
+        const data = ExtendedGraphInstances.settings.customColorMaps[name];
         if (!data) return;
 
         const existing = Object.entries(this.customPalettes).find(([id, el]) => el.name === name);
@@ -124,23 +124,23 @@ export class GradientPickerModal extends Modal {
 
     private async onCustomPaletteEdited(id: string, oldName: string, newName: string) {
         const customNewName = "custom:" + newName;
-        const data = PluginInstances.settings.customColorMaps[customNewName];
+        const data = ExtendedGraphInstances.settings.customColorMaps[customNewName];
         if (!data) return;
 
         if (oldName !== customNewName) {
-            delete PluginInstances.settings.customColorMaps[oldName];
-            for (const key in PluginInstances.settings.interactiveSettings) {
-                if (PluginInstances.settings.interactiveSettings[key].colormap === oldName) {
-                    PluginInstances.settings.interactiveSettings[key].colormap = customNewName;
+            delete ExtendedGraphInstances.settings.customColorMaps[oldName];
+            for (const key in ExtendedGraphInstances.settings.interactiveSettings) {
+                if (ExtendedGraphInstances.settings.interactiveSettings[key].colormap === oldName) {
+                    ExtendedGraphInstances.settings.interactiveSettings[key].colormap = customNewName;
                 }
             }
-            if (PluginInstances.settings.nodesColorColormap === oldName) {
-                PluginInstances.settings.nodesColorColormap = customNewName;
+            if (ExtendedGraphInstances.settings.nodesColorColormap === oldName) {
+                ExtendedGraphInstances.settings.nodesColorColormap = customNewName;
             }
-            if (PluginInstances.settings.linksColorColormap === oldName) {
-                PluginInstances.settings.linksColorColormap = customNewName;
+            if (ExtendedGraphInstances.settings.linksColorColormap === oldName) {
+                ExtendedGraphInstances.settings.linksColorColormap = customNewName;
             }
-            await PluginInstances.plugin.saveSettings();
+            await ExtendedGraphInstances.plugin.saveSettings();
         }
         this.selectedPalette = customNewName;
         this.callback(this.selectedPalette);
@@ -153,19 +153,19 @@ export class GradientPickerModal extends Modal {
     private deleteCustomPalette(id: string) {
         const name = this.customPalettes[id].name;
 
-        delete PluginInstances.settings.customColorMaps[name];
-        for (const key in PluginInstances.settings.interactiveSettings) {
-            if (PluginInstances.settings.interactiveSettings[key].colormap === name) {
-                PluginInstances.settings.interactiveSettings[key].colormap = "rainbow";
+        delete ExtendedGraphInstances.settings.customColorMaps[name];
+        for (const key in ExtendedGraphInstances.settings.interactiveSettings) {
+            if (ExtendedGraphInstances.settings.interactiveSettings[key].colormap === name) {
+                ExtendedGraphInstances.settings.interactiveSettings[key].colormap = "rainbow";
             }
         }
-        if (PluginInstances.settings.nodesColorColormap === name) {
-            PluginInstances.settings.nodesColorColormap = "rainbow";
+        if (ExtendedGraphInstances.settings.nodesColorColormap === name) {
+            ExtendedGraphInstances.settings.nodesColorColormap = "rainbow";
         }
-        if (PluginInstances.settings.linksColorColormap === name) {
-            PluginInstances.settings.linksColorColormap = "rainbow";
+        if (ExtendedGraphInstances.settings.linksColorColormap === name) {
+            ExtendedGraphInstances.settings.linksColorColormap = "rainbow";
         }
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
 
         this.selectedPalette = "rainbow";
         this.callback(this.selectedPalette);

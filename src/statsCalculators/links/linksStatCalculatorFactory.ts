@@ -10,14 +10,14 @@ import {
     OccurencesLinkCalculator,
     OtsukaOchiaiCalculator,
     OverlapCalculator,
-    PluginInstances
+    ExtendedGraphInstances
 } from "src/internal";
 
 
 export class LinksStatCalculatorFactory {
     static getCalculator(stat: LinkStat, instances?: GraphInstances): LinkStatCalculator | undefined {
         const g = instances?.graphologyGraph;
-        switch (stat === 'size' ? (instances ?? PluginInstances).settings.linksSizeFunction : (instances ?? PluginInstances).settings.linksColorFunction) {
+        switch (stat === 'size' ? (instances ?? ExtendedGraphInstances).settings.linksSizeFunction : (instances ?? ExtendedGraphInstances).settings.linksColorFunction) {
             case 'Adamic Adar':
                 return new AdamicAdarCalculator(stat, g);
             case 'BoW':

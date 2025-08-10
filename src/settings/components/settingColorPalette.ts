@@ -1,5 +1,5 @@
 import { DropdownComponent, Setting } from "obsidian";
-import { cmOptions, ExtendedGraphSettingTab, GradientPickerModal, plotColorMapFromName, PluginInstances, t } from "src/internal";
+import { cmOptions, ExtendedGraphSettingTab, GradientPickerModal, plotColorMapFromName, ExtendedGraphInstances, t } from "src/internal";
 
 export class SettingColorPalette extends Setting {
     canvasPalette: HTMLCanvasElement;
@@ -52,7 +52,7 @@ export class SettingColorPalette extends Setting {
             // On change
             cb.onChange(async (palette) => {
                 if (palette === "") return;
-                plotColorMapFromName(this.canvasPalette, palette, PluginInstances.settings);
+                plotColorMapFromName(this.canvasPalette, palette, ExtendedGraphInstances.settings);
                 if (this.onPaletteChanged) this.onPaletteChanged(palette);
             });
         });
@@ -64,7 +64,7 @@ export class SettingColorPalette extends Setting {
 
         groupEl.label = t("plugin.custom");
         groupEl.replaceChildren();
-        for (const value in PluginInstances.settings.customColorMaps) {
+        for (const value in ExtendedGraphInstances.settings.customColorMaps) {
             const option = groupEl.createEl("option");
             option.value = "custom:" + value;
             option.text = value;
@@ -73,13 +73,13 @@ export class SettingColorPalette extends Setting {
 
     private onSelectedFromModal(name: string) {
         if (name === "") return;
-        plotColorMapFromName(this.canvasPalette, name, PluginInstances.settings);
+        plotColorMapFromName(this.canvasPalette, name, ExtendedGraphInstances.settings);
         if (this.onPaletteChanged) this.onPaletteChanged(name);
         this.dropdown.setValue(name);
     }
 
     setValue(palette: string) {
-        plotColorMapFromName(this.canvasPalette, palette, PluginInstances.settings);
+        plotColorMapFromName(this.canvasPalette, palette, ExtendedGraphInstances.settings);
         this.dropdown.setValue(palette);
     }
 

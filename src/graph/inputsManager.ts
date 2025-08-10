@@ -1,7 +1,7 @@
 import { Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
 import { getFileInteractives, Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
-import { GraphInstances, PluginInstances } from "src/pluginInstances";
+import { GraphInstances, ExtendedGraphInstances } from "src/pluginInstances";
 
 export class InputsManager {
     instances: GraphInstances;
@@ -126,7 +126,7 @@ export class InputsManager {
 
     private preventPan() {
         const renderer = this.instances.renderer;
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setPan>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.setPan>(
             this.instances.renderer,
             "setPan",
             {
@@ -141,7 +141,7 @@ export class InputsManager {
     }
 
     private allowPan() {
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.setPan);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.setPan);
     }
 
     private onPointerMoveOnStage(e: FederatedPointerEvent): void {
@@ -195,8 +195,8 @@ export class InputsManager {
                 }
                 if (targetURL) {
                     // First, let's see if we find a *Link Note*
-                    for (const file of PluginInstances.app.vault.getMarkdownFiles()) {
-                        for (const property of PluginInstances.settings.externalLinksProperties) {
+                    for (const file of ExtendedGraphInstances.app.vault.getMarkdownFiles()) {
+                        for (const property of ExtendedGraphInstances.settings.externalLinksProperties) {
                             const noteURLValues = getFileInteractives(property, file);
                             for (const noteURLValue of noteURLValues) {
                                 try {
@@ -206,10 +206,10 @@ export class InputsManager {
                                         || (noteURL.origin + noteURL.pathname) === id
                                     ) {
                                         if (this.instances.settings.openInNewTab) {
-                                            PluginInstances.app.workspace.openLinkText(file.path, "", "tab");
+                                            ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", "tab");
                                         }
                                         else {
-                                            PluginInstances.app.workspace.openLinkText(file.path, "", Keymap.isModEvent(e));
+                                            ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", Keymap.isModEvent(e));
                                         }
                                         return;
                                     }
@@ -231,7 +231,7 @@ export class InputsManager {
         }
 
         if (this.instances.settings.openInNewTab && "tag" !== type) {
-            PluginInstances.app.workspace.openLinkText(id, "", "tab");
+            ExtendedGraphInstances.app.workspace.openLinkText(id, "", "tab");
             return;
         }
 
@@ -239,13 +239,13 @@ export class InputsManager {
     }
 
     private onNodeRightClick(e: MouseEvent | null, id: string, type: string): void {
-        if (e && PluginInstances.settings.useRadialMenu && Keymap.isModifier(e, PluginInstances.settings.radialMenuModifier)) {
+        if (e && ExtendedGraphInstances.settings.useRadialMenu && Keymap.isModifier(e, ExtendedGraphInstances.settings.radialMenuModifier)) {
             const radialMenu = new RadialMenuManager(this.instances, id, type);
             radialMenu.open(e);
             return;
         }
 
-        if (e && PluginInstances.settings.pinNodeModifier && Keymap.isModifier(e, PluginInstances.settings.pinNodeModifier)) {
+        if (e && ExtendedGraphInstances.settings.pinNodeModifier && Keymap.isModifier(e, ExtendedGraphInstances.settings.pinNodeModifier)) {
             const pinner = new Pinner(this.instances);
             if (this.instances.nodesSet.isNodePinned(id)) {
                 pinner.unpinNode(id);

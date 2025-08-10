@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologyGraph, PluginInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
 
 export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Co-Citations';
@@ -55,10 +55,10 @@ export abstract class LinkStatCalculator {
 
     async computeStats(): Promise<void> {
         if (!this.graphologyGraph) {
-            if (!PluginInstances.graphologyGraph) {
-                PluginInstances.graphologyGraph = new GraphologyGraph();
+            if (!ExtendedGraphInstances.graphologyGraph) {
+                ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
             }
-            this.graphologyGraph = PluginInstances.graphologyGraph;
+            this.graphologyGraph = ExtendedGraphInstances.graphologyGraph;
         }
         this.graphologyGraph.registerListener(async (graph) => {
             await this.getStats();
@@ -96,7 +96,7 @@ export abstract class LinkStatCalculator {
                 this.cleanNanAndInfiniteValues(50);
                 Object.entries(this.linksStats).forEach(([source, targets]) => {
                     Object.entries(targets).forEach(([target, { measure, value }]) => {
-                        this.linksStats[source][target].value = evaluateCMap(value / 100, PluginInstances.settings.linksColorColormap, PluginInstances.settings);
+                        this.linksStats[source][target].value = evaluateCMap(value / 100, ExtendedGraphInstances.settings.linksColorColormap, ExtendedGraphInstances.settings);
                     })
                 });
                 break;

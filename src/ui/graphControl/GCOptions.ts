@@ -8,7 +8,7 @@ import {
     RendererNodeNamesSuggester,
     PinMultipleNodesModal,
     Pinner,
-    PluginInstances,
+    ExtendedGraphInstances,
     t
 } from "src/internal";
 
@@ -50,8 +50,8 @@ export class GCOptions extends GCSection {
                         if (filepath.trim() === "") {
                             return;
                         }
-                        PluginInstances.plugin.importSettings(filepath).then(() => {
-                            PluginInstances.graphsManager.resetPlugin(this.view, false);
+                        ExtendedGraphInstances.plugin.importSettings(filepath).then(() => {
+                            ExtendedGraphInstances.graphsManager.resetPlugin(this.view, false);
                         });
                     });
                     modal.open();
@@ -67,7 +67,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-up-to-line");
                 cb.onClick(() => {
-                    PluginInstances.statesManager.saveForDefaultState(this.view);
+                    ExtendedGraphInstances.statesManager.saveForDefaultState(this.view);
                 });
             });
     }
@@ -81,7 +81,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("save-button");
                 setIcon(cb.extraSettingsEl, "arrow-down-to-line");
                 cb.onClick(() => {
-                    PluginInstances.statesManager.saveForNormalState(this.view);
+                    ExtendedGraphInstances.statesManager.saveForNormalState(this.view);
                 });
             });
     }
@@ -93,7 +93,7 @@ export class GCOptions extends GCSection {
                 cb.extraSettingsEl.addClass("screenshot-button");
                 setIcon(cb.extraSettingsEl, "image");
                 cb.onClick(() => {
-                    PluginInstances.graphsManager.getSVGScreenshot(this.view);
+                    ExtendedGraphInstances.graphsManager.getSVGScreenshot(this.view);
                 });
             });
     }
@@ -103,7 +103,7 @@ export class GCOptions extends GCSection {
             .setName(t("features.zoomOnNode"))
             .addSearch(cb => {
                 const callback = (value: string) => {
-                    PluginInstances.graphsManager.zoomOnNode(this.view, value);
+                    ExtendedGraphInstances.graphsManager.zoomOnNode(this.view, value);
                 }
                 this.suggester = new RendererNodeNamesSuggester(cb.inputEl, this.view.renderer, callback);
             });
@@ -115,7 +115,7 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon("info");
                 cb.onClick(() => {
-                    PluginInstances.statesManager.showGraphState(this.view);
+                    ExtendedGraphInstances.statesManager.showGraphState(this.view);
                 })
             })
     }
@@ -126,10 +126,10 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon('pin');
                 cb.onClick(() => {
-                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(this.view.leaf.id);
                     if (!instances) return;
                     const pinner = new Pinner(instances);
-                    const modal = new PinMultipleNodesModal(this.instances?.settings ?? PluginInstances.settings,
+                    const modal = new PinMultipleNodesModal(this.instances?.settings ?? ExtendedGraphInstances.settings,
                         (shapeData, queryData) => {
                             pinner.pinInShape(shapeData, queryData);
                         });
@@ -144,7 +144,7 @@ export class GCOptions extends GCSection {
             .addExtraButton(cb => {
                 cb.setIcon('pin-off');
                 cb.onClick(() => {
-                    const instances = PluginInstances.graphsManager.allInstances.get(this.view.leaf.id);
+                    const instances = ExtendedGraphInstances.graphsManager.allInstances.get(this.view.leaf.id);
                     if (!instances) return;
                     const pinner = new Pinner(instances);
                     pinner.unpinAllNodes();

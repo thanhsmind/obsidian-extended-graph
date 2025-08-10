@@ -6,7 +6,7 @@
 */
 
 import { ExtendedGraphSettings, rgb2int } from "src/internal";
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 import * as Color from 'src/colors/color-bits';
 
 export const cmOptions = {
@@ -574,6 +574,6 @@ function qualitative(x: number, colors: Color.Color[], stops: number[]): Color.C
 }
 
 function adaptBrightness(color: Color.Color): Color.Color {
-    const factor = PluginInstances.settings.interactivesBrightness[PluginInstances.app.getTheme() === "moonstone" ? "light" : "dark"];
+    const factor = ExtendedGraphInstances.settings.interactivesBrightness[ExtendedGraphInstances.app.getTheme() === "moonstone" ? "light" : "dark"];
     return Color.multiply(color, factor);
 }

@@ -1,5 +1,5 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, NodeShape, PluginInstances, QueryData, QueryMatcher, SettingsSectionPerGraphType, ShapeEnum, ShapeQueryModal, t } from "src/internal";
+import { ExtendedGraphSettingTab, NodeShape, ExtendedGraphInstances, QueryData, QueryMatcher, SettingsSectionPerGraphType, ShapeEnum, ShapeQueryModal, t } from "src/internal";
 
 export class SettingShapes extends SettingsSectionPerGraphType {
     settingsShape: SettingShape[] = [];
@@ -9,7 +9,7 @@ export class SettingShapes extends SettingsSectionPerGraphType {
     }
 
     protected override addBody() {
-        const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(PluginInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
+        const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(ExtendedGraphInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return (a[1].index ?? 0) - (b[1].index ?? 0);
         }));
         const values = Object.keys(shapeQueries);
@@ -32,9 +32,9 @@ export class SettingShapes extends SettingsSectionPerGraphType {
         const next = settingShape.settingEl.nextSibling;
         this.settingTab.containerEl?.insertAfter(settingShape.settingEl, next);
 
-        PluginInstances.settings.shapeQueries[settingShape.shape].index = index + 1;
-        PluginInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.shapeQueries[settingShape.shape].index = index + 1;
+        ExtendedGraphInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private moveUp(settingShape: SettingShape) {
@@ -45,9 +45,9 @@ export class SettingShapes extends SettingsSectionPerGraphType {
         const previous = settingShape.settingEl.previousSibling;
         this.settingTab.containerEl?.insertBefore(settingShape.settingEl, previous);
 
-        PluginInstances.settings.shapeQueries[settingShape.shape].index = index - 1;
-        PluginInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.shapeQueries[settingShape.shape].index = index - 1;
+        ExtendedGraphInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }
 
@@ -75,7 +75,7 @@ class SettingShape extends Setting {
 
     private addQueryStringDiv(): SettingShape {
         this.queryStringDiv = this.controlEl.createDiv({ cls: "query-string" });
-        this.setQueryText(this.shape, PluginInstances.settings.shapeQueries[this.shape]);
+        this.setQueryText(this.shape, ExtendedGraphInstances.settings.shapeQueries[this.shape]);
         return this;
     }
 
@@ -92,7 +92,7 @@ class SettingShape extends Setting {
             cb.onClick(() => {
                 const modal = new ShapeQueryModal(
                     this.shape,
-                    PluginInstances.settings.shapeQueries[this.shape],
+                    ExtendedGraphInstances.settings.shapeQueries[this.shape],
                     this.saveShapeQuery.bind(this)
                 );
                 modal.open();
@@ -129,8 +129,8 @@ class SettingShape extends Setting {
 
     private saveShapeQuery(shape: ShapeEnum, queryData: QueryData) {
         this.setQueryText(shape, queryData);
-        PluginInstances.settings.shapeQueries[shape].combinationLogic = queryData.combinationLogic;
-        PluginInstances.settings.shapeQueries[shape].rules = queryData.rules;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.shapeQueries[shape].combinationLogic = queryData.combinationLogic;
+        ExtendedGraphInstances.settings.shapeQueries[shape].rules = queryData.rules;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

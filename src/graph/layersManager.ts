@@ -2,7 +2,7 @@ import { getLanguage, TFile } from "obsidian";
 import { GraphLink, GraphNode } from "obsidian-typings";
 import { Container, DisplayObject } from "pixi.js";
 import { ExtendedGraphSettings, findClosestIndex, getFile, getFileInteractives, getLinkID, pixiAddChild, pixiAddChildAt, strCompare } from "src/internal";
-import { GraphInstances, PluginInstances } from "src/pluginInstances";
+import { GraphInstances, ExtendedGraphInstances } from "src/pluginInstances";
 
 export interface Layer {
     id: string;
@@ -184,7 +184,7 @@ export class LayersManager {
                 || (element.parent.name?.startsWith("layer-") && element.parent !== layer.container)
             )
         ) {
-            const coreElement = PluginInstances.proxysManager.getTargetForProxy(element) ?? element;
+            const coreElement = ExtendedGraphInstances.proxysManager.getTargetForProxy(element) ?? element;
             at !== undefined ? pixiAddChildAt(layer.container, coreElement, at) : pixiAddChild(layer.container, coreElement);
             this.graphicsArray[array].add(coreElement);
             coreElement.on('destroyed', () => {
@@ -461,7 +461,7 @@ export class LayersManager {
     }
 
     static getAllLayers(settings: ExtendedGraphSettings): Layer[] {
-        const files = PluginInstances.app.vault.getMarkdownFiles();
+        const files = ExtendedGraphInstances.app.vault.getMarkdownFiles();
         const results: Layer[] = [];
         for (const file of files) {
             LayersManager.addLayerIfNeeded(settings, results, file);

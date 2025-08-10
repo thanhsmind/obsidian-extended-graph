@@ -1,11 +1,11 @@
 import { Modal, Setting, TFile } from "obsidian";
-import { PluginInstances, QueryData, QueryMatcher, t } from "src/internal";
+import { ExtendedGraphInstances, QueryData, QueryMatcher, t } from "src/internal";
 
 export class QueryMatchesModal extends Modal {
     matcher: QueryMatcher;
 
     constructor(queryData: QueryData) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
 
         this.matcher = new QueryMatcher(queryData);
         const files = this.matcher.getMatches();

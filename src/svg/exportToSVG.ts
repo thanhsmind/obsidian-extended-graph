@@ -17,7 +17,7 @@ import {
     NodeShape,
     pixiColor2hex,
     pixiColor2int,
-    PluginInstances,
+    ExtendedGraphInstances,
     polar2Cartesian,
     t,
     textColor
@@ -189,7 +189,7 @@ export abstract class ExportGraphToSVG {
 
             modal.onClose = (async function () {
                 if (modal.isCanceled) return;
-                this.options = PluginInstances.settings.exportSVGOptions;
+                this.options = ExtendedGraphInstances.settings.exportSVGOptions;
 
                 // Create SVG
                 this.createSVG();

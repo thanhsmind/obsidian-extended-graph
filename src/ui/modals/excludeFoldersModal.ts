@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, Setting } from "obsidian";
-import { FoldersSuggester, isRegex, PluginInstances, t, UIElements } from "src/internal";
+import { FoldersSuggester, isRegex, ExtendedGraphInstances, t, UIElements } from "src/internal";
 
 export class ExcludeFoldersModal extends Modal {
     initialFolders: string[];
@@ -8,7 +8,7 @@ export class ExcludeFoldersModal extends Modal {
     filtersDiv: HTMLDivElement;
 
     constructor(folders: string[]) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.initialFolders = folders;
         this.folders = structuredClone(folders);
         this.setTitle(t("features.excludedFolders"));
@@ -98,7 +98,7 @@ export class ExcludeFoldersModal extends Modal {
                     for (const folder of this.folders) {
                         this.initialFolders.push(folder);
                     }
-                    await PluginInstances.plugin.saveSettings();
+                    await ExtendedGraphInstances.plugin.saveSettings();
                     this.close();
                 });
             new ButtonComponent(container)

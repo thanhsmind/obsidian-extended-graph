@@ -1,5 +1,5 @@
 import { ExtraButtonComponent, setIcon, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, t } from "src/internal";
 
 export abstract class SettingsSection {
     settingTab: ExtendedGraphSettingTab;
@@ -32,7 +32,7 @@ export abstract class SettingsSection {
         this.addBody();
         this.addToNav();
 
-        if (this.id != 'property-key' && (!(this.id in PluginInstances.settings.collapsedSettings) || PluginInstances.settings.collapsedSettings[this.id])) {
+        if (this.id != 'property-key' && (!(this.id in ExtendedGraphInstances.settings.collapsedSettings) || ExtendedGraphInstances.settings.collapsedSettings[this.id])) {
             this.collapse();
         }
 
@@ -93,16 +93,16 @@ export abstract class SettingsSection {
     protected collapse(): void {
         this.isCollapsed = true;
         this.settingHeader.settingEl.addClass('is-collapsed');
-        PluginInstances.settings.collapsedSettings[this.id] = true;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapsedSettings[this.id] = true;
+        ExtendedGraphInstances.plugin.saveSettings();
         this.onCollapse();
     }
 
     protected expand(): void {
         this.isCollapsed = false;
         this.settingHeader.settingEl.removeClass('is-collapsed');
-        PluginInstances.settings.collapsedSettings[this.id] = false;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapsedSettings[this.id] = false;
+        ExtendedGraphInstances.plugin.saveSettings();
         this.onExpand();
     }
 

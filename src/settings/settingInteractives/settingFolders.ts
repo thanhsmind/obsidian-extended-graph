@@ -1,5 +1,5 @@
 import { Setting, TFile } from "obsidian";
-import { ExtendedGraphSettingTab, FOLDER_KEY, PluginInstances, SettingInteractives, t } from "src/internal";
+import { ExtendedGraphSettingTab, FOLDER_KEY, ExtendedGraphInstances, SettingInteractives, t } from "src/internal";
 
 export class SettingFolders extends SettingInteractives {
 
@@ -18,10 +18,10 @@ export class SettingFolders extends SettingInteractives {
             .setName(t("features.folderShowFullPath"))
             .setDesc(t("features.folderShowFullPathDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.folderShowFullPath)
+                cb.setValue(ExtendedGraphInstances.settings.folderShowFullPath)
                     .onChange(async (value) => {
-                        PluginInstances.settings.folderShowFullPath = value;
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.folderShowFullPath = value;
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     });
             }).settingEl);
     }

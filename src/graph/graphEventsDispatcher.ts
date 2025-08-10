@@ -28,7 +28,7 @@ import {
     nodeStatFunctionIsDynamic,
     nodeStatFunctionLabels,
     Pinner,
-    PluginInstances,
+    ExtendedGraphInstances,
     RadialMenuManager,
     SettingQuery,
     StatesUI,
@@ -125,7 +125,7 @@ export class GraphEventsDispatcher extends Component {
     private initializeFoldersUI(): void {
         if (!this.instances.settings.enableFeatures[this.instances.type]['folders']) return;
 
-        const graphControls = PluginInstances.graphsManager.globalUIs.get(this.instances.view.leaf.id)?.control;
+        const graphControls = ExtendedGraphInstances.graphsManager.globalUIs.get(this.instances.view.leaf.id)?.control;
         if (!graphControls) return;
 
         const foldersManager = this.instances.foldersSet?.managers.get(FOLDER_KEY);
@@ -159,7 +159,7 @@ export class GraphEventsDispatcher extends Component {
 
     private loadCurrentStateEngineOptions(): void {
         if (!this.reloadStateDuringInit) return;
-        const state = PluginInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
+        const state = ExtendedGraphInstances.settings.states.find(v => v.id === this.instances.statesUI.currentStateID);
         if (state) {
             this.instances.engine.setOptions(state.engineOptions);
             for (const node of this.instances.renderer.nodes) {
@@ -194,7 +194,7 @@ export class GraphEventsDispatcher extends Component {
                 this.loadLastFilteringAction();
                 this.registerEventsForLastFilteringAction();
                 if (this.reloadStateDuringInit) {
-                    PluginInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
+                    ExtendedGraphInstances.statesManager.changeState(this.instances, this.instances.statesUI.currentStateID);
                 }
                 if (this.instances.layersManager?.isEnabled) {
                     this.instances.layersManager.updateLayers();
@@ -205,7 +205,7 @@ export class GraphEventsDispatcher extends Component {
                 }
             }
 
-            PluginInstances.graphsManager.onPluginLoaded(this.instances.view);
+            ExtendedGraphInstances.graphsManager.onPluginLoaded(this.instances.view);
 
             // Make sure to render one frame in order to render every changes made by the plugin
             if (this.instances.renderer.idleFrames > 60) {
@@ -220,7 +220,7 @@ export class GraphEventsDispatcher extends Component {
             } else if (error instanceof Error) {
                 console.error(error.message);
             }
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            ExtendedGraphInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
     }
@@ -241,7 +241,7 @@ export class GraphEventsDispatcher extends Component {
 
     private createRenderCallbackProxy(): void {
         const beforeRenderCallback = this.beforeRenderCallback.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.renderCallback>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.renderCallback>(
             this.instances.renderer,
             "renderCallback",
             {
@@ -312,7 +312,7 @@ export class GraphEventsDispatcher extends Component {
         const updateData = this.updateData.bind(this);
         const instances = this.instances;
 
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.setData>(
             this.instances.renderer,
             "setData",
             {
@@ -338,7 +338,7 @@ export class GraphEventsDispatcher extends Component {
 
     private createDestroyGraphicsProxy() {
         const beforeDestroyGraphics = this.beforeDestroyGraphics.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.destroyGraphics>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.destroyGraphics>(
             this.instances.renderer,
             "destroyGraphics",
             {
@@ -352,7 +352,7 @@ export class GraphEventsDispatcher extends Component {
 
     private createInitGraphicsProxy() {
         const afterInitGraphics = this.afterInitGraphics.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.renderer.initGraphics>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.initGraphics>(
             this.instances.renderer,
             "initGraphics",
             {
@@ -414,7 +414,7 @@ export class GraphEventsDispatcher extends Component {
 
         // Search
         if (this.instances.engine.filterOptions.search.changeCallback) {
-            PluginInstances.proxysManager.registerProxy<typeof this.instances.engine.filterOptions.search.changeCallback>(
+            ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.engine.filterOptions.search.changeCallback>(
                 this.instances.engine.filterOptions.search,
                 'changeCallback',
                 {
@@ -438,7 +438,7 @@ export class GraphEventsDispatcher extends Component {
             checkboxContainer.addEventListener('mousedown', this.updateLastCheckboxToggled);
         }
 
-        PluginInstances.proxysManager.registerProxy<typeof this.instances.engine.options>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.engine.options>(
             this.instances.engine,
             'options',
             {
@@ -532,13 +532,13 @@ export class GraphEventsDispatcher extends Component {
     onunload(): void {
         this.removeStylingForCSSBridge();
         this.unbindStageEvents();
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.setData);
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.setData);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.destroyGraphics);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.initGraphics);
         this.instances.foldersUI?.destroy();
         this.inputsManager.unload();
-        PluginInstances.graphsManager.onPluginUnloaded(this.instances.view);
+        ExtendedGraphInstances.graphsManager.onPluginUnloaded(this.instances.view);
         this.restoreArrowAlpha();
         this.restoreLineHighlight();
         this.unregisterEventsForLastFilteringAction();
@@ -565,14 +565,14 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private unregisterEventsForLastFilteringAction(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.instances.engine.filterOptions.search.changeCallback);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.engine.filterOptions.search.changeCallback);
 
         const checkboxes = this.instances.view.contentEl.querySelectorAll('.graph-control-section.mod-filter .checkbox-container');
         for (const checkboxContainer of Array.from(checkboxes)) {
             checkboxContainer.addEventListener('mousedown', this.updateLastCheckboxToggled);
         }
 
-        PluginInstances.proxysManager.unregisterProxy(this.instances.engine.options);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.engine.options);
     }
 
     // ============================= STAGE EVENTS ==============================
@@ -585,10 +585,10 @@ export class GraphEventsDispatcher extends Component {
 
         const node = this.instances.renderer.nodes.find(n => n.circle === child);
         if (node) {
-            if (PluginInstances.graphsManager.isNodeLimitExceededForView(this.instances.view)) {
+            if (ExtendedGraphInstances.graphsManager.isNodeLimitExceededForView(this.instances.view)) {
                 this.listenStage = false;
                 setTimeout(() => {
-                    PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+                    ExtendedGraphInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
                 }, 200);
                 return;
             }
@@ -675,15 +675,15 @@ export class GraphEventsDispatcher extends Component {
 
         const showNotice = this.lastFilteringAction?.userChange || true;
         if (this.lastFilteringAction) this.lastFilteringAction.userChange = false;
-        if (PluginInstances.graphsManager.isNodeLimitExceededForData(data, showNotice)) {
-            if (PluginInstances.settings.revertAction && this.lastFilteringAction) {
+        if (ExtendedGraphInstances.graphsManager.isNodeLimitExceededForData(data, showNotice)) {
+            if (ExtendedGraphInstances.settings.revertAction && this.lastFilteringAction) {
                 this.revertLastFilteringAction();
                 return undefined;
             }
             else {
                 this.listenStage = false;
                 setTimeout(() => {
-                    PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+                    ExtendedGraphInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
                 }, 200);
                 return undefined;
             }
@@ -697,10 +697,10 @@ export class GraphEventsDispatcher extends Component {
     private beforeDestroyGraphics() {
         this.unbindStageEvents();
         this.inputsManager.unbindStageEvents();
-        PluginInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.instances.renderer.renderCallback);
         this.instances.layersManager?.destroyContainers();
         for (const el of this.instances.nodesSet.extendedElementsMap.values()) {
-            PluginInstances.proxysManager.unregisterProxy(el.coreElement.text);
+            ExtendedGraphInstances.proxysManager.unregisterProxy(el.coreElement.text);
         }
         for (const el of this.instances.linksSet.extendedElementsMap.values()) {
             el.restoreCoreElement();
@@ -776,7 +776,7 @@ export class GraphEventsDispatcher extends Component {
         // Disable the plugin if no last action was recorder (the plugin was just enabled)
         if (!this.lastFilteringAction || this.lastFilteringAction.id === undefined) {
             this.listenStage = false;
-            PluginInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
+            ExtendedGraphInstances.graphsManager.disablePluginFromLeafID(this.instances.view.leaf.id);
             return;
         }
 
@@ -828,7 +828,7 @@ export class GraphEventsDispatcher extends Component {
                 if (this.lastFilteringAction.stateIDNew !== this.lastFilteringAction.stateIDOld) {
                     this.lastFilteringAction.stateIDNew = this.lastFilteringAction.stateIDOld;
                     this.instances.statesUI.setValue(this.lastFilteringAction.stateIDOld);
-                    PluginInstances.statesManager.changeState(this.instances, this.lastFilteringAction.stateIDOld);
+                    ExtendedGraphInstances.statesManager.changeState(this.instances, this.lastFilteringAction.stateIDOld);
                 }
                 break;
         }
@@ -1063,14 +1063,14 @@ export class GraphEventsDispatcher extends Component {
 
     changeState(stateID: string) {
         this.setLastFilteringActionAsStateChange(stateID);
-        PluginInstances.statesManager.changeState(this.instances, stateID);
+        ExtendedGraphInstances.statesManager.changeState(this.instances, stateID);
     }
 
     // ================================== CSS ==================================
 
     private createStyleElementsForCSSBridge(): void {
         if (!this.instances.settings.enableCSS) return;
-        if (!PluginInstances.app.customCss.enabledSnippets.has(PluginInstances.settings.cssSnippetFilename)) return;
+        if (!ExtendedGraphInstances.app.customCss.enabledSnippets.has(ExtendedGraphInstances.settings.cssSnippetFilename)) return;
 
         // Get the document inside the iframe
         const doc = this.instances.renderer.iframeEl.contentDocument;

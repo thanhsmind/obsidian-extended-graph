@@ -1,5 +1,5 @@
 import { ColorSource, Graphics } from "pixi.js"
-import { ExtendedGraphLink, GraphInstances, LINK_KEY, PluginInstances, SettingQuery } from "src/internal";
+import { ExtendedGraphLink, GraphInstances, LINK_KEY, ExtendedGraphInstances, SettingQuery } from "src/internal";
 
 export class ExtendedGraphArrow {
     extendedLink: ExtendedGraphLink;
@@ -24,7 +24,7 @@ export class ExtendedGraphArrow {
     }
 
     unload(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
         this.restoreArrowScaleCallback();
         this.resetArrowShape();
     }
@@ -51,7 +51,7 @@ export class ExtendedGraphArrow {
                 return modifyingFunctions.some(fn => fn(target, prop, value));
             }).bind(this)
 
-            PluginInstances.proxysManager.registerProxy<typeof arrow>(
+            ExtendedGraphInstances.proxysManager.registerProxy<typeof arrow>(
                 this.extendedLink.coreElement,
                 "arrow",
                 {
@@ -62,7 +62,7 @@ export class ExtendedGraphArrow {
                 }
             );
             arrow.addEventListener('destroyed', () => {
-                PluginInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
+                ExtendedGraphInstances.proxysManager.unregisterProxy(this.extendedLink.coreElement.arrow);
             });
         }
     }

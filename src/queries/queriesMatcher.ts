@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { ExtendedGraphSettings, PluginInstances, RuleQuery, t } from "src/internal";
+import { ExtendedGraphSettings, ExtendedGraphInstances, RuleQuery, t } from "src/internal";
 
 export type CombinationLogic = 'AND' | 'OR';
 export type QueryData = {
@@ -16,7 +16,7 @@ export class QueryMatcher {
     }
 
     getMatches(settings?: ExtendedGraphSettings): TFile[] {
-        return PluginInstances.app.vault.getMarkdownFiles().filter(file => this.doesMatch(file, settings));
+        return ExtendedGraphInstances.app.vault.getMarkdownFiles().filter(file => this.doesMatch(file, settings));
     }
 
     doesMatch(file: TFile, settings?: ExtendedGraphSettings): boolean {

@@ -14,7 +14,7 @@ import {
     INVALID_KEYS,
     isGraphBannerLoaded,
     LINK_KEY,
-    PluginInstances,
+    ExtendedGraphInstances,
     ProxysManager,
     rgb2hex,
     StatesManager,
@@ -30,10 +30,10 @@ export default class ExtendedGraphPlugin extends Plugin {
     async onload(): Promise<void> {
         await this.checkDataValidity();
 
-        PluginInstances.plugin = this;
-        PluginInstances.app = this.app;
-        PluginInstances.configurationDirectory = normalizePath(this.manifest.dir + "/configs/");
-        PluginInstances.proxysManager = new ProxysManager();
+        ExtendedGraphInstances.plugin = this;
+        ExtendedGraphInstances.app = this.app;
+        ExtendedGraphInstances.configurationDirectory = normalizePath(this.manifest.dir + "/configs/");
+        ExtendedGraphInstances.proxysManager = new ProxysManager();
         await this.loadSettings();
 
         addIcon("git-fork-sparkles", `<g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="git-fork-sparkles"><circle cx="50" cy="76" r="12"/><circle cx="25" cy="25" r="12"/><circle cx="76" cy="25" r="12"/><path d="M76 36v8c0 2.4-1.6 4-4 4H28c-2.4 0-4-1.6-4-4V36"/><path d="M50 50v12"/><path d="m 82.03746,54.745552 v 16"/><path d="m 90.03746,62.745552  h -16"/><path d="m 72.5023,80.767008 v 8"/><path d="m 76.5023,84.767008 h -8"/><path d="m 14.7461264,54.15018 v 8"/><path d="m 18.7461264,58.15018 h -8"/></g>`);
@@ -42,8 +42,8 @@ export default class ExtendedGraphPlugin extends Plugin {
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this));
 
-        PluginInstances.graphsManager = new GraphsManager();
-        PluginInstances.statesManager = new StatesManager();
+        ExtendedGraphInstances.graphsManager = new GraphsManager();
+        ExtendedGraphInstances.statesManager = new StatesManager();
 
         this.app.workspace.onLayoutReady(() => {
             this.loadGraphsManager();
@@ -67,14 +67,14 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private initializeInvalidKeys(): void {
-        for (const key of Object.keys(PluginInstances.settings.additionalProperties)) {
+        for (const key of Object.keys(ExtendedGraphInstances.settings.additionalProperties)) {
             INVALID_KEYS[key] = [];
         }
     }
 
     private loadGraphsManager() {
-        this.addChild(PluginInstances.graphsManager);
-        PluginInstances.graphsManager.load();
+        this.addChild(ExtendedGraphInstances.graphsManager);
+        ExtendedGraphInstances.graphsManager.load();
     }
 
     private createPinIconUrl() {
@@ -85,12 +85,12 @@ export default class ExtendedGraphPlugin extends Plugin {
         if (svg) {
             const tail = svg.getElementsByTagName("path")[0];
             const head = svg.getElementsByTagName("path")[1];
-            head.setAttribute("fill", PluginInstances.app.getAccentColor());
+            head.setAttribute("fill", ExtendedGraphInstances.app.getAccentColor());
             head.setAttribute("stroke", stroke);
-            tail.setAttribute("stroke", PluginInstances.app.getAccentColor());
+            tail.setAttribute("stroke", ExtendedGraphInstances.app.getAccentColor());
 
             const s = new XMLSerializer();
-            PluginInstances.pinSVGDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
+            ExtendedGraphInstances.pinSVGDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
         }
     }
 
@@ -129,7 +129,7 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         // Deep load default settings
         this.loadSettingsRec(DEFAULT_SETTINGS, data);
-        PluginInstances.settings = data;
+        ExtendedGraphInstances.settings = data;
     }
 
     private migrateSettings(settings: any): any {
@@ -333,7 +333,7 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     async saveSettings() {
-        await this.saveData(PluginInstances.settings);
+        await this.saveData(ExtendedGraphInstances.settings);
     }
 
     async loadConfigFile(filepath: string) {
@@ -355,7 +355,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         delete json.collapsedSettings;
         delete json.multipleNodesData;
 
-        this.loadSettingsRec(PluginInstances.settings, json);
+        this.loadSettingsRec(ExtendedGraphInstances.settings, json);
 
         if (stateID) json["stateID"] = stateID;
 
@@ -370,18 +370,18 @@ export default class ExtendedGraphPlugin extends Plugin {
         delete importedSettings["stateID"];
 
         // Set and save the settings
-        PluginInstances.settings = importedSettings;
+        ExtendedGraphInstances.settings = importedSettings;
         await this.saveSettings();
 
         // Just in case the migration modified something
-        this.exportSettings(filepath, PluginInstances.settings);
+        this.exportSettings(filepath, ExtendedGraphInstances.settings);
     }
 
     async exportSettings(filepath: string, settings: ExtendedGraphSettings, state?: GraphState): Promise<void> {
-        this.app.vault.adapter.mkdir(PluginInstances.configurationDirectory);
+        this.app.vault.adapter.mkdir(ExtendedGraphInstances.configurationDirectory);
         filepath = normalizePath(filepath);
 
-        const clonedSettings = structuredClone(settings) as Partial<typeof PluginInstances.settings> & { stateID?: string };
+        const clonedSettings = structuredClone(settings) as Partial<typeof ExtendedGraphInstances.settings> & { stateID?: string };
 
         // Remove settings that we don't want to save
         delete clonedSettings.states;
@@ -399,7 +399,7 @@ export default class ExtendedGraphPlugin extends Plugin {
         }
         else {
             // Else, make sure we don't override the state id if it exists
-            const stateID = PluginInstances.statesManager.getStateFromConfig(filepath);
+            const stateID = ExtendedGraphInstances.statesManager.getStateFromConfig(filepath);
             if (stateID) {
                 clonedSettings.stateID = stateID;
             }
@@ -414,9 +414,9 @@ export default class ExtendedGraphPlugin extends Plugin {
     async onLayoutChange() {
         if (!this.app.internalPlugins.getPluginById("graph")?._loaded) return;
         const leaves = this.getGraphLeaves();
-        PluginInstances.graphsManager.syncWithLeaves(leaves);
+        ExtendedGraphInstances.graphsManager.syncWithLeaves(leaves);
         leaves.forEach(leaf => {
-            PluginInstances.graphsManager.initLeaf(leaf);
+            ExtendedGraphInstances.graphsManager.initLeaf(leaf);
         });
     }
 

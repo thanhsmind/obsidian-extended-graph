@@ -1,5 +1,5 @@
 import { ExtraButtonComponent, Setting } from "obsidian";
-import { ExtendedGraphSettingTab, getCMapData, NodeShape, PluginInstances, SettingColorPalette, SettingsSection, ShapeEnum, t } from "src/internal";
+import { ExtendedGraphSettingTab, getCMapData, NodeShape, ExtendedGraphInstances, SettingColorPalette, SettingsSection, ShapeEnum, t } from "src/internal";
 
 export class SettingLocal extends SettingsSection {
     depthColormapSetting: SettingColorPalette;
@@ -22,10 +22,10 @@ export class SettingLocal extends SettingsSection {
             .setName(t("features.colorBasedOnDepth"))
             .setDesc(t("features.colorBasedOnDepthDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.colorBasedOnDepth)
+                cb.setValue(ExtendedGraphInstances.settings.colorBasedOnDepth)
                     .onChange(async (value) => {
-                        PluginInstances.settings.colorBasedOnDepth = value;
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.colorBasedOnDepth = value;
+                        ExtendedGraphInstances.plugin.saveSettings();
                         this.depthColormapSetting.setVisibility(value);
                     })
             }).settingEl);
@@ -34,14 +34,14 @@ export class SettingLocal extends SettingsSection {
             .setName(t("features.depthPalette"))
             .setDesc(t("features.depthPaletteDesc"));
 
-        this.depthColormapSetting.setValue(PluginInstances.settings.depthColormap);
+        this.depthColormapSetting.setValue(ExtendedGraphInstances.settings.depthColormap);
 
         this.depthColormapSetting.onPaletteChange((palette: string) => {
-            PluginInstances.settings.depthColormap = palette;
-            PluginInstances.plugin.saveSettings();
+            ExtendedGraphInstances.settings.depthColormap = palette;
+            ExtendedGraphInstances.plugin.saveSettings();
         });
 
-        this.depthColormapSetting.setVisibility(PluginInstances.settings.colorBasedOnDepth);
+        this.depthColormapSetting.setVisibility(ExtendedGraphInstances.settings.colorBasedOnDepth);
 
         // Push to body list
         this.elementsBody.push(this.depthColormapSetting.settingEl);
@@ -52,17 +52,17 @@ export class SettingLocal extends SettingsSection {
             .setName(t("features.localGraphCurrentNodeColor"))
             .setDesc(t("features.localGraphCurrentNodeColorDesc"))
             .addToggle(cb => {
-                cb.setValue(PluginInstances.settings.currentNode.useColor);
+                cb.setValue(ExtendedGraphInstances.settings.currentNode.useColor);
                 cb.onChange(async (value) => {
-                    PluginInstances.settings.currentNode.useColor = value;
-                    await PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.currentNode.useColor = value;
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 })
             })
             .addColorPicker(cb => {
-                cb.setValue(PluginInstances.settings.currentNode.color);
+                cb.setValue(ExtendedGraphInstances.settings.currentNode.color);
                 cb.onChange(async (hex: string) => {
-                    PluginInstances.settings.currentNode.color = hex;
-                    await PluginInstances.plugin.saveSettings();
+                    ExtendedGraphInstances.settings.currentNode.color = hex;
+                    await ExtendedGraphInstances.plugin.saveSettings();
                 })
             }).settingEl);
     }
@@ -73,12 +73,12 @@ export class SettingLocal extends SettingsSection {
             .setDesc(t("features.localGraphCurrentNodeSizeDesc"))
             .addText(cb => {
                 cb.inputEl.addClass("number");
-                cb.setValue(PluginInstances.settings.currentNode.size.toString());
+                cb.setValue(ExtendedGraphInstances.settings.currentNode.size.toString());
                 cb.onChange(async (value) => {
                     const intValue = parseInt(value);
                     if (!isNaN(intValue)) {
-                        PluginInstances.settings.currentNode.size = Math.max(10, intValue);
-                        await PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.currentNode.size = Math.max(10, intValue);
+                        await ExtendedGraphInstances.plugin.saveSettings();
                     }
                 })
             }).settingEl);
@@ -101,8 +101,8 @@ export class SettingLocal extends SettingsSection {
             extraButton.extraSettingsEl.addClasses(["shape-icon", shape]);
             extraButton.extraSettingsEl.replaceChildren(svg);
             extraButton.onClick(async () => {
-                PluginInstances.settings.currentNode.shape = shape;
-                await PluginInstances.plugin.saveSettings();
+                ExtendedGraphInstances.settings.currentNode.shape = shape;
+                await ExtendedGraphInstances.plugin.saveSettings();
                 this.highlightSelectedShape();
             })
         }
@@ -112,7 +112,7 @@ export class SettingLocal extends SettingsSection {
 
     private highlightSelectedShape() {
         for (const child of Array.from(this.shapesSVGContainer.querySelectorAll(".shape-icon"))) {
-            child.toggleClass("is-active", child.hasClass(PluginInstances.settings.currentNode.shape));
+            child.toggleClass("is-active", child.hasClass(ExtendedGraphInstances.settings.currentNode.shape));
         }
     }
 
@@ -120,18 +120,18 @@ export class SettingLocal extends SettingsSection {
 
     onCustomPaletteModified(oldName: string, newName: string): void {
         // Check if the colormap is no longer in the settings
-        if (!getCMapData(PluginInstances.settings.depthColormap, PluginInstances.settings)) {
+        if (!getCMapData(ExtendedGraphInstances.settings.depthColormap, ExtendedGraphInstances.settings)) {
             // If the old name matches AND the new name is valid, change the name
-            if (PluginInstances.settings.depthColormap === oldName && getCMapData(newName, PluginInstances.settings)) {
-                PluginInstances.settings.depthColormap = newName;
+            if (ExtendedGraphInstances.settings.depthColormap === oldName && getCMapData(newName, ExtendedGraphInstances.settings)) {
+                ExtendedGraphInstances.settings.depthColormap = newName;
             }
             // Otherwise, reset it
             else {
-                PluginInstances.settings.depthColormap = "rainbow";
+                ExtendedGraphInstances.settings.depthColormap = "rainbow";
             }
         }
         this.depthColormapSetting.populateCustomOptions();
-        this.depthColormapSetting.setValue(PluginInstances.settings.depthColormap);
+        this.depthColormapSetting.setValue(ExtendedGraphInstances.settings.depthColormap);
     }
 
 }

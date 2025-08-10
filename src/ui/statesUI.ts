@@ -1,5 +1,5 @@
 import { Component, DropdownComponent, ExtraButtonComponent, Setting } from "obsidian";
-import { DEFAULT_STATE_ID, NewNameModal, UIElements, PluginInstances, GraphInstances, t } from "src/internal";
+import { DEFAULT_STATE_ID, NewNameModal, UIElements, ExtendedGraphInstances, GraphInstances, t } from "src/internal";
 
 export class StatesUI extends Component {
     instances: GraphInstances;
@@ -45,9 +45,9 @@ export class StatesUI extends Component {
 
         // CURRENT STATE ID
         this.currentStateID = this.selectState.getValue();
-        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+        this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
 
-        if (PluginInstances.settings.collapseState) {
+        if (ExtendedGraphInstances.settings.collapseState) {
             this.close();
         }
         else {
@@ -62,7 +62,7 @@ export class StatesUI extends Component {
                 this.selectState = cb;
                 cb.onChange(value => {
                     this.currentStateID = value;
-                    this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+                    this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
                     this.displaySaveDeleteButton();
                     this.instances.dispatcher.changeState(value);
                 })
@@ -87,14 +87,14 @@ export class StatesUI extends Component {
                 this.saveButton = cb;
                 UIElements.setupExtraButton(cb, 'save');
                 cb.onClick(() => {
-                    PluginInstances.statesManager.saveState(this.instances, this.selectState.getValue());
+                    ExtendedGraphInstances.statesManager.saveState(this.instances, this.selectState.getValue());
                 });
             })
             .addExtraButton(cb => {
                 this.deleteButton = cb;
                 UIElements.setupExtraButton(cb, 'delete');
                 cb.onClick(() => {
-                    PluginInstances.statesManager.deleteState(this.selectState.getValue());
+                    ExtendedGraphInstances.statesManager.deleteState(this.selectState.getValue());
                 });
             });
     }
@@ -141,36 +141,36 @@ export class StatesUI extends Component {
 
     private newState(name: string): boolean {
         if (name.length === 0) return false;
-        const id = PluginInstances.statesManager.newState(this.instances, name);
+        const id = ExtendedGraphInstances.statesManager.newState(this.instances, name);
         this.currentStateID = id;
-        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+        this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
         return true;
     }
 
     private renameState(name: string): boolean {
         if (name.length === 0) return false;
-        PluginInstances.statesManager.renameState(this.currentStateID, name);
+        ExtendedGraphInstances.statesManager.renameState(this.currentStateID, name);
         return true;
     }
 
     updateStatesList(): void {
         this.clear();
-        PluginInstances.settings.states.forEach(state => {
+        ExtendedGraphInstances.settings.states.forEach(state => {
             this.addOption(state.id, state.name);
         });
-        if (PluginInstances.settings.states.find(v => v.id === this.currentStateID)) {
+        if (ExtendedGraphInstances.settings.states.find(v => v.id === this.currentStateID)) {
             this.setValue(this.currentStateID);
         }
         else {
             this.currentStateID = this.selectState.getValue();
-            this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+            this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
             this.displaySaveDeleteButton();
         }
     }
 
     setValue(id: string) {
         this.currentStateID = id;
-        this.instances.stateData = PluginInstances.statesManager.getStateDataById(this.currentStateID);
+        this.instances.stateData = ExtendedGraphInstances.statesManager.getStateDataById(this.currentStateID);
         this.selectState.setValue(id);
         this.displaySaveDeleteButton();
     }
@@ -198,15 +198,15 @@ export class StatesUI extends Component {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
         this.isOpen = true;
-        PluginInstances.settings.collapseState = false;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapseState = false;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private close() {
         this.root.addClass("is-closed");
         this.toggleButton.extraSettingsEl.removeClass("is-active");
         this.isOpen = false;
-        PluginInstances.settings.collapseState = true;
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.settings.collapseState = true;
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 }

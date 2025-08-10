@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, PluginInstances, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExtendedGraphInstances, SettingsSection, t } from "src/internal";
 
 export class SettingZoom extends SettingsSection {
 
@@ -14,16 +14,16 @@ export class SettingZoom extends SettingsSection {
             .setName(t("features.zoomScale"))
             .setDesc(t("features.zoomScaleDesc"))
             .addSlider(cb => {
-                const preview = document.createTextNode(PluginInstances.settings.zoomFactor.toString());
+                const preview = document.createTextNode(ExtendedGraphInstances.settings.zoomFactor.toString());
                 if (preview) {
                     cb.sliderEl.parentElement?.insertBefore(preview, cb.sliderEl);
                 }
                 cb.setLimits(0, 8, 0.5)
-                    .setValue(PluginInstances.settings.zoomFactor)
+                    .setValue(ExtendedGraphInstances.settings.zoomFactor)
                     .onChange(value => {
-                        PluginInstances.settings.zoomFactor = value;
-                        if (preview) preview.textContent = PluginInstances.settings.zoomFactor.toString();
-                        PluginInstances.plugin.saveSettings();
+                        ExtendedGraphInstances.settings.zoomFactor = value;
+                        if (preview) preview.textContent = ExtendedGraphInstances.settings.zoomFactor.toString();
+                        ExtendedGraphInstances.plugin.saveSettings();
                     });
             });
         setting.controlEl.addClass("setting-item-description");

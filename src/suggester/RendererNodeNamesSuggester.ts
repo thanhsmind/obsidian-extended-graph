@@ -1,13 +1,13 @@
 import { AbstractInputSuggest } from "obsidian";
 import { GraphRenderer } from "obsidian-typings";
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 
 export class RendererNodeNamesSuggester extends AbstractInputSuggest<string> {
     renderer: GraphRenderer;
     callback: (value: string) => void;
 
     constructor(textInputEl: HTMLInputElement | HTMLDivElement, renderer: GraphRenderer, callback: (value: string) => void) {
-        super(PluginInstances.app, textInputEl);
+        super(ExtendedGraphInstances.app, textInputEl);
         this.renderer = renderer;
         this.callback = callback;
     }

@@ -1,7 +1,7 @@
 import { ButtonComponent, ColorComponent, KeymapContext, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
 import { plotColorMap, rgb2int, t } from "src/internal";
-import { PluginInstances } from "src/pluginInstances";
+import { ExtendedGraphInstances } from "src/pluginInstances";
 
 export class GradientMakerModal extends Modal {
     canvasContainer: HTMLDivElement;
@@ -21,7 +21,7 @@ export class GradientMakerModal extends Modal {
     saveCallback?: (name: string) => any;
 
     constructor(name?: string) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.name = name ?? "";
         this.modalEl.addClass("graph-modal-palette-maker")
     }
@@ -42,8 +42,8 @@ export class GradientMakerModal extends Modal {
     }
 
     private addHandles() {
-        if (this.name in PluginInstances.settings.customColorMaps) {
-            const data = PluginInstances.settings.customColorMaps[this.name];
+        if (this.name in ExtendedGraphInstances.settings.customColorMaps) {
+            const data = ExtendedGraphInstances.settings.customColorMaps[this.name];
             this.reverse = data.reverse;
             this.interpolate = data.interpolate;
             const colorsStopsMap = data.colors.map((c, i) => { return { col: Color.parseHex(c).rgb, stop: data.stops[i] } });
@@ -202,7 +202,7 @@ export class GradientMakerModal extends Modal {
             this.nameSetting.setDesc("");
             this.nameSetting.descEl.toggleClass("error", true);
         }
-        if (this.name in PluginInstances.settings.customColorMaps) {
+        if (this.name in ExtendedGraphInstances.settings.customColorMaps) {
             this.saveButton.setButtonText(t("controls.override"));
         }
         else {
@@ -223,13 +223,13 @@ export class GradientMakerModal extends Modal {
     private save() {
         if (this.name === "") return;
 
-        PluginInstances.settings.customColorMaps[this.name] = {
+        ExtendedGraphInstances.settings.customColorMaps[this.name] = {
             colors: this.cmapData.map(v => Color.formatHEX(v.color)),
             stops: this.cmapData.map(v => v.stop),
             interpolate: this.interpolate,
             reverse: this.reverse,
         }
-        PluginInstances.plugin.saveSettings().then(() => {
+        ExtendedGraphInstances.plugin.saveSettings().then(() => {
             if (this.saveCallback) this.saveCallback(this.name);
             this.close();
         });

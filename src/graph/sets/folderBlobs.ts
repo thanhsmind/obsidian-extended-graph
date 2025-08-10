@@ -13,7 +13,7 @@ import {
     InteractiveManager,
     pixiAddChild,
     pixiAddChildAt,
-    PluginInstances,
+    ExtendedGraphInstances,
     randomColor,
     SettingQuery
 } from "src/internal";
@@ -257,7 +257,7 @@ export class FoldersSet {
 
     loadFolder(key: string, path: string): void {
         const manager = this.managers.get(key);
-        const folder = PluginInstances.app.vault.getFolderByPath(path);
+        const folder = ExtendedGraphInstances.app.vault.getFolderByPath(path);
         if (folder && manager) {
             let blob = this.foldersMap.get(path);
             let blobExists = true;
@@ -333,7 +333,7 @@ export class FoldersSet {
 
         if (blob) return blob.nodes.length > 1;
 
-        const folder = PluginInstances.app.vault.getFolderByPath(path);
+        const folder = ExtendedGraphInstances.app.vault.getFolderByPath(path);
 
         // folder.getFileCount() is probably more efficient but counts files that are not displayed in the graph
         // this.getNodesInFolder(folder).length is more accurate but may be slower

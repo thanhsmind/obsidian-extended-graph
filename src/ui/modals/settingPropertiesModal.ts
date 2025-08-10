@@ -1,5 +1,5 @@
 import { ButtonComponent, ExtraButtonComponent, Modal, SearchComponent, TextComponent } from "obsidian";
-import { isPropertyKeyValid, PluginInstances, PropertiesSuggester, t, UIElements } from "src/internal";
+import { isPropertyKeyValid, ExtendedGraphInstances, PropertiesSuggester, t, UIElements } from "src/internal";
 
 export class SettingMultiPropertiesModal extends Modal {
     inputs: TextComponent[] = [];
@@ -8,7 +8,7 @@ export class SettingMultiPropertiesModal extends Modal {
     addText: string;
 
     constructor(title: string, addText: string, properties: string[]) {
-        super(PluginInstances.app);
+        super(ExtendedGraphInstances.app);
         this.properties = properties;
         this.addText = addText;
         this.setTitle(title);
@@ -66,14 +66,14 @@ export class SettingMultiPropertiesModal extends Modal {
         this.inputs.remove(input);
         this.properties.remove(input.getValue());
         inputDiv.remove();
-        PluginInstances.plugin.saveSettings();
+        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private renameProperty(oldKey: string, newKey: string): boolean {
         if (isPropertyKeyValid(newKey) && !this.properties.contains(newKey) && newKey !== oldKey) {
             this.properties.remove(oldKey);
             this.properties.push(newKey);
-            PluginInstances.plugin.saveSettings();
+            ExtendedGraphInstances.plugin.saveSettings();
             return true;
         }
         return false;

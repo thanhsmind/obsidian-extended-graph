@@ -18,7 +18,7 @@ import {
     NodeGraphicsWrapper,
     NodeShape,
     Pinner,
-    PluginInstances,
+    ExtendedGraphInstances,
     ShapeEnum
 } from "src/internal";
 
@@ -81,7 +81,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
 
         const getSize = this.getSize.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.coreElement.getSize>(
             this.coreElement,
             "getSize",
             {
@@ -107,7 +107,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (!(needToUpdateGraphicsColor || needToChangeColor)) return;
 
         const onGetFillColorCalled = this.onGetFillColorCalled.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.coreElement.getFillColor>(
             this.coreElement,
             "getFillColor",
             {
@@ -120,7 +120,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     private proxyInitGraphics(): void {
         const onInitGraphicsCalled = this.onInitGraphicsCalled.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.initGraphics>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.coreElement.initGraphics>(
             this.coreElement,
             "initGraphics",
             {
@@ -141,7 +141,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             return;
 
         const onRenderCalled = this.onRenderCalled.bind(this);
-        PluginInstances.proxysManager.registerProxy<typeof this.coreElement.render>(
+        ExtendedGraphInstances.proxysManager.registerProxy<typeof this.coreElement.render>(
             this.coreElement,
             "render",
             {
@@ -166,10 +166,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     override restoreCoreElement(): void {
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.initGraphics);
-        PluginInstances.proxysManager.unregisterProxy(this.coreElement.render);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.getSize);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.getFillColor);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.initGraphics);
+        ExtendedGraphInstances.proxysManager.unregisterProxy(this.coreElement.render);
     }
 
     // =============================== GRAPHICS ================================
@@ -289,7 +289,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         const node = this.coreElement;
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats'] && this.instances.settings.nodesSizeFunction !== 'default') {
             const originalSize = node.renderer.fNodeSizeMult * 8;
-            const customFunctionFactor = (this.instances.nodesSizeCalculator ?? PluginInstances.graphsManager.nodesSizeCalculator)?.filesStats.get(this.id)?.value;
+            const customFunctionFactor = (this.instances.nodesSizeCalculator ?? ExtendedGraphInstances.graphsManager.nodesSizeCalculator)?.filesStats.get(this.id)?.value;
             return originalSize * customRadiusFactor * (customFunctionFactor ?? 1);
         }
         else {
