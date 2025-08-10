@@ -414,8 +414,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         return Promise.all(promises);
     }
 
-    private async cacheExternalLinks(id: string): Promise<boolean> {
-        if (id in this.cachedExternalLinks) return false;
+    async cacheExternalLinks(id: string, force: boolean = false): Promise<boolean> {
+        if (!force && (id in this.cachedExternalLinks)) return false;
 
         const file = getFile(id);
         if (!file) {
