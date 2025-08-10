@@ -415,6 +415,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     async cacheExternalLinks(id: string, force: boolean = false): Promise<boolean> {
+        if (!(this.instances.renderer.nodeLookup[id]?.type === ""
+            || (this.instances.renderer.nodeLookup[id]?.type === "focused" && id.endsWith(".md")))) return false;
         if (!force && (id in this.cachedExternalLinks)) return false;
 
         const file = getFile(id);
@@ -441,6 +443,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
             }
         }
         this.cachedExternalLinks[id] = links;
+
         return links.length > 0;
     }
 

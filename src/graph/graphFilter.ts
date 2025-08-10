@@ -194,7 +194,6 @@ export class GraphFilter {
         for (const target of Object.keys(node.links)) {
             if (!validLinks.contains(target)) {
                 delete node.links[target];
-                console.log(target);
             }
         }
     }
