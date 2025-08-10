@@ -94,7 +94,7 @@ class LegendRow extends Setting {
             }
             stateData.logicTypes[this.name] = logic;
             this.manager.instances.engine.render();
-            this.manager.instances.dispatcher.onInteractivesLogicChanged(this.name);
+            this.manager.instances.interactiveEventsDispatcher.onInteractivesLogicChanged(this.name);
             ExtendedGraphInstances.statesManager.onStateNeedsSaving(stateData, false);
         }
 

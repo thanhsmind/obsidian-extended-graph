@@ -24,6 +24,7 @@ import {
     LinkStatCalculator,
     LayersManager,
     LayersUI,
+    InteractiveEventsDispatcher,
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
 import { GraphEngine, GraphRenderer, GraphView, LocalGraphView } from "obsidian-typings";
@@ -51,6 +52,7 @@ export class GraphInstances {
     readonly interactiveManagers = new Map<string, InteractiveManager>();
 
     dispatcher: GraphEventsDispatcher; // init in graphEventsDispatcher.ts (constructor)
+    interactiveEventsDispatcher: InteractiveEventsDispatcher; // init in graphEventsDispatcher.ts (constructor)
     filter: GraphFilter; // init in graphEventsDispatcher.ts (constructor)
     graph: Graph; // init in graph.ts (constructor)
     stateData?: GraphStateData; // graphsManager.ts (addGraph) and changed in statesUI.ts

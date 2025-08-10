@@ -158,8 +158,8 @@ export class StatesManager {
             }
         });
 
-        if (toDisable.length > 0) manager.instances.dispatcher.onInteractivesDisabled(manager.name, toDisable);
-        if (toEnable.length > 0) manager.instances.dispatcher.onInteractivesEnabled(manager.name, toEnable);
+        if (toDisable.length > 0) manager.instances.interactiveEventsDispatcher.onInteractivesDisabled(manager.name, toDisable);
+        if (toEnable.length > 0) manager.instances.interactiveEventsDispatcher.onInteractivesEnabled(manager.name, toEnable);
     }
 
     // ============================== SAVE STATE ===============================

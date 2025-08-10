@@ -40,7 +40,7 @@ export class InteractiveManager extends Component {
                 disabledTypes.push(type);
             }
         });
-        if (disabledTypes.length > 0) this.instances.dispatcher.onInteractivesDisabled(this.name, disabledTypes);
+        if (disabledTypes.length > 0) this.instances.interactiveEventsDispatcher.onInteractivesDisabled(this.name, disabledTypes);
     }
 
     enable(types: string[]): void {
@@ -52,7 +52,7 @@ export class InteractiveManager extends Component {
                 enabledTypes.push(type);
             }
         });
-        if (enabledTypes.length > 0) this.instances.dispatcher.onInteractivesEnabled(this.name, enabledTypes);
+        if (enabledTypes.length > 0) this.instances.interactiveEventsDispatcher.onInteractivesEnabled(this.name, enabledTypes);
     }
 
     isActive(type: string): boolean {
@@ -80,7 +80,7 @@ export class InteractiveManager extends Component {
         if (!interactive) return;
 
         interactive.setColor(color);
-        this.instances.dispatcher.onInteractiveColorChanged(this.name, type, color);
+        this.instances.interactiveEventsDispatcher.onInteractiveColorChanged(this.name, type, color);
     }
 
     removeTypes(types: Set<string> | string[]) {
@@ -88,7 +88,7 @@ export class InteractiveManager extends Component {
             this.interactives.delete(type);
         });
         this.recomputeColors();
-        this.instances.dispatcher.onInteractivesRemoved(this.name, types);
+        this.instances.interactiveEventsDispatcher.onInteractivesRemoved(this.name, types);
     }
 
     addTypes(types: Set<string> | string[]): void {
@@ -117,7 +117,7 @@ export class InteractiveManager extends Component {
         this.interactives = new Map([...this.interactives.entries()].sort());
         this.recomputeColors();
         if (colorsMaps.size > 0) {
-            this.instances.dispatcher.onInteractivesAdded(this.name, colorsMaps);
+            this.instances.interactiveEventsDispatcher.onInteractivesAdded(this.name, colorsMaps);
         }
     }
 

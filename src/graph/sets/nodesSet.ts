@@ -1,4 +1,4 @@
-import { MarkdownRenderer, TFile } from "obsidian";
+import { Component, MarkdownRenderer, TFile } from "obsidian";
 import { Assets, Graphics, IPointData, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
@@ -45,7 +45,10 @@ export class NodesSet extends AbstractSet<GraphNode> {
                 });
             }
             else {
-                this.cacheAllExternalLinks().then((linksAdded) => {
+                const component = new Component();
+                component.load();
+                this.cacheAllExternalLinks(component).then((linksAdded) => {
+                    component.unload();
                     if (linksAdded.some(r => r)) { // Only rerender if external links have been added
                         this.instances.engine.render();
                     }
@@ -406,15 +409,15 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     cachedExternalLinks: Record<string, URL[]> = {};
 
-    private async cacheAllExternalLinks(): Promise<boolean[]> {
+    private async cacheAllExternalLinks(component?: Component): Promise<boolean[]> {
         const promises: Promise<boolean>[] = [];
         for (const id in this.instances.renderer.nodeLookup) {
-            promises.push(this.cacheExternalLinks(id));
+            promises.push(this.cacheExternalLinks(id, false, component));
         }
         return Promise.all(promises);
     }
 
-    async cacheExternalLinks(id: string, force: boolean = false): Promise<boolean> {
+    async cacheExternalLinks(id: string, force: boolean = false, component?: Component): Promise<boolean> {
         if (!(this.instances.renderer.nodeLookup[id]?.type === ""
             || (this.instances.renderer.nodeLookup[id]?.type === "focused" && id.endsWith(".md")))) return false;
         if (!force && (id in this.cachedExternalLinks)) return false;
@@ -426,14 +429,23 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
 
         const data = await ExtendedGraphInstances.app.vault.cachedRead(file);
+        let componentCreated = false;
+        if (!component) {
+            component = new Component();
+            component.load();
+            componentCreated = true;
+        }
         const div = createDiv();
         await MarkdownRenderer.render(
             ExtendedGraphInstances.app,
             data,
             div,
             id,
-            ExtendedGraphInstances.plugin
+            component
         );
+        if (componentCreated) {
+            component.unload();
+        }
 
         const links: URL[] = [];
         for (const link of Array.from(div.getElementsByClassName("external-link"))) {

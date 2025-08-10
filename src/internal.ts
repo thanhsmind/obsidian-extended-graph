@@ -16,6 +16,7 @@ export * from "./colors/colors";
 
 export * from "./graph/graph";
 export * from "./graph/graphEventsDispatcher";
+export * from "./graph/interactiveEventsDispatcher";
 export * from "./graph/interactiveManager";
 export * from "./graph/inputsManager";
 export * from "./graph/layersManager";
