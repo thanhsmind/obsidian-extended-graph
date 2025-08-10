@@ -10,6 +10,8 @@ export class LayersUI extends Component {
     levelsArea: HTMLDivElement;
     activeLayersBorder: HTMLDivElement;
 
+    statusBarResizeObserver: ResizeObserver;
+
     constructor(instances: GraphInstances) {
         super();
         this.instances = instances;
@@ -18,6 +20,7 @@ export class LayersUI extends Component {
         if (this.instances.settings.displayLabelsInUI) {
             this.root.addClass("show-labels");
         }
+        this.computePosition();
 
         this.onLevelClicked = this.onLevelClicked.bind(this);
         this.onMouseWheel = this.onMouseWheel.bind(this);
@@ -104,6 +107,29 @@ export class LayersUI extends Component {
         if (e.targetNode?.textContent) this.instances.layersManager?.setCurrentLevel(parseInt(e.targetNode.textContent))
     }
 
+    private computePosition() {
+        // With status bar
+        const statusBar = this.root.doc.querySelector(".status-bar");
+        if (statusBar) {
+            const setHeight = () => {
+                const statusBarTop = statusBar.getBoundingClientRect().bottom - statusBar.getBoundingClientRect().height;
+                const viewBottom = this.instances.view.containerEl.getBoundingClientRect().bottom;
+                const bottom = Math.max(0, viewBottom - statusBarTop) + 5;
+                this.root.style.setProperty("bottom", bottom + "px");
+            }
+            (statusBar as HTMLDivElement).addEventListener("resize", () => {
+                setHeight();
+            });
+            this.statusBarResizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    setHeight();
+                }
+            });
+            this.statusBarResizeObserver.observe(statusBar);
+            setHeight();
+        }
+    }
+
     open() {
         this.root.removeClass("is-closed");
         this.toggleButton.extraSettingsEl.addClass("is-active");
@@ -120,5 +146,6 @@ export class LayersUI extends Component {
 
     onunload(): void {
         this.root.detach();
+        this.statusBarResizeObserver.disconnect();
     }
 }

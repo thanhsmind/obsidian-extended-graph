@@ -108,8 +108,8 @@ export class GraphEventsDispatcher extends Component {
     }
 
     private initializeUI(): void {
-        this.initializeLegendUI();
         this.initializeLayersUI();
+        this.initializeLegendUI();
 
         this.instances.statesUI = new StatesUI(this.instances);
         this.instances.statesUI.updateStatesList();
