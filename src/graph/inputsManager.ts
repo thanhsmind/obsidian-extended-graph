@@ -117,12 +117,16 @@ export class InputsManager {
             this.isSelecting = false;
 
             // Select nodes
-            this.instances.nodesSet.selectNodes(this.selectionRectangle.getLocalBounds());
+            this.instances.nodesSet.selectNodesInRectangle(this.selectionRectangle.getLocalBounds());
 
             // Listen to unselect
-            this.instances.renderer.interactiveEl.win.window.addEventListener("mouseup", this.onInputToUnselectNodes);
-            this.instances.renderer.interactiveEl.win.window.addEventListener("keydown", this.onInputToUnselectNodes);
+            this.startListeningToUnselectNodes();
         }
+    }
+
+    startListeningToUnselectNodes() {
+        this.instances.renderer.interactiveEl.win.window.addEventListener("mouseup", this.onInputToUnselectNodes);
+        this.instances.renderer.interactiveEl.win.window.addEventListener("keydown", this.onInputToUnselectNodes);
     }
 
     private preventPan() {

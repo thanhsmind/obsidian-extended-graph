@@ -17,6 +17,7 @@ export function addCommands(plugin: ExtendedGraphPlugin) {
     addStateCommands(plugin);
     addFolderCommands(plugin);
     addPinCommands(plugin);
+    addSelectCommands(plugin);
     addFocusCommands(plugin);
 }
 
@@ -250,6 +251,29 @@ function addPinCommands(plugin: ExtendedGraphPlugin) {
                     if (instances) {
                         new Pinner(instances).unpinAllNodes();
                     }
+                }
+                return true;
+            }
+        }
+    });
+}
+
+function addSelectCommands(plugin: ExtendedGraphPlugin) {
+    plugin.addCommand({
+        id: 'select-all-nodes',
+        name: t("controls.selectAllNodes"),
+        checkCallback: (checking: boolean) => {
+            // Conditions to check
+            const graphView = getActiveGraphView(plugin);
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                if (!instances) {
+                    return;
+                }
+                if (!checking) {
+                    instances.nodesSet.selectNodes(instances.renderer.nodes);
+                    instances.graphEventsDispatcher.inputsManager.startListeningToUnselectNodes();
+                    instances.renderer.changed();
                 }
                 return true;
             }

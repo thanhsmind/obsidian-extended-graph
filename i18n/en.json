@@ -66,6 +66,7 @@
         "resetInGraphView": "Reset in graph view",
         "reverse": "Reverse",
         "save": "Save",
+        "selectAllNodes": "Select all nodes",
         "selectConfigToImport": "Select a configuration to import",
         "setConfigName": "Set configuration name",
         "show": "Show",

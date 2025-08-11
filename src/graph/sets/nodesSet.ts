@@ -25,7 +25,7 @@ import { OutlineFilter } from "@pixi/filter-outline";
 
 export class NodesSet extends AbstractSet<GraphNode> {
     extendedElementsMap: Map<string, ExtendedGraphNode>;
-    selectedNodes: Record<string, { node: GraphNode, filter: OutlineFilter, originX: number, originY: number }> = {};
+    selectedNodes: Record<string, { node: GraphNode, originX: number, originY: number }> = {};
 
     // ============================== CONSTRUCTOR ==============================
 
@@ -287,29 +287,30 @@ export class NodesSet extends AbstractSet<GraphNode> {
 
     // ============================= SELECT NODES ==============================
 
-    selectNodes(bounds: Rectangle) {
+    selectNodesInRectangle(bounds: Rectangle) {
         const selectedNodes = this.instances.renderer.nodes.filter(node =>
             node.circle && bounds.contains(node.circle.x, node.circle.y));
+        this.selectNodes(selectedNodes);
+    }
 
-        for (const coreNode of selectedNodes) {
+    selectionFilter = new OutlineFilter(
+        3, this.instances.renderer.colors.fillHighlight.rgb, 0.1, 1, false
+    );
+    selectNodes(nodes: GraphNode[]) {
+        for (const coreNode of nodes) {
             if (coreNode.circle) {
-                const filter = new OutlineFilter(
-                    3, this.instances.renderer.colors.fillHighlight.rgb, 0.1, 1, false
-                );
 
                 if (coreNode.circle.filters) {
-                    if (coreNode.id in this.selectNodes) {
-                        coreNode.circle.filters.remove(filter);
+                    if (!coreNode.circle.filters.contains(this.selectionFilter)) {
+                        coreNode.circle.filters.push(this.selectionFilter);
                     }
-                    coreNode.circle.filters.push(filter);
                 }
                 else {
-                    coreNode.circle.filters = [filter];
+                    coreNode.circle.filters = [this.selectionFilter];
                 }
 
                 this.selectedNodes[coreNode.id] = {
                     node: coreNode,
-                    filter: filter,
                     originX: coreNode.circle.x,
                     originY: coreNode.circle.y
                 };
@@ -323,8 +324,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
             if (!coreNode.circle) continue;
 
             // Remove filter
-            coreNode.circle?.filters?.remove(this.selectedNodes[id].filter);
-            this.selectedNodes[id].filter.destroy();
+            coreNode.circle?.filters?.remove(this.selectionFilter);
         }
         this.selectedNodes = {};
         this.instances.renderer.changed();
