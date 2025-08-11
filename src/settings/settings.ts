@@ -105,6 +105,10 @@ export interface ExtendedGraphSettings {
     // Zoom on node
     zoomFactor: number;
 
+    // Focus
+    focusScaleFactor: number;
+    highlightOpenNodes: boolean;
+
     // Performances
     maxNodes: number;
     revertAction: boolean;
@@ -130,7 +134,6 @@ export interface ExtendedGraphSettings {
 
     // Display settings
     fadeOnDisable: boolean;
-    focusScaleFactor: number;
     borderUnresolved: number | string;
     spreadArcs: boolean;
     weightArcs: boolean;
@@ -320,6 +323,10 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Zoom on node
     zoomFactor: 2,
 
+    // Focus
+    focusScaleFactor: 1.8,
+    highlightOpenNodes: false,
+
     // Performances
     maxNodes: 20,
     delay: 500,
@@ -356,7 +363,6 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Display settings
     fadeOnDisable: false,
-    focusScaleFactor: 1.8,
     borderUnresolved: '',
     spreadArcs: false,
     weightArcs: false,

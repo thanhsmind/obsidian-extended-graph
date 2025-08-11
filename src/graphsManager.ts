@@ -69,6 +69,7 @@ export class GraphsManager extends Component {
     optionsBackup: Map<string, GraphPluginInstanceOptions> = new Map();
     allInstances: Map<string, GraphInstances> = new Map();
     activeFile: TFile | null = null;
+    openNodes: string[] = [];
 
     lastBackup: string;
     localGraphID: string | null = null;
@@ -607,6 +608,37 @@ export class GraphsManager extends Component {
                 this.globalUIs.delete(leafID);
             }
         }
+
+        // Find out which nodes are opened
+        this.computeOpenNodes();
+    }
+
+    private computeOpenNodes(): void {
+        const newOpenNodes: string[] = [];
+        ExtendedGraphInstances.app.workspace.iterateAllLeaves((leaf) => {
+            if (leaf.view.getViewType() === "markdown") {
+                console.log(leaf);
+            }
+            if (("state" in leaf.view) && (typeof leaf.view.state === "object") && (leaf.view.state) && ("file" in leaf.view.state) && (typeof leaf.view.state.file === "string")) {
+                newOpenNodes.push(leaf.view.state.file);
+            }
+            else if ("file" in leaf.view && leaf.view.file instanceof TFile) {
+                newOpenNodes.push(leaf.view.file.path);
+            }
+        });
+        const nodesToClose = this.openNodes.filter(id => !newOpenNodes.contains(id));
+        const nodesToOpen = newOpenNodes.filter(id => !this.openNodes.contains(id));
+        for (const instances of this.allInstances.values()) {
+            if (!instances.settings.enableFeatures[instances.type].focus || !instances.settings.highlightOpenNodes)
+                continue;
+            for (const id of nodesToClose) {
+                instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(false);
+            }
+            for (const id of nodesToOpen) {
+                instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(true);
+            }
+        }
+        this.openNodes = newOpenNodes;
     }
 
     // =============================== GLOBAL UI ===============================

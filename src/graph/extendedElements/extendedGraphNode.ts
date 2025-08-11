@@ -1,3 +1,4 @@
+import { OutlineFilter } from "@pixi/filter-outline";
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode, LocalGraphView } from "obsidian-typings";
 import { Graphics } from "pixi.js";
@@ -140,7 +141,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             (this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.showNamesWhenNeighborHighlighted)
             || this.icon
             || (this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
-            || this.instances.settings.enableFeatures[this.instances.type].focus
+            || (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.focusScaleFactor !== 1)
         ))
             return;
 
@@ -272,7 +273,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             }
 
             // Scale if focused
-            if (this.instances.settings.enableFeatures[this.instances.type].focus) {
+            if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.focusScaleFactor !== 1) {
                 if (this.id === ExtendedGraphInstances.app.workspace.getActiveFile()?.path) {
                     this.coreElement.circle.scale.x *= ExtendedGraphInstances.settings.focusScaleFactor;
                     this.coreElement.circle.scale.y *= ExtendedGraphInstances.settings.focusScaleFactor;
@@ -453,6 +454,31 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
                 continue;
             }
             link.initAnimation();
+        }
+    }
+
+    // ============================== OPEN IN TAB ==============================
+
+    openFilter?: OutlineFilter;
+    toggleOpenInTab(open: boolean) {
+        if (!this.coreElement.circle) return;
+
+        if (!this.openFilter) {
+            this.openFilter = new OutlineFilter(
+                2, this.instances.renderer.colors.fillHighlight.rgb, 0.1, 1, false
+            );
+        }
+
+        if (open) {
+            if (!this.coreElement.circle.filters) {
+                this.coreElement.circle.filters = [];
+            }
+            if (!this.coreElement.circle.filters.contains(this.openFilter)) {
+                this.coreElement.circle.filters.push(this.openFilter);
+            }
+        }
+        else if (this.coreElement.circle.filters) {
+            this.coreElement.circle.filters.remove(this.openFilter);
         }
     }
 }

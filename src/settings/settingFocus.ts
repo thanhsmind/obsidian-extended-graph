@@ -12,6 +12,11 @@ export class SettingFocus extends SettingsSectionPerGraphType {
     }
 
     protected override addBody(): void {
+        this.addFocusScale();
+        this.addHighlightOpenNodes();
+    }
+
+    private addFocusScale(): void {
         this.elementsBody.push(
             new Setting(this.settingTab.containerEl)
                 .setName(t("features.focusScale"))
@@ -25,6 +30,21 @@ export class SettingFocus extends SettingsSectionPerGraphType {
                                 ExtendedGraphInstances.settings.focusScaleFactor = n;
                                 await ExtendedGraphInstances.plugin.saveSettings();
                             }
+                        })
+                }).settingEl
+        );
+    }
+
+    private addHighlightOpenNodes(): void {
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
+                .setName(t("features.focusOpenNodes"))
+                .setDesc(t("features.focusOpenNodesDesc"))
+                .addToggle(cb => {
+                    cb.setValue(ExtendedGraphInstances.settings.highlightOpenNodes)
+                        .onChange(async (value) => {
+                            ExtendedGraphInstances.settings.highlightOpenNodes = value;
+                            await ExtendedGraphInstances.plugin.saveSettings();
                         })
                 }).settingEl
         );

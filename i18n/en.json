@@ -172,6 +172,8 @@
         "filtersDesc": "Exclude files and folders from the graph based on regex patterns.",
         "focus": "Focus",
         "focusDesc": "Scale up the node corresponding to the active note",
+        "focusOpenNodes": "Highlight open nodes",
+        "focusOpenNodesDesc": "Add a border around nodes associated to an open tab",
         "focusScale": "Scale factor",
         "focusScaleDesc": "The node corresponding to the currently active note will be scaled up by this factor",
         "folders": "Folders",

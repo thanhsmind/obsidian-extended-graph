@@ -1,4 +1,4 @@
-import { Component, MarkdownRenderer, TFile } from "obsidian";
+import { Component, FileView, MarkdownRenderer, TFile, WorkspaceLeaf } from "obsidian";
 import { Assets, Graphics, IPointData, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
@@ -62,6 +62,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
         this.instances.layersManager?.addNode(extendedNode.id);
         this.applyBackgroundColor(extendedNode);
         this.loadAsset(extendedNode);
+        if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.highlightOpenNodes) {
+            if (ExtendedGraphInstances.graphsManager.openNodes.contains(extendedNode.id)) extendedNode.toggleOpenInTab(true);
+        }
     }
 
     private applyBackgroundColor(extendedNode: ExtendedGraphNode) {
@@ -389,7 +392,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
     }
 
-    // ======================= EXTERNAL LINKS ===========================
+    // ============================ EXTERNAL LINKS =============================
 
     cachedExternalLinks: Record<string, URL[]> = {};
 

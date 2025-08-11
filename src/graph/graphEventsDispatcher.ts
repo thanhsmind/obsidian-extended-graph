@@ -740,6 +740,11 @@ export class GraphEventsDispatcher extends Component {
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.instances.layersManager?.rebuildContainers();
+            if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.highlightOpenNodes) {
+                for (const id of ExtendedGraphInstances.graphsManager.openNodes) {
+                    this.instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(true);
+                }
+            }
             this.bindStageEvents();
             this.inputsManager.bindStageEvents();
             this.instances.renderer.changed();
