@@ -218,13 +218,17 @@ export class ExtendedGraphText {
         const text = node.text;
         const circle = node.circle;
         if (!text || !circle) return;
-        let value = text.y;
+        let lowestPoint = text.position.y;
         // Get the lowest point with arrows
-        let lowestPoint = Object.values(node.reverse).reduce((acc, link) => {
-            if (!link.arrow) return value;
-            const bounds = link.arrow.getBounds();
-            return Math.max(value, text.parent.toLocal({ x: bounds.left, y: bounds.bottom }).y);
-        }, value);
+        if (this.instances.engine.options.showArrow) {
+            lowestPoint = Object.values(node.reverse).reduce((acc, link) => {
+                if (link.arrow && link.arrow.visible) {
+                    const bounds = link.arrow.getBounds();
+                    lowestPoint = Math.max(lowestPoint, text.parent.toLocal({ x: bounds.left, y: bounds.bottom }).y);
+                }
+                return lowestPoint;
+            }, lowestPoint);
+        }
         // Get the lowest point with the node and its children (arcs, shape, etc.)
         const bounds = circle.getBounds();
         lowestPoint = Math.max(lowestPoint, text.parent.toLocal({ x: bounds.left, y: bounds.bottom }).y);
