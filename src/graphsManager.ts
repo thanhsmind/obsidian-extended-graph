@@ -850,16 +850,6 @@ export class GraphsManager extends Component {
     // ===================== CHANGE CURRENT MARKDOWN FILE ======================
 
     onActiveLeafChange(leaf: WorkspaceLeaf | null) {
-        // Change the focus on active file
-        if (leaf) {
-            if (!this.isMarkdownLeaf(leaf)) {
-                this.changeActiveFile((leaf.view as FileView).file);
-            }
-            else {
-                this.changeActiveFile(null);
-            }
-        }
-
         // Change the number of nodes in the status bar
         this.updateStatusBarItem(leaf);
     }
@@ -872,7 +862,6 @@ export class GraphsManager extends Component {
         if (this.isHandlingMarkdownViewChange) return;
         this.isHandlingMarkdownViewChange = true;
         if (this.activeFile !== file) {
-            this.changeActiveFile(file);
             if (this.localGraphID) {
                 const localInstances = this.allInstances.get(this.localGraphID);
                 if (localInstances) {
@@ -903,32 +892,6 @@ export class GraphsManager extends Component {
             }
         }
         this.isHandlingMarkdownViewChange = false;
-    }
-
-    changeActiveFile(file: TFile | null): void {
-        if (!this.activeFile && !file) return;
-
-        for (const instances of this.allInstances.values()) {
-            if (!instances.settings.enableFeatures['graph']['focus']) continue;
-            if (instances.type !== "graph") continue;
-            this.deEmphasizePreviousActiveFile(instances);
-            this.emphasizeActiveFile(instances, file);
-            instances.renderer.changed();
-        }
-
-        this.activeFile = file;
-    }
-
-    private deEmphasizePreviousActiveFile(instances: GraphInstances) {
-        if (this.activeFile) {
-            instances.nodesSet.emphasizeNode(this.activeFile, false);
-        }
-    }
-
-    private emphasizeActiveFile(instances: GraphInstances, file: TFile | null) {
-        if (file) {
-            instances.nodesSet.emphasizeNode(file, true);
-        }
     }
 
     // ==================== HANDLE NORMAL AND DEFAULT STATE ====================

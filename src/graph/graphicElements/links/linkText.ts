@@ -91,7 +91,7 @@ export abstract class LinkText extends Container {
             fill: this.getTextColor(),
         });
         if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
-            style.stroke = new Color(CSSBridge.getBackgroundColor(this.extendedLink.coreElement.renderer)).toNumber();
+            style.stroke = new Color(CSSBridge.backgroundColor).toNumber();
             style.strokeThickness = 8;
         }
         return style;
@@ -140,7 +140,7 @@ export abstract class LinkText extends Container {
 
 
         if (this.needsGraphicsBackground()) {
-            this.drawGraphics(CSSBridge.getBackgroundColor(this.extendedLink.coreElement.renderer));
+            this.drawGraphics(CSSBridge.backgroundColor);
         }
         else if (this.needsSpriteBackground()) {
             this.drawSprite();

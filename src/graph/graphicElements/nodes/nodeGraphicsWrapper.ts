@@ -115,9 +115,15 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
                 this.iconSprite.eventMode = "none";
                 this.iconSprite.name = "icon";
                 this.iconSprite.anchor.set(0.5, 0.5);
-                this.iconSprite.height = 200;
-                this.iconSprite.width = 200;
                 this.iconSprite.tint = color;
+                if (this.extendedElement.instances.settings.backgroundOpacityWithIcon > 0 || this.extendedElement.instances.settings.borderWidthWithIcon > 0) {
+                    this.iconSprite.height = 160;
+                    this.iconSprite.width = 160;
+                }
+                else {
+                    this.iconSprite.height = 200;
+                    this.iconSprite.width = 200;
+                }
                 pixiAddChild(this.pixiElement, this.iconSprite);
             }
 
@@ -135,7 +141,7 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
         else if (this.extendedElement.icon.emoji) {
             this.emojiText = new Text(this.extendedElement.icon.emoji, {
                 fontFamily: "Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji, Android Emoji, EmojiSymbols, Symbola, Twemoji Mozilla, Twemoji Mozilla Color Emoji, Twemoji Mozilla Color Emoji 13.1.0",
-                fontSize: 150,
+                fontSize: this.extendedElement.instances.settings.backgroundOpacityWithIcon > 0 ? 130 : 150,
                 align: "center",
             });
             this.emojiText.eventMode = "none";
@@ -143,16 +149,6 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
             this.emojiText.anchor.set(0.5, 0.5);
             pixiAddChild(this.pixiElement, this.emojiText);
         }
-
-        // Hide circle
-        this.iconBackgroundLayer = new NodeShape(this.shape);
-        this.iconBackgroundLayer.name = "icon-background";
-        this.iconBackgroundLayer.drawFill('white');
-        this.iconBackgroundLayer.scale.set(this.iconBackgroundLayer.getDrawingResolution() + 0.5);
-        this.iconBackgroundLayer.alpha = 10;
-        this.iconBackgroundLayer.zIndex = -1;
-        this.updateIconBackgroundLayerColor(CSSBridge.getBackgroundColor(this.extendedElement.instances.renderer));
-        pixiAddChildAt(this.pixiElement, this.iconBackgroundLayer, 0);
     }
 
     updateIconBackgroundLayerColor(backgroundColor: ColorSource): void {

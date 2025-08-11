@@ -42,11 +42,11 @@ export class NodeShape extends Graphics {
     }
 
     drawMask(): NodeShape {
+        this.clear();
         return this.drawFill(0xFFFFFF);
     }
 
     drawFill(color: ColorSource): NodeShape {
-        this.clear();
         return this.beginFill(color)
             .drawUniqueShape()
             .endFill();

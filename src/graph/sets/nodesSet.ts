@@ -65,7 +65,7 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     private applyBackgroundColor(extendedNode: ExtendedGraphNode) {
-        const backgroundColor = CSSBridge.getBackgroundColor(this.instances.renderer);
+        const backgroundColor = CSSBridge.backgroundColor;
         if (!extendedNode.graphicsWrapper) return;
         extendedNode.graphicsWrapper.updateOpacityLayerColor(backgroundColor);
     }
@@ -240,36 +240,20 @@ export class NodesSet extends AbstractSet<GraphNode> {
     // ================================== CSS ==================================
 
     updateOpacityLayerColor() {
-        const color = CSSBridge.getBackgroundColor(this.instances.renderer);
+        const color = CSSBridge.backgroundColor;
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
         });
     }
 
     onCSSChange(): void {
-        const color = CSSBridge.getBackgroundColor(this.instances.renderer);
+        const color = CSSBridge.backgroundColor;
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
             extendedNode.extendedText.graphicsWrapper?.updateTextBackgroundColor(color);
             extendedNode.extendedText.updateTextStyle();
         });
-    }
-
-    // =============================== EMPHASIZE ===============================
-
-    /**
-     * Highlights or unhighlights a node based on the provided file.
-     * @param file - The file corresponding to the node.
-     * @param emphasize - Whether to highlight or unhighlight the node.
-     */
-    emphasizeNode(file: { path: string }, emphasize: boolean): void {
-        if (!this.instances.settings.enableFeatures[this.instances.type]['focus']) return;
-
-        const extendedNode = this.extendedElementsMap.get(file.path);
-        if (!extendedNode || !extendedNode.graphicsWrapper) return;
-
-        extendedNode.graphicsWrapper.pixiElement.scale.set(emphasize ? ExtendedGraphInstances.settings.focusScaleFactor : 1);
     }
 
     // =============================== PIN NODES ===============================

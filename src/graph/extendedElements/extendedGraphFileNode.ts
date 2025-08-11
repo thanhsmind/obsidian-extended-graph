@@ -19,8 +19,13 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     public needBackground(): boolean {
-        return !this.icon && (this.instances.settings.enableFeatures[this.instances.type]['focus']
-            || this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE);
+        if (this.icon && this.instances.settings.backgroundOpacityWithIcon > 0 && this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE)
+            return true;
+        if (this.icon && this.instances.settings.borderWidthWithIcon > 0)
+            return true;
+        if (this.graphicsWrapper?.shape !== ShapeEnum.CIRCLE)
+            return true;
+        return false;
     }
 
     public needArcs(): boolean {

@@ -66,7 +66,7 @@ export class TextGraphicsWrapper implements GraphicsWrapper {
         this.pixiElement.anchor.set(0.5, 0);
         this.textClone.anchor.set(0.5, 0);
         // Change the color
-        this.pixiElement.tint = CSSBridge.getBackgroundColor(coreElement.renderer);
+        this.pixiElement.tint = CSSBridge.backgroundColor;
         // Use a higher alpha than 1 in order to have a better opacity (which changes when hovering or zooming in/out)
         this.pixiElement.alpha = 2;
 

@@ -183,6 +183,8 @@ export interface ExtendedGraphSettings {
     usePluginForIcon: boolean;
     usePluginForIconColor: boolean;
     useParentIcon: boolean;
+    backgroundOpacityWithIcon: number;
+    borderWidthWithIcon: number;
 
     // Layers
     layerProperties: string[];
@@ -407,6 +409,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     usePluginForIcon: true,
     usePluginForIconColor: true,
     useParentIcon: false,
+    backgroundOpacityWithIcon: 0,
+    borderWidthWithIcon: 0,
 
     // Layers
     layerProperties: ["layer"],
@@ -640,7 +644,7 @@ export class SettingQuery {
         if (newFeatures['shapes'] !== oldFeatures['shapes'])
             return true;
         if (newFeatures['shapes']) {
-            if (!equals('shapeQueries'))
+            if (['shapeQueries'].some(k => !equals(k)))
                 return true;
         }
 
@@ -671,7 +675,7 @@ export class SettingQuery {
         if (newFeatures['icons'] !== oldFeatures['icons'])
             return true;
         if (newFeatures['icons']) {
-            if (['iconProperties', 'usePluginForIcon'].some(k => !equals(k)))
+            if (['iconProperties', 'usePluginForIcon', 'backgroundOpacityWithIcon', 'borderWidthWithIcon'].some(k => !equals(k)))
                 return true;
             if (oldSettings.usePluginForIcon && newSettings.usePluginForIcon) {
                 if (['usePluginForIconColor', 'useParentIcon'].some(k => !equals(k)))

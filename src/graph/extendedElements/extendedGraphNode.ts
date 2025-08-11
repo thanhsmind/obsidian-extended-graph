@@ -1,6 +1,7 @@
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode, LocalGraphView } from "obsidian-typings";
 import { Graphics } from "pixi.js";
+import { blend } from "src/colors/color-bits";
 import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     colorizeSVG,
@@ -19,7 +20,8 @@ import {
     NodeShape,
     Pinner,
     ExtendedGraphInstances,
-    ShapeEnum
+    ShapeEnum,
+    CSSBridge
 } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
@@ -134,10 +136,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     private proxyRender(): void {
-        // TODO: for now, I check the setting only here because I know it's the only reason
-        // we have something to do when node.render is being called.
-        // But if more options need this proxy, I'll need to add this test inside the loop
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names'] || !this.instances.settings.showNamesWhenNeighborHighlighted)
+        if (!(
+            (this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.showNamesWhenNeighborHighlighted)
+            || this.icon
+            || (this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
+            || this.instances.settings.enableFeatures[this.instances.type].focus
+        ))
             return;
 
         const onRenderCalled = this.onRenderCalled.bind(this);
@@ -246,7 +250,35 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     private onRenderCalled() {
-        this.extendedText.makeVisibleIfNeighborHighlighted();
+        // Display names if the neighbor is highligted
+        if (this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.showNamesWhenNeighborHighlighted) {
+            this.extendedText.makeVisibleIfNeighborHighlighted();
+        }
+
+        if (this.coreElement.circle) {
+            // Make the circle same color as the background
+            if (this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE) {
+                this.coreElement.circle.tint = CSSBridge.backgroundColor;
+            }
+            else if (this.icon) {
+                // or blended
+                const needBlend = this.instances.settings.backgroundOpacityWithIcon > 0
+                    && (!this.graphicsWrapper ||
+                        (!("background" in this.graphicsWrapper) || !this.graphicsWrapper.background)
+                    );
+                this.coreElement.circle.tint = needBlend
+                    ? blend(CSSBridge.backgroundColor, this.coreElement.circle.tint as number, this.instances.settings.backgroundOpacityWithIcon)
+                    : CSSBridge.backgroundColor;
+            }
+
+            // Scale if focused
+            if (this.instances.settings.enableFeatures[this.instances.type].focus) {
+                if (this.id === ExtendedGraphInstances.app.workspace.getActiveFile()?.path) {
+                    this.coreElement.circle.scale.x *= ExtendedGraphInstances.settings.focusScaleFactor;
+                    this.coreElement.circle.scale.y *= ExtendedGraphInstances.settings.focusScaleFactor;
+                }
+            }
+        }
     }
 
     // =============================== NODE SIZE ===============================

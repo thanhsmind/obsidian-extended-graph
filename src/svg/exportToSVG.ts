@@ -41,7 +41,7 @@ export abstract class ExportGraphToSVG {
 
     constructor(renderer: GraphRenderer) {
         this.renderer = renderer;
-        this.backgroundColor = CSSBridge.getBackgroundColor(this.renderer);
+        this.backgroundColor = CSSBridge.backgroundColor;
         this.backgroundColorHex = int2hex(this.backgroundColor);
     }
 

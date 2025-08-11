@@ -13,6 +13,8 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     protected override addBody(): void {
         this.addProperty();
         this.addSupportForPlugins();
+        this.addBackgroundOpacity();
+        this.addBorderWidth();
     }
 
     private addProperty(): void {
@@ -76,5 +78,43 @@ export class SettingIcons extends SettingsSectionPerGraphType {
             });
         this.parentSetting?.setVisibility(ExtendedGraphInstances.settings.usePluginForIcon);
         this.elementsBody.push(this.parentSetting.settingEl);
+    }
+
+    private addBackgroundOpacity(): void {
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
+                .setName(t("features.iconBackgroundOpacity"))
+                .setDesc(t("features.iconBackgroundOpacityDesc"))
+                .addText(cb => {
+                    cb.inputEl.addClass("number");
+                    cb.setValue(ExtendedGraphInstances.settings.backgroundOpacityWithIcon.toString());
+                    cb.onChange(async (value) => {
+                        const floatValue = value === "" ? 0 : parseFloat(value);
+                        if (!isNaN(floatValue)) {
+                            ExtendedGraphInstances.settings.backgroundOpacityWithIcon = Math.clamp(floatValue, 0, 1);
+                            await ExtendedGraphInstances.plugin.saveSettings();
+                        }
+                    })
+                }).settingEl
+        );
+    }
+
+    private addBorderWidth(): void {
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
+                .setName(t("features.iconBorderWidth"))
+                .setDesc(t("features.iconBorderWidthDesc"))
+                .addText(cb => {
+                    cb.inputEl.addClass("number");
+                    cb.setValue(ExtendedGraphInstances.settings.borderWidthWithIcon.toString());
+                    cb.onChange(async (value) => {
+                        const floatValue = value === "" ? 0 : parseFloat(value);
+                        if (!isNaN(floatValue)) {
+                            ExtendedGraphInstances.settings.borderWidthWithIcon = Math.max(floatValue, 0);
+                            await ExtendedGraphInstances.plugin.saveSettings();
+                        }
+                    })
+                }).settingEl
+        );
     }
 }

@@ -1,6 +1,8 @@
 import { ColorSource, Texture } from "pixi.js";
+import { blend, Color } from "src/colors/color-bits";
 import {
     ArcsCircle,
+    CSSBridge,
     ExtendedGraphFileNode,
     fadeIn,
     getFile,
@@ -58,7 +60,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
         }
         this.background = new NodeShape(this.shape);
         if (this.extendedElement.instances.settings.enableFeatures[this.extendedElement.instances.type]['shapes']) {
-            this.background.drawFill(this.getFillColor().rgb);
+            this.updateBackgroundColor(this.getFillColor().rgb, false);
         }
         this.background.scale.set(this.background.getDrawingResolution());
         pixiAddChildAt(this.pixiElement, this.background, 0);
@@ -115,17 +117,30 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
 
     // ============================ UPDATE GRAPHICS ============================
 
-    override updateFillColor(color: ColorSource, highlighted: boolean): boolean {
+    override updateFillColor(color: Color, highlighted: boolean): boolean {
         if (super.updateFillColor(color, highlighted)) {
-            if (color === undefined) {
-                this.background?.drawFill(this.getFillColor().rgb);
-            }
-            else {
-                this.background?.drawFill(color);
-            }
+            this.updateBackgroundColor(color ?? this.getFillColor().rgb, highlighted);
             return true;
         }
         return false;
+    }
+
+    private updateBackgroundColor(color: Color, highlighted: boolean) {
+        if (!this.background) return;
+
+        this.background.clear();
+
+        if (this.extendedElement.icon) {
+            if (this.extendedElement.instances.settings.borderWidthWithIcon > 0) {
+                const strokeColor = highlighted ? color : this.extendedElement.icon.color ?? color;
+                this.background.lineStyle({ color: strokeColor, width: this.extendedElement.instances.settings.borderWidthWithIcon / this.background.getDrawingResolution() });
+            }
+            if (this.extendedElement.instances.settings.backgroundOpacityWithIcon > 0) {
+                color = blend(CSSBridge.backgroundColor, color, this.extendedElement.instances.settings.backgroundOpacityWithIcon);
+            }
+        }
+
+        this.background.drawFill(color);
     }
 
     // ============================ CLEAR GRAPHICS =============================

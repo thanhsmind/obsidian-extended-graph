@@ -90,6 +90,7 @@ export class CSSBridge extends Component {
     // ================================ LOAD ================================ //
 
     override onload(): void {
+        CSSBridge.computeBackgroundColor(this.instances.renderer);
         this.createStyleElementsForCSSBridge();
     }
 
@@ -131,6 +132,7 @@ export class CSSBridge extends Component {
     // =============================== UPDATE =============================== //
 
     onCSSChange() {
+        CSSBridge.computeBackgroundColor(this.instances.renderer);
         this.computeStylingFromCSSBridge();
         if (this.instances.nodesSet) {
             this.instances.nodesSet.onCSSChange();
@@ -438,7 +440,10 @@ export class CSSBridge extends Component {
         return `${Color.getRed(color)}, ${Color.getGreen(color)}, ${Color.getBlue(color)}`;
     }
 
-    static getBackgroundColor(renderer: GraphRenderer): Color.Color {
+    // Expected to be the same background color for every renderer
+    static backgroundColor: Color.Color;
+
+    private static computeBackgroundColor(renderer: GraphRenderer): Color.Color {
         let bg = window.getComputedStyle(renderer.interactiveEl).backgroundColor;
         let el: Element = renderer.interactiveEl;
         while (bg.startsWith("rgba(") && bg.endsWith(", 0)") && el.parentElement) {
@@ -446,6 +451,7 @@ export class CSSBridge extends Component {
             bg = window.getComputedStyle(el).backgroundColor;
         }
 
-        return Color.parseCSS(bg).rgb;
+        CSSBridge.backgroundColor = Color.parseCSS(bg).rgb;
+        return CSSBridge.backgroundColor;
     }
 }
