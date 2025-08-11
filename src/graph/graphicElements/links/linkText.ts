@@ -93,6 +93,7 @@ export abstract class LinkText extends Container {
         if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
             style.stroke = new Color(CSSBridge.backgroundColor).toNumber();
             style.strokeThickness = 8;
+            style.lineJoin = "round";
         }
         return style;
     }

@@ -1,13 +1,12 @@
 
 import { GraphNode } from "obsidian-typings";
 import { TextStyle } from "pixi.js";
-import { CSSBridge, getFile, getFileInteractives, GraphInstances, TextGraphicsWrapper } from "src/internal";
+import { CSSBridge, getFile, getFileInteractives, GraphInstances } from "src/internal";
 
 export class ExtendedGraphText {
     coreElement: GraphNode;
     instances: GraphInstances;
     hasChangedText: boolean = false;
-    graphicsWrapper?: TextGraphicsWrapper;
     coreTextPositionCallback: (() => void) | undefined;
 
     coreGetTextStyle: () => TextStyle;
@@ -24,8 +23,6 @@ export class ExtendedGraphText {
 
     init() {
         this.modifyCoreElement();
-        this.createGraphicsWrapper();
-        this.graphicsWrapper?.connect();
         this.coreElement.text?.addListener('destroyed', () => {
             this.unload();
         });
@@ -45,7 +42,6 @@ export class ExtendedGraphText {
             this.restoreText();
             this.hasChangedText = false;
         }
-        this.graphicsWrapper?.destroyGraphics();
         this.restoreTextStyle();
     }
 
@@ -56,7 +52,11 @@ export class ExtendedGraphText {
     // ================== Change font family to match the interface font
 
     updateTextStyle(): void {
-        if (!this.coreElement.text || !this.instances.extendedStyleEl) return;
+        if (!this.coreElement.text) return;
+
+        const useCustomCSS = !!this.instances.extendedStyleEl;
+        const addStroke = this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.addBackgroundToName;
+        if (!useCustomCSS && !addStroke) return;
 
         const customStyle = this.instances.cssBridge.getNodeTextStyle(this.coreElement.id);
 
@@ -64,9 +64,9 @@ export class ExtendedGraphText {
             ? this.coreElement.text.style.fontFamily
             : this.coreElement.text.style.fontFamily.join(', ');
 
-        if (fontNode !== customStyle.fontFamily && !CSSBridge.isNodeTextStyleDefault(customStyle)) {
-            this.coreElement.getTextStyle = () => {
-                const coreStyle = this.coreGetTextStyle();
+        this.coreElement.getTextStyle = () => {
+            const coreStyle = this.coreGetTextStyle();
+            if (useCustomCSS) {
                 coreStyle.fontFamily = customStyle.fontFamily + ", " + fontNode;
                 coreStyle.fontStyle = customStyle.fontStyle;
                 coreStyle.fontVariant = customStyle.fontVariant;
@@ -76,12 +76,13 @@ export class ExtendedGraphText {
                 if (customStyle.fill) {
                     coreStyle.fill = customStyle.fill;
                 }
-                return coreStyle;
             }
-
-            if (this.graphicsWrapper) this.graphicsWrapper.textClone.style = this.coreElement.getTextStyle();
-
-            this.coreElement.fontDirty = true;
+            if (addStroke) {
+                coreStyle.stroke = CSSBridge.backgroundColor;
+                coreStyle.strokeThickness = 8;
+                coreStyle.lineJoin = "round";
+            }
+            return coreStyle;
         }
     }
 
@@ -163,23 +164,7 @@ export class ExtendedGraphText {
         if (!this.coreElement.text) return;
         if (this.coreElement.text.text !== text) {
             this.coreElement.text.text = text;
-            this.graphicsWrapper?.updateBackgroundAfterTextChange();
         }
-    }
-
-
-
-    // ================== Add background behind text
-
-    createGraphicsWrapper(): void {
-        if (!this.coreElement.text) return;
-        if (!this.instances.settings.enableFeatures[this.instances.type]['names']
-            || !this.instances.settings.addBackgroundToName) return;
-
-        if (!this.graphicsWrapper) {
-            this.graphicsWrapper = new TextGraphicsWrapper(this);
-        }
-        this.graphicsWrapper.createGraphics();
     }
 
 

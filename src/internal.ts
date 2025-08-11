@@ -51,7 +51,6 @@ export * from "./graph/graphicElements/nodes/unresolvedNodeGraphicsWrapper";
 export * from "./graph/graphicElements/nodes/arcsCircle";
 export * from "./graph/graphicElements/nodes/image";
 export * from "./graph/graphicElements/nodes/shapes";
-export * from "./graph/graphicElements/nodes/textGraphicsWrapper";
 
 export * from "./graph/pin/pinner";
 export * from "./graph/pin/pinShapes";

@@ -259,7 +259,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
         this.extendedElementsMap.forEach(extendedNode => {
             extendedNode.graphicsWrapper?.updateOpacityLayerColor(color);
             extendedNode.graphicsWrapper?.updateIconBackgroundLayerColor(color);
-            extendedNode.extendedText.graphicsWrapper?.updateTextBackgroundColor(color);
             extendedNode.extendedText.updateTextStyle();
         });
     }
