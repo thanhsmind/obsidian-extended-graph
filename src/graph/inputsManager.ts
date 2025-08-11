@@ -1,6 +1,6 @@
 import { Keymap, Menu, TFile, UserEvent } from "obsidian";
 import { FederatedPointerEvent, Graphics } from "pixi.js";
-import { getFileInteractives, Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
+import { getFileInteractives, OpenExternalLinkModal, Pinner, pixiAddChild, RadialMenuManager, t } from "src/internal";
 import { GraphInstances, ExtendedGraphInstances } from "src/pluginInstances";
 
 export class InputsManager {
@@ -196,28 +196,33 @@ export class InputsManager {
                 }
                 if (targetURL) {
                     // First, let's see if we find a *Link Note*
-                    for (const file of ExtendedGraphInstances.app.vault.getMarkdownFiles()) {
-                        for (const property of ExtendedGraphInstances.settings.externalLinksProperties) {
-                            const noteURLValues = getFileInteractives(property, file);
-                            for (const noteURLValue of noteURLValues) {
-                                try {
-                                    const noteURL = new URL(noteURLValue);
-                                    if (noteURL.toString() === id
-                                        || noteURL.hostname === id
-                                        || (noteURL.origin + noteURL.pathname) === id
-                                    ) {
-                                        if (this.instances.settings.openInNewTab) {
-                                            ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", "tab");
-                                        }
-                                        else {
-                                            ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", Keymap.isModEvent(e));
-                                        }
-                                        return;
-                                    }
-                                } catch (error) {
-                                    continue;
-                                }
+                    if (ExtendedGraphInstances.settings.externalLinkOpenMode === "choice" || ExtendedGraphInstances.settings.externalLinkOpenMode === "note") {
+                        const paths = this.findExternalLinkFiles(id);
+                        if (ExtendedGraphInstances.settings.externalLinkOpenMode === "note" && paths.length > 0) {
+                            if (this.instances.settings.openInNewTab) {
+                                ExtendedGraphInstances.app.workspace.openLinkText(paths[0].path, "", "tab");
                             }
+                            else {
+                                ExtendedGraphInstances.app.workspace.openLinkText(paths[0].path, "", Keymap.isModEvent(e));
+                            }
+                            return;
+                        }
+                        else if (paths.length > 0) {
+                            const modal = new OpenExternalLinkModal(paths, (file) => {
+                                if (file) {
+                                    if (this.instances.settings.openInNewTab) {
+                                        ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", "tab");
+                                    }
+                                    else {
+                                        ExtendedGraphInstances.app.workspace.openLinkText(file.path, "", Keymap.isModEvent(e));
+                                    }
+                                }
+                                else {
+                                    window.open(targetURL.href, "");
+                                }
+                            });
+                            modal.open();
+                            return;
                         }
                     }
 
@@ -258,6 +263,39 @@ export class InputsManager {
         }
 
         if (this.coreOnNodeRightClick) this.coreOnNodeRightClick(e, id, type);
+    }
+
+    private findExternalLinkFiles(id: string): TFile[] {
+        const idFiles: TFile[] = [];
+        const hrefFiles: TFile[] = [];
+        const domainFiles: TFile[] = [];
+        for (const file of ExtendedGraphInstances.app.vault.getMarkdownFiles()) {
+            for (const property of ExtendedGraphInstances.settings.externalLinksProperties) {
+                const noteURLValues = getFileInteractives(property, file);
+                for (const noteURLValue of noteURLValues) {
+                    try {
+                        const noteURL = new URL(noteURLValue);
+                        if (noteURL.toString() === id) {
+                            idFiles.push(file);
+                            if (ExtendedGraphInstances.settings.externalLinkOpenMode === "note") {
+                                return idFiles;
+                            }
+                        }
+                        else if (noteURL.origin + noteURL.pathname === id) {
+                            hrefFiles.push(file);
+                        }
+                        else if (noteURL.hostname === id) {
+                            domainFiles.push(file);
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        // Order by best matches
+        return idFiles.concat(hrefFiles).concat(domainFiles);
     }
 
     // =============================== PIN NODES ===============================

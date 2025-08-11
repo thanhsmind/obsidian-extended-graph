@@ -1,5 +1,5 @@
 import { Setting } from "obsidian";
-import { ExtendedGraphSettingTab, ExternalLinkOption, ExtendedGraphInstances, SettingMultiPropertiesModal, SettingsSection, t } from "src/internal";
+import { ExtendedGraphSettingTab, ExternalLinkOption, ExtendedGraphInstances, SettingMultiPropertiesModal, SettingsSection, t, ExternalLinkOpenMode } from "src/internal";
 
 export class SettingBeta extends SettingsSection {
 
@@ -33,10 +33,10 @@ export class SettingBeta extends SettingsSection {
             .setDesc(t("features.externalLinksDesc"))
             .addDropdown(cb => {
                 const options: Record<ExternalLinkOption, string> = {
-                    none: "None",
-                    domain: "Domain",
-                    href: "Href",
-                    domain_and_href: "Domain and href"
+                    none: t("features.externalLinksOptions.none"),
+                    domain: t("features.externalLinksOptions.domain"),
+                    href: t("features.externalLinksOptions.href"),
+                    domain_and_href: t("features.externalLinksOptions.domain_and_href")
                 };
                 cb.addOptions(options);
                 cb.setValue(ExtendedGraphInstances.settings.externalLinks);
@@ -61,5 +61,22 @@ export class SettingBeta extends SettingsSection {
                 })
             }
             ).settingEl);
+
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("features.externalLinksOpenMode"))
+            .setDesc(t("features.externalLinksOpenModeDesc"))
+            .addDropdown(cb => {
+                const options: Record<ExternalLinkOpenMode, string> = {
+                    web: t("features.externalLinksModes.web"),
+                    note: t("features.externalLinksModes.note"),
+                    choice: t("features.externalLinksModes.choice"),
+                };
+                cb.addOptions(options);
+                cb.setValue(ExtendedGraphInstances.settings.externalLinkOpenMode);
+                cb.onChange(async (value) => {
+                    ExtendedGraphInstances.settings.externalLinkOpenMode = value as ExternalLinkOpenMode;
+                    await ExtendedGraphInstances.plugin.saveSettings();
+                })
+            }).settingEl);
     }
 }

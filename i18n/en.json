@@ -147,7 +147,21 @@
         "excludeTargetFoldersDesc": "Exclude backward links with target inside some folders (i.e. links going in one of these folders)",
         "excludedFolders": "Excluded folders",
         "externalLinks": "Add external links",
-        "externalLinksDesc": "Add external URLs as attachment nodes in the graph view. Types for these links are not supported.",
+        "externalLinksDesc": "Add external URLs as attachment nodes in the graph view. Types for links toward those nodes are not supported.",
+        "externalLinkOpen": "Open external URL",
+        "externalLinksOpenMode": "Open mode for external URLs",
+        "externalLinksOpenModeDesc": "When left clicking on an external URL's node, select the expected behavior to open the URL",
+        "externalLinksOptions": {
+            "none": "None",
+            "domain": "Domain",
+            "href": "Href (without search and hash)",
+            "domain_and_href": "Href and domain (2 nodes)"
+        },
+        "externalLinksModes": {
+            "web": "Always on the web",
+            "note": "First note if exists",
+            "choice": "Show available options"
+        },
         "externalLinksProperties": "External links properties",
         "externalLinksPropertiesDesc": "Names of the properties that can be used to decide if an external link node should redirect towards a specific note or to the web view when clicked",
         "noExclusionFilter": "No excluded filter is applied right now. Add one below.",

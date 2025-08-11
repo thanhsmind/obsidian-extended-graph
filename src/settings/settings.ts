@@ -25,6 +25,7 @@ import {
 } from "src/internal";
 
 export type ExternalLinkOption = 'none' | 'domain' | 'href' | 'domain_and_href';
+export type ExternalLinkOpenMode = 'web' | 'note' | 'choice';
 
 type InteractiveSettings = {
     colormap: string;
@@ -139,6 +140,7 @@ export interface ExtendedGraphSettings {
     fadeInElements: boolean;
     externalLinks: ExternalLinkOption;
     externalLinksProperties: string[];
+    externalLinkOpenMode: ExternalLinkOpenMode;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -362,6 +364,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     fadeInElements: false,
     externalLinks: "none",
     externalLinksProperties: ["url"],
+    externalLinkOpenMode: "note",
 
     // Links
     allowMultipleLinkTypes: false,
