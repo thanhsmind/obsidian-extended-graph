@@ -17,6 +17,7 @@ export function addCommands(plugin: ExtendedGraphPlugin) {
     addStateCommands(plugin);
     addFolderCommands(plugin);
     addPinCommands(plugin);
+    addFocusCommands(plugin);
 }
 
 function addEnableCommands(plugin: ExtendedGraphPlugin) {
@@ -254,4 +255,43 @@ function addPinCommands(plugin: ExtendedGraphPlugin) {
             }
         }
     });
-} 
+}
+
+function addFocusCommands(plugin: ExtendedGraphPlugin) {
+    plugin.addCommand({
+        id: 'flicker-open-nodes',
+        name: t("features.focusFlickerOpenNodes"),
+        checkCallback: (checking: boolean) => {
+            // Conditions to check
+            if (ExtendedGraphInstances.graphsManager.allInstances.size > 0 && ExtendedGraphInstances.graphsManager.openNodes.length > 0) {
+                if (!checking) {
+                    for (const instances of ExtendedGraphInstances.graphsManager.allInstances.values()) {
+                        for (const id of ExtendedGraphInstances.graphsManager.openNodes) {
+                            instances.nodesSet.extendedElementsMap.get(id)?.flicker();
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+    });
+
+    plugin.addCommand({
+        id: 'flicker-search-nodes',
+        name: t("features.focusFlickerSearchNodes"),
+        checkCallback: (checking: boolean) => {
+            // Conditions to check
+            const searchResults = ExtendedGraphInstances.graphsManager.getSearchResults();
+            if (ExtendedGraphInstances.graphsManager.allInstances.size > 0 && searchResults.length > 0) {
+                if (!checking) {
+                    for (const instances of ExtendedGraphInstances.graphsManager.allInstances.values()) {
+                        for (const id of searchResults) {
+                            instances.nodesSet.extendedElementsMap.get(id)?.flicker();
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+    });
+}

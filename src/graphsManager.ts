@@ -5,7 +5,6 @@ import {
     MarkdownView,
     Menu,
     Notice,
-    Plugin,
     setIcon,
     TAbstractFile,
     TFile,
@@ -68,8 +67,11 @@ export class GraphsManager extends Component {
     globalUIs: Map<string, { menu: MenuUI, control: GraphControlsUI }> = new Map();
     optionsBackup: Map<string, GraphPluginInstanceOptions> = new Map();
     allInstances: Map<string, GraphInstances> = new Map();
-    activeFile: TFile | null = null;
+
+    // Focus
     openNodes: string[] = [];
+    observedSearched: Map<View, { childrenEl: HTMLDivElement, results: string[] }> = new Map();
+    searchObserver: MutationObserver;
 
     lastBackup: string;
     localGraphID: string | null = null;
@@ -84,17 +86,32 @@ export class GraphsManager extends Component {
     linksSizeCalculator: LinkStatCalculator | undefined;
     linksColorCalculator: LinkStatCalculator | undefined;
 
-    // ============================== CONSTRUCTOR ==============================
-
-    constructor() {
-        super();
-    }
-
     // ================================ LOADING ================================
 
     onload(): void {
         this.addStatusBarItem();
+        this.createSearchObserver();
         this.registerEvents();
+    }
+
+    private addStatusBarItem(): void {
+        this.statusBarItem = ExtendedGraphInstances.plugin.addStatusBarItem();
+        this.statusBarItem.addClasses(['plugin-extended-graph']);
+    }
+
+    private createSearchObserver(): void {
+        this.searchObserver = new MutationObserver((mutationsList, obs) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    const entry = this.observedSearched.entries().find((entry) => {
+                        return entry[1].childrenEl === mutation.target;
+                    });
+                    if (entry) {
+                        this.computeSearchNodes(entry[0]);
+                    }
+                }
+            }
+        });
     }
 
     private registerEvents() {
@@ -169,11 +186,6 @@ export class GraphsManager extends Component {
             if (!this.isCoreGraphLoaded()) return;
             this.onNodeMenuOpened(menu, file, source, leaf);
         }));
-    }
-
-    private addStatusBarItem(): void {
-        this.statusBarItem = ExtendedGraphInstances.plugin.addStatusBarItem();
-        this.statusBarItem.addClasses(['plugin-extended-graph']);
     }
 
     private isCoreGraphLoaded(): boolean {
@@ -609,16 +621,17 @@ export class GraphsManager extends Component {
             }
         }
 
-        // Find out which nodes are opened
+        // Focus
         this.computeOpenNodes();
+        this.observeSearchViews();
     }
 
+    // ================================= FOCUS =================================
+
     private computeOpenNodes(): void {
+        // Find out which nodes are opened
         const newOpenNodes: string[] = [];
         ExtendedGraphInstances.app.workspace.iterateAllLeaves((leaf) => {
-            if (leaf.view.getViewType() === "markdown") {
-                console.log(leaf);
-            }
             if (("state" in leaf.view) && (typeof leaf.view.state === "object") && (leaf.view.state) && ("file" in leaf.view.state) && (typeof leaf.view.state.file === "string")) {
                 newOpenNodes.push(leaf.view.state.file);
             }
@@ -626,19 +639,123 @@ export class GraphsManager extends Component {
                 newOpenNodes.push(leaf.view.file.path);
             }
         });
-        const nodesToClose = this.openNodes.filter(id => !newOpenNodes.contains(id));
-        const nodesToOpen = newOpenNodes.filter(id => !this.openNodes.contains(id));
-        for (const instances of this.allInstances.values()) {
-            if (!instances.settings.enableFeatures[instances.type].focus || !instances.settings.highlightOpenNodes)
-                continue;
-            for (const id of nodesToClose) {
-                instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(false);
-            }
-            for (const id of nodesToOpen) {
-                instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(true);
+
+        // Update the nodes accordingly
+        const nodesRemoved = this.openNodes.filter(id => !newOpenNodes.contains(id));
+        const nodesAdded = newOpenNodes.filter(id => !this.openNodes.contains(id));
+        if (nodesRemoved.length > 0 || nodesAdded.length > 0) {
+            for (const instances of this.allInstances.values()) {
+                if (!instances.settings.enableFeatures[instances.type].focus || !instances.settings.highlightOpenNodes)
+                    continue;
+                let hasChanged = false;
+                for (const id of nodesRemoved) {
+                    const node = instances.nodesSet.extendedElementsMap.get(id);
+                    if (node) {
+                        node.toggleOpenInTab(false);
+                        hasChanged = true;
+                    }
+                }
+                for (const id of nodesAdded) {
+                    const node = instances.nodesSet.extendedElementsMap.get(id);
+                    if (node) {
+                        node.toggleOpenInTab(true);
+                        hasChanged = true;
+                    }
+                }
+                if (hasChanged) {
+                    instances.renderer.changed();
+                }
             }
         }
         this.openNodes = newOpenNodes;
+    }
+
+    private observeSearchViews(): void {
+        const searchLeaves = ExtendedGraphInstances.app.workspace.getLeavesOfType("search");
+
+        // Remove any observed search that is no longer valid
+        for (const view of Array.from(this.observedSearched.keys())) {
+            if (!searchLeaves.find(leaf => leaf.view === view && !leaf.isDeferred)) {
+                this.observedSearched.delete(view);
+            }
+        }
+
+        // Observe newly opened search leaves
+        for (const leaf of searchLeaves) {
+            const view = leaf.view;
+            if (!("dom" in view && view.dom && typeof view.dom === "object")) continue;
+            if (!("resultDomLookup" in view.dom && view.dom.resultDomLookup && view.dom.resultDomLookup instanceof Map)) return;
+            if (!("childrenEl" in view.dom && view.dom.childrenEl && view.dom.childrenEl instanceof HTMLDivElement)) continue;
+
+            const childrenEl = view.dom.childrenEl;
+
+            if (!this.observedSearched.has(view) || this.observedSearched.get(view)?.childrenEl !== childrenEl) {
+                this.searchObserver.observe(childrenEl, { childList: true });
+                this.observedSearched.set(view, { childrenEl: childrenEl, results: [] });
+            }
+        }
+    }
+
+    private computeSearchNodes(view: View): void {
+        if (view.getViewType() !== "search") return;
+
+        const entry = this.observedSearched.get(view);
+        if (!entry) return;
+
+        if (!("dom" in view && view.dom && typeof view.dom === "object")) return;
+        if (!("resultDomLookup" in view.dom && view.dom.resultDomLookup && view.dom.resultDomLookup instanceof Map)) return;
+        const resultDomLookup = view.dom.resultDomLookup;
+
+        // Find the current search results
+        const newResults: string[] = [];
+        for (const file of resultDomLookup.keys()) {
+            if (file instanceof TFile) {
+                newResults.push(file.path);
+            }
+        }
+
+        // Update the nodes accordingly
+        const nodesRemoved = entry.results.filter(id => !newResults.contains(id));
+        const nodesAdded = newResults.filter(id => !entry.results.contains(id));
+        if (nodesRemoved.length > 0 || nodesAdded.length > 0) {
+            for (const instances of this.allInstances.values()) {
+                if (!instances.settings.enableFeatures[instances.type].focus || !instances.settings.highlightSearchResults)
+                    continue;
+                let hasChanged = false;
+                for (const id of nodesRemoved) {
+                    const node = instances.nodesSet.extendedElementsMap.get(id);
+                    if (node) {
+                        node.toggleIsSearchResult(false);
+                        hasChanged = true;
+                    }
+                }
+                for (const id of nodesAdded) {
+                    const node = instances.nodesSet.extendedElementsMap.get(id);
+                    if (node) {
+                        node.toggleIsSearchResult(true);
+                        hasChanged = true;
+                    }
+                }
+                if (hasChanged) {
+                    instances.renderer.changed();
+                }
+            }
+        }
+
+        entry.results = newResults;
+    }
+
+    isSearchResult(path: string): boolean {
+        for (const entry of this.observedSearched.values()) {
+            if (path in entry.results) return true;
+        }
+        return false;
+    }
+
+    getSearchResults(): string[] {
+        return this.observedSearched.values().reduce((acc: string[], entry) => {
+            return acc.concat(entry.results);
+        }, []);
     }
 
     // =============================== GLOBAL UI ===============================
@@ -893,32 +1010,30 @@ export class GraphsManager extends Component {
     private onFileOpen(file: TFile | null): void {
         if (this.isHandlingMarkdownViewChange) return;
         this.isHandlingMarkdownViewChange = true;
-        if (this.activeFile !== file) {
-            if (this.localGraphID) {
-                const localInstances = this.allInstances.get(this.localGraphID);
-                if (localInstances) {
-                    const instances = this.allInstances.get(localInstances.view.leaf.id);
-                    if (instances) {
-                        this.isResetting.set(this.localGraphID, true);
-                        instances.graphEventsDispatcher.reloadLocalDispatcher();
-                    }
+        if (this.localGraphID) {
+            const localInstances = this.allInstances.get(this.localGraphID);
+            if (localInstances) {
+                const instances = this.allInstances.get(localInstances.view.leaf.id);
+                if (instances) {
+                    this.isResetting.set(this.localGraphID, true);
+                    instances.graphEventsDispatcher.reloadLocalDispatcher();
                 }
             }
-            if (file) {
-                const graphBannerPlugin = getGraphBannerPlugin();
-                if (graphBannerPlugin) {
-                    // If there is a Graph Banner plugin graph, center it on the correct node.
-                    // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
-                    // which means that nodes get a new position after the zooming.
-                    const leaves = ExtendedGraphInstances.app.workspace.getLeavesOfType('markdown').filter(leaf => leaf.view instanceof MarkdownView && (leaf.view as MarkdownView).file === file);
-                    for (const leaf of leaves) {
-                        if (!(leaf.view instanceof MarkdownView)) continue;
-                        const view = leaf.view as MarkdownView;
-                        const graphBannerView = getGraphBannerPlugin()?.graphViews.find(el => el.node === view.contentEl.querySelector(`.${getGraphBannerClass()}`))?.leaf.view;
-                        if (graphBannerView && this.allInstances.get(graphBannerView.leaf.id)) {
-                            const graphBannerViewTyped = graphBannerView as LocalGraphView;
-                            this.zoomOnNode(graphBannerViewTyped, file.path, graphBannerViewTyped.renderer.targetScale);
-                        }
+        }
+        if (file) {
+            const graphBannerPlugin = getGraphBannerPlugin();
+            if (graphBannerPlugin) {
+                // If there is a Graph Banner plugin graph, center it on the correct node.
+                // It's not working perfectly, I think the Graph Banner plugin does its part after this piece of code,
+                // which means that nodes get a new position after the zooming.
+                const leaves = ExtendedGraphInstances.app.workspace.getLeavesOfType('markdown').filter(leaf => leaf.view instanceof MarkdownView && (leaf.view as MarkdownView).file === file);
+                for (const leaf of leaves) {
+                    if (!(leaf.view instanceof MarkdownView)) continue;
+                    const view = leaf.view as MarkdownView;
+                    const graphBannerView = getGraphBannerPlugin()?.graphViews.find(el => el.node === view.contentEl.querySelector(`.${getGraphBannerClass()}`))?.leaf.view;
+                    if (graphBannerView && this.allInstances.get(graphBannerView.leaf.id)) {
+                        const graphBannerViewTyped = graphBannerView as LocalGraphView;
+                        this.zoomOnNode(graphBannerViewTyped, file.path, graphBannerViewTyped.renderer.targetScale);
                     }
                 }
             }

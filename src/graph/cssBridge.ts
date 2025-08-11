@@ -419,6 +419,10 @@ export class CSSBridge extends Component {
         return Color.parseCSS(window.getComputedStyle(this.instances.renderer.interactiveEl).getPropertyValue('--color-base-100')).rgb;
     }
 
+    getSearchColor(): Color.Color {
+        return Color.parseCSS(window.getComputedStyle(this.instances.renderer.interactiveEl).getPropertyValue('--text-highlight-bg')).rgb;
+    }
+
     getThemeColor(color: string): Color.Color {
         return Color.parseCSS(window.getComputedStyle(this.instances.renderer.interactiveEl).getPropertyValue('--color-' + color)).rgb;
     }

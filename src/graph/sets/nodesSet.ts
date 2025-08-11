@@ -62,8 +62,13 @@ export class NodesSet extends AbstractSet<GraphNode> {
         this.instances.layersManager?.addNode(extendedNode.id);
         this.applyBackgroundColor(extendedNode);
         this.loadAsset(extendedNode);
-        if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.highlightOpenNodes) {
-            if (ExtendedGraphInstances.graphsManager.openNodes.contains(extendedNode.id)) extendedNode.toggleOpenInTab(true);
+        if (this.instances.settings.enableFeatures[this.instances.type].focus) {
+            if (this.instances.settings.highlightOpenNodes) {
+                if (ExtendedGraphInstances.graphsManager.openNodes.contains(extendedNode.id)) extendedNode.toggleOpenInTab(true);
+            }
+            if (this.instances.settings.highlightSearchResults) {
+                if (ExtendedGraphInstances.graphsManager.getSearchResults().contains(extendedNode.id)) extendedNode.toggleIsSearchResult(true);
+            }
         }
     }
 

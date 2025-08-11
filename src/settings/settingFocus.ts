@@ -8,12 +8,12 @@ export class SettingFocus extends SettingsSectionPerGraphType {
 
     protected override addHeader(): void {
         super.addHeader();
-        this.toggles['localgraph']?.remove();
     }
 
     protected override addBody(): void {
         this.addFocusScale();
         this.addHighlightOpenNodes();
+        this.addHighlightSearchResults();
     }
 
     private addFocusScale(): void {
@@ -44,6 +44,21 @@ export class SettingFocus extends SettingsSectionPerGraphType {
                     cb.setValue(ExtendedGraphInstances.settings.highlightOpenNodes)
                         .onChange(async (value) => {
                             ExtendedGraphInstances.settings.highlightOpenNodes = value;
+                            await ExtendedGraphInstances.plugin.saveSettings();
+                        })
+                }).settingEl
+        );
+    }
+
+    private addHighlightSearchResults(): void {
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
+                .setName(t("features.focusSearchResults"))
+                .setDesc(t("features.focusSearchResultsDesc"))
+                .addToggle(cb => {
+                    cb.setValue(ExtendedGraphInstances.settings.highlightSearchResults)
+                        .onChange(async (value) => {
+                            ExtendedGraphInstances.settings.highlightSearchResults = value;
                             await ExtendedGraphInstances.plugin.saveSettings();
                         })
                 }).settingEl

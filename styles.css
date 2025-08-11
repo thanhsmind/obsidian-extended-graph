@@ -801,7 +801,7 @@ body {
         flex-grow: 1;
     }
 
-    .setting-item.setting-shapes {
+    .setting-item:not(.setting-item-heading).setting-shapes {
         --svg-size: var(--icon-size);
 
         .setting-item-info {

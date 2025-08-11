@@ -740,9 +740,16 @@ export class GraphEventsDispatcher extends Component {
             this.instances.foldersSet?.initGraphics();
             this.createRenderCallbackProxy();
             this.instances.layersManager?.rebuildContainers();
-            if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.highlightOpenNodes) {
-                for (const id of ExtendedGraphInstances.graphsManager.openNodes) {
-                    this.instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(true);
+            if (this.instances.settings.enableFeatures[this.instances.type].focus) {
+                if (this.instances.settings.highlightOpenNodes) {
+                    for (const id of ExtendedGraphInstances.graphsManager.openNodes) {
+                        this.instances.nodesSet.extendedElementsMap.get(id)?.toggleOpenInTab(true);
+                    }
+                }
+                if (this.instances.settings.highlightSearchResults) {
+                    for (const id of ExtendedGraphInstances.graphsManager.getSearchResults()) {
+                        this.instances.nodesSet.extendedElementsMap.get(id)?.toggleIsSearchResult(true);
+                    }
                 }
             }
             this.bindStageEvents();
@@ -847,4 +854,6 @@ export class GraphEventsDispatcher extends Component {
         this.setLastFilteringActionAsStateChange(stateID);
         ExtendedGraphInstances.statesManager.changeState(this.instances, stateID);
     }
+
+    // ================================= FOCUS =================================
 }

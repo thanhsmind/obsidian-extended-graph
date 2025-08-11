@@ -141,7 +141,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             (this.instances.settings.enableFeatures[this.instances.type]['names'] && this.instances.settings.showNamesWhenNeighborHighlighted)
             || this.icon
             || (this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
-            || (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.focusScaleFactor !== 1)
+            || (this.instances.type === "graph" && this.instances.settings.enableFeatures["graph"].focus && this.instances.settings.focusScaleFactor !== 1)
         ))
             return;
 
@@ -167,6 +167,11 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             new Pinner(this.instances).unpinNode(this.id);
         }
         this.extendedText.unload();
+
+        if (this.coreElement.circle?.filters) {
+            if (this.openFilter) this.coreElement.circle.filters.remove(this.openFilter);
+            if (this.searchResultFilter) this.coreElement.circle.filters.remove(this.searchResultFilter);
+        }
         super.unload();
     }
 
@@ -273,10 +278,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             }
 
             // Scale if focused
-            if (this.instances.settings.enableFeatures[this.instances.type].focus && this.instances.settings.focusScaleFactor !== 1) {
+            if (this.instances.type === "graph" && this.instances.settings.enableFeatures["graph"].focus && this.instances.settings.focusScaleFactor !== 1) {
                 if (this.id === ExtendedGraphInstances.app.workspace.getActiveFile()?.path) {
-                    this.coreElement.circle.scale.x *= ExtendedGraphInstances.settings.focusScaleFactor;
-                    this.coreElement.circle.scale.y *= ExtendedGraphInstances.settings.focusScaleFactor;
+                    this.coreElement.circle.scale.x *= this.instances.settings.focusScaleFactor;
+                    this.coreElement.circle.scale.y *= this.instances.settings.focusScaleFactor;
                 }
             }
         }
@@ -457,7 +462,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
     }
 
-    // ============================== OPEN IN TAB ==============================
+    // ================================= FOCUS =================================
 
     openFilter?: OutlineFilter;
     toggleOpenInTab(open: boolean) {
@@ -480,5 +485,80 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         else if (this.coreElement.circle.filters) {
             this.coreElement.circle.filters.remove(this.openFilter);
         }
+    }
+
+    searchResultFilter?: OutlineFilter;
+    toggleIsSearchResult(isResult: boolean) {
+        if (!this.coreElement.circle) return;
+
+        if (!this.searchResultFilter) {
+            this.searchResultFilter = new OutlineFilter(
+                2, this.instances.cssBridge.getSearchColor(), 0.1, 1, false
+            );
+        }
+
+        if (isResult) {
+            if (!this.coreElement.circle.filters) {
+                this.coreElement.circle.filters = [];
+            }
+            if (!this.coreElement.circle.filters.contains(this.searchResultFilter)) {
+                this.coreElement.circle.filters.push(this.searchResultFilter);
+            }
+        }
+        else if (this.coreElement.circle.filters) {
+            this.coreElement.circle.filters.remove(this.searchResultFilter);
+        }
+    }
+
+
+    flicker() {
+        const circle = this.coreElement.circle;
+        if (!circle) return;
+
+        const flickerShape = new NodeShape(this.graphicsWrapper?.shape ?? ShapeEnum.CIRCLE);
+        flickerShape.eventMode = "none";
+        flickerShape.drawFill(this.instances.cssBridge.getSearchColor());
+        flickerShape.zIndex = 100;
+        flickerShape.alpha = 0;
+        this.coreElement.renderer.hanger.addChild(flickerShape);
+
+        let ascendant: boolean = true;
+        const duration = 3e3;
+        const startTime = Date.now();
+
+        const flickerAlpha = () => {
+            if (circle.destroyed || flickerShape.destroyed) return;
+
+            const nextAlpha = flickerShape.alpha + (ascendant ? +0.07 : -0.07);
+            flickerShape.position.set(circle.position.x, circle.position.y);
+            flickerShape.scale.set(circle.scale.x * flickerShape.getDrawingResolution(), circle.scale.y * flickerShape.getDrawingResolution());
+            if (nextAlpha < 0) {
+                ascendant = true;
+                flickerShape.alpha = 0;
+            }
+            else if (nextAlpha > 1) {
+                ascendant = false;
+                flickerShape.alpha = 1;
+            }
+            else {
+                flickerShape.alpha = nextAlpha;
+            }
+            this.instances.renderer.changed();
+            if (Date.now() - startTime < duration) {
+                requestAnimationFrame(flickerAlpha);
+            }
+            else {
+                flickerShape.destroy();
+            }
+        }
+
+        const animationID = requestAnimationFrame(flickerAlpha);
+
+        flickerShape.addEventListener("destroyed", () => {
+            cancelAnimationFrame(animationID);
+        });
+        circle.addEventListener("destroyed", () => {
+            cancelAnimationFrame(animationID);
+        });
     }
 }

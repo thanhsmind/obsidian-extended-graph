@@ -108,6 +108,7 @@ export interface ExtendedGraphSettings {
     // Focus
     focusScaleFactor: number;
     highlightOpenNodes: boolean;
+    highlightSearchResults: boolean;
 
     // Performances
     maxNodes: number;
@@ -326,6 +327,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     // Focus
     focusScaleFactor: 1.8,
     highlightOpenNodes: false,
+    highlightSearchResults: false,
 
     // Performances
     maxNodes: 20,
@@ -713,6 +715,14 @@ export class SettingQuery {
             'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
             'fadeInElements', 'externalLinks'].some(key => !equals(key)))
             return true;
+
+        // Focus
+        if (oldFeatures['focus'] !== newFeatures['focus'])
+            return true;
+        if (newFeatures['focus']) {
+            if (['focusScaleFactor', 'highlightOpenNodes', 'highlightSearchResults'].some(key => !equals(key)))
+                return true;
+        }
 
         // Automation
         if (['openInNewTab'].some(key => !equals(key)))
