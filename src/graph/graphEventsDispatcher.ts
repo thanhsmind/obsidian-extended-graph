@@ -209,8 +209,12 @@ export class GraphEventsDispatcher extends Component {
 
             ExtendedGraphInstances.graphsManager.onPluginLoaded(this.instances.view);
 
+            // Make sure to render multiple frames to let the elements fade in
+            if (this.instances.settings.fadeInElements) {
+                this.instances.renderer.changed();
+            }
             // Make sure to render one frame in order to render every changes made by the plugin
-            if (this.instances.renderer.idleFrames > 60) {
+            else if (this.instances.renderer.idleFrames > 60) {
                 this.instances.renderer.idleFrames = 60;
                 this.instances.renderer.queueRender();
             }
