@@ -356,6 +356,9 @@ export function multiply(color: Color, coefficient: number): Color {
  * @param [gamma=1.0] Gamma correction coefficient. `1.0` to match browser behavior, `2.2` for gamma-corrected blending.
  */
 export function blend(background: Color, overlay: Color, opacity: number, gamma = 1.0): Color {
+    if (opacity <= 0) return background;
+    if (opacity >= 1) return overlay;
+
     const blendChannel = (b: number, o: number) =>
         Math.round((b ** (1 / gamma) * (1 - opacity) + o ** (1 / gamma) * opacity) ** gamma)
 

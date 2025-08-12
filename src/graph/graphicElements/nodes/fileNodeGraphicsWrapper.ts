@@ -135,9 +135,7 @@ export class FileNodeGraphicsWrapper extends NodeGraphicsWrapper {
                 const strokeColor = highlighted ? color : this.extendedElement.icon.color ?? color;
                 this.background.lineStyle({ color: strokeColor, width: this.extendedElement.instances.settings.borderWidthWithIcon / this.background.getDrawingResolution() });
             }
-            if (this.extendedElement.instances.settings.backgroundOpacityWithIcon > 0) {
-                color = blend(CSSBridge.backgroundColor, color, this.extendedElement.instances.settings.backgroundOpacityWithIcon);
-            }
+            color = blend(CSSBridge.backgroundColor, color, this.extendedElement.instances.settings.backgroundOpacityWithIcon);
         }
 
         this.background.drawFill(color);

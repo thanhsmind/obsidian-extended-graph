@@ -280,10 +280,8 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             }
             else if (this.icon) {
                 // or blended
-                const needBlend = this.instances.settings.backgroundOpacityWithIcon > 0
-                    && (!this.graphicsWrapper ||
-                        (!("background" in this.graphicsWrapper) || !this.graphicsWrapper.background)
-                    );
+                const needBlend = !this.graphicsWrapper ||
+                    (!("background" in this.graphicsWrapper) || !this.graphicsWrapper.background);
                 this.coreElement.circle.tint = needBlend
                     ? blend(CSSBridge.backgroundColor, this.coreElement.getFillColor().rgb, this.instances.settings.backgroundOpacityWithIcon)
                     : CSSBridge.backgroundColor;
