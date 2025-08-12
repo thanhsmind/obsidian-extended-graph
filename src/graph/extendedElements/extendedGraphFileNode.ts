@@ -64,6 +64,10 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
     }
 
     protected override getFillColor(): GraphColorAttributes | undefined {
+        const baseColor = super.getFillColor();
+
+        if (baseColor) return baseColor;
+
         if ((this.instances.settings.enableFeatures[this.instances.type]["elements-stats"]
             && ExtendedGraphInstances.settings.nodesColorFunction !== "default")) {
             const rgb = (this.instances.nodesColorCalculator ?? ExtendedGraphInstances.graphsManager.nodesColorCalculator)?.filesStats.get(this.id);
@@ -78,7 +82,5 @@ export class ExtendedGraphFileNode extends ExtendedGraphNode {
                 return { rgb: evaluateCMap(x, this.instances.settings.depthColormap, this.instances.settings), a: 1 };
             }
         }
-
-        return super.getFillColor();
     }
 }

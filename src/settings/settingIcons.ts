@@ -97,6 +97,18 @@ export class SettingIcons extends SettingsSectionPerGraphType {
                     })
                 }).settingEl
         );
+        this.elementsBody.push(
+            new Setting(this.settingTab.containerEl)
+                .setName(t("features.iconBackgroundColor"))
+                .setDesc(t("features.iconBackgroundColorDesc"))
+                .addToggle(cb => {
+                    cb.setValue(ExtendedGraphInstances.settings.useIconColorForBackgroud);
+                    cb.onChange(async (value) => {
+                        ExtendedGraphInstances.settings.useIconColorForBackgroud = value;
+                        await ExtendedGraphInstances.plugin.saveSettings();
+                    })
+                }).settingEl
+        );
     }
 
     private addBorderWidth(): void {

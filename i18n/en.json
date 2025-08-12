@@ -191,6 +191,8 @@
         "globalFilterDesc": "This filter query will be prepend at the beginning of every graph filter",
         "icons": "Icons",
         "iconsDesc": "Use icons or emoji for nodes",
+        "iconBackgroundColor": "Use icon color for the background",
+        "iconBackgroundColorDesc": "Use the icon color instead of the default node color for the background",
         "iconBackgroundOpacity": "Background opacity",
         "iconBackgroundOpacityDesc": "Set the opacity of the node itself behind the icon. Set to 0 for no background.",
         "iconBorderWidth": "Border width",

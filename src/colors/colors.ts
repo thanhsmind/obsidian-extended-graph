@@ -113,3 +113,37 @@ class GoldenColor {
         return color.num();
     }
 }
+
+// Get the average color of an emoji
+export function getEmojiColor(emoji: string): Color.Color | undefined {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+        canvas.width = 30;
+        canvas.height = 30;
+        ctx.font = `20px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", EmojiSymbols, Symbola, "Twemoji Mozilla", "Twemoji Mozilla Color Emoji", "Twemoji Mozilla Color Emoji 13.1.0"`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+        let rSum = 0, gSum = 0, bSum = 0;
+        let pixelCount = 0;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+            // Only consider non-transparent pixels
+            if (pixels[i + 3] > 0) {
+                rSum += pixels[i];
+                gSum += pixels[i + 1];
+                bSum += pixels[i + 2];
+                pixelCount++;
+            }
+        }
+
+        const avgR = Math.round(rSum / pixelCount);
+        const avgG = Math.round(gSum / pixelCount);
+        const avgB = Math.round(bSum / pixelCount);
+
+        return rgb2int([avgR, avgG, avgB]);
+    }
+}

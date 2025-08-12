@@ -22,7 +22,10 @@ import {
     Pinner,
     ExtendedGraphInstances,
     ShapeEnum,
-    CSSBridge
+    CSSBridge,
+    rgb2hex,
+    getEmojiColor,
+    int2hex
 } from "src/internal";
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
@@ -96,10 +99,15 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
     }
 
     protected needToChangeColor(): boolean {
-        return this.instances.type === "localgraph" && (
-            this.instances.settings.colorBasedOnDepth
-            || (this.instances.settings.currentNode.useColor && this.isCurrentNode)
-        );
+        if (this.instances.type === "localgraph") {
+            if (this.instances.settings.colorBasedOnDepth) return true;
+            if (this.instances.settings.currentNode.useColor && this.isCurrentNode) return true;
+        }
+        if (this.icon?.color && this.instances.settings.useIconColorForBackgroud) {
+            return true;
+        }
+
+        return false;
     }
 
     protected needToUpdateGraphicsColor(): boolean { return false; }
@@ -244,6 +252,10 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         if (icon && !this.instances.settings.usePluginForIconColor) {
             icon.color = null;
         }
+        if (icon?.emoji) {
+            const emojiColor = getEmojiColor(icon.emoji);
+            if (emojiColor) icon.color = int2hex(emojiColor);
+        }
 
         if (this.icon && this.icon.svg == null && this.icon.emoji == null) this.icon = null;
         else this.icon = icon;
@@ -364,6 +376,12 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             return {
                 rgb: hex2int(this.instances.settings.currentNode.color),
                 a: this.instances.renderer.colors.fillFocused.a
+            }
+        }
+        if (this.icon?.color && this.instances.settings.useIconColorForBackgroud) {
+            return {
+                rgb: hex2int(this.icon.color),
+                a: this.instances.renderer.colors.circle.a
             }
         }
         return;
