@@ -327,6 +327,17 @@ export class NodesSet extends AbstractSet<GraphNode> {
         this.instances.renderer.changed();
     }
 
+    invertSelection() {
+        const newlySelectedNodes = this.instances.renderer.nodes.filter(node => !(node.id in this.selectedNodes));
+        this.unselectNodes();
+        if (newlySelectedNodes.length > 0) {
+            this.selectNodes(newlySelectedNodes);
+        }
+        else {
+            this.instances.graphEventsDispatcher.inputsManager.stopListeningToUnselectNodes();
+        }
+    }
+
     moveSelectedNodes(pos: IPointData) {
         if (!this.instances.renderer.dragNode) {
             return;

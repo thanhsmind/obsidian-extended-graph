@@ -132,6 +132,12 @@ export class InputsManager {
         this.instances.renderer.interactiveEl.win.window.addEventListener("keydown", this.onInputToUnselectNodes);
     }
 
+    stopListeningToUnselectNodes() {
+        this.instances.renderer.px.stage.removeEventListener("mouseup", this.onInputToUnselectNodes);
+        this.instances.renderer.interactiveEl.win.window.removeEventListener("keydown", this.onInputToUnselectNodes);
+        this.isListeningToUnselect = false;
+    }
+
     private preventPan() {
         const renderer = this.instances.renderer;
         ExtendedGraphInstances.proxysManager.registerProxy<typeof this.instances.renderer.setPan>(
@@ -180,11 +186,9 @@ export class InputsManager {
             }
             else {
                 this.instances.nodesSet.unselectNodes();
+                this.instances.renderer.changed();
 
-                // Stop listening
-                this.instances.renderer.px.stage.removeEventListener("mouseup", this.onInputToUnselectNodes);
-                this.instances.renderer.interactiveEl.win.window.removeEventListener("keydown", this.onInputToUnselectNodes);
-                this.isListeningToUnselect = false;
+                this.stopListeningToUnselectNodes();
             }
         }
     }

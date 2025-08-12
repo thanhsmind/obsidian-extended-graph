@@ -68,6 +68,7 @@
         "save": "Save",
         "selectAllNodes": "Select all nodes",
         "selectConfigToImport": "Select a configuration to import",
+        "selectInvert": "Invert selection",
         "setConfigName": "Set configuration name",
         "show": "Show",
         "showAll": "Show all",

@@ -279,6 +279,27 @@ function addSelectCommands(plugin: ExtendedGraphPlugin) {
             }
         }
     });
+
+    plugin.addCommand({
+        id: 'invert-selection',
+        name: t("controls.selectInvert"),
+        checkCallback: (checking: boolean) => {
+            // Conditions to check
+            const graphView = getActiveGraphView(plugin);
+            if (graphView && ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(graphView)) {
+                const instances = ExtendedGraphInstances.graphsManager.allInstances.get(graphView.leaf.id);
+                if (!instances || Object.keys(instances.nodesSet.selectedNodes).length === 0) {
+                    return;
+                }
+                if (!checking) {
+                    instances.nodesSet.invertSelection();
+                    instances.graphEventsDispatcher.inputsManager.startListeningToUnselectNodes();
+                    instances.renderer.changed();
+                }
+                return true;
+            }
+        }
+    });
 }
 
 function addFocusCommands(plugin: ExtendedGraphPlugin) {
