@@ -1,5 +1,8 @@
 <h1 align="center">Extended Graph</h1>
 
+> [!NOTE]
+> I am currently working on setting up videos to explain how does the plugin work. In the meantime, I will keep working on bug reports but I will slow down the effort on the feature requests.
+
 <p align="center">Enhance the core graph plugin of <a href="https://obsidian.md/">Obsidian</a> with new features.</p>
 
 This plugin enables you to:
@@ -9,17 +12,19 @@ This plugin enables you to:
 - Remove links based on relationship types.
 - Configure multiple views and switch between them.
 - Export the graph view to SVG.
-- Increase the size on the currently active node.
+- Modify the appearance on the current active node.
 - Focus on a specific node.
 - Pin nodes.
+- Reflect your search result and opened tabs in the graph.
 - Change the size of nodes and links based on statistical functions.
+- And many more...
 
 Have a look at the [wiki](https://github.com/ElsaTam/obsidian-extended-graph/wiki) for more info.
 
 ![](doc/images/overview.webp)
 
 > [!WARNING]
-> The plugin has been released on March 27th, and since multiple bugs have been reported and feature requests have been made. I'm working on all of them and apologize for the inconvenience! Thank you for everyone contributing with this issue reports :D
+> The plugin has been released on March 27th, and since multiple bugs have been reported and feature requests have been made. I'm working on all of them and apologize for the inconvenience! Thank you for everyone contributing with this issue reports 😃
 
 # Installation
 
