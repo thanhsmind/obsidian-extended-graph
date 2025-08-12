@@ -273,8 +273,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
                         (!("background" in this.graphicsWrapper) || !this.graphicsWrapper.background)
                     );
                 this.coreElement.circle.tint = needBlend
-                    ? blend(CSSBridge.backgroundColor, this.coreElement.circle.tint as number, this.instances.settings.backgroundOpacityWithIcon)
+                    ? blend(CSSBridge.backgroundColor, this.coreElement.getFillColor().rgb, this.instances.settings.backgroundOpacityWithIcon)
                     : CSSBridge.backgroundColor;
+                this.coreElement.circle.alpha = 1;
             }
 
             // Scale if focused
