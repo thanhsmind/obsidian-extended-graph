@@ -145,6 +145,7 @@ export interface ExtendedGraphSettings {
     externalLinks: ExternalLinkOption;
     externalLinksProperties: string[];
     externalLinkOpenMode: ExternalLinkOpenMode;
+    showPinIcon: boolean;
 
     // Links
     allowMultipleLinkTypes: boolean;
@@ -376,6 +377,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     externalLinks: "none",
     externalLinksProperties: ["url"],
     externalLinkOpenMode: "note",
+    showPinIcon: true,
 
     // Links
     allowMultipleLinkTypes: false,
@@ -716,7 +718,7 @@ export class SettingQuery {
             return true;
         if (['fadeOnDisable', 'borderUnresolved', 'spreadArcs', 'weightArcs',
             'animateDotsOnLinks', 'animationSpeedForDots', 'interactivesBrightness',
-            'fadeInElements', 'externalLinks'].some(key => !equals(key)))
+            'fadeInElements', 'externalLinks', 'showPinIcon'].some(key => !equals(key)))
             return true;
 
         // Focus

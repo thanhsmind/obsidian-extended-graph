@@ -220,6 +220,8 @@ export abstract class NodeGraphicsWrapper implements GraphicsWrapper {
     // ================================== PIN ==================================
 
     pin(): void {
+        if (!this.extendedElement.instances.settings.showPinIcon) return;
+
         const icon = this.pixiElement.getChildByName("pin");
         if (icon) return;
 

@@ -18,6 +18,7 @@ export class SettingDisplay extends SettingsSection {
         this.addAnimateDotsOnLinks();
         this.addAnimationSpeedForDot();
         this.addHorizontalLegend();
+        this.addShowPinIcon();
     }
 
 
@@ -180,6 +181,19 @@ export class SettingDisplay extends SettingsSection {
                 cb.setValue(ExtendedGraphInstances.settings.horizontalLegend);
                 cb.onChange(value => {
                     ExtendedGraphInstances.settings.horizontalLegend = value;
+                    ExtendedGraphInstances.plugin.saveSettings();
+                });
+            }).settingEl);
+    }
+
+    private addShowPinIcon() {
+        this.elementsBody.push(new Setting(this.containerEl)
+            .setName(t("UI.showPinIcon"))
+            .setDesc(t("UI.showPinIconDesc"))
+            .addToggle(cb => {
+                cb.setValue(ExtendedGraphInstances.settings.showPinIcon);
+                cb.onChange(value => {
+                    ExtendedGraphInstances.settings.showPinIcon = value;
                     ExtendedGraphInstances.plugin.saveSettings();
                 });
             }).settingEl);
