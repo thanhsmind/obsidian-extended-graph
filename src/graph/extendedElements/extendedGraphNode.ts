@@ -177,8 +177,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.extendedText.unload();
 
         if (this.coreElement.circle?.filters) {
-            if (this.openFilter) this.coreElement.circle.filters.remove(this.openFilter);
-            if (this.searchResultFilter) this.coreElement.circle.filters.remove(this.searchResultFilter);
+            this.coreElement.circle.filters.remove(this.instances.nodesSet.selectionFilter);
+            this.coreElement.circle.filters.remove(this.instances.nodesSet.openFilter);
+            this.coreElement.circle.filters.remove(this.instances.nodesSet.searchResultFilter);
         }
         super.unload();
     }
@@ -443,6 +444,27 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         this.graphicsWrapper?.unpin();
     }
 
+    // ============================= SELECT NODES ==============================
+
+    select(): boolean {
+        if (!this.coreElement.circle) return false;
+
+        if (this.coreElement.circle.filters) {
+            if (!this.coreElement.circle.filters.contains(this.instances.nodesSet.selectionFilter)) {
+                this.coreElement.circle.filters.push(this.instances.nodesSet.selectionFilter);
+            }
+        }
+        else {
+            this.coreElement.circle.filters = [this.instances.nodesSet.selectionFilter];
+        }
+
+        return true;
+    }
+
+    unselect() {
+        this.coreElement.circle?.filters?.remove(this.instances.nodesSet.selectionFilter);
+    }
+
     // ============================= LINK ANIMATION ============================
 
     private addAnimationListener(): void {
@@ -481,52 +503,37 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     // ================================= FOCUS =================================
 
-    openFilter?: OutlineFilter;
     toggleOpenInTab(open: boolean) {
         if (!this.coreElement.circle) return;
-
-        if (!this.openFilter) {
-            this.openFilter = new OutlineFilter(
-                2, this.instances.renderer.colors.fillHighlight.rgb, 0.1, 1, false
-            );
-        }
 
         if (open) {
             if (!this.coreElement.circle.filters) {
                 this.coreElement.circle.filters = [];
             }
-            if (!this.coreElement.circle.filters.contains(this.openFilter)) {
-                this.coreElement.circle.filters.push(this.openFilter);
+            if (!this.coreElement.circle.filters.contains(this.instances.nodesSet.openFilter)) {
+                this.coreElement.circle.filters.push(this.instances.nodesSet.openFilter);
             }
         }
         else if (this.coreElement.circle.filters) {
-            this.coreElement.circle.filters.remove(this.openFilter);
+            this.coreElement.circle.filters.remove(this.instances.nodesSet.openFilter);
         }
     }
 
-    searchResultFilter?: OutlineFilter;
     toggleIsSearchResult(isResult: boolean) {
         if (!this.coreElement.circle) return;
-
-        if (!this.searchResultFilter) {
-            this.searchResultFilter = new OutlineFilter(
-                2, this.instances.cssBridge.getSearchColor(), 0.1, 1, false
-            );
-        }
 
         if (isResult) {
             if (!this.coreElement.circle.filters) {
                 this.coreElement.circle.filters = [];
             }
-            if (!this.coreElement.circle.filters.contains(this.searchResultFilter)) {
-                this.coreElement.circle.filters.push(this.searchResultFilter);
+            if (!this.coreElement.circle.filters.contains(this.instances.nodesSet.searchResultFilter)) {
+                this.coreElement.circle.filters.push(this.instances.nodesSet.searchResultFilter);
             }
         }
         else if (this.coreElement.circle.filters) {
-            this.coreElement.circle.filters.remove(this.searchResultFilter);
+            this.coreElement.circle.filters.remove(this.instances.nodesSet.searchResultFilter);
         }
     }
-
 
     flicker() {
         const circle = this.coreElement.circle;

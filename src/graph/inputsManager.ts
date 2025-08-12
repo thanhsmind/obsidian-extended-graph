@@ -8,6 +8,7 @@ export class InputsManager {
     coreOnNodeClick?: (e: UserEvent | null, id: string, type: string) => void;
     coreOnNodeRightClick?: (e: UserEvent | null, id: string, type: string) => void;
 
+    isListeningToUnselect: boolean = false;
     isSelecting: boolean = false;
     isDragging: boolean = false;
     selectionStartPosition: { x: number, y: number };
@@ -125,6 +126,8 @@ export class InputsManager {
     }
 
     startListeningToUnselectNodes() {
+        if (this.isListeningToUnselect) return;
+        this.isListeningToUnselect = true;
         this.instances.renderer.px.stage.addEventListener("mouseup", this.onInputToUnselectNodes);
         this.instances.renderer.interactiveEl.win.window.addEventListener("keydown", this.onInputToUnselectNodes);
     }
@@ -181,6 +184,7 @@ export class InputsManager {
                 // Stop listening
                 this.instances.renderer.px.stage.removeEventListener("mouseup", this.onInputToUnselectNodes);
                 this.instances.renderer.interactiveEl.win.window.removeEventListener("keydown", this.onInputToUnselectNodes);
+                this.isListeningToUnselect = false;
             }
         }
     }
