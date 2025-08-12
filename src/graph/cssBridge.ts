@@ -262,7 +262,7 @@ export class CSSBridge extends Component {
 
     // ============================== GET CSS =============================== //
 
-    private getGraphComputedStyle(cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSStyleDeclaration | undefined {
+    private getGraphComputedStyle(cssClass: string, data: { path?: string, source?: string, target?: string, isCurrent?: boolean } = {}): CSSStyleDeclaration | undefined {
         if (!this.instances.extendedStyleEl) return;
 
         this.detachCSSDiv();
@@ -273,12 +273,13 @@ export class CSSBridge extends Component {
         if (data.path) div.setAttribute('data-path', data.path);
         if (data.source) div.setAttribute('data-source', data.source);
         if (data.target) div.setAttribute('data-target', data.target);
+        if (data.isCurrent) div.classList.add("is-current");
         div.style.borderStyle = 'solid';
         const style = getComputedStyle(div);
         return style;
     }
 
-    private getTextStyle(cssClass: string, data: { path?: string, source?: string, target?: string } = {}): CSSTextStyle {
+    private getTextStyle(cssClass: string, data: { path?: string, source?: string, target?: string, isCurrent?: boolean } = {}): CSSTextStyle {
         if (!this.instances.extendedStyleEl) return CSSBridge.DEFAULT_TEXT_STYLE;
 
         const style = this.getGraphComputedStyle(cssClass, data);
@@ -322,7 +323,7 @@ export class CSSBridge extends Component {
     }
 
     getNodeTextStyle(path?: string): CSSTextStyle {
-        return this.getTextStyle("node-text", { path: path });
+        return this.getTextStyle("node-text", { path: path, isCurrent: path ? this.instances.nodesSet.extendedElementsMap.get(path)?.isCurrentNode : undefined });
     }
 
     getLinkLabelStyle(data: { source?: string, target?: string } = {}): CSSLinkLabelStyle {

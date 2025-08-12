@@ -137,7 +137,7 @@
         "brightnessDesc": "Multiply the brightness of tags, properties, and links by a factor depending on the theme. Need reloading of the graph if you swap themes while plugin is enabled.",
         "canonicalizePropertiesWithDataview": "Canonicalize property names (Dataview)",
         "canonicalizePropertiesWithDataviewDesc": "By default, the Dataview plugin canonicalize the property names, converting everything to lowercase, removing dashes and underscore. If you want to use the non-canonicalized version of the properties, disabled this. Note that if you have two properties, with one being the canonicalized version of the second one (for example CaseSensitive and casesensitive), the canonicalized version will be discarded. This option only applied if you're using the Dataview plugin.",
-        "colorBasedOnDepth": "Color based on depth (local graph only)",
+        "colorBasedOnDepth": "Color based on depth",
         "colorBasedOnDepthDesc": "Color the nodes based on their depth relative to the main node in the local graph",
         "depthPalette": "Depth color palette",
         "depthPaletteDesc": "Choose the color palette for the depth level coloring nodes",
@@ -148,7 +148,7 @@
         "excludeTargetFolders": "Exclude target folders",
         "excludeTargetFoldersDesc": "Exclude backward links with target inside some folders (i.e. links going in one of these folders)",
         "excludedFolders": "Excluded folders",
-        "externalLinks": "Add external links",
+        "externalLinks": "Add external URLs",
         "externalLinksDesc": "Add external URLs as attachment nodes in the graph view. Types for links toward those nodes are not supported.",
         "externalLinkOpen": "Open external URL",
         "externalLinksOpenMode": "Open mode for external URLs",
@@ -178,7 +178,7 @@
         "focusFlickerSearchNodes": "Flicker search results nodes",
         "focusOpenNodes": "Highlight open nodes",
         "focusOpenNodesDesc": "Add a border around nodes associated to an open tab",
-        "focusScale": "Scale factor",
+        "focusScale": "Active node scale factor",
         "focusScaleDesc": "The node corresponding to the currently active note will be scaled up by this factor. Set to 1 for no scaling.",
         "focusSearchResults": "Highlight search results",
         "focusSearchResultsDesc": "Add a border around nodes that are part of a search result via the core Search plugin",
@@ -533,6 +533,8 @@
         "horizontalLegendDesc": "Use a horizontal layout for the legend container (with tags, properties and tags toggle buttons)",
         "howToUse": "How to use",
         "howToUseGradientMaker": "<ul><li><strong>Drag handles</strong> to move color stops along the gradient</li><li><strong>Click a handle</strong> to change its color</li><li><strong>Double-click</strong> on the gradient to add a new color stop</li><li><strong>Backspace, Delete or Clear keys</strong> on a handle to remove it</li><li><strong>Interpolate</strong>: Creates smooth color transitions between stops</li><li><strong>Reverse</strong>: Flips the final palette order (left ↔ right)</li></ul>",
-        "name": "Name"
+        "name": "Name",
+        "showPinIcon": "Show pin icon",
+        "showPinIconDesc": "When a node is pinned, show an icon in its top right corner to mark its pinned state"
     }
 }

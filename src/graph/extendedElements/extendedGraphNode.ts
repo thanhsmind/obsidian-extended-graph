@@ -199,7 +199,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     public needOpacityLayer(): boolean { return this.instances.settings.fadeOnDisable; }
 
-    public needPin(): boolean { return true; }
+    public needPin(): boolean { return this.instances.settings.showPinIcon; }
 
     public needIcon(): boolean { return this.instances.settings.enableFeatures[this.instances.type]['icons']; }
 
