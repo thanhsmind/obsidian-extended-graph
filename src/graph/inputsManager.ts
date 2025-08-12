@@ -125,7 +125,7 @@ export class InputsManager {
     }
 
     startListeningToUnselectNodes() {
-        this.instances.renderer.interactiveEl.win.window.addEventListener("mouseup", this.onInputToUnselectNodes);
+        this.instances.renderer.px.stage.addEventListener("mouseup", this.onInputToUnselectNodes);
         this.instances.renderer.interactiveEl.win.window.addEventListener("keydown", this.onInputToUnselectNodes);
     }
 
@@ -169,8 +169,8 @@ export class InputsManager {
         }
     }
 
-    private onInputToUnselectNodes(e: MouseEvent | KeyboardEvent) {
-        if (e.instanceOf(MouseEvent) || (e.instanceOf(KeyboardEvent) && e.key === "Escape")) {
+    private onInputToUnselectNodes(e: FederatedPointerEvent | MouseEvent | KeyboardEvent) {
+        if (!("instanceOf" in e && e.instanceOf(KeyboardEvent)) || e.key === "Escape") {
             if (this.isDragging) {
                 this.isDragging = false;
                 this.instances.nodesSet.stopMovingSelectedNodes();
@@ -179,7 +179,7 @@ export class InputsManager {
                 this.instances.nodesSet.unselectNodes();
 
                 // Stop listening
-                this.instances.renderer.interactiveEl.win.window.removeEventListener("mouseup", this.onInputToUnselectNodes);
+                this.instances.renderer.px.stage.removeEventListener("mouseup", this.onInputToUnselectNodes);
                 this.instances.renderer.interactiveEl.win.window.removeEventListener("keydown", this.onInputToUnselectNodes);
             }
         }
