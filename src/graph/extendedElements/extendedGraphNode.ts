@@ -305,25 +305,25 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         let setByProperty = false;
         if (this.instances.settings.enableFeatures[this.instances.type]['elements-stats']) {
             const properties = this.instances.settings.nodesSizeProperties.filter(p => p !== "");
-            if (properties.length === 0) return;
-
-            const file = getFile(this.id);
-            if (!file) return;
-
-            for (const property of properties) {
-                const values = getFileInteractives(property, file, this.instances.settings);
-                for (const value of values) {
-                    if (isNumber(value)) {
-                        this.radius = parseInt(value);
-                        if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
-                        setByProperty = true;
-                        break;
+            if (properties.length > 0) {
+                const file = getFile(this.id);
+                if (file) {
+                    for (const property of properties) {
+                        const values = getFileInteractives(property, file, this.instances.settings);
+                        for (const value of values) {
+                            if (isNumber(value)) {
+                                this.radius = parseInt(value);
+                                if (isNaN(this.radius)) this.radius = NodeShape.RADIUS;
+                                setByProperty = true;
+                                break;
+                            }
+                        }
+                        if (setByProperty) break;
                     }
                 }
-                if (setByProperty) break;
             }
-        }
 
+        }
 
         if (!setByProperty && this.isCurrentNode && this.instances.settings.currentNode.size !== DEFAULT_SETTINGS.currentNode.size) {
             this.radius = this.instances.settings.currentNode.size;
