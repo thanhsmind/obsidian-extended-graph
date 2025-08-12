@@ -323,7 +323,10 @@ export class CSSBridge extends Component {
     }
 
     getNodeTextStyle(path?: string): CSSTextStyle {
-        return this.getTextStyle("node-text", { path: path, isCurrent: path ? this.instances.nodesSet.extendedElementsMap.get(path)?.isCurrentNode : undefined });
+        return this.getTextStyle("node-text", {
+            path: path,
+            isCurrent: path && this.instances.type === "localgraph" ? this.instances.nodesSet.extendedElementsMap.get(path)?.isCurrentNode : undefined
+        });
     }
 
     getLinkLabelStyle(data: { source?: string, target?: string } = {}): CSSLinkLabelStyle {
