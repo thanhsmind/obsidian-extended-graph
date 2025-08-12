@@ -16,7 +16,7 @@ import {
 export class SettingLinks extends SettingInteractives {
 
     constructor(settingTab: ExtendedGraphSettingTab) {
-        super(settingTab, 'links', LINK_KEY, t("features.ids.links"), t("features.interactives.links"), 'link', t("features.interactives.linksDesc"), false);
+        super(settingTab, 'links', LINK_KEY, t("features.ids.linkTypes"), t("features.interactives.linkTypes"), 'link', t("features.interactives.linkTypesDesc"), false);
     }
 
     protected override addBody(): void {
