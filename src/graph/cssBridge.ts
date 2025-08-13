@@ -1,9 +1,25 @@
 import { Component } from "obsidian";
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
-import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
+import { Text, TextStyle, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
 import { ExtendedGraphInstances, GraphInstances } from "src/pluginInstances";
 import * as Color from 'src/colors/color-bits';
 import { pathParse } from "src/internal";
+
+interface CSSTextShadowStyle {
+    alpha: number,
+    distance: number,
+    angle: number,
+    blur: number,
+    color: number,
+    offsetX: number,
+    offsetY: number,
+    useCurrentColor: boolean
+}
+
+interface CSSTextStrokeStyle {
+    width: number,
+    color: number
+}
 
 export interface CSSTextStyle {
     fontFamily: string;
@@ -13,6 +29,8 @@ export interface CSSTextStyle {
     fontWeight: TextStyleFontWeight;
     letterSpacing: number;
     fill?: TextStyleFill;
+    dropShadow?: CSSTextShadowStyle;
+    stroke?: CSSTextStrokeStyle;
 }
 
 // ============================== Folder Style ============================== //
@@ -304,6 +322,9 @@ export class CSSBridge extends Component {
             fontWeight = CSSBridge.DEFAULT_TEXT_STYLE.fontWeight;
         }
 
+        const shadow = this.getTextShadow(style);
+        const stroke = this.getTextStroke(style);
+
         const letterSpacing = this.getUnitlessValue(style.letterSpacing, CSSBridge.DEFAULT_TEXT_STYLE.letterSpacing);
 
         const fill = this.getGraphComputedStyle("color-text", data)?.color ?? CSSBridge.DEFAULT_TEXT_STYLE.fill;
@@ -315,7 +336,9 @@ export class CSSBridge extends Component {
             fontVariant: fontVariant as TextStyleFontVariant,
             fontWeight: fontWeight as TextStyleFontWeight,
             letterSpacing: letterSpacing,
-            fill: fill
+            fill: fill,
+            dropShadow: shadow,
+            stroke: stroke
         };
 
         this.detachCSSDiv();
@@ -417,6 +440,47 @@ export class CSSBridge extends Component {
         return value;
     }
 
+    private getTextShadow(style: CSSStyleDeclaration): CSSTextShadowStyle | undefined {
+        const rule = style.textShadow;
+        if (!rule || rule === "none") return;
+        const matchFirstColor = rule.match(/((^rgba?\(\d+,\s?\d+,\s?\d+(?:,\s?\d+(?:\.\d+)?)?\))(.*))*/);
+        if (!matchFirstColor) return
+        const color = Color.parseCSS(matchFirstColor[2]);
+        const parts = matchFirstColor[3].split(',')[0].trim().split(' ');
+        if (parts.length !== 3) return;
+        const offsetX = this.getUnitlessValue(parts[0], 0);
+        const offsetY = this.getUnitlessValue(parts[1], 0);
+        const useCurrentColor = style.getPropertyValue("--text-shadow-current-color");
+        return {
+            distance: Math.sqrt(offsetX * offsetX + offsetY * offsetY),
+            angle: Math.atan2(offsetY, offsetX),
+            blur: this.getUnitlessValue(parts[2], 0),
+            color: color.rgb,
+            alpha: color.a,
+            offsetX,
+            offsetY,
+            useCurrentColor: ["true", "currentcolor"].contains(useCurrentColor.toLowerCase())
+        }
+    }
+
+    private getTextStroke(style: CSSStyleDeclaration): CSSTextStrokeStyle | undefined {
+        const width = this.getUnitlessValue(style.webkitTextStrokeWidth, 0);
+        if (width <= 0) {
+            return;
+        }
+        if (style.webkitTextStrokeColor) {
+            const color = Color.parseCSS(style.webkitTextStrokeColor);
+            return {
+                width: width,
+                color: color.a > 0 ? color.rgb : CSSBridge.backgroundColor
+            }
+        }
+        return {
+            width: width,
+            color: CSSBridge.backgroundColor
+        }
+    }
+
     // ========================== RENDERER COLORS =========================== //
 
     getPrimaryColor(): Color.Color {
@@ -446,6 +510,46 @@ export class CSSBridge extends Component {
 
     static getCSSSplitRGB(color: Color.Color): string {
         return `${Color.getRed(color)}, ${Color.getGreen(color)}, ${Color.getBlue(color)}`;
+    }
+
+    static applyTextShadow(text: Text, textStyle: TextStyle, shadow: CSSTextShadowStyle, textColor: Color.Color) {
+        textStyle.dropShadow = true;
+        textStyle.dropShadowAlpha = shadow.alpha;
+        textStyle.dropShadowBlur = shadow.blur;
+        textStyle.dropShadowColor = shadow.useCurrentColor ? textColor : shadow.color;
+        textStyle.dropShadowDistance = shadow.distance;
+        textStyle.dropShadowAngle = shadow.angle;
+        textStyle.trim = true;
+        textStyle.padding = Math.max(shadow.offsetX, shadow.offsetY) + shadow.blur;
+
+        // Reposition Y-axis
+        const shadowAbove = Math.max(0, shadow.blur - shadow.offsetY);
+        const shadowBelow = Math.max(0, shadow.blur + shadow.offsetY);
+        const fontSize = typeof textStyle.fontSize === "number" ? textStyle.fontSize : parseFloat(textStyle.fontSize);
+        const yRatio = 1 - (fontSize + shadowBelow) / (fontSize + shadowAbove + shadowBelow);
+        text.anchor.y = yRatio;
+
+        // Reposition X-axis
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        if (context) {
+            context.font = `${textStyle.fontSize}px ${textStyle.fontFamily}`;
+            const width = context.measureText(text.text).width;
+            const shadowLeft = Math.max(0, shadow.blur - shadow.offsetX);
+            const shadowRight = Math.max(0, shadow.blur + shadow.offsetX);
+            const xRatio = (shadowLeft + shadowLeft + width) * 0.5 / (width + shadowRight + shadowLeft);
+
+            text.anchor.x = xRatio;
+        }
+        canvas.detach();
+    }
+
+    static applyTextStroke(textStyle: TextStyle, stroke: CSSTextStrokeStyle) {
+        if (stroke.width <= 0) return;
+
+        textStyle.stroke = stroke.color;
+        textStyle.strokeThickness = stroke.width;
+        textStyle.lineJoin = "round";
     }
 
     // Expected to be the same background color for every renderer

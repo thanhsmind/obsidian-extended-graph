@@ -15,7 +15,9 @@ import {
     randomColor,
     SettingQuery,
     CSSBridge,
-    pathParse
+    pathParse,
+    hex2int,
+    textStyleFill2int
 } from "src/internal";
 
 export class FolderBlob {
@@ -59,6 +61,22 @@ export class FolderBlob {
             wordWrapWidth: 300,
             align: this.folderStyle.textStyle.align
         });
+
+
+
+        if (this.folderStyle.textStyle.textStyle.dropShadow && this.text) {
+            CSSBridge.applyTextShadow(
+                this.text,
+                this.textStyle,
+                this.folderStyle.textStyle.textStyle.dropShadow,
+                textStyleFill2int(this.textStyle.fill) ?? this.nodes.first()?.renderer.colors.text.rgb ?? 0
+            );
+        }
+
+        if (this.folderStyle.textStyle.textStyle.stroke) {
+            CSSBridge.applyTextStroke(this.textStyle, this.folderStyle.textStyle.textStyle.stroke)
+        }
+
         if (this.text) this.text.style = this.textStyle;
     }
 

@@ -1,4 +1,4 @@
-import { CSSBridge, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt } from "src/internal";
+import { CSSBridge, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, hex2int, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt, textStyleFill2int } from "src/internal";
 import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
@@ -90,11 +90,20 @@ export abstract class LinkText extends Container {
             fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             fill: this.getTextColor(),
         });
-        if (this.style.backgroundColor.a === 0 && !this.needsGraphicsBackground()) {
-            style.stroke = new Color(CSSBridge.backgroundColor).toNumber();
-            style.strokeThickness = 8;
-            style.lineJoin = "round";
+
+        if (this.style.textStyle.dropShadow) {
+            CSSBridge.applyTextShadow(
+                this.text,
+                style,
+                this.style.textStyle.dropShadow,
+                textStyleFill2int(style.fill) ?? this.extendedLink.coreElement.renderer.colors.text.rgb
+            );
         }
+
+        if (this.style.textStyle.stroke) {
+            CSSBridge.applyTextStroke(style, this.style.textStyle.stroke)
+        }
+
         return style;
     }
 

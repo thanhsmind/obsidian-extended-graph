@@ -3,7 +3,7 @@ import { getSortedColorAndStopPoints, getCMapData } from './colormaps';
 import { ExtendedGraphSettings } from 'src/internal';
 import * as Color from 'src/colors/color-bits';
 import chroma from 'chroma-js';
-import { Color as PixiColor, ColorSource } from "pixi.js";
+import { Color as PixiColor, TextStyleFill, ColorSource } from "pixi.js";
 
 export function rgb2int(rgb: number[]): Color.Color {
     return Color.newColor(rgb[0], rgb[1], rgb[2]);
@@ -31,6 +31,37 @@ export function pixiColor2int(color: ColorSource): Color.Color {
 
 export function pixiColor2hex(color: ColorSource): HexString {
     return new PixiColor(color).toHex();
+}
+
+export function textStyleFill2int(fill: TextStyleFill) {
+    if (typeof fill === "string") {
+        return hex2int(fill);
+    }
+    else if (typeof fill === "number") {
+        return fill;
+    }
+    else if (Array.isArray(fill)) {
+        const middle = fill[Math.floor(fill.length / 2)];
+        if (typeof middle === "string") {
+            return hex2int(middle);
+        }
+        else if (typeof middle === "number") {
+            return middle;
+        }
+    }
+    else if (fill instanceof CanvasGradient || fill instanceof CanvasPattern) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            canvas.width = 100;
+            canvas.height = 100;
+            ctx.fillStyle = fill;
+            ctx.fillRect(0, 0, 100, 100);
+            const pixelData = ctx.getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1);
+            return rgb2int([pixelData.data[0], pixelData.data[1], pixelData.data[2]]);
+        }
+        canvas.detach();
+    }
 }
 
 export function plotColorMapFromName(canvas: HTMLCanvasElement, name: string, settings: ExtendedGraphSettings) {
