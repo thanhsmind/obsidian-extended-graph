@@ -1,5 +1,3 @@
-const util = require('util');
-
 type Target = {
     owner: any,
     property: string,
@@ -8,6 +6,7 @@ type Target = {
 
 export class ProxysManager {
 
+    readonly proxyKey = "__isExtendedGraphProxy";
     coreTargets: Map<any, Target> = new Map(); // key: proxy, value: core target
 
     registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): any {
@@ -28,6 +27,7 @@ export class ProxysManager {
 
         const proxy = new Proxy(owner[property], handler);
         owner[property] = proxy;
+        proxy[this.proxyKey] = true;
 
         this.coreTargets.set(proxy, {
             owner,
@@ -39,7 +39,7 @@ export class ProxysManager {
     }
 
     isProxy(target: any) {
-        return util.types.isProxy(target);
+        return this.proxyKey in target && target[this.proxyKey] === true;
     }
 
     private getTargetForOwner(owner: any, property: string): Target | undefined {
@@ -75,7 +75,7 @@ export class ProxysManager {
             }
         }
         else {
-            console.warn("Proxy not found");
+            //console.warn("Proxy not found");
         }
     }
 
