@@ -12,7 +12,6 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
     coreCollection: T[];
     extendedElementsMap = new Map<string, ExtendedGraphElement<T>>();
     connectedIDs = new Set<string>();
-    disconnectedIDs: { [cause: string]: Set<string> } = {};
     typesMap: { [key: string]: { [type: string]: Set<string> } } = {}; // [key][type].get(id)
 
     // Interactive managers specific to the set
@@ -249,15 +248,14 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
 
     // ============================ TOGGLE ELEMENTS ============================
 
-    disableElements(ids: string[], cause: string) {
-        return new Set(ids.filter(id => this.disableElement(id, cause)));
+    disableElements(ids: string[]) {
+        return new Set(ids.filter(id => this.disableElement(id)));
     }
 
-    private disableElement(id: string, cause: string): boolean {
+    private disableElement(id: string): boolean {
         const extendedElement = this.extendedElementsMap.get(id);
         if (!extendedElement) return false;
 
-        this.disconnectedIDs[cause].add(id);
         this.connectedIDs.delete(id);
 
         if (extendedElement.isEnabled) {
@@ -269,15 +267,14 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
         return true;
     }
 
-    enableElements(ids: string[], cause: string): Set<string> {
-        return new Set(ids.filter(id => this.enableElement(id, cause)));
+    enableElements(ids: string[]): Set<string> {
+        return new Set(ids.filter(id => this.enableElement(id)));
     }
 
-    private enableElement(id: string, cause: string): boolean {
+    private enableElement(id: string): boolean {
         const extendedElement = this.extendedElementsMap.get(id);
         if (!extendedElement) return false;
 
-        this.disconnectedIDs[cause].delete(id);
         this.connectedIDs.add(id);
 
         if (!extendedElement.canBeAddedWithEngineOptions()) return false;

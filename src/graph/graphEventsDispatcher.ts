@@ -678,6 +678,18 @@ export class GraphEventsDispatcher extends Component {
         // Filter out nodes
         data = this.instances.filter.filterData(data);
 
+        // Disable extended links
+        for (const extendedLink of this.instances.linksSet.extendedElementsMap.values()) {
+            const needToDisable = !(extendedLink.coreElement.source.id in data.nodes) || !(extendedLink.coreElement.target.id in data.nodes);
+            if (extendedLink.isEnabled && needToDisable) {
+                extendedLink.disable();
+            }
+            else if (!extendedLink.isEnabled && !needToDisable) {
+                extendedLink.enable();
+            }
+        }
+
+
         const showNotice = this.lastFilteringAction?.userChange || true;
         if (this.lastFilteringAction) this.lastFilteringAction.userChange = false;
         if (ExtendedGraphInstances.graphsManager.isNodeLimitExceededForData(data, showNotice)) {
