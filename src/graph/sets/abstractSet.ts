@@ -83,7 +83,7 @@ export abstract class AbstractSet<T extends GraphNode | GraphLink> {
                 }
             }
             else {
-                continue;
+                types.add(this.instances.settings.interactiveSettings[key].noneType);
             }
             this.addTypes(key, types, id, missingTypes);
         }
