@@ -86,6 +86,7 @@ export class ProxysManager {
             this.coreTargets.delete(proxy);
             if (owner[property] === proxy) {
                 owner[property] = coreTarget;
+                delete owner[property][this.proxyKey];
             }
         }
     }
