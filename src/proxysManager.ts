@@ -68,6 +68,7 @@ export class ProxysManager {
 
             if (owner[property] === proxy) {
                 owner[property] = coreTarget;
+                delete owner[property][this.proxyKey];
             }
             else {
                 console.warn("The core reference is no longer pointing to the proxy. Instead :");
