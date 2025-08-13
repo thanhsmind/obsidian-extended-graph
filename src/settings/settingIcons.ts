@@ -11,6 +11,9 @@ export class SettingIcons extends SettingsSectionPerGraphType {
     }
 
     protected override addBody(): void {
+        this.colorSetting = undefined;
+        this.parentSetting = undefined;
+
         this.addProperty();
         this.addSupportForPlugins();
         this.addBackgroundOpacity();

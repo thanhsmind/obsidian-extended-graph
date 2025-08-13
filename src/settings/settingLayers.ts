@@ -10,6 +10,8 @@ export class SettingLayers extends SettingsSectionPerGraphType {
     }
 
     protected override addBody() {
+        this.layerInfoSettings = [];
+
         this.addProperties();
         this.addNumberOfActiveLayers();
         this.addLayerOrder();

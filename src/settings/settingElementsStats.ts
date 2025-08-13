@@ -32,6 +32,11 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
     }
 
     protected override addBody(): void {
+        this.nodesSizeFunctionDropdown = undefined;
+        this.nodesColorFunctionDropdown = undefined;
+        this.linksSizeFunctionDropdown = undefined;
+        this.linksColorFunctionDropdown = undefined;
+
         this.addNodeSizeProperties();
         this.addNodeSizeFunction();
         this.addNodeSizeWarning();

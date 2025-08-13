@@ -28,6 +28,8 @@ export abstract class SettingsSection {
     }
 
     display() {
+        this.elementsBody = [];
+
         this.addHeader();
         this.addBody();
         this.addToNav();

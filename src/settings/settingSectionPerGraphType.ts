@@ -17,6 +17,8 @@ export abstract class SettingsSectionPerGraphType extends SettingsSection {
 
     protected override addHeader(): void {
         super.addHeader();
+
+        this.toggles = {};
         this.addToggle('graph');
         this.addToggle('localgraph');
     }

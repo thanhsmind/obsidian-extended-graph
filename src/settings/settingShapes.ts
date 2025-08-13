@@ -9,6 +9,8 @@ export class SettingShapes extends SettingsSectionPerGraphType {
     }
 
     protected override addBody() {
+        this.settingsShape = [];
+
         const shapeQueries: { [k: string]: QueryData } = Object.fromEntries(Object.entries(ExtendedGraphInstances.settings.shapeQueries).sort((a: [string, QueryData], b: [string, QueryData]) => {
             return (a[1].index ?? 0) - (b[1].index ?? 0);
         }));
@@ -18,6 +20,7 @@ export class SettingShapes extends SettingsSectionPerGraphType {
             this.elementsBody.push(shapeSetting.settingEl);
             this.settingsShape.push(shapeSetting);
         }
+        console.log("Done building", this.settingsShape.map(s => s.shape));
     }
 
     private addShape(shape: ShapeEnum): SettingShape {
@@ -38,7 +41,9 @@ export class SettingShapes extends SettingsSectionPerGraphType {
     }
 
     private moveUp(settingShape: SettingShape) {
+        console.log("Moving up in", this.settingsShape.map(s => s.shape));
         const index = this.settingsShape.indexOf(settingShape);
+        console.log(settingShape.shape, "Index in UI", index);
         if (index === 0) return;
         [this.settingsShape[index], this.settingsShape[index - 1]] = [this.settingsShape[index - 1], this.settingsShape[index]];
 
@@ -47,6 +52,8 @@ export class SettingShapes extends SettingsSectionPerGraphType {
 
         ExtendedGraphInstances.settings.shapeQueries[settingShape.shape].index = index - 1;
         ExtendedGraphInstances.settings.shapeQueries[this.settingsShape[index].shape].index = index;
+        console.log(settingShape.shape, "Index in settings", ExtendedGraphInstances.settings.shapeQueries[settingShape.shape].index);
+        console.log(this.settingsShape[index].shape, "Index in settings", ExtendedGraphInstances.settings.shapeQueries[this.settingsShape[index].shape].index);
         ExtendedGraphInstances.plugin.saveSettings();
     }
 }

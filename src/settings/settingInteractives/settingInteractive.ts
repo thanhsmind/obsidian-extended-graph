@@ -168,7 +168,7 @@ export class SettingColor extends Setting {
 
     textComponent: TextComponent;
     colorComponent: ColorComponent;
-    recursiveCompotnent?: ToggleComponent;
+    recursiveComponent?: ToggleComponent;
     warningDiv: HTMLDivElement;
 
     constructor(
@@ -244,7 +244,7 @@ export class SettingColor extends Setting {
         const recursive = data.recursive;
         if (recursive !== undefined) {
             this.addToggle(cb => {
-                this.recursiveCompotnent = cb;
+                this.recursiveComponent = cb;
                 cb.toggleEl.insertAdjacentText("afterend", t("features.recursive"))
                 cb.setValue(recursive);
                 cb.onChange((value) => {
@@ -271,7 +271,7 @@ export class SettingColor extends Setting {
     private save() {
         const newType = this.textComponent.getValue().trim();
         const newColor = this.colorComponent.getValue();
-        const newRecursive = this.recursiveCompotnent?.getValue();
+        const newRecursive = this.recursiveComponent?.getValue();
 
         if (!this.isValid(newType)) return;
 
