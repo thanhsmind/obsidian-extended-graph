@@ -169,6 +169,7 @@ export * from "./helpers/graph";
 export * from "./helpers/html";
 export * from "./helpers/math";
 export * from "./helpers/media";
+export * from "./helpers/path";
 export * from "./helpers/plugins";
 export * from "./helpers/strings";
 export * from "./helpers/svg";

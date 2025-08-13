@@ -1,4 +1,5 @@
-import { Assets, ColorSource, Container, RenderTexture, Sprite, Text, Texture } from 'pixi.js';
+import { Assets, ColorSource, Container, Sprite, Text, Texture } from 'pixi.js';
+import { determineCrossOrigin } from '@pixi/utils'
 import { GraphColorAttributes } from 'obsidian-typings';
 import {
     ExtendedGraphNode,

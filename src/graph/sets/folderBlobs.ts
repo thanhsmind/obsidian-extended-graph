@@ -1,6 +1,5 @@
 import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
-import path from "path";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import {
@@ -15,7 +14,8 @@ import {
     ExtendedGraphInstances,
     randomColor,
     SettingQuery,
-    CSSBridge
+    CSSBridge,
+    pathParse
 } from "src/internal";
 
 export class FolderBlob {
@@ -39,7 +39,7 @@ export class FolderBlob {
         this.area.eventMode = 'none';
 
         this.initTextStyle();
-        this.text = new Text(showFullPath ? this.path : path.basename(this.path), this.textStyle);
+        this.text = new Text(showFullPath ? this.path : pathParse(this.path).basename, this.textStyle);
         this.text.eventMode = "none";
         this.text.resolution = 2;
         pixiAddChild(this.area, this.text);

@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { ButtonComponent, ExtraButtonComponent, Modal, setIcon, Setting } from "obsidian";
 import * as Color from 'src/colors/color-bits';
 import { cmOptions, GradientMakerModal, plotColorMap, plotColorMapFromName, ExtendedGraphInstances, t, UIElements } from "src/internal";
@@ -80,7 +79,7 @@ export class GradientPickerModal extends Modal {
         const existing = Object.entries(this.customPalettes).find(([id, el]) => el.name === name);
         let id: string;
         if (!existing) {
-            id = randomUUID();
+            id = crypto.randomUUID();
             const setting = new Setting(container).setName(name);
             setting.settingEl.addClass("custom-palette");
 
@@ -103,7 +102,7 @@ export class GradientPickerModal extends Modal {
 
             canvas.onclick = () => this.selectCustomPalette(id);
 
-            this.customPalettes[id] = { name, setting, canvas };
+            this.customPalettes[id] = { name: name, setting, canvas };
         }
         else {
             id = existing[0];

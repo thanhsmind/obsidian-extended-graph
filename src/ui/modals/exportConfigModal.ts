@@ -1,6 +1,5 @@
 import { DropdownComponent, Modal, Setting, TextComponent } from "obsidian";
-import path from "path";
-import { getAllConfigFiles, ExtendedGraphInstances, t } from "src/internal";
+import { getAllConfigFiles, ExtendedGraphInstances, t, pathParse } from "src/internal";
 
 export class ExportConfigModal extends Modal {
     callback: (name: string, fullpath: boolean) => boolean;
@@ -28,7 +27,7 @@ export class ExportConfigModal extends Modal {
                 const files = await getAllConfigFiles();
                 cb.addOptions(Object.fromEntries(files.map(file => [
                     file,
-                    path.basename(file, ".json") + (ExtendedGraphInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
+                    pathParse(file, ".json").basename + (ExtendedGraphInstances.statesManager.getStateFromConfig(file) ? " (🔗 state)" : "")
                 ])));
             })
             .addButton((cb) => {

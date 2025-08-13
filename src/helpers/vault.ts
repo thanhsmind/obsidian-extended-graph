@@ -1,7 +1,6 @@
 import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
 import { DataviewApi } from "obsidian-dataview";
-import path from "path";
-import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, ExtendedGraphInstances, TAG_KEY } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, ExtendedGraphInstances, TAG_KEY, pathParse } from "src/internal";
 
 export function getFile(path: string): TFile | null {
     return ExtendedGraphInstances.app.vault.getFileByPath(path);
@@ -70,7 +69,7 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
             const linkPath = getLinkpath(value.slice(2, value.length - 2));
             const displayTextIndex = linkPath.indexOf("|");
             const filepath = displayTextIndex >= 0 ? linkPath.slice(0, displayTextIndex) : linkPath;
-            types.add(path.parse(filepath).name);
+            types.add(pathParse(filepath).basename);
         }
         else {
             types.add(value);
@@ -84,7 +83,7 @@ function recursiveGetProperties(value: any, types: Set<string>): void {
     }
     else if ((typeof value === "object") && ("path" in value)) {
         // Dataview
-        types.add(path.parse(value.path).name);
+        types.add(pathParse(value.path).basename);
     }
     else if (Array.isArray(value)) {
         for (const v of value) {

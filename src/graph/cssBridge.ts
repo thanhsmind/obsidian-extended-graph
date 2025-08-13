@@ -1,9 +1,9 @@
 import { Component } from "obsidian";
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
 import { TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
-import path from "path";
 import { ExtendedGraphInstances, GraphInstances } from "src/pluginInstances";
 import * as Color from 'src/colors/color-bits';
+import { pathParse } from "src/internal";
 
 export interface CSSTextStyle {
     fontFamily: string;
@@ -255,7 +255,7 @@ export class CSSBridge extends Component {
         const snippetName = ExtendedGraphInstances.settings.cssSnippetFilename;
         if (!ExtendedGraphInstances.app.customCss.enabledSnippets.has(snippetName)) return;
 
-        const snippet = [...ExtendedGraphInstances.app.customCss.csscache.entries()].find(p => path.basename(p[0], ".css") === snippetName);
+        const snippet = [...ExtendedGraphInstances.app.customCss.csscache.entries()].find(p => pathParse(p[0], ".css").basename === snippetName);
         if (!snippet) return;
         this.instances.extendedStyleEl.innerHTML = css + "\n" + snippet[1];
     }
