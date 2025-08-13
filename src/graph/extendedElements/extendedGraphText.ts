@@ -84,6 +84,7 @@ export class ExtendedGraphText {
             }
             return coreStyle;
         }
+        this.coreElement.fontDirty = true;
     }
 
     private restoreTextStyle(): void {
