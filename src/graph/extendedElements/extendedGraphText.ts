@@ -43,6 +43,9 @@ export class ExtendedGraphText {
             this.hasChangedText = false;
         }
         this.restoreTextStyle();
+        if (this.coreElement.text) {
+            this.coreElement.text.anchor.set(0.5, 0);
+        }
     }
 
     disable() {
