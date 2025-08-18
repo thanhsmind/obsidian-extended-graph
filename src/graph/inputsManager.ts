@@ -181,7 +181,7 @@ export class InputsManager {
 
     private onInputToUnselectNodes(e: FederatedPointerEvent | MouseEvent | KeyboardEvent) {
         if (!("instanceOf" in e && e.instanceOf(KeyboardEvent)) || e.key === "Escape") {
-            if ("target" in e && this.instances.renderer.nodes.find(n => n.circle === e.target)) {
+            if ("target" in e && this.instances.renderer.nodes.find(n => n.circle === e.target) && !this.isDragging) {
                 return; // Don't unselect if a node was targeted
             }
             if (this.isDragging) {
