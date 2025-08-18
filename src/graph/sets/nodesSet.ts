@@ -308,7 +308,30 @@ export class NodesSet extends AbstractSet<GraphNode> {
     }
 
     selectNodes(nodes: GraphNode[]) {
-        for (const coreNode of nodes) {
+        let nodesToSelect: GraphNode[];
+        let nodesToUnselect: GraphNode[];
+        let selectedNodes: GraphNode[] = Object.values(this.selectedNodes).map(n => n.node);
+
+        switch (this.instances.settings.selectionMode) {
+            case 'add':
+                nodesToUnselect = [];
+                nodesToSelect = nodes;
+                break;
+            case 'replace':
+                nodesToSelect = nodes.filter(node => !(node.id in this.selectedNodes));
+                nodesToUnselect = selectedNodes.filter(node => !nodes.contains(node));
+                break;
+            case 'intersect':
+                nodesToSelect = [];
+                nodesToUnselect = selectedNodes.filter(node => !nodes.contains(node));
+                break;
+            case 'subtract':
+                nodesToSelect = [];
+                nodesToUnselect = selectedNodes.filter(node => nodes.contains(node));
+                break;
+        }
+
+        for (const coreNode of nodesToSelect) {
             if (this.extendedElementsMap.get(coreNode.id)?.select()) {
                 this.selectedNodes[coreNode.id] = {
                     node: coreNode,
@@ -316,6 +339,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
                     originY: coreNode.circle?.y ?? 0
                 };
             }
+        }
+        for (const coreNode of nodesToUnselect) {
+            this.extendedElementsMap.get(coreNode.id)?.unselect();
+            delete this.selectedNodes[coreNode.id];
+        }
+
+        if (!this.selectedNodes) {
+            this.instances.graphEventsDispatcher.inputsManager.stopListeningToUnselectNodes();
         }
     }
 

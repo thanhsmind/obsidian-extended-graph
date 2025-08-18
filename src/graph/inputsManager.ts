@@ -98,6 +98,7 @@ export class InputsManager {
 
             // Start special behaviors
             this.preventPan();
+            this.stopListeningToUnselectNodes();
             this.instances.renderer.interactiveEl.win.window.addEventListener("mouseup", this.onPointerUpOnWindow);
             this.isSelecting = true;
         }

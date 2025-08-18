@@ -26,6 +26,7 @@ import {
 
 export type ExternalLinkOption = 'none' | 'domain' | 'href' | 'domain_and_href';
 export type ExternalLinkOpenMode = 'web' | 'note' | 'choice';
+export type NodesSelectionMode = 'replace' | 'add' | 'subtract' | 'intersect';
 
 type InteractiveSettings = {
     colormap: string;
@@ -223,6 +224,7 @@ export interface ExtendedGraphSettings {
     collapseLegend: boolean;
     resetAfterChanges: boolean;
     collapsedSettings: Record<string, boolean>;
+    selectionMode: NodesSelectionMode;
 
     // Last multiple nodes data
     multipleNodesData: {
@@ -458,6 +460,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     collapseLegend: true,
     resetAfterChanges: false,
     collapsedSettings: {},
+    selectionMode: 'replace',
 
     // Export SVG
     exportSVGOptions: {
