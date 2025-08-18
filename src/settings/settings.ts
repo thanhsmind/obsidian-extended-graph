@@ -175,6 +175,7 @@ export interface ExtendedGraphSettings {
 
     // Names
     numberOfCharacters: number | null;
+    ellipsis: string;
     showOnlyFileName: boolean;
     noExtension: boolean;
     usePropertiesForName: string[];
@@ -407,6 +408,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 
     // Names
     numberOfCharacters: null,
+    ellipsis: "…",
     showOnlyFileName: false,
     noExtension: false,
     usePropertiesForName: [],
@@ -674,7 +676,7 @@ export class SettingQuery {
         if (newFeatures['names'] !== oldFeatures['names'])
             return true;
         if (newFeatures['names']) {
-            if (['numberOfCharacters', 'showOnlyFileName', 'noExtension', 'usePropertiesForName',
+            if (['numberOfCharacters', 'ellipsis', 'showOnlyFileName', 'noExtension', 'usePropertiesForName',
                 'addBackgroundToName', 'dynamicVerticalOffset', 'showNamesWhenNeighborHighlighted'].some(k => !equals(k)))
                 return true;
             if (!oldSettings.dynamicVerticalOffset && !newSettings.dynamicVerticalOffset) {

@@ -37,6 +37,15 @@ export class SettingNames extends SettingsSectionPerGraphType {
                         }
                         await ExtendedGraphInstances.plugin.saveSettings();
                     })
+            })
+            .addText(cb => {
+                cb.inputEl.addClass("number");
+                cb.setPlaceholder(t("features.namesEllipsisPlaceholder"))
+                cb.setValue(ExtendedGraphInstances.settings.ellipsis.toString())
+                    .onChange(async (value) => {
+                        ExtendedGraphInstances.settings.ellipsis = value;
+                        await ExtendedGraphInstances.plugin.saveSettings();
+                    })
             }).settingEl);
     }
 

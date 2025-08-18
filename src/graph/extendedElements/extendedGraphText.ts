@@ -148,7 +148,9 @@ export class ExtendedGraphText {
         }
 
         if (this.instances.settings.numberOfCharacters && this.instances.settings.numberOfCharacters > 0) {
-            text = text.slice(0, this.instances.settings.numberOfCharacters);
+            if (text.length > this.instances.settings.numberOfCharacters) {
+                text = text.slice(0, this.instances.settings.numberOfCharacters) + this.instances.settings.ellipsis;
+            }
         }
 
         this.setText(text);
