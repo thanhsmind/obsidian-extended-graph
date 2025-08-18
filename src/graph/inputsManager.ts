@@ -87,7 +87,7 @@ export class InputsManager {
         this.preventDraggingPinnedNodes();
 
         // Selection if "shift" is holded
-        if (e.button === 0 && Keymap.isModifier(e, "Shift") && !this.instances.renderer.dragNode) {
+        if (e.button === 0 && Keymap.isModifier(e, ExtendedGraphInstances.settings.selectNodeModifier) && !this.instances.renderer.dragNode) {
             // Get start position, and add rectangle if needed
             this.selectionStartPosition = e.getLocalPosition(this.instances.renderer.hanger);
             if (this.selectionRectangle.parent !== this.instances.renderer.hanger) {
@@ -180,6 +180,9 @@ export class InputsManager {
 
     private onInputToUnselectNodes(e: FederatedPointerEvent | MouseEvent | KeyboardEvent) {
         if (!("instanceOf" in e && e.instanceOf(KeyboardEvent)) || e.key === "Escape") {
+            if ("target" in e && this.instances.renderer.nodes.find(n => n.circle === e.target)) {
+                return; // Don't unselect if a node was targeted
+            }
             if (this.isDragging) {
                 this.isDragging = false;
                 this.instances.nodesSet.stopMovingSelectedNodes();
@@ -196,6 +199,14 @@ export class InputsManager {
     // ============================== NODE CLICKS ==============================
 
     private onNodeClick(e: UserEvent | null, id: string, type: string): void {
+        // Check if we select the node
+        if (e && ExtendedGraphInstances.settings.useLeftClickToSelect && Keymap.isModifier(e, ExtendedGraphInstances.settings.selectNodeModifier)) {
+            this.instances.nodesSet.selectNodes([this.instances.renderer.nodeLookup[id]]);
+            this.startListeningToUnselectNodes();
+            return;
+        }
+
+        // Check if we need to open an URL
         if (this.instances.settings.externalLinks !== "none" && "attachment" === type) {
             try {
                 let targetURL: URL | undefined;
@@ -248,11 +259,13 @@ export class InputsManager {
             }
         }
 
+        // Check if we need to open in a new tab
         if (this.instances.settings.openInNewTab && "tag" !== type) {
             ExtendedGraphInstances.app.workspace.openLinkText(id, "", "tab");
             return;
         }
 
+        // Default action
         if (this.coreOnNodeClick) this.coreOnNodeClick(e, id, type);
     }
 

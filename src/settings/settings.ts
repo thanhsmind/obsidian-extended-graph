@@ -211,6 +211,8 @@ export interface ExtendedGraphSettings {
     useRadialMenu: boolean;
     radialMenuModifier: Modifier;
     pinNodeModifier?: Modifier;
+    useLeftClickToSelect: boolean;
+    selectNodeModifier: Modifier;
 
     // Filters
     filterAbstractFiles: { regex: string, flag: string }[];
@@ -444,6 +446,8 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     useRadialMenu: false,
     radialMenuModifier: 'Shift',
     pinNodeModifier: 'Alt',
+    useLeftClickToSelect: true,
+    selectNodeModifier: 'Shift',
 
     // Filters
     filterAbstractFiles: [],

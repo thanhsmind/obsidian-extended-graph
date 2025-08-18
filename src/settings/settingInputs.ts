@@ -10,6 +10,7 @@ export class SettingInput extends SettingsSection {
     protected override addBody() {
         this.addRadialMenu();
         this.addPinHotkey();
+        this.addSelectHotkey();
 
         this.checkCompatibility();
     }
@@ -73,19 +74,48 @@ export class SettingInput extends SettingsSection {
         this.elementsBody.push(setting.settingEl);
     }
 
+    private addSelectHotkey() {
+        const setting = new Setting(this.settingTab.containerEl)
+            .setName(t("inputs.selectHotkey"))
+            .setDesc(t("inputs.selectHotkeyDesc"))
+            .addDropdown(cb => {
+                cb.addOptions({
+                    'Mod': Platform.isMacOS ? 'Cmd (Mod)' : 'Ctrl (Mod)',
+                    'Ctrl': 'Ctrl',
+                    'Meta': Platform.isMacOS ? 'Cmd (Meta)' : 'Win',
+                    'Shift': 'Shift',
+                    'Alt': 'Alt'
+                });
+                cb.setValue(ExtendedGraphInstances.settings.selectNodeModifier);
+                cb.onChange(async (value) => {
+                    ExtendedGraphInstances.settings.selectNodeModifier = value as Modifier;
+                    await ExtendedGraphInstances.plugin.saveSettings();
+                    this.checkCompatibility();
+                })
+            });
+
+        this.elementsBody.push(setting.settingEl);
+    }
+
     private checkCompatibility() {
         const rightClickModifiers = [
             ExtendedGraphInstances.settings.radialMenuModifier,
             ExtendedGraphInstances.settings.pinNodeModifier
         ];
+        const leftClickModifiers = [
+            ExtendedGraphInstances.settings.selectNodeModifier
+        ];
         const rightClickCompatibility = rightClickModifiers.unique().length === rightClickModifiers.length;
+        const leftClickCompatibility = leftClickModifiers.unique().length === leftClickModifiers.length;
 
+        const warnings: string[] = [];
         if (!rightClickCompatibility) {
-            this.settingHeader.setDesc(t("inputs.rightClickIncompatibility"));
+            warnings.push(t("inputs.rightClickIncompatibility"));
         }
-        else {
-            this.settingHeader.setDesc("");
+        if (!leftClickCompatibility) {
+            warnings.push(t("inputs.leftClickIncompatibility"));
         }
-        this.settingHeader.descEl.toggleClass("error", !rightClickCompatibility);
+        this.settingHeader.setDesc(warnings.join('\n'));
+        this.settingHeader.descEl.toggleClass("error", !rightClickCompatibility && !leftClickCompatibility);
     }
 }
