@@ -272,7 +272,6 @@ function addSelectCommands(plugin: ExtendedGraphPlugin) {
                 }
                 if (!checking) {
                     instances.nodesSet.selectNodes(instances.renderer.nodes);
-                    instances.graphEventsDispatcher.inputsManager.startListeningToUnselectNodes();
                     instances.renderer.changed();
                 }
                 return true;
@@ -293,7 +292,6 @@ function addSelectCommands(plugin: ExtendedGraphPlugin) {
                 }
                 if (!checking) {
                     instances.nodesSet.invertSelection();
-                    instances.graphEventsDispatcher.inputsManager.startListeningToUnselectNodes();
                     instances.renderer.changed();
                 }
                 return true;

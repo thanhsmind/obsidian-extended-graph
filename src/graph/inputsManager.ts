@@ -98,7 +98,6 @@ export class InputsManager {
 
             // Start special behaviors
             this.preventPan();
-            this.stopListeningToUnselectNodes();
             this.instances.renderer.interactiveEl.win.window.addEventListener("mouseup", this.onPointerUpOnWindow);
             this.isSelecting = true;
         }
@@ -120,9 +119,6 @@ export class InputsManager {
 
             // Select nodes
             this.instances.nodesSet.selectNodesInRectangle(this.selectionRectangle.getLocalBounds());
-
-            // Listen to unselect
-            this.startListeningToUnselectNodes();
         }
     }
 
@@ -191,8 +187,6 @@ export class InputsManager {
             else {
                 this.instances.nodesSet.unselectNodes();
                 this.instances.renderer.changed();
-
-                this.stopListeningToUnselectNodes();
             }
         }
     }
@@ -203,7 +197,6 @@ export class InputsManager {
         // Check if we select the node
         if (e && ExtendedGraphInstances.settings.useLeftClickToSelect && Keymap.isModifier(e, ExtendedGraphInstances.settings.selectNodeModifier)) {
             this.instances.nodesSet.selectNodes([this.instances.renderer.nodeLookup[id]]);
-            this.startListeningToUnselectNodes();
             return;
         }
 

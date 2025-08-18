@@ -413,6 +413,7 @@
         "radialMenu": "Radial context menu (right click)",
         "radialMenuDesc": "When doing a right click on a node while holding the specified key down, it will show a radial context menu with data from the extended graph plugin, rather than the usual context menu",
         "rightClickIncompatibility": "Multiple inputs use the same modifier for the right click ; only one of them will work",
+        "selected": "selected",
         "selectHotkey": "Select node (left click)",
         "selectHotkeyDesc": "When doing a left click on a node while holding the specified key down, it will select the node",
         "selectionMode": "Selection mode",

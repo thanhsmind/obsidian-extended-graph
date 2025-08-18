@@ -1155,9 +1155,11 @@ export class GraphsManager extends Component {
 
     updateStatusBarItem(leaf: WorkspaceLeaf | null, numberOfNodes?: number) {
         // Change the number of nodes in the status bar
-        this.statusBarItem.replaceChildren();
-        this.statusBarItem.removeClass("mod-clickable");
+        this.statusBarItem.detach();
+        this.addStatusBarItem();
+
         if (leaf && (leaf.view.getViewType() === "graph" || leaf.view.getViewType() === "localgraph")) {
+            // Add the number of nodes
             if (numberOfNodes === undefined) numberOfNodes = (leaf.view as GraphView | LocalGraphView).renderer.nodes.length;
             if (numberOfNodes !== undefined) {
                 this.statusBarItem.createSpan({ text: numberOfNodes.toString() + " " + t("plugin.nodes"), cls: "status-bar-item-segment" });
@@ -1165,14 +1167,26 @@ export class GraphsManager extends Component {
 
             const instances = this.allInstances.get(leaf.id);
             if (instances) {
+                // Open the graph state modal on click
                 this.statusBarItem.addClass("mod-clickable");
-                const infoButton = createSpan({ cls: "status-bar-item-icon status-bar-item-segment" });
-                setIcon(infoButton, "info");
-                infoButton.addEventListener('click', () => {
+                this.statusBarItem.addEventListener('click', () => {
                     const modal = new GraphStateModal(instances);
                     modal.open();
                 });
+
+                // Add the number of selected nodes
+                const numberOfSelectedNodes = Object.keys(instances.nodesSet.selectedNodes).length;
+                if (numberOfSelectedNodes > 0) {
+                    this.statusBarItem.createSpan({ text: `(${numberOfSelectedNodes} ${t("inputs.selected")})`, cls: "status-bar-item-segment" });
+                }
+
+                // Add the info button
+                const infoButton = createSpan({ cls: "status-bar-item-icon status-bar-item-segment" });
+                setIcon(infoButton, "info");
                 this.statusBarItem.appendChild(infoButton);
+            }
+            else {
+                this.statusBarItem.removeClass("mod-clickable");
             }
         }
     }

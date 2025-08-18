@@ -413,6 +413,7 @@
 		"radialMenu": "Activer le menu contextuel radial sur les nœuds",
 		"radialMenuDesc": "Permet d'afficher un menu contextuel radial sur les nœuds en faisant un clic droit tout en maintenant la touche spécifiée enfoncée. Le menu affichera des options supplémentaires provenant du module $t(plugin.name).",
 		"rightClickIncompatibility": "Plusieurs entrées utilisent le même modificateur pour le clic droit ; seule l'une d'entre elles fonctionnera",
+		"selected": "sélectionnées",
 		"selectHotkey": "Sélectionner un nœud (clic gauche)",
 		"selectHotkeyDesc": "Lorsque vous cliquez avec le bouton gauche de la souris sur un nœud tout en maintenant la touche spécifiée enfoncée, cela permet d'épingler le nœud",
 		"selectionMode": "Mode de sélection",

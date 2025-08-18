@@ -345,9 +345,14 @@ export class NodesSet extends AbstractSet<GraphNode> {
             delete this.selectedNodes[coreNode.id];
         }
 
-        if (!this.selectedNodes) {
+        if (Object.keys(this.selectedNodes).length == 0) {
             this.instances.graphEventsDispatcher.inputsManager.stopListeningToUnselectNodes();
         }
+        else {
+            this.instances.graphEventsDispatcher.inputsManager.startListeningToUnselectNodes();
+        }
+
+        ExtendedGraphInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf);
     }
 
     unselectNodes() {
@@ -356,6 +361,8 @@ export class NodesSet extends AbstractSet<GraphNode> {
         }
         this.selectedNodes = {};
         this.instances.renderer.changed();
+        ExtendedGraphInstances.graphsManager.updateStatusBarItem(this.instances.view.leaf);
+        this.instances.graphEventsDispatcher.inputsManager.stopListeningToUnselectNodes();
     }
 
     invertSelection() {
