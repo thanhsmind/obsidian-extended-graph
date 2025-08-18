@@ -1,6 +1,6 @@
 
 import { GraphNode } from "obsidian-typings";
-import { TextStyle } from "pixi.js";
+import { Point, TextMetrics, TextStyle } from "pixi.js";
 import { CSSBridge, getFile, getFileInteractives, GraphInstances, hex2int, rgb2int, textStyleFill2int } from "src/internal";
 
 export class ExtendedGraphText {
@@ -76,16 +76,20 @@ export class ExtendedGraphText {
                 if (customStyle.fill) {
                     coreStyle.fill = customStyle.fill;
                 }
+                if (customStyle.stroke && this.coreElement.text) {
+                    CSSBridge.applyTextStroke(coreStyle, customStyle.stroke);
+                    const { height } = TextMetrics.measureText(this.coreElement.text.text, coreStyle);
+                    this.coreElement.text.anchor.set(0.5, customStyle.stroke.width / height);
+                }
+                else if (this.coreElement.text) {
+                    this.coreElement.text.anchor.set(0.5, 0);
+                }
                 if (customStyle.dropShadow && this.coreElement.text) {
                     CSSBridge.applyTextShadow(
-                        this.coreElement.text,
                         coreStyle,
                         customStyle.dropShadow,
                         textStyleFill2int(coreStyle.fill) ?? this.coreElement.renderer.colors.text.rgb
                     );
-                }
-                if (customStyle.stroke) {
-                    CSSBridge.applyTextStroke(coreStyle, customStyle.stroke)
                 }
             }
             if (addStroke) {

@@ -1,5 +1,5 @@
 import { CSSBridge, CSSLinkLabelStyle, ExtendedGraphLink, fadeIn, hex2int, LINK_KEY, LinkCurveGraphics, LinkCurveMultiTypesGraphics, LinkLineMultiTypesGraphics, pixiAddChild, pixiAddChildAt, textStyleFill2int } from "src/internal";
-import { Color, ColorSource, Container, Graphics, Sprite, Text, TextStyle, TextStyleFill, Texture } from "pixi.js";
+import { ColorSource, Container, Graphics, Point, Sprite, Text, TextMetrics, TextStyle, TextStyleFill, Texture } from "pixi.js";
 
 export abstract class LinkText extends Container {
     extendedLink: ExtendedGraphLink;
@@ -41,7 +41,7 @@ export abstract class LinkText extends Container {
     }
 
     private needsGraphicsBackground(): boolean {
-        return (this.style.borderWidth > 0 && this.style.borderColor.a > 0) || this.style.radius > 0;
+        return this.style.borderWidth > 0 || this.style.radius > 0;
     }
 
     private needsSpriteBackground(): boolean {
@@ -67,6 +67,7 @@ export abstract class LinkText extends Container {
 
         if (this.extendedLink.coreElement.source.circle) {
             this.scale.x = this.scale.y = this.extendedLink.coreElement.renderer.nodeScale;
+            this.pivot.set(0.5 * this.getWidth() / this.scale.x, 0.5 * this.getHeight() / this.scale.y);
         }
 
         return true;
@@ -89,19 +90,24 @@ export abstract class LinkText extends Container {
             letterSpacing: this.style.textStyle.letterSpacing,
             fontSize: this.style.textStyle.fontSize + this.extendedLink.coreElement.source.getSize() / 4,
             fill: this.getTextColor(),
+            lineHeight: 1,
         });
+
+        if (this.style.textStyle.stroke) {
+            CSSBridge.applyTextStroke(style, this.style.textStyle.stroke);
+            const { height } = TextMetrics.measureText(this.text.text, style);
+            this.text.anchor.set(0, this.style.textStyle.stroke.width / height);
+        }
+        else {
+            this.text.anchor.set(0, 0);
+        }
 
         if (this.style.textStyle.dropShadow) {
             CSSBridge.applyTextShadow(
-                this.text,
                 style,
                 this.style.textStyle.dropShadow,
                 textStyleFill2int(style.fill) ?? this.extendedLink.coreElement.renderer.colors.text.rgb
             );
-        }
-
-        if (this.style.textStyle.stroke) {
-            CSSBridge.applyTextStroke(style, this.style.textStyle.stroke)
         }
 
         return style;
@@ -146,8 +152,8 @@ export abstract class LinkText extends Container {
 
     applyCSSChanges(): void {
         this.text.style = this.getTextStyle();
-        this.text.position.set(this.style.padding.left, this.style.padding.top);
-
+        this.text.position.set(this.style.padding.left, this.style.padding.right);
+        this.text.anchor.set(0, 0);
 
         if (this.needsGraphicsBackground()) {
             this.drawGraphics(CSSBridge.backgroundColor);
@@ -160,16 +166,14 @@ export abstract class LinkText extends Container {
             this.background.destroy();
             this.background = undefined;
         }
-
-        this.pivot.set(0.5 * this.width / this.scale.x, 0.5 * this.height / this.scale.y);
     }
 
     private getWidth(): number {
-        return this.text.width + this.style.padding.left + this.style.padding.right
+        return TextMetrics.measureText(this.text.text, this.text.style).width + this.style.padding.left + this.style.padding.right;
     }
 
     private getHeight(): number {
-        return this.text.height + this.style.padding.top + this.style.padding.bottom;
+        return TextMetrics.measureText(this.text.text, this.text.style).fontProperties.fontSize + (this.style.textStyle.stroke?.width ?? 0) + this.style.padding.top + this.style.padding.bottom;
     }
 
     private drawGraphics(backgroundColor: ColorSource): void {

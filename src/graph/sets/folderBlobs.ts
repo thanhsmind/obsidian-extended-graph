@@ -1,6 +1,6 @@
 import { TFolder } from "obsidian";
 import { GraphNode } from "obsidian-typings";
-import { Container, Graphics, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Point, Text, TextStyle } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
 import {
     CSSFolderStyle,
@@ -23,6 +23,7 @@ import {
 export class FolderBlob {
     readonly path: string;
     folderStyle: CSSFolderStyle;
+    textAnchor: Point;
     nodes: GraphNode[] = [];
     area: Graphics;
     text: Text;
@@ -66,15 +67,17 @@ export class FolderBlob {
 
         if (this.folderStyle.textStyle.textStyle.dropShadow && this.text) {
             CSSBridge.applyTextShadow(
-                this.text,
                 this.textStyle,
                 this.folderStyle.textStyle.textStyle.dropShadow,
                 textStyleFill2int(this.textStyle.fill) ?? this.nodes.first()?.renderer.colors.text.rgb ?? 0
             );
         }
+        else {
+            this.text.anchor.set(this.textAnchor.x, this.textAnchor.y);
+        }
 
         if (this.folderStyle.textStyle.textStyle.stroke) {
-            CSSBridge.applyTextStroke(this.textStyle, this.folderStyle.textStyle.textStyle.stroke)
+            CSSBridge.applyTextStroke(this.textStyle, this.folderStyle.textStyle.textStyle.stroke);
         }
 
         if (this.text) this.text.style = this.textStyle;
@@ -157,18 +160,19 @@ export class FolderBlob {
         this.text.style.letterSpacing = this.folderStyle.textStyle.textStyle.letterSpacing * t;
         switch (this.folderStyle.textStyle.align) {
             case 'center':
-                this.text.anchor.set(0.5, 0);
+                this.textAnchor = new Point(0.5, 0);
                 this.text.x = this.BBox.left + 0.5 * (this.BBox.right - this.BBox.left);
                 break;
             case 'left':
-                this.text.anchor.set(0, 0);
+                this.textAnchor = new Point(0, 0);
                 this.text.x = this.BBox.left + this.folderStyle.padding.left;
                 break;
             case 'right':
-                this.text.anchor.set(1, 0);
+                this.textAnchor = new Point(1, 0);
                 this.text.x = this.BBox.right - this.folderStyle.padding.right;
                 break;
         }
+        this.text.anchor.set(this.textAnchor.x, this.textAnchor.y);
 
         this.text.y = this.BBox.top + this.folderStyle.padding.top;
         this.text.scale.set(1 / t);

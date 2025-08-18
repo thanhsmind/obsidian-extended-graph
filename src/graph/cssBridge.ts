@@ -1,6 +1,6 @@
 import { Component } from "obsidian";
 import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
-import { Text, TextStyle, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
+import { Point, Text, TextMetrics, TextStyle, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
 import { ExtendedGraphInstances, GraphInstances } from "src/pluginInstances";
 import * as Color from 'src/colors/color-bits';
 import { pathParse } from "src/internal";
@@ -512,36 +512,14 @@ export class CSSBridge extends Component {
         return `${Color.getRed(color)}, ${Color.getGreen(color)}, ${Color.getBlue(color)}`;
     }
 
-    static applyTextShadow(text: Text, textStyle: TextStyle, shadow: CSSTextShadowStyle, textColor: Color.Color) {
+    static applyTextShadow(textStyle: TextStyle, shadow: CSSTextShadowStyle, textColor: Color.Color) {
         textStyle.dropShadow = true;
         textStyle.dropShadowAlpha = shadow.alpha;
         textStyle.dropShadowBlur = shadow.blur;
         textStyle.dropShadowColor = shadow.useCurrentColor ? textColor : shadow.color;
-        textStyle.dropShadowDistance = shadow.distance;
-        textStyle.dropShadowAngle = shadow.angle;
-        textStyle.trim = true;
-        textStyle.padding = Math.max(shadow.offsetX, shadow.offsetY) + shadow.blur;
-
-        // Reposition Y-axis
-        const shadowAbove = Math.max(0, shadow.blur - shadow.offsetY);
-        const shadowBelow = Math.max(0, shadow.blur + shadow.offsetY);
-        const fontSize = typeof textStyle.fontSize === "number" ? textStyle.fontSize : parseFloat(textStyle.fontSize);
-        const yRatio = 1 - (fontSize + shadowBelow) / (fontSize + shadowAbove + shadowBelow);
-        text.anchor.y = yRatio;
-
-        // Reposition X-axis
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        if (context) {
-            context.font = `${textStyle.fontSize}px ${textStyle.fontFamily}`;
-            const width = context.measureText(text.text).width;
-            const shadowLeft = Math.max(0, shadow.blur - shadow.offsetX);
-            const shadowRight = Math.max(0, shadow.blur + shadow.offsetX);
-            const xRatio = (shadowLeft + shadowLeft + width) * 0.5 / (width + shadowRight + shadowLeft);
-
-            text.anchor.x = xRatio;
-        }
-        canvas.detach();
+        textStyle.dropShadowDistance = 0; //shadow.distance;
+        textStyle.dropShadowAngle = 0; //shadow.angle;
+        textStyle.padding = shadow.blur;
     }
 
     static applyTextStroke(textStyle: TextStyle, stroke: CSSTextStrokeStyle) {
