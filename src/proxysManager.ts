@@ -7,6 +7,7 @@ type Target = {
 export class ProxysManager {
 
     readonly proxyKey = "__isExtendedGraphProxy";
+    readonly proxyFunctionKey = "__isExtendedGraphFunctionProxy";
     coreTargets: Map<any, Target> = new Map(); // key: proxy, value: core target
 
     registerProxy<T extends object>(owner: any, property: string, handler: ProxyHandler<T>): any {
@@ -20,14 +21,22 @@ export class ProxysManager {
             console.warn("Trying to create a proxy for a undefined or null property:", property);
             return;
         }
-        if (this.isProxy(coreTarget)) {
-            //console.warn("Already a proxy:", property, owner);
+        if (this.isProxy(coreTarget, owner, property)) {
+            console.warn("Already a proxy:", property, owner);
             return;
         }
 
         const proxy = new Proxy(owner[property], handler);
         owner[property] = proxy;
-        proxy[this.proxyKey] = true;
+        if (typeof coreTarget === "function") {
+            if (!(this.proxyFunctionKey in owner)) {
+                owner[this.proxyFunctionKey] = {};
+            }
+            owner[this.proxyFunctionKey][property] = true;
+        }
+        else {
+            proxy[this.proxyKey] = true;
+        }
 
         this.coreTargets.set(proxy, {
             owner,
@@ -35,10 +44,19 @@ export class ProxysManager {
             coreTarget
         });
 
+        this.registerProxy(owner, property, handler);
         return proxy;
     }
 
-    isProxy(target: any) {
+    private isProxy(target: any, owner: any, property: string) {
+        if (typeof target === "function") {
+            if (!owner || !property) {
+                throw new Error("Can't check if the function is a proxy without an owner and a property provided.");
+            }
+            return this.proxyFunctionKey in owner
+                && property in owner[this.proxyFunctionKey]
+                && owner[this.proxyFunctionKey][property] === true;
+        }
         return this.proxyKey in target && target[this.proxyKey] === true;
     }
 
@@ -57,18 +75,21 @@ export class ProxysManager {
         if (proxy === null || proxy === undefined) {
             return;
         }
-        if (!this.isProxy(proxy)) {
-            return;
-        }
 
         const found = this.coreTargets.get(proxy);
         if (found) {
             const { owner, property, coreTarget } = found;
+            if (!this.isProxy(proxy, owner, property)) {
+                return;
+            }
             this.coreTargets.delete(proxy);
 
             if (owner[property] === proxy) {
                 owner[property] = coreTarget;
                 delete owner[property][this.proxyKey];
+                if (this.proxyFunctionKey in owner && property in owner[this.proxyFunctionKey]) {
+                    delete owner[this.proxyFunctionKey][property];
+                }
             }
             else {
                 console.warn("The core reference is no longer pointing to the proxy. Instead :");

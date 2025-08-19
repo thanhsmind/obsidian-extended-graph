@@ -150,8 +150,9 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
             || this.icon
             || (this.graphicsWrapper && this.graphicsWrapper.shape !== ShapeEnum.CIRCLE)
             || (this.instances.type === "graph" && this.instances.settings.enableFeatures["graph"].focus && this.instances.settings.focusScaleFactor !== 1)
-        ))
+        )) {
             return;
+        }
 
         const onRenderCalled = this.onRenderCalled.bind(this);
         ExtendedGraphInstances.proxysManager.registerProxy<typeof this.coreElement.render>(
