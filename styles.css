@@ -456,59 +456,64 @@ body {
         border-left: 1px solid var(--background-modifier-border);
         border-top: 1px solid var(--background-modifier-border);
         border-radius: var(--radius-l);
+    }
 
-        td {
-            padding: var(--size-2-2) var(--size-4-2);
-            border-right: 1px solid var(--background-modifier-border);
-            border-bottom: 1px solid var(--background-modifier-border);
+    td {
+        padding: var(--size-2-2) var(--size-4-2);
+        border-right: 1px solid var(--background-modifier-border);
+        border-bottom: 1px solid var(--background-modifier-border);
+    }
+
+    thead td:not(:last-child) {
+        border-right: none;
+    }
+
+    thead tr:first-child td:first-child {
+        border-top-left-radius: var(--radius-l);
+    }
+
+    thead tr:first-child td:last-child {
+        border-top-right-radius: var(--radius-l);
+    }
+
+    thead:last-child tr:last-child td:first-child,
+    tbody:last-child tr:last-child td:first-child {
+        border-bottom-left-radius: var(--radius-l);
+    }
+
+    thead:last-child tr:last-child td:last-child,
+    tbody:last-child tr:last-child td:last-child {
+        border-bottom-right-radius: var(--radius-l);
+    }
+
+    thead {
+        background-color: var(--background-secondary);
+        text-transform: capitalize;
+
+        --icon-color: var(--text-faint);
+
+        .clickable-icon {
+            display: inline-block;
+            vertical-align: middle;
+            padding: 2px;
+            margin-left: var(--size-4-2);
         }
 
-        thead td:not(:last-child) {
-            border-right: none;
+        .sorted-asc,
+        .sorted-desc {
+            --icon-color: var(--text-normal);
         }
 
-        thead tr:first-child td:first-child {
-            border-top-left-radius: var(--radius-l);
-        }
-
-        thead tr:first-child td:last-child {
-            border-top-right-radius: var(--radius-l);
-        }
-
-        thead:last-child tr:last-child td:first-child,
-        tbody:last-child tr:last-child td:first-child {
-            border-bottom-left-radius: var(--radius-l);
-        }
-
-        thead:last-child tr:last-child td:last-child,
-        tbody:last-child tr:last-child td:last-child {
-            border-bottom-right-radius: var(--radius-l);
-        }
-
-        thead {
-            background-color: var(--background-secondary);
-
-            --icon-color: var(--text-faint);
-
-            .clickable-icon {
-                display: inline-block;
-                vertical-align: middle;
-                padding: 2px;
-                margin-left: var(--size-4-2);
-            }
-
-            .sorted-asc,
-            .sorted-desc {
-                --icon-color: var(--text-normal);
-            }
-
-            .sorted-desc svg {
-                transform: scaleY(-1);
-            }
+        .sorted-desc svg {
+            transform: scaleY(-1);
         }
     }
 
     .col-enabled {
+        width: 7em;
+    }
+
+    .col-selected {
         width: 7em;
     }
 
@@ -618,7 +623,7 @@ body {
 
 /* MODAL OPEN EXTERNAL LINKS */
 
-.graph-modal-open-external-link .modal-content{
+.graph-modal-open-external-link .modal-content {
     display: flex;
     flex-direction: column;
     gap: var(--size-4-2);

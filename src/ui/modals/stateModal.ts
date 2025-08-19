@@ -48,6 +48,7 @@ export class GraphStateModal extends Modal {
 
     private addNodes() {
         const hasRows = this.instances.nodesSet.extendedElementsMap.size > 0;
+        const nodesSelected = Object.keys(this.instances.nodesSet.selectedNodes).length > 0;
 
         this.createHeading(t("plugin.nodes"), "nodes", hasRows);
 
@@ -64,6 +65,10 @@ export class GraphStateModal extends Modal {
         colgroup.createEl("col").addClass("col-filename");
         cell = tr_thead.insertCell(); cell.setText(t("controls.enabled"));
         colgroup.createEl("col").addClass("col-enabled");
+        if (nodesSelected) {
+            cell = tr_thead.insertCell(); cell.setText(t("inputs.selected"));
+            colgroup.createEl("col").addClass("col-selected");
+        }
         for (const [key, manager] of this.instances.nodesSet.managers) {
             cell = tr_thead.insertCell(); cell.setText(key);
             colgroup.createEl("col").addClass("col-key-" + key);
@@ -91,6 +96,9 @@ export class GraphStateModal extends Modal {
             cell = tr.insertCell(); cell.setText(nodeData.path);
             cell = tr.insertCell(); nodeData.link ? cell.appendChild(nodeData.link) : cell.setText(id);
             cell = tr.insertCell(); if (!extendedNode.isAnyManagerDisabled()) cell.setText("✓");
+            if (nodesSelected) {
+                cell = tr.insertCell(); if (id in this.instances.nodesSet.selectedNodes) cell.setText("✓");
+            }
 
             for (const [key, manager] of this.instances.nodesSet.managers) {
                 cell = tr.insertCell();
