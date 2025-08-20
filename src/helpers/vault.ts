@@ -1,6 +1,6 @@
 import { getAllTags, getLinkpath, TagCache, TFile } from "obsidian";
 import { DataviewApi } from "obsidian-dataview";
-import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, ExtendedGraphInstances, TAG_KEY, pathParse } from "src/internal";
+import { canonicalizeVarName, ExtendedGraphSettings, FOLDER_KEY, getDataviewPageProperties, getDataviewPlugin, ExtendedGraphInstances, TAG_KEY, pathParse, SettingQuery } from "src/internal";
 
 export function getFile(path: string): TFile | null {
     return ExtendedGraphInstances.app.vault.getFileByPath(path);
@@ -10,14 +10,20 @@ export function getFileInteractives(interactive: string, file: TFile, settings?:
     if (ExtendedGraphInstances.app.metadataCache.isUserIgnored(file.path)) return new Set();
 
     if (file.extension !== "md") return new Set<string>();
+
+    let results: Set<string>;
     switch (interactive) {
         case TAG_KEY:
-            return getTags(file);
+            results = getTags(file);
+            break;
         case FOLDER_KEY:
-            return getFolderPath(file);
+            results = getFolderPath(file);
+            break;
         default:
-            return getProperty(settings ?? ExtendedGraphInstances.settings, interactive, file);
+            results = getProperty(settings ?? ExtendedGraphInstances.settings, interactive, file);
+            break;
     }
+    return new Set([...results].filter(type => !SettingQuery.excludeType(settings ?? ExtendedGraphInstances.settings, interactive, type)));
 }
 
 export function getNumberOfFileInteractives(interactive: string, file: TFile, type: string, ignoreInlineLinks: boolean): number {
