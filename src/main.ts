@@ -38,7 +38,6 @@ export default class ExtendedGraphPlugin extends Plugin {
         await this.loadSettings();
 
         this.addIcons();
-        this.createPinIconUrl();
 
         this.initializeInvalidKeys();
         this.addSettingTab(new ExtendedGraphSettingTab(this));
@@ -68,9 +67,9 @@ export default class ExtendedGraphPlugin extends Plugin {
     }
 
     private addIcons(): void {
+        const ratio = 100 / 24;
         addIcon("git-fork-sparkles", `<g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="git-fork-sparkles"><circle cx="50" cy="76" r="12"/><circle cx="25" cy="25" r="12"/><circle cx="76" cy="25" r="12"/><path d="M76 36v8c0 2.4-1.6 4-4 4H28c-2.4 0-4-1.6-4-4V36"/><path d="M50 50v12"/><path d="m 82.03746,54.745552 v 16"/><path d="m 90.03746,62.745552  h -16"/><path d="m 72.5023,80.767008 v 8"/><path d="m 76.5023,84.767008 h -8"/><path d="m 14.7461264,54.15018 v 8"/><path d="m 18.7461264,58.15018 h -8"/></g>`);
 
-        const ratio = 100 / 24;
         if (!getIcon("squares-unite")) {
             addIcon("squares-unite", `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-squares-unite" transform="scale(${ratio})"><path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3a1 1 0 0 0 1 1h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-3a1 1 0 0 0-1-1z"/></g>`);
         }
@@ -80,6 +79,8 @@ export default class ExtendedGraphPlugin extends Plugin {
         if (!getIcon("squares-intersect")) {
             addIcon("squares-intersect", `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon lucide-squares-intersect" transform="scale(${ratio})"><path d="M10 22a2 2 0 0 1-2-2"/><path d="M14 2a2 2 0 0 1 2 2"/><path d="M16 22h-2"/><path d="M2 10V8"/><path d="M2 4a2 2 0 0 1 2-2"/><path d="M20 8a2 2 0 0 1 2 2"/><path d="M22 14v2"/><path d="M22 20a2 2 0 0 1-2 2"/><path d="M4 16a2 2 0 0 1-2-2"/><path d="M8 10a2 2 0 0 1 2-2h5a1 1 0 0 1 1 1v5a2 2 0 0 1-2 2H9a1 1 0 0 1-1-1z"/><path d="M8 2h2"/></g>`);
         }
+
+        this.createPinIconUrl();
     }
 
     private initializeInvalidKeys(): void {
@@ -96,14 +97,28 @@ export default class ExtendedGraphPlugin extends Plugin {
     private createPinIconUrl() {
         const bodyStyle = getComputedStyle(document.body);
         const stroke = bodyStyle.getPropertyValue("--color-base-00");
+        const accentColor = ExtendedGraphInstances.app.getAccentColor();
 
-        const svg = getIcon("pin");
+        const useVelocity = this.app.vault.getConfig("cssTheme") === "Velocity";
+        if (useVelocity) {
+            if (!getIcon("pin-safety")) {
+                const ratio = 100 / 24;
+                addIcon("pin-safety", `<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-pin-safety" transform="scale(${ratio})"><path d="M20.8 3.2c-1.6-1.6-4.1-1.6-5.7 0L12.3 6S15 9 18 6c-3 3 0 5.7 0 5.7l2.8-2.8c1.6-1.6 1.6-4.2 0-5.7"/><path d="m7.1 21.1 10.3-10.2"/><circle cx="5" cy="19" r="3"/><path d="M2.9 16.9 13.1 6.6"/></g>`);
+            }
+        }
+
+        const svg = useVelocity ? getIcon("pin-safety") : getIcon("pin");
         if (svg) {
-            const tail = svg.getElementsByTagName("path")[0];
-            const head = svg.getElementsByTagName("path")[1];
-            head.setAttribute("fill", ExtendedGraphInstances.app.getAccentColor());
-            head.setAttribute("stroke", stroke);
-            tail.setAttribute("stroke", ExtendedGraphInstances.app.getAccentColor());
+            if (!useVelocity) {
+                const tail = svg.getElementsByTagName("path")[0];
+                const head = svg.getElementsByTagName("path")[1];
+                head.setAttribute("fill", accentColor);
+                head.setAttribute("stroke", stroke);
+                tail.setAttribute("stroke", accentColor);
+            }
+            else {
+                svg.getElementsByTagName("g")[0].setAttribute("stroke", accentColor);
+            }
 
             const s = new XMLSerializer();
             ExtendedGraphInstances.pinSVGDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(s.serializeToString(svg))}`
