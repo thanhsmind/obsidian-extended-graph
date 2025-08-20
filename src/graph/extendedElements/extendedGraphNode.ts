@@ -373,15 +373,16 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected getFillColor(): GraphColorAttributes | undefined {
         if (this.isCurrentNode && this.instances.settings.currentNode.useColor) {
+            console.log(this.instances.renderer.colors.fillFocused);
             return {
                 rgb: hex2int(this.instances.settings.currentNode.color),
-                a: this.instances.renderer.colors.fillFocused.a
+                a: this.instances.renderer.colors.fillFocused.a > 0 ? this.instances.renderer.colors.fillFocused.a : 1
             }
         }
         if (this.icon?.color && this.instances.settings.useIconColorForBackgroud) {
             return {
                 rgb: hex2int(this.icon.color),
-                a: this.instances.renderer.colors.circle.a
+                a: this.instances.renderer.colors.fill.a
             }
         }
         return;
