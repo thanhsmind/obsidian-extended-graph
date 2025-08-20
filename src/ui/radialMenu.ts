@@ -78,7 +78,7 @@ export class RadialMenu extends Menu {
 
     private onClickCenter() {
         if (this.parentMenu) {
-            this.switchWhichMenu(this.parentMenu as RadialMenu);
+            this.switchWhithMenu(this.parentMenu as RadialMenu);
         }
         else {
             this.hide();
@@ -141,10 +141,10 @@ export class RadialMenu extends Menu {
         const submenu = this.radialSubmenus.get(item.id);
         if (!submenu) return;
 
-        this.switchWhichMenu(submenu);
+        this.switchWhithMenu(submenu);
     }
 
-    private switchWhichMenu(menu: RadialMenu) {
+    private switchWhithMenu(menu: RadialMenu) {
         if (!this.position) {
             this.position = this.dom.getBoundingClientRect();
         }
@@ -154,6 +154,11 @@ export class RadialMenu extends Menu {
         this.parentMenu = parent;
         this.menuManager.setCurrentMenu(menu);
         menu.showAtPosition({ x: this.position.x, y: this.position.y });
+    }
+
+    override close(): void {
+        this.dom.doc.body.querySelectorAll(".tooltip.extended-graph-tooltip").forEach(el => el.detach());
+        super.close();
     }
 }
 
@@ -299,6 +304,7 @@ export class RadialMenuManager {
         else {
             this.instances.graphEventsDispatcher.inputsManager.pinNodeFromId(this.nodeID);
         }
+        this.menu.close();
     }
 
     private onShowInteractive(key: string): void {
