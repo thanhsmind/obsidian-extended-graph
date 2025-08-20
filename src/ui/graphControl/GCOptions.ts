@@ -126,6 +126,7 @@ export class GCOptions extends GCSection {
         return new Setting(this.treeItemChildren)
             .setName(t("features.pinMultipleNodes"))
             .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("extended-graph-pin");
                 cb.setIcon('pin');
                 cb.onClick(() => {
                     const instances = ExtendedGraphInstances.graphsManager.allInstances.get(this.view.leaf.id);
@@ -144,6 +145,7 @@ export class GCOptions extends GCSection {
         return new Setting(this.treeItemChildren)
             .setName(t("features.unpinAllNodes"))
             .addExtraButton(cb => {
+                cb.extraSettingsEl.addClass("extended-graph-pin-off");
                 cb.setIcon('pin-off');
                 cb.onClick(() => {
                     const instances = ExtendedGraphInstances.graphsManager.allInstances.get(this.view.leaf.id);

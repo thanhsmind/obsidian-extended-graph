@@ -322,12 +322,15 @@ export class InputsManager {
     onNodeMenuOpened(menu: Menu, file: TFile) {
         menu.addSections(['extended-graph']);
         menu.addItem(cb => {
-            cb.setIcon("pin");
             if (this.instances.nodesSet.isNodePinned(file.path)) {
+                cb.iconEl.addClass("extended-graph-pin-off");
+                cb.setIcon("pin-off");
                 cb.setTitle(t("features.unpinNode"));
                 cb.onClick(() => { this.unpinNode(file); });
             }
             else {
+                cb.iconEl.addClass("extended-graph-pin");
+                cb.setIcon("pin");
                 cb.setTitle(t("features.pinNode"));
                 cb.onClick(() => { this.pinNode(file); });
             }
