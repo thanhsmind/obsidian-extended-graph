@@ -293,8 +293,23 @@ function hexValue(c: number) {
 
 
 export function parseCSS(color: string): GraphColorAttributes {
-    const chromaColor = chroma(color);
-    return { rgb: chromaColor.num(), a: chromaColor.alpha() }
+    try {
+        const chromaColor = chroma(color);
+        return { rgb: chromaColor.num(), a: chromaColor.alpha() }
+    }
+    catch (error) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            throw error;
+        }
+        canvas.width = 1;
+        canvas.height = 1;
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const rgb = ctx.getImageData(0, 0, 1, 1).data;
+        return { rgb: newColor(rgb[0], rgb[1], rgb[2]), a: rgb[3] / 255 };
+    }
 }
 
 
