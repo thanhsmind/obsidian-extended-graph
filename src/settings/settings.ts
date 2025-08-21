@@ -485,6 +485,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
 export class SettingQuery {
     static excludeType(settings: ExtendedGraphSettings, key: string, type: string) {
         if (INVALID_KEYS.hasOwnProperty(key) && INVALID_KEYS[key].includes(type)) return true;
+        if (!settings.interactiveSettings.hasOwnProperty(key)) return false;
         if (!settings.interactiveSettings[key].unselected || settings.interactiveSettings[key].unselected.includes(type)) return true;
         if ("excludeRegex" in settings.interactiveSettings[key]) {
             for (const reg of settings.interactiveSettings[key].excludeRegex.regex.split("\n")) {
