@@ -1,6 +1,6 @@
 import { IDestroyOptions } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, tangentQuadratic } from "src/internal";
+import { hex2int, LinkCurveGraphics, ManagerGraphics, pixiColor2int, smoothColorChange, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -21,7 +21,11 @@ export class LinkCurveSingleTypeGraphics extends LinkCurveGraphics implements Ma
         this.lineStyle({ width: this.extendedLink.getThicknessScale() * renderer.fLineSizeMult / renderer.scale, color: "white" });
         this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
         if (this.extendedLink.isHighlighted()) {
-            this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
+            this.tint = (
+                this.extendedLink.coreElement.line?.worldVisible
+                    ? this.extendedLink.coreElement.line.tint
+                    : this.extendedLink.siblingLink?.coreElement.line?.tint
+            ) ?? smoothColorChange(this.tint as Color.Color, this.extendedLink.coreElement.renderer.colors.lineHighlight.rgb);
         }
         else {
             this.tint = this.color;

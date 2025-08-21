@@ -178,3 +178,15 @@ export function getEmojiColor(emoji: string): Color.Color | undefined {
         return rgb2int([avgR, avgG, avgB]);
     }
 }
+
+function smoothChannelChange(e: number, t: number, n?: number) {
+    return void 0 === n && (n = .9),
+        e * n + t * (1 - n)
+}
+export function smoothColorChange(from: Color.Color, to: Color.Color) {
+    return Color.newColor(
+        smoothChannelChange(Color.getRed(from), Color.getRed(to)),
+        smoothChannelChange(Color.getGreen(from), Color.getGreen(to)),
+        smoothChannelChange(Color.getBlue(from), Color.getBlue(to))
+    );
+}

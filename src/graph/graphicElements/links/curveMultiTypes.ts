@@ -1,6 +1,6 @@
 import { IDestroyOptions } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { hex2int, lengthSegment, LINK_KEY, LinkCurveGraphics, ManagerGraphics, pixiColor2int, quadratic, tangentQuadratic } from "src/internal";
+import { hex2int, smoothColorChange, lengthSegment, LINK_KEY, LinkCurveGraphics, ManagerGraphics, pixiColor2int, quadratic, tangentQuadratic } from "src/internal";
 
 
 export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements ManagerGraphics {
@@ -26,7 +26,11 @@ export class LinkCurveMultiTypesGraphics extends LinkCurveGraphics implements Ma
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(this.bezier.P0.x, this.bezier.P0.y).quadraticCurveTo(this.bezier.P1.x, this.bezier.P1.y, this.bezier.P2.x, this.bezier.P2.y);
-            this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
+            this.tint = (
+                this.extendedLink.coreElement.line?.worldVisible
+                    ? this.extendedLink.coreElement.line.tint
+                    : this.extendedLink.siblingLink?.coreElement.line?.tint
+            ) ?? smoothColorChange(this.tint as Color.Color, this.extendedLink.coreElement.renderer.colors.lineHighlight.rgb);
             if (this.extendedLink.instances.settings.displayLinkTypeLabel) {
                 if (activeTypes.length === 1) {
                     this.setTypePosition(activeTypes[0], this.bezier.P0, this.bezier.P1, this.bezier.P2);

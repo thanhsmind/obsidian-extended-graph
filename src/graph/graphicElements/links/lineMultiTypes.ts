@@ -1,6 +1,6 @@
 import { IDestroyOptions, Graphics } from "pixi.js";
 import * as Color from 'src/colors/color-bits';
-import { ExtendedGraphLink, hex2int, InteractiveManager, lengthSegment, LINK_KEY, LinkArrow, ManagerGraphics, pixiAddChild, pixiColor2int } from "src/internal";
+import { ExtendedGraphLink, hex2int, InteractiveManager, lengthSegment, LINK_KEY, LinkArrow, ManagerGraphics, pixiAddChild, pixiColor2int, smoothColorChange } from "src/internal";
 
 
 export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraphics {
@@ -119,7 +119,11 @@ export class LinkLineMultiTypesGraphics extends Graphics implements ManagerGraph
         if (this.extendedLink.isHighlighted()) {
             this.lineStyle({ width: thickness, color: "white" });
             this.moveTo(P0_.x, P0_.y).lineTo(P2_.x, P2_.y);
-            this.tint = (this.extendedLink.coreElement.line?.worldVisible ? this.extendedLink.coreElement.line.tint : this.extendedLink.siblingLink?.coreElement.line?.tint) ?? this.tint;
+            this.tint = (
+                this.extendedLink.coreElement.line?.worldVisible
+                    ? this.extendedLink.coreElement.line.tint
+                    : this.extendedLink.siblingLink?.coreElement.line?.tint
+            ) ?? smoothColorChange(this.tint as Color.Color, this.extendedLink.coreElement.renderer.colors.lineHighlight.rgb);
             if (this.extendedLink.instances.settings.displayLinkTypeLabel) {
                 if (activeTypes.length === 1) {
                     this.setTypePosition(activeTypes[0], P0_, P2_);
