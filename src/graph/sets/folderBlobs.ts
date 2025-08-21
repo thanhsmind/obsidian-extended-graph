@@ -72,9 +72,6 @@ export class FolderBlob {
                 textStyleFill2int(this.textStyle.fill) ?? this.nodes.first()?.renderer.colors.text.rgb ?? 0
             );
         }
-        else {
-            this.text.anchor.set(this.textAnchor.x, this.textAnchor.y);
-        }
 
         if (this.folderStyle.textStyle.textStyle.stroke) {
             CSSBridge.applyTextStroke(this.textStyle, this.folderStyle.textStyle.textStyle.stroke);

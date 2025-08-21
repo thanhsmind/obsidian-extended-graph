@@ -198,7 +198,7 @@ export function getAllVaultProperties(settings: ExtendedGraphSettings): string[]
 
 function getFolderPath(file: TFile): Set<string> {
     const set = new Set<string>();
-    file.parent ? set.add(file.parent.path) : '';
+    if (file.parent) set.add(file.parent.path);
     return set;
 }
 

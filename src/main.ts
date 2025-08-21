@@ -20,7 +20,6 @@ import {
     StatesManager,
     TAG_KEY
 } from './internal';
-import { pathParse } from 'src/helpers/path';
 
 // https://pixijs.download/v7.4.2/docs/index.html
 
@@ -337,7 +336,7 @@ export default class ExtendedGraphPlugin extends Plugin {
             colors: [],
             unselected: [],
             excludeRegex: { regex: "", flags: "" },
-            noneType: ".",
+            noneType: "/",
             showOnGraph: true,
             enableByDefault: false,
         };
