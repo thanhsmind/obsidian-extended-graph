@@ -91,23 +91,25 @@ export class RadialMenu extends Menu {
         const onMouseLeave = this.onMouseLeave.bind(this);
 
         for (let i = 0; i < items.length; ++i) {
+            const currentItem = items[i];
             this.addItem((item) => {
-                const darkInterp = textColor(this.menuManager.instances.cssBridge.getThemeColor(items[i].color), "dark", "light") === "dark" ? "100%" : "0%";
+                const darkInterp = textColor(this.menuManager.instances.cssBridge.getThemeColor(currentItem.color), "dark", "light") === "dark" ? "100%" : "0%";
                 item.dom.style.setProperty("--dark-text-interp", darkInterp);
-                item.dom.style.setProperty("--color-rgb", `var(--color-${items[i].color}-rgb)`);
+                item.dom.style.setProperty("--color-rgb", `var(--color-${currentItem.color}-rgb)`);
                 item.dom.style.setProperty("--rotation", `${-22.5 + (i - 1) * 45}deg`);
-                item.setTitle(items[i].title.slice(0, Math.min(3, items[i].title.length)).toUpperCase())
-                    .setIcon(items[i].icon)
+
+                item.setTitle(currentItem.title.slice(0, Math.min(3, currentItem.title.length)).toUpperCase())
+                    .setIcon(currentItem.icon)
                     .onClick(() => {
-                        onClick(items[i]);
+                        onClick(currentItem);
                     });
 
-                item.dom.addEventListener('mouseenter', (event) => onMouseEnter(event, items[i]));
-                item.dom.addEventListener('mouseleave', (event) => onMouseLeave(event, items[i]));
+                item.dom.addEventListener('mouseenter', (event) => onMouseEnter(event, currentItem));
+                item.dom.addEventListener('mouseleave', (event) => onMouseLeave(event, currentItem));
 
-                const subitems = items[i].items;
+                const subitems = currentItem.items;
                 if (subitems && subitems.length > 0) {
-                    this.radialSubmenus.set(items[i].id, new RadialMenu(this.menuManager, subitems, this.level + 1, this));
+                    this.radialSubmenus.set(currentItem.id, new RadialMenu(this.menuManager, subitems, this.level + 1, this));
                 }
             })
         }
@@ -238,7 +240,7 @@ export class RadialMenuManager {
         }
 
         // File node
-        if (this.nodeType === "") {
+        if (this.nodeType === "" || this.nodeType === "focused") {
             if (this.instances.settings.enableFeatures[this.instances.type]['tags'] && (this.getInteractivesTypes(TAG_KEY)?.size ?? 0) > 0) {
                 this.allItems.push({
                     id: 'tags',
@@ -260,7 +262,7 @@ export class RadialMenuManager {
                     items: []
                 };
 
-                const colors = ['red', 'orange ', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
+                const colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
                 let i = 0;
                 for (const [prop, enable] of Object.entries(this.instances.settings.additionalProperties)) {
                     if (enable[this.instances.type] && (this.getInteractivesTypes(prop)?.size ?? 0) > 0) {
