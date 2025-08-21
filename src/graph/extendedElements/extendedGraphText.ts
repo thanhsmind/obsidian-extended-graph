@@ -206,6 +206,7 @@ export class ExtendedGraphText {
             coreTextPositionCallback.call(position.scope);
         }
 
+        this.coreElement.fontDirty = true;
         this.coreElement.moveText = 0;
     }
 
@@ -226,7 +227,7 @@ export class ExtendedGraphText {
         if (!text || !circle) return;
         let lowestPoint = text.position.y;
         // Get the lowest point with arrows
-        if (this.instances.engine.options.showArrow) {
+        if (this.instances.renderer.fShowArrow) {
             lowestPoint = Object.values(node.reverse).reduce((acc, link) => {
                 if (link.arrow && link.arrow.visible) {
                     const bounds = link.arrow.getBounds();
