@@ -680,7 +680,9 @@ export class GraphEventsDispatcher extends Component {
 
         // Disable extended links
         for (const extendedLink of this.instances.linksSet.extendedElementsMap.values()) {
-            const needToDisable = !(extendedLink.coreElement.source.id in data.nodes) || !(extendedLink.coreElement.target.id in data.nodes);
+            const needToDisable = !(extendedLink.coreElement.source.id in data.nodes)
+                || !(extendedLink.coreElement.target.id in data.nodes)
+                || !(extendedLink.coreElement.target.id in data.nodes[extendedLink.coreElement.source.id].links);
             if (extendedLink.isEnabled && needToDisable) {
                 extendedLink.disable();
             }
