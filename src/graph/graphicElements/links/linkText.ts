@@ -152,7 +152,7 @@ export abstract class LinkText extends Container {
 
     applyCSSChanges(): void {
         this.text.style = this.getTextStyle();
-        this.text.position.set(this.style.padding.left, this.style.padding.right);
+        this.text.position.set(this.style.padding.left, this.style.padding.top);
         this.text.anchor.set(0, 0);
 
         if (this.needsGraphicsBackground()) {
