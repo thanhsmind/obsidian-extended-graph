@@ -1,6 +1,6 @@
 import { Component } from "obsidian";
-import { GraphColorAttributes, GraphRenderer } from "obsidian-typings";
-import { Point, Text, TextMetrics, TextStyle, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
+import { GraphColorAttributes, GraphRenderer, LocalGraphView } from "obsidian-typings";
+import { TextStyle, TextStyleFill, TextStyleFontStyle, TextStyleFontVariant, TextStyleFontWeight } from "pixi.js";
 import { ExtendedGraphInstances, GraphInstances } from "src/pluginInstances";
 import * as Color from 'src/colors/color-bits';
 import { pathParse } from "src/internal";
@@ -283,11 +283,19 @@ export class CSSBridge extends Component {
     private getGraphComputedStyle(cssClass: string, data: { path?: string, source?: string, target?: string, isCurrent?: boolean } = {}): CSSStyleDeclaration | undefined {
         if (!this.instances.extendedStyleEl) return;
 
+        const graphType = this.instances.type === "localgraph" ? "graph-local" : "graph-global";
+
         this.detachCSSDiv();
         const div = this.instances.extendedStyleEl.ownerDocument.createElement("div", {});
         this.instances.extendedStyleEl.ownerDocument.body.appendChild(div);
-        div.classList.add("graph-view", cssClass);
+        div.classList.add("graph-view", graphType, cssClass);
         div.id = cssDivId;
+        if (this.instances.type === "localgraph") {
+            const localView = this.instances.view as LocalGraphView;
+            if (localView.file) {
+                div.setAttribute('data-focus-file', localView.file.path);
+            }
+        }
         if (data.path) div.setAttribute('data-path', data.path);
         if (data.source) div.setAttribute('data-source', data.source);
         if (data.target) div.setAttribute('data-target', data.target);
