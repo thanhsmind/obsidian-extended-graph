@@ -1,5 +1,5 @@
-import { Component, FileView, MarkdownRenderer, TFile, WorkspaceLeaf } from "obsidian";
-import { Assets, Graphics, IPointData, Rectangle, Texture } from "pixi.js";
+import { Component, MarkdownRenderer, TFile } from "obsidian";
+import { Assets, IPointData, Rectangle, Texture } from "pixi.js";
 import { GraphNode } from "obsidian-typings";
 import {
     AbstractSet,
@@ -13,7 +13,6 @@ import {
     GraphInstances,
     InteractiveManager,
     Media,
-    NodeShape,
     Pinner,
     ExtendedGraphInstances,
     CSSBridge
@@ -465,6 +464,9 @@ export class NodesSet extends AbstractSet<GraphNode> {
             return false;
         }
 
+        const links: URL[] = [];
+
+        // Process the markdown content
         const data = await ExtendedGraphInstances.app.vault.cachedRead(file);
         let componentCreated = false;
         if (!component) {
@@ -484,7 +486,6 @@ export class NodesSet extends AbstractSet<GraphNode> {
             component.unload();
         }
 
-        const links: URL[] = [];
         for (const link of Array.from(div.getElementsByClassName("external-link"))) {
             const href = link.getAttr("href");
             if (href) {
@@ -492,6 +493,32 @@ export class NodesSet extends AbstractSet<GraphNode> {
             }
         }
         this.cachedExternalLinks[id] = links;
+
+        const parseString = (str: string) => {
+            try {
+                const url = new URL(str);
+                if (url.protocol === "http:" || url.protocol === "https:") {
+                    links.push(url);
+                    return true;
+                }
+            } catch (error) {
+                return false;
+            }
+            return false;
+        }
+
+        // Process the frontmatter
+        const frontmatter = ExtendedGraphInstances.app.metadataCache.getFileCache(file)?.frontmatter;
+        for (const property in frontmatter) {
+            if (typeof frontmatter[property] === "string") {
+                parseString(frontmatter[property]);
+            }
+            else if (Array.isArray(frontmatter[property])) {
+                for (const value of frontmatter[property]) {
+                    parseString(value);
+                }
+            }
+        }
 
         return links.length > 0;
     }
