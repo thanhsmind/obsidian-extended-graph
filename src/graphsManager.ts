@@ -193,58 +193,50 @@ export class GraphsManager extends Component {
     }
 
     initializeNodesSizeCalculator(): void {
-        try {
-            this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-            this.nodesSizeCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats);
-        } catch (error) {
+        this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
+        this.nodesSizeCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats).catch((error) => {
             console.error(error);
             new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
             ExtendedGraphInstances.settings.nodesSizeFunction = 'default';
             ExtendedGraphInstances.plugin.saveSettings();
             this.nodesSizeCalculator = undefined;
-        }
+        });
     }
 
     initializeNodesColorCalculator(): void {
-        try {
-            this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-            this.nodesColorCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats);
-        } catch (error) {
+        this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
+        this.nodesColorCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats).catch((error) => {
             console.error(error);
             new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
             ExtendedGraphInstances.settings.nodesColorFunction = 'default';
             ExtendedGraphInstances.plugin.saveSettings();
             this.nodesColorCalculator = undefined;
-        }
+        });
     }
 
     initializeLinksSizeCalculator(): void {
-        try {
-            if (this.canUseLinkStatFunction('size')) {
-                this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
-                this.linksSizeCalculator?.computeStats();
-            }
-        } catch (error) {
-            console.error(error);
-            ExtendedGraphInstances.settings.linksSizeFunction = 'default';
-            ExtendedGraphInstances.plugin.saveSettings();
-            new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
-            this.linksSizeCalculator = undefined;
+        if (this.canUseLinkStatFunction('size')) {
+            this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
+            this.linksSizeCalculator?.computeStats().catch((error) => {
+                console.error(error);
+                ExtendedGraphInstances.settings.linksSizeFunction = 'default';
+                ExtendedGraphInstances.plugin.saveSettings();
+                new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
+                this.linksSizeCalculator = undefined;
+            });
         }
     }
 
     initializeLinksColorCalculator(): void {
-        try {
-            if (this.canUseLinkStatFunction('color')) {
-                this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
-                this.linksColorCalculator?.computeStats();
-            }
-        } catch (error) {
-            console.error(error);
-            ExtendedGraphInstances.settings.linksColorFunction = 'default';
-            ExtendedGraphInstances.plugin.saveSettings();
-            new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
-            this.linksColorCalculator = undefined;
+        if (this.canUseLinkStatFunction('color')) {
+            this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
+            this.linksColorCalculator?.computeStats().catch((error) => {
+                console.error(error);
+                ExtendedGraphInstances.settings.linksColorFunction = 'default';
+                ExtendedGraphInstances.plugin.saveSettings();
+                new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[ExtendedGraphInstances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
+                this.linksColorCalculator = undefined;
+            });
         }
     }
 
