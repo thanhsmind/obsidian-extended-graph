@@ -437,6 +437,11 @@ export default class ExtendedGraphPlugin extends Plugin {
 
         const data = JSON.stringify(clonedSettings, null, 2);
         await this.app.vault.adapter.write(filepath, data);
+
+        // If the config is bound to a state, update the cache
+        if (clonedSettings.stateID) {
+            ExtendedGraphInstances.statesManager.cacheConfig(filepath);
+        }
     }
 
     // ============================= LAYOUT CHANGE =============================
