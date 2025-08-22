@@ -1,5 +1,5 @@
 import { GraphologyGraph } from "../graphology";
-import { NodeStat, NodeStatCalculator, ExtendedGraphInstances, GraphStatsDirection } from "src/internal";
+import { NodeStat, NodeStatCalculator, GraphStatsDirection } from "src/internal";
 import { stronglyConnectedComponents } from "graphology-components";
 import { DirectedGraph } from "graphology";
 import { topologicalSort } from "graphology-dag";
@@ -12,11 +12,11 @@ export class TopologicalSortCalculator extends NodeStatCalculator {
         super(stat, "topological", graphologyGraph);
     }
 
-    override async getStats(direction: GraphStatsDirection): Promise<void> {
+    protected override async getStats(direction: GraphStatsDirection): Promise<void> {
         if (!this.graphologyGraph) return;
         const graphology = this.graphologyGraph.graphology;
         if (!graphology) return;
-        const g = direction === "reversed" ? reverse(graphology) : direction === "undirected" ? GraphologyGraph.toUndirected(graphology) : graphology;
+        const g = direction === "reversed" ? reverse(graphology) : graphology; // Topological propagation doesn't support undirected graphs
         const components = stronglyConnectedComponents(g);
         const condensedGraph = new DirectedGraph();
         for (const [i, component] of components.entries()) {
