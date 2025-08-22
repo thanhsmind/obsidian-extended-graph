@@ -1,4 +1,3 @@
-import { OutlineFilter } from "@pixi/filter-outline";
 import { getIcon } from "obsidian";
 import { GraphColorAttributes, GraphNode, LocalGraphView } from "obsidian-typings";
 import { Graphics } from "pixi.js";
@@ -7,7 +6,6 @@ import { getFile, getFileInteractives } from "src/helpers/vault";
 import {
     colorizeSVG,
     DEFAULT_SETTINGS,
-    evaluateCMap,
     ExtendedGraphElement,
     ExtendedGraphText,
     getLinkID,
@@ -23,10 +21,10 @@ import {
     ExtendedGraphInstances,
     ShapeEnum,
     CSSBridge,
-    rgb2hex,
     getEmojiColor,
     int2hex
 } from "src/internal";
+import * as Color from 'src/colors/color-bits';
 
 export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> {
     graphicsWrapper?: NodeGraphicsWrapper;
@@ -373,7 +371,6 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
 
     protected getFillColor(): GraphColorAttributes | undefined {
         if (this.isCurrentNode && this.instances.settings.currentNode.useColor) {
-            console.log(this.instances.renderer.colors.fillFocused);
             return {
                 rgb: hex2int(this.instances.settings.currentNode.color),
                 a: this.instances.renderer.colors.fillFocused.a > 0 ? this.instances.renderer.colors.fillFocused.a : 1
@@ -381,7 +378,7 @@ export abstract class ExtendedGraphNode extends ExtendedGraphElement<GraphNode> 
         }
         if (this.icon?.color && this.instances.settings.useIconColorForBackgroud) {
             return {
-                rgb: hex2int(this.icon.color),
+                rgb: Color.parseCSS(this.icon.color).rgb,
                 a: this.instances.renderer.colors.fill.a
             }
         }
