@@ -183,6 +183,9 @@ export class GraphEventsDispatcher extends Component {
                     this.instances.layersManager.updateLayers();
                     this.instances.engine.render();
                 }
+                if (this.instances.stateData) {
+                    this.instances.statePinnedNodes = structuredClone(this.instances.stateData.pinNodes) ?? {};
+                }
             }
             else {
                 this.bindStageEvents();
