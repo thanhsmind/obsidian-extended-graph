@@ -290,24 +290,28 @@ export class StatesManager {
 
     private async mapStatesConfig(): Promise<void> {
         const configFiles = await getAllConfigFiles();
-        const stateIDs = ExtendedGraphInstances.settings.states.map(state => state.id);
 
         for (const file of configFiles) {
-            const importedSettings = await ExtendedGraphInstances.plugin.loadConfigFile(file);
+            this.cacheConfig(file);
+        }
+    }
 
-            if (importedSettings.stateID && stateIDs.contains(importedSettings.stateID)) {
-                this.cacheStatesConfigs[importedSettings.stateID] = {
-                    filepath: file,
-                    settings: await (() => {
-                        return ExtendedGraphInstances.plugin.loadConfigFile(file).then(
-                            config => {
-                                delete config["stateID"];
-                                return config
-                            }
-                        )
-                    })(),
-                };
-            }
+    async cacheConfig(filepath: string) {
+        const stateIDs = ExtendedGraphInstances.settings.states.map(state => state.id);
+        const importedSettings = await ExtendedGraphInstances.plugin.loadConfigFile(filepath);
+
+        if (importedSettings.stateID && stateIDs.contains(importedSettings.stateID)) {
+            this.cacheStatesConfigs[importedSettings.stateID] = {
+                filepath: filepath,
+                settings: await (() => {
+                    return ExtendedGraphInstances.plugin.loadConfigFile(filepath).then(
+                        config => {
+                            delete config["stateID"];
+                            return config
+                        }
+                    )
+                })(),
+            };
         }
     }
 
