@@ -307,6 +307,12 @@ export default class ExtendedGraphPlugin extends Plugin {
             }
         }
 
+        // 2.7.4 --> 2.7.5
+        if ('invertNodeStats' in settings && typeof settings['invertNodeStats'] === "boolean") {
+            settings['graphStatsDirection'] = settings['invertNodeStats'] ? 'reversed' : 'normal';
+            delete settings['invertNodeStats'];
+        }
+
         return settings;
     }
 

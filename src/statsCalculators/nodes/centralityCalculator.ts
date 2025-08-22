@@ -4,7 +4,7 @@ import eigenvectorCentrality from "graphology-metrics/centrality/eigenvector";
 import closenessCentrality from "graphology-metrics/centrality/closeness";
 import betweennessCentrality from "graphology-metrics/centrality/betweenness";
 import hits from "graphology-metrics/centrality/hits";
-import { GraphologyGraph, NodeStat, NodeStatCalculator, NodeStatFunction, ExtendedGraphInstances } from "src/internal";
+import { GraphologyGraph, NodeStat, NodeStatCalculator, NodeStatFunction, ExtendedGraphInstances, GraphStatsDirection } from "src/internal";
 import { reverse } from "graphology-operators";
 
 type CentralityMapping = Record<string, number>;
@@ -16,7 +16,7 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
         super(stat, functionKey, graphologyGraph);
     }
 
-    override async computeStats(invert: boolean): Promise<void> {
+    override async computeStats(direction: GraphStatsDirection): Promise<void> {
         if (!this.graphologyGraph) {
             if (!ExtendedGraphInstances.graphologyGraph) {
                 ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
@@ -25,8 +25,8 @@ export abstract class CentralityCalculator extends NodeStatCalculator {
         }
         const graphology = this.graphologyGraph.graphology;
         if (!graphology) return;
-        this.computeCentralityMap(invert ? reverse(graphology) : graphology);
-        return super.computeStats(invert);
+        this.computeCentralityMap(direction === "reversed" ? reverse(graphology) : direction === "undirected" ? GraphologyGraph.toUndirected(graphology) : graphology);
+        return super.computeStats(direction);
     }
 
     override async getStat(id: string): Promise<number> {

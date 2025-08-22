@@ -269,7 +269,7 @@ export class GraphEventsDispatcher extends Component {
 
         if (SettingQuery.needDynamicGraphology(this.instances, { element: "node", stat: "size" })) {
             this.instances.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size', this.instances);
-            this.instances.nodesSizeCalculator?.computeStats(this.instances.settings.invertNodeStats).catch((error) => {
+            this.instances.nodesSizeCalculator?.computeStats(this.instances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[this.instances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
                 this.instances.settings.nodesSizeFunction = 'default';
@@ -279,7 +279,7 @@ export class GraphEventsDispatcher extends Component {
 
         if (SettingQuery.needDynamicGraphology(this.instances, { element: "node", stat: "color" })) {
             this.instances.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color', this.instances);
-            this.instances.nodesColorCalculator?.computeStats(this.instances.settings.invertNodeStats).catch((error) => {
+            this.instances.nodesColorCalculator?.computeStats(this.instances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[this.instances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
                 this.instances.settings.nodesColorFunction = 'default';
@@ -289,7 +289,7 @@ export class GraphEventsDispatcher extends Component {
 
         if (SettingQuery.needDynamicGraphology(this.instances, { element: "link", stat: "size" })) {
             this.instances.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size', this.instances);
-            this.instances.linksSizeCalculator?.computeStats().catch((error) => {
+            this.instances.linksSizeCalculator?.computeStats(this.instances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 new Notice(`${t("notices.linkStatSizeFailed")} (${linkStatFunctionLabels[this.instances.settings.linksSizeFunction]}). ${t("notices.functionToDefault")}`);
                 this.instances.settings.linksSizeFunction = 'default';
@@ -299,7 +299,7 @@ export class GraphEventsDispatcher extends Component {
 
         if (SettingQuery.needDynamicGraphology(this.instances, { element: "link", stat: "color" })) {
             this.instances.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color', this.instances);
-            this.instances.linksColorCalculator?.computeStats().catch((error) => {
+            this.instances.linksColorCalculator?.computeStats(this.instances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 new Notice(`${t("notices.linkStatColorFailed")} (${linkStatFunctionLabels[this.instances.settings.linksColorFunction]}). ${t("notices.functionToDefault")}`);
                 this.instances.settings.linksColorFunction = 'default';

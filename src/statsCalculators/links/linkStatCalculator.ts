@@ -1,5 +1,6 @@
-import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t, GraphStatsDirection } from "src/internal";
 import { Attributes, EdgeEntry } from "graphology-types";
+import { reverse } from "graphology-operators";
 
 export type LinkStatFunction = 'default' | 'Ocurences' | 'Adamic Adar' | 'BoW' | 'Clustering Coefficient' | 'Jaccard' | 'Otsuka-Ochiai' | 'Overlap' | 'Co-Citations';
 
@@ -53,7 +54,7 @@ export abstract class LinkStatCalculator {
         this.graphologyGraph = graphologyGraph;
     }
 
-    async computeStats(): Promise<void> {
+    async computeStats(direction: GraphStatsDirection): Promise<void> {
         if (!this.graphologyGraph) {
             if (!ExtendedGraphInstances.graphologyGraph) {
                 ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
@@ -61,16 +62,22 @@ export abstract class LinkStatCalculator {
             this.graphologyGraph = ExtendedGraphInstances.graphologyGraph;
         }
         this.graphologyGraph.registerListener(async (graph) => {
-            await this.getStats();
+            await this.getStats(direction);
             this.mapStat();
         }, true);
     }
 
-    private async getStats(): Promise<void> {
-        if (!this.graphologyGraph) return;
+    private async getStats(direction: GraphStatsDirection): Promise<void> {
+        if (!this.graphologyGraph?.graphology) return;
         this.linksStats = {};
-        const links = this.graphologyGraph.graphology?.edgeEntries();
-        if (!links) return;
+
+        const g = direction === "reversed"
+            ? reverse(this.graphologyGraph.graphology)
+            : direction === "undirected"
+                ? GraphologyGraph.toUndirected(this.graphologyGraph.graphology)
+                : this.graphologyGraph.graphology;
+
+        const links = g.edgeEntries();
         for (const link of links) {
             if (!this.linksStats[link.source]) {
                 this.linksStats[link.source] = {};
@@ -82,7 +89,7 @@ export abstract class LinkStatCalculator {
         }
     }
 
-    abstract getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number>;
+    protected abstract getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number>;
 
     mapStat(): void {
         switch (this.stat) {

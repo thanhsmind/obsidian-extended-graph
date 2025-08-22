@@ -1,5 +1,5 @@
 import { Attributes } from "graphology-types";
-import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, ExtendedGraphInstances } from "src/internal";
+import { getFile, GraphologyGraph, NodeStat, NodeStatCalculator, ExtendedGraphInstances, GraphStatsDirection } from "src/internal";
 
 export class BacklinkCountCalculator extends NodeStatCalculator {
     countDuplicates: boolean;
@@ -9,7 +9,7 @@ export class BacklinkCountCalculator extends NodeStatCalculator {
         this.countDuplicates = countDuplicates;
     }
 
-    override async getStat(id: string, invert: boolean): Promise<number> {
+    override async getStat(id: string, direction: GraphStatsDirection): Promise<number> {
         if (this.graphologyGraph?.graphology) {
             if (this.countDuplicates) {
                 return this.graphologyGraph.graphology.reduceInEdges(id, (acc: number, edge: string, attr: Attributes) => {

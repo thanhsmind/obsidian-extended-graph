@@ -318,8 +318,6 @@
         "nodeColorsFunction": "节点颜色的计算函数",
         "nodeColorsFunctionDesc": "选择图谱引擎将如何计算节点颜色",
         "nodeColorsPaletteDesc": "选择节点的调色板",
-        "nodeStatsInvert": "反转图谱计算节点的数据统计",
-        "nodeStatsInvertDesc": "计算节点统计时反转图谱，使源节点变为目标节点，反之亦然",
         "nodeStatsRecomputeOnGraphChange": "图谱改变时重新计算",
         "nodeStatsRecomputeOnGraphChangeDesc": "每当图谱数据发生变化时重新计算指标。这可能会导致性能下降。",
         "openInNewTab": "在新标签页打开节点",

@@ -27,6 +27,7 @@ import {
 export type ExternalLinkOption = 'none' | 'domain' | 'href' | 'domain_and_href';
 export type ExternalLinkOpenMode = 'web' | 'note' | 'choice';
 export type NodesSelectionMode = 'replace' | 'add' | 'subtract' | 'intersect';
+export type GraphStatsDirection = 'normal' | 'reversed' | 'undirected';
 
 type InteractiveSettings = {
     colormap: string;
@@ -94,7 +95,7 @@ export interface ExtendedGraphSettings {
     nodesColorColormap: string;
     nodesColorFunction: NodeStatFunction;
     // Node stats orientation
-    invertNodeStats: boolean;
+    graphStatsDirection: GraphStatsDirection;
     // Links sizes
     linksSizeFunction: LinkStatFunction;
     // Links colors
@@ -319,7 +320,7 @@ export const DEFAULT_SETTINGS: ExtendedGraphSettings = {
     nodesColorColormap: 'YlOrRd',
     nodesColorFunction: 'default',
     // Node stats orientation
-    invertNodeStats: false,
+    graphStatsDirection: 'normal',
     // Links sizes
     linksSizeFunction: 'default',
     // Links colors
@@ -658,7 +659,7 @@ export class SettingQuery {
                 return true;
             if (oldSettings.linksColorFunction === "default" && newSettings.linksColorFunction !== "default")
                 return true;
-            if (!equals('invertNodeStats') && (['nodesSizeFunction', 'nodesColorFunction', 'linksSizeFunction', 'linksColorFunction', 'recomputeStatsOnGraphChange'].some(key => newSettings[key as keyof ExtendedGraphSettings] !== "default")))
+            if (!equals('graphStatsDirection') && (['nodesSizeFunction', 'nodesColorFunction', 'linksSizeFunction', 'linksColorFunction', 'recomputeStatsOnGraphChange'].some(key => newSettings[key as keyof ExtendedGraphSettings] !== "default")))
                 return true;
         }
 

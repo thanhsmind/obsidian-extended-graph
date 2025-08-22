@@ -13,7 +13,8 @@ import {
     ExtendedGraphInstances,
     SettingColorPalette,
     SettingsSectionPerGraphType,
-    t
+    t,
+    GraphStatsDirection
 } from "src/internal";
 import { SettingMultiPropertiesModal } from "src/ui/modals/settingPropertiesModal";
 
@@ -46,7 +47,7 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.addNodeColorWarning();
         this.addColorPaletteSettingForNodes();
 
-        this.addInvertNodeStats();
+        this.addStatsDirection();
 
         this.addLinkSizeFunction();
         this.addLinkColorFunction();
@@ -91,7 +92,16 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                     ));
                 cb.setValue(ExtendedGraphInstances.settings.nodesSizeFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodesSizes(value as NodeStatFunction, ExtendedGraphInstances.settings.invertNodeStats);
+                    let functionKey = value as NodeStatFunction;
+                    if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
+                        new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
+                        functionKey = 'default';
+                        this.nodesSizeFunctionDropdown?.setValue(functionKey);
+                    }
+
+                    ExtendedGraphInstances.settings.nodesSizeFunction = functionKey;
+                    ExtendedGraphInstances.plugin.saveSettings();
+                    this.setWarning(this.warningNodeSizeSetting, NodeStatCalculatorFactory.getWarning(functionKey));
                 });
             });
 
@@ -157,7 +167,16 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
                     ));
                 cb.setValue(ExtendedGraphInstances.settings.nodesColorFunction);
                 cb.onChange((value) => {
-                    this.recomputeNodeColors(value as NodeStatFunction, ExtendedGraphInstances.settings.invertNodeStats);
+                    let functionKey = value as NodeStatFunction;
+                    if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
+                        new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
+                        functionKey = 'default';
+                        this.nodesColorFunctionDropdown?.setValue(functionKey);
+                    }
+
+                    ExtendedGraphInstances.settings.nodesColorFunction = functionKey;
+                    this.setWarning(this.warningNodeColorSetting, NodeStatCalculatorFactory.getWarning(functionKey));
+                    ExtendedGraphInstances.plugin.saveSettings();
                 });
             });
 
@@ -176,16 +195,22 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
         this.setWarning(setting, NodeStatCalculatorFactory.getWarning(ExtendedGraphInstances.settings.nodesColorFunction));
     }
 
-    private addInvertNodeStats(): void {
+    private addStatsDirection(): void {
         const setting = new Setting(this.settingTab.containerEl)
-            .setName(t("features.nodeStatsInvert"))
-            .setDesc(t("features.nodeStatsInvertDesc"))
-            .addToggle(cb => {
-                cb.setValue(ExtendedGraphInstances.settings.invertNodeStats);
-                cb.onChange((value) => {
-                    this.recomputeNodesSizes(ExtendedGraphInstances.settings.nodesSizeFunction, value);
-                    this.recomputeNodeColors(ExtendedGraphInstances.settings.nodesColorFunction, value);
-                });
+            .setName(t("features.nodeStatsDirection"))
+            .setDesc(t("features.nodeStatsDirectionDesc"))
+            .addDropdown(cb => {
+                const options: Record<GraphStatsDirection, string> = {
+                    normal: t("features.nodeStatsDirectionNormal"),
+                    reversed: t("features.nodeStatsDirectionReversed"),
+                    undirected: t("features.nodeStatsDirectionUndirected"),
+                };
+                cb.addOptions(options);
+                cb.setValue(ExtendedGraphInstances.settings.graphStatsDirection);
+                cb.onChange(async (value) => {
+                    ExtendedGraphInstances.settings.graphStatsDirection = value as GraphStatsDirection;
+                    await ExtendedGraphInstances.plugin.saveSettings();
+                })
             });
 
         this.elementsBody.push(setting.settingEl);
@@ -338,32 +363,6 @@ export class SettingElementsStats extends SettingsSectionPerGraphType {
             warningSetting.setDesc("");
             warningSetting.settingEl.addClass("is-hidden");
         }
-    }
-
-    private recomputeNodesSizes(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
-        if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
-            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
-            functionKey = 'default';
-            this.nodesSizeFunctionDropdown?.setValue(functionKey);
-        }
-
-        ExtendedGraphInstances.settings.nodesSizeFunction = functionKey;
-        ExtendedGraphInstances.settings.invertNodeStats = invertNodeStats;
-        ExtendedGraphInstances.plugin.saveSettings();
-        this.setWarning(this.warningNodeSizeSetting, NodeStatCalculatorFactory.getWarning(functionKey));
-    }
-
-    private recomputeNodeColors(functionKey: NodeStatFunction, invertNodeStats: boolean): void {
-        if (!getNLPPlugin() && nodeStatFunctionNeedsNLP[functionKey]) {
-            new Notice(`${t("notices.nlpPluginRequired")} (${functionKey})`);
-            functionKey = 'default';
-            this.nodesColorFunctionDropdown?.setValue(functionKey);
-        }
-
-        ExtendedGraphInstances.settings.nodesColorFunction = functionKey;
-        ExtendedGraphInstances.settings.invertNodeStats = invertNodeStats;
-        this.setWarning(this.warningNodeColorSetting, NodeStatCalculatorFactory.getWarning(functionKey));
-        ExtendedGraphInstances.plugin.saveSettings();
     }
 
     private recomputeLinksSizes(functionKey: LinkStatFunction): void {

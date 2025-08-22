@@ -33,7 +33,7 @@ export class CoCitationsCalculator extends LinkStatCalculator {
         super(stat, "Co-Citations", graphologyGraph);
     }
 
-    override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
+    protected override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {
             return this.cache[link.source][link.target];
         }

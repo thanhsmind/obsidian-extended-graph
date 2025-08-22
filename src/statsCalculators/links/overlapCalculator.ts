@@ -15,7 +15,7 @@ export class OverlapCalculator extends LinkStatCalculator {
         super(stat, "Overlap", graphologyGraph);
     }
 
-    override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
+    protected override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {
             return this.cache[link.source][link.target];
         }

@@ -1,7 +1,7 @@
 import Graphology from 'graphology';
 import { dfsFromNode } from "graphology-traversal/dfs";
-import { GraphInstances, ExtendedGraphInstances } from 'src/internal';
-import { reverse } from 'graphology-operators';
+import { GraphInstances, ExtendedGraphInstances, GraphStatsDirection } from 'src/internal';
+import { reverse, toUndirected } from 'graphology-operators';
 import { undirectedSingleSourceLength } from 'graphology-shortest-path/unweighted';
 import { LocalGraphView } from 'obsidian-typings';
 import { TagCache } from 'obsidian';
@@ -139,9 +139,15 @@ export class GraphologyGraph {
         return this.graphology;
     }
 
-    getConnectedGraphology(node: string, invert: boolean) {
+    getConnectedGraphology(node: string, direction: GraphStatsDirection) {
         const graphology = this.graphology;
         if (!graphology) return;
+
+        const fullGraph = direction === "reversed"
+            ? reverse(graphology)
+            : direction === "undirected"
+                ? GraphologyGraph.toUndirected(graphology)
+                : graphology;
 
         const addNeighbors = function (originalGraph: Graphology, subGraph: Graphology, node: string) {
             const neighbors = originalGraph.neighbors(node);
@@ -153,18 +159,23 @@ export class GraphologyGraph {
         }
 
         const graph = new Graphology();
-        dfsFromNode(graphology, node, (function (node: string, attr: string, depth: number) {
-            if (graph) addNeighbors(graphology, graph, node);
+        dfsFromNode(fullGraph, node, (function (node: string, attr: string, depth: number) {
+            if (graph) addNeighbors(fullGraph, graph, node);
         }).bind(this));
-
-        if (invert) {
-            return reverse(graph);
-        }
 
         return graph;
     }
 
     intersection(nodes1: string[], nodes2: string[]) {
         return nodes1?.filter((node1) => nodes2.includes(node1)) ?? []
+    }
+
+    static toUndirected(graph: Graphology) {
+        return toUndirected(graph, (currentAttr, nextAttr) => {
+            return {
+                ...currentAttr,
+                weight: currentAttr.count + nextAttr.count
+            };
+        });
     }
 }

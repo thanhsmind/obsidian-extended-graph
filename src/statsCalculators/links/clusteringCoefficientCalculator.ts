@@ -15,7 +15,7 @@ export class ClusteringCoefficientCalculator extends LinkStatCalculator {
         super(stat, "Clustering Coefficient", graphologyGraph);
     }
 
-    override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
+    protected override async getStat(link: EdgeEntry<Attributes, Attributes>): Promise<number> {
         if (link.source in this.cache) {
             return this.cache[link.source][link.target];
         }

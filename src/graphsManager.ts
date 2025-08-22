@@ -194,7 +194,7 @@ export class GraphsManager extends Component {
 
     initializeNodesSizeCalculator(): void {
         this.nodesSizeCalculator = NodeStatCalculatorFactory.getCalculator('size');
-        this.nodesSizeCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats).catch((error) => {
+        this.nodesSizeCalculator?.computeStats(ExtendedGraphInstances.settings.graphStatsDirection).catch((error) => {
             console.error(error);
             new Notice(`${t("notices.nodeStatSizeFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesSizeFunction]}). ${t("notices.functionToDefault")}`);
             ExtendedGraphInstances.settings.nodesSizeFunction = 'default';
@@ -205,7 +205,7 @@ export class GraphsManager extends Component {
 
     initializeNodesColorCalculator(): void {
         this.nodesColorCalculator = NodeStatCalculatorFactory.getCalculator('color');
-        this.nodesColorCalculator?.computeStats(ExtendedGraphInstances.settings.invertNodeStats).catch((error) => {
+        this.nodesColorCalculator?.computeStats(ExtendedGraphInstances.settings.graphStatsDirection).catch((error) => {
             console.error(error);
             new Notice(`${t("notices.nodeStatColorFailed")} (${nodeStatFunctionLabels[ExtendedGraphInstances.settings.nodesColorFunction]}). ${t("notices.functionToDefault")}`);
             ExtendedGraphInstances.settings.nodesColorFunction = 'default';
@@ -217,7 +217,7 @@ export class GraphsManager extends Component {
     initializeLinksSizeCalculator(): void {
         if (this.canUseLinkStatFunction('size')) {
             this.linksSizeCalculator = LinksStatCalculatorFactory.getCalculator('size');
-            this.linksSizeCalculator?.computeStats().catch((error) => {
+            this.linksSizeCalculator?.computeStats(ExtendedGraphInstances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 ExtendedGraphInstances.settings.linksSizeFunction = 'default';
                 ExtendedGraphInstances.plugin.saveSettings();
@@ -230,7 +230,7 @@ export class GraphsManager extends Component {
     initializeLinksColorCalculator(): void {
         if (this.canUseLinkStatFunction('color')) {
             this.linksColorCalculator = LinksStatCalculatorFactory.getCalculator('color');
-            this.linksColorCalculator?.computeStats().catch((error) => {
+            this.linksColorCalculator?.computeStats(ExtendedGraphInstances.settings.graphStatsDirection).catch((error) => {
                 console.error(error);
                 ExtendedGraphInstances.settings.linksColorFunction = 'default';
                 ExtendedGraphInstances.plugin.saveSettings();

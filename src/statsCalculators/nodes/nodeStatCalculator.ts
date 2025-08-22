@@ -1,4 +1,4 @@
-import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t } from "src/internal";
+import { evaluateCMap, GraphologyGraph, ExtendedGraphInstances, t, GraphStatsDirection } from "src/internal";
 
 export type NodeStatFunction = 'default' | 'constant' | 'backlinksCount' | 'backUniquelinksCount' | 'forwardlinksCount' | 'forwardUniquelinksCount' | 'totallinksCount' | 'totalUniquelinksCount' | 'filenameLength' | 'tagsCount' | 'creationTime' | 'modifiedTime' | 'betweenness' | 'closeness' | 'eccentricity' | 'degree' | 'eigenvector' | 'hub' | 'sentiment' | 'authority' | 'topological';
 
@@ -88,7 +88,7 @@ export abstract class NodeStatCalculator {
         this.graphologyGraph = graphologyGraph;
     }
 
-    async computeStats(invert: boolean): Promise<void> {
+    async computeStats(direction: GraphStatsDirection): Promise<void> {
         if (!this.graphologyGraph) {
             if (!ExtendedGraphInstances.graphologyGraph) {
                 ExtendedGraphInstances.graphologyGraph = new GraphologyGraph();
@@ -96,18 +96,18 @@ export abstract class NodeStatCalculator {
             this.graphologyGraph = ExtendedGraphInstances.graphologyGraph;
         }
         this.graphologyGraph.registerListener(async (graph) => {
-            await this.getStats(invert);
+            await this.getStats(direction);
             this.mapStat();
         }, true);
     }
 
-    protected async getStats(invert: boolean): Promise<void> {
+    protected async getStats(direction: GraphStatsDirection): Promise<void> {
         if (!this.graphologyGraph) return;
         this.filesStats = new Map<string, { measure: number, value: number }>();
         const ids = this.graphologyGraph.graphology?.nodes();
         if (!ids) return;
         for (const id of ids) {
-            this.getStat(id, invert).then(size => this.filesStats.set(id, { measure: size, value: 0 }));
+            this.getStat(id, direction).then(size => this.filesStats.set(id, { measure: size, value: 0 }));
         }
     }
 
@@ -152,7 +152,7 @@ export abstract class NodeStatCalculator {
         });
     }
 
-    abstract getStat(id: string, invert: boolean): Promise<number>;
+    abstract getStat(id: string, direction: GraphStatsDirection): Promise<number>;
 
     static getWarning(): string { return ""; }
     static getLink(): string { return ""; }
