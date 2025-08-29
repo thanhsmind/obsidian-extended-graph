@@ -24,9 +24,10 @@ import {
 	TextStyle,
 	TextStyleFill,
 	Texture,
+	Rectangle,
 	FederatedPointerEvent,
 } from "pixi.js";
-
+import { TFile, Notice } from "obsidian";
 export abstract class LinkText extends Container {
 	extendedLink: ExtendedGraphLink;
 	background?: Graphics | Sprite;
@@ -81,22 +82,64 @@ export abstract class LinkText extends Container {
 		event.stopPropagation();
 
 		const linkText = this.text.text;
+		const folderName = "Relations";
 
+		// Hàm phụ để trích xuất tên file từ đường dẫn đầy đủ
+		const getBaseFileName = (fullPath: string): string => {
+			const fileNameWithExt = fullPath.split("/").pop() || "";
+			if (fileNameWithExt.toLowerCase().endsWith(".md")) {
+				return fileNameWithExt.substring(0, fileNameWithExt.length - 3);
+			}
+			return fileNameWithExt;
+		};
+
+		// Lấy tên file đã được làm sạch
+		const sourceFileName = getBaseFileName(
+			this.extendedLink.coreElement.source.id
+		);
+		const targetFileName = getBaseFileName(
+			this.extendedLink.coreElement.target.id
+		);
+
+		// Tạo tên file mới
+		const newFileName = `(${sourceFileName}) -${linkText}- (${targetFileName})`;
+		// Tạo đường dẫn đầy đủ, bao gồm cả thư mục "Relations"
+		const newFilePath = `${folderName}/${newFileName}.md`;
+
+		// Kiểm tra xem file đã tồn tại ở đường dẫn cụ thể hay chưa
 		const file =
-			ExtendedGraphInstances.app.metadataCache.getFirstLinkpathDest(
-				linkText,
-				""
-			);
+			ExtendedGraphInstances.app.vault.getAbstractFileByPath(newFilePath);
 
-		if (file) {
+		if (file instanceof TFile) {
+			// Nếu file đã tồn tại, chỉ cần mở nó
 			const leaf =
 				ExtendedGraphInstances.app.workspace.getMostRecentLeaf();
 			if (leaf) {
 				await leaf.openFile(file);
 			}
 		} else {
+			// Nếu file chưa tồn tại, tiến hành tạo mới
+			try {
+				// Kiểm tra xem thư mục "Relations" có tồn tại không
+				const folder =
+					ExtendedGraphInstances.app.vault.getAbstractFileByPath(
+						folderName
+					);
+				if (!folder) {
+					// Nếu không, tạo thư mục mới
+					await ExtendedGraphInstances.app.vault.createFolder(
+						folderName
+					);
+				}
+			} catch (error) {
+				console.error("Error creating 'Relations' folder:", error);
+				new Notice("Could not create the 'Relations' folder.");
+				return; // Dừng lại nếu không thể tạo thư mục
+			}
+
+			// Tạo file mới bên trong thư mục "Relations"
 			const newFile = await ExtendedGraphInstances.app.vault.create(
-				`${linkText}.md`,
+				newFilePath,
 				""
 			);
 			const leaf =
@@ -239,6 +282,7 @@ export abstract class LinkText extends Container {
 			this.background.destroy();
 			this.background = undefined;
 		}
+		this.hitArea = new Rectangle(0, 0, this.getWidth(), this.getHeight());
 	}
 
 	private getWidth(): number {
