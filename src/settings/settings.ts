@@ -58,7 +58,6 @@ export interface ExtendedGraphSettings {
 	// Feature toggles
 	enableFeatures: Record<GraphType, Record<Feature, boolean>>;
 	relationFolderPath: string;
-	relationFolderPath: string;
 	// Interactive settings
 	interactiveSettings: { [interactive: string]: InteractiveSettings };
 	additionalProperties: {
