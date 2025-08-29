@@ -82,7 +82,7 @@ export abstract class LinkText extends Container {
 		event.stopPropagation();
 
 		const linkText = this.text.text;
-		const folderName = "Relations";
+		const folderName = ExtendedGraphInstances.settings.relationFolderPath;
 
 		// Hàm phụ để trích xuất tên file từ đường dẫn đầy đủ
 		const getBaseFileName = (fullPath: string): string => {
