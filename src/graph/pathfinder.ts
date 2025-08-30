@@ -1,11 +1,6 @@
 import Graph from "graphology";
 import { TFile } from "obsidian";
-import {
-	LocalGraphView,
-	GraphView,
-	GraphData,
-	GraphNodeData,
-} from "obsidian-typings";
+// Removed unused import
 import { GraphInstances, ExtendedGraphInstances } from "src/internal";
 
 export class Pathfinder {
@@ -16,13 +11,12 @@ export class Pathfinder {
 	}
 
 	private get app() {
-		return this.instances.view.app;
+		return (this.instances as any).app || this.instances.view?.app;
 	}
 
 	public async findAndShowPaths(
 		startNotePath: string,
-		endNotePath: string,
-		graphView?: GraphView | LocalGraphView
+		endNotePath: string
 	): Promise<void> {
 		console.log(
 			"Finding paths between:",
@@ -231,17 +225,8 @@ export class Pathfinder {
 			// Create a new tab for the path result
 			const leaf = this.app.workspace.getLeaf("tab");
 			await leaf.setViewState({
-				type: "localgraph",
-				state: {
-					file: startNotePath, // Focus on start note
-					options: {
-						localJumps: 50, // Very high depth to ensure no limits
-						showOrphans: true,
-						localBacklinks: true,
-						localForelinks: true,
-						localInterlinks: true,
-					},
-				},
+				type: "graph", // Use global graph for better stability
+				state: {}, // No specific file focus for global graph
 			});
 
 			// Set a distinctive title for the path result tab
@@ -257,7 +242,7 @@ export class Pathfinder {
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			const graphView = leaf.view;
-			if (graphView.getViewType() !== "localgraph") {
+			if (graphView.getViewType() !== "graph") {
 				console.error("Failed to create path result graph view");
 				return;
 			}
@@ -265,7 +250,7 @@ export class Pathfinder {
 			// Enable the extended graph plugin on this view
 			if (ExtendedGraphInstances.graphsManager) {
 				ExtendedGraphInstances.graphsManager.enablePlugin(
-					graphView as LocalGraphView
+					graphView as any
 				);
 			}
 
@@ -279,14 +264,8 @@ export class Pathfinder {
 				);
 
 			if (instances) {
-				// Override engine options to remove depth limit
-				await this.configurePathGraphOptions(instances, pathNodes);
-
-				// Apply custom filter to show only path nodes
+				// Apply custom filter to show only path nodes (this handles both filtering and highlighting)
 				await this.applyPathFilter(instances, pathNodes);
-
-				// Highlight the path nodes
-				await this.highlightPathNodesInView(instances, paths);
 
 				console.log("Created dedicated path result graph");
 			} else {
@@ -297,85 +276,150 @@ export class Pathfinder {
 		}
 	}
 
-	private async configurePathGraphOptions(
-		instances: GraphInstances,
-		pathNodes: Set<string>
-	): Promise<void> {
-		try {
-			// Calculate the maximum depth needed for the path
-			const maxPathLength = Math.max(
-				...Array.from(pathNodes).map((_, index) => index + 1)
-			);
-			const requiredDepth = Math.max(maxPathLength, 20); // Ensure we have enough depth
-
-			console.log(
-				`Setting localJumps to ${requiredDepth} for path nodes`
-			);
-
-			// Override engine options to ensure all path nodes are visible
-			instances.engine.options.localJumps = requiredDepth;
-			instances.engine.options.showOrphans = true;
-			instances.engine.options.localBacklinks = true;
-			instances.engine.options.localForelinks = true;
-			instances.engine.options.localInterlinks = true;
-
-			// Force engine to re-render with new options
-			instances.engine.render();
-		} catch (error) {
-			console.error("Error configuring path graph options:", error);
-		}
-	}
-
 	private async applyPathFilter(
 		instances: GraphInstances,
 		pathNodes: Set<string>
 	): Promise<void> {
 		try {
 			// Wait for graph to be ready
-			await new Promise((resolve) => setTimeout(resolve, 300));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-			// Create a custom filter that only shows path nodes
-			const originalFilterData = instances.filter.filterData.bind(
-				instances.filter
+			console.log(
+				"Applying path filter for nodes:",
+				Array.from(pathNodes)
 			);
 
-			instances.filter.filterData = function (
-				data: GraphData
-			): GraphData {
-				// First apply original filtering
-				data = originalFilterData(data);
+			// Try using search functionality to filter and highlight
+			if (instances.search) {
+				console.log("Using search functionality to filter path nodes");
 
-				// Then filter to show only path nodes
-				const filteredNodes: Record<string, GraphNodeData> = {};
-				for (const nodeId of pathNodes) {
-					if (data.nodes[nodeId]) {
-						filteredNodes[nodeId] = data.nodes[nodeId];
-					}
+				// Clear any existing search
+				if (instances.search.clearSearch) {
+					instances.search.clearSearch();
 				}
 
-				// Only keep links between path nodes
-				for (const nodeId in filteredNodes) {
-					const node = filteredNodes[nodeId];
-					const filteredLinks: Record<string, boolean> = {};
-					for (const linkTarget in node.links) {
-						if (pathNodes.has(linkTarget)) {
-							filteredLinks[linkTarget] = node.links[linkTarget];
+				// Create search terms from path nodes (just file names)
+				const searchTerms = Array.from(pathNodes).map((path) => {
+					const filename =
+						path.split("/").pop()?.replace(".md", "") || path;
+					return `"${filename}"`; // Quote each term for exact match
+				});
+
+				console.log("Setting search terms:", searchTerms);
+
+				// Apply search which should filter the graph
+				if (instances.search.setSearchTerm) {
+					instances.search.setSearchTerm(searchTerms.join(" OR "));
+				}
+
+				// Set matches directly if possible
+				if (instances.search.setMatches) {
+					instances.search.setMatches(Array.from(pathNodes));
+				}
+
+				console.log("Search filter applied");
+			}
+
+			// Fallback: try to override filter function if search doesn't work
+			else if (instances.filter && instances.filter.filterData) {
+				console.log("Attempting to override filter function...");
+
+				// Store the original filter
+				const originalFilter = instances.filter.filterData.bind(
+					instances.filter
+				);
+
+				// Override with our custom filter
+				instances.filter.filterData = function (data: any) {
+					console.log(
+						"Custom filter called with data containing",
+						Object.keys(data.nodes || {}).length,
+						"nodes"
+					);
+
+					// Start with original data
+					const original = originalFilter(data);
+
+					// Create filtered result with only path nodes
+					const result = {
+						...original,
+						nodes: {},
+					};
+
+					// Add only path nodes
+					for (const nodeId of pathNodes) {
+						if (original.nodes[nodeId]) {
+							result.nodes[nodeId] = {
+								...original.nodes[nodeId],
+								color: "#ff0000", // Red color
+								size: 3, // Larger size
+							};
+							console.log(
+								"Added path node to filter result:",
+								nodeId
+							);
+						} else {
+							console.log(
+								"Path node not found in original data:",
+								nodeId
+							);
 						}
 					}
-					node.links = filteredLinks;
+
+					console.log(
+						"Filter result: showing",
+						Object.keys(result.nodes).length,
+						"path nodes"
+					);
+					return result;
+				};
+
+				console.log("Custom filter function set");
+			}
+
+			// Also try to manually highlight the nodes if possible
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			if (instances.nodesSet?.extendedElementsMap) {
+				let highlightedCount = 0;
+				for (const nodeId of pathNodes) {
+					const extendedNode =
+						instances.nodesSet.extendedElementsMap.get(nodeId);
+					if (
+						extendedNode &&
+						typeof extendedNode.toggleIsSearchResult === "function"
+					) {
+						try {
+							extendedNode.toggleIsSearchResult(true);
+							highlightedCount++;
+							console.log(`Highlighted path node: ${nodeId}`);
+						} catch (err) {
+							console.warn(
+								`Failed to highlight node ${nodeId}:`,
+								err
+							);
+						}
+					}
 				}
+				console.log(`Highlighted ${highlightedCount} path nodes`);
+			}
 
-				data.nodes = filteredNodes;
-				console.log(
-					`Filtered graph to show ${
-						Object.keys(filteredNodes).length
-					} path nodes`
-				);
-				return data;
-			};
+			// Force multiple renders to ensure filter takes effect
+			console.log("Applying path filter - forcing filter refresh");
 
-			// Force a refresh to apply the filter
+			// First, force the filter to refresh
+			if (instances.filter && instances.filter.refresh) {
+				instances.filter.refresh();
+			}
+
+			// Then force engine render
 			instances.engine.render();
+
+			// Wait and render again to ensure filter is applied
+			await new Promise((resolve) => setTimeout(resolve, 200));
+			instances.engine.render();
+
+			console.log("Path filter rendering complete");
 		} catch (error) {
 			console.error("Error applying path filter:", error);
 		}
@@ -399,18 +443,52 @@ export class Pathfinder {
 				Array.from(pathNodes)
 			);
 
-			// Wait for nodes to be rendered in the new view
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			// Wait longer for nodes to be rendered and extended elements to be ready
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
-			// Highlight the nodes in the specified graph view instances
-			if (instances.nodesSet?.extendedElementsMap) {
+			// Try multiple times to get extended elements (they might not be ready immediately)
+			let attempts = 0;
+			const maxAttempts = 5;
+
+			while (attempts < maxAttempts) {
+				if (
+					instances.nodesSet?.extendedElementsMap &&
+					instances.nodesSet.extendedElementsMap.size > 0
+				) {
+					console.log(
+						`Extended elements ready after ${attempts + 1} attempts`
+					);
+					break;
+				}
+				console.log(
+					`Waiting for extended elements... attempt ${attempts + 1}`
+				);
+				await new Promise((resolve) => setTimeout(resolve, 500));
+				attempts++;
+			}
+
+			// Highlight the nodes if extended elements are available
+			if (
+				instances.nodesSet?.extendedElementsMap &&
+				instances.nodesSet.extendedElementsMap.size > 0
+			) {
+				let highlightedCount = 0;
 				for (const nodeId of pathNodes) {
 					const extendedNode =
 						instances.nodesSet.extendedElementsMap.get(nodeId);
-					if (extendedNode) {
-						// Use the search result highlighting to make path nodes stand out
-						extendedNode.toggleIsSearchResult(true);
-						console.log(`Highlighted node in path view: ${nodeId}`);
+					if (extendedNode && extendedNode.toggleIsSearchResult) {
+						try {
+							extendedNode.toggleIsSearchResult(true);
+							highlightedCount++;
+							console.log(
+								`Highlighted node in path view: ${nodeId}`
+							);
+						} catch (err) {
+							console.warn(
+								`Failed to highlight node ${nodeId}:`,
+								err
+							);
+						}
 					} else {
 						console.log(
 							`Node not found in extended elements: ${nodeId}`
@@ -419,9 +497,15 @@ export class Pathfinder {
 				}
 
 				// Force a re-render to show the highlights
-				instances.renderer.changed();
-				console.log(
-					"Path result graph re-rendered with highlighted nodes"
+				if (highlightedCount > 0 && instances.renderer?.changed) {
+					instances.renderer.changed();
+					console.log(
+						`Path result graph re-rendered with ${highlightedCount} highlighted nodes`
+					);
+				}
+			} else {
+				console.warn(
+					"Extended elements map not available for highlighting"
 				);
 			}
 		} catch (error) {
