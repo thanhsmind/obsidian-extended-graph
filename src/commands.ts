@@ -7,7 +7,7 @@ import {
 	Pathfinder,
 } from "./internal";
 import ExtendedGraphPlugin from "./main";
-import { ItemView } from "obsidian";
+import { ItemView, Notice } from "obsidian";
 
 function getActiveGraphView(
 	plugin: ExtendedGraphPlugin
@@ -494,41 +494,128 @@ function addPathfinderCommands(plugin: ExtendedGraphPlugin) {
 	plugin.addCommand({
 		id: "find-path-between-nodes",
 		name: t("features.findPathBetweenNodes"),
-		checkCallback: (checking: boolean) => {
-			const graphView = getActiveGraphView(plugin);
-			if (
-				graphView &&
-				ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(
-					graphView
-				)
-			) {
-				if (!checking) {
-					const instances =
-						ExtendedGraphInstances.graphsManager.allInstances.get(
-							graphView.leaf.id
-						);
-					if (instances) {
-						new FindPathModal(
-							plugin.app,
-							(startNotePath, endNotePath) => {
-								const pathfinder = new Pathfinder(instances);
-								pathfinder
-									.findAndShowPaths(
-										startNotePath,
-										endNotePath
-									)
-									.catch((error) => {
-										console.error(
-											"Error finding paths:",
-											error
-										);
-									});
-							}
-						).open();
-					}
+		callback: () => {
+			// Just open the modal - don't create graph view yet
+			new FindPathModal(
+				plugin.app,
+				async (startNotePath, endNotePath) => {
+					// Only create/setup graph view when user actually submits
+					await setupGraphViewAndRunPathfinder(
+						plugin,
+						startNotePath,
+						endNotePath
+					);
 				}
-				return true;
-			}
+			).open();
 		},
 	});
+}
+
+async function setupGraphViewAndRunPathfinder(
+	plugin: ExtendedGraphPlugin,
+	startNotePath: string,
+	endNotePath: string
+) {
+	try {
+		// Create a global graph view for displaying path results
+		console.log("Creating global graph view for path display...");
+
+		const leaf = plugin.app.workspace.getLeaf("tab");
+		await leaf.setViewState({
+			type: "graph", // Use global graph instead of local graph
+			state: {}, // No specific file focus for global graph
+		});
+		const graphView = leaf.view as GraphView | LocalGraphView;
+
+		// Set a distinctive title for the path finding panel
+		if (leaf.tabHeaderInnerTitleEl) {
+			const startFile = startNotePath.split("/").pop();
+			const endFile = endNotePath.split("/").pop();
+			leaf.tabHeaderInnerTitleEl.textContent = `🔍 Path: ${startFile} → ${endFile}`;
+			// Add custom styling to make it stand out
+			leaf.tabHeaderInnerTitleEl.style.fontWeight = "bold";
+			leaf.tabHeaderInnerTitleEl.style.color = "#2196F3";
+		}
+
+		// Wait for the view to initialize
+		await new Promise((resolve) => setTimeout(resolve, 300));
+
+		// Focus the new panel to show the results
+		plugin.app.workspace.setActiveLeaf(leaf, false, false);
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		// Ensure extended graph is enabled on this view
+		if (
+			!ExtendedGraphInstances.graphsManager.isPluginAlreadyEnabled(
+				graphView
+			)
+		) {
+			console.log("Enabling extended graph on view...");
+			ExtendedGraphInstances.graphsManager.enablePlugin(graphView);
+
+			// Wait longer for plugin to fully initialize
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+
+		// Get the instances for this view
+		console.log("Getting instances for leaf ID:", graphView.leaf.id);
+		console.log(
+			"Available instance keys:",
+			Array.from(ExtendedGraphInstances.graphsManager.allInstances.keys())
+		);
+
+		let instances = ExtendedGraphInstances.graphsManager.allInstances.get(
+			graphView.leaf.id
+		);
+
+		if (!instances) {
+			console.log("Instances not found, waiting and retrying...");
+			// Wait a bit more and try again
+			await new Promise((resolve) => setTimeout(resolve, 300));
+			instances = ExtendedGraphInstances.graphsManager.allInstances.get(
+				graphView.leaf.id
+			);
+		}
+
+		if (!instances) {
+			console.error(
+				"Failed to get graph instances after enabling plugin for leaf:",
+				graphView.leaf.id
+			);
+			console.error(
+				"Available instances:",
+				ExtendedGraphInstances.graphsManager.allInstances
+			);
+			return;
+		}
+
+		console.log("Successfully got instances for pathfinding");
+
+		// Now run the pathfinder
+		try {
+			const pathfinder = new Pathfinder(instances);
+			await pathfinder.findAndShowPaths(
+				startNotePath,
+				endNotePath,
+				graphView
+			);
+
+			// Show success message
+			const startFile = startNotePath.split("/").pop();
+			const endFile = endNotePath.split("/").pop();
+			new Notice(
+				`Path found! Opened new panel showing: ${startFile} → ${endFile}`
+			);
+		} catch (pathfinderError) {
+			console.error("Pathfinder error:", pathfinderError);
+			// Try to show a user-friendly error message
+			new Notice(`Failed to find path: ${pathfinderError.message}`);
+		}
+	} catch (error) {
+		console.error(
+			`Error setting up graph view for pathfinder (${startNotePath} -> ${endNotePath}):`,
+			error
+		);
+		new Notice("Failed to setup graph view for path finding");
+	}
 }
