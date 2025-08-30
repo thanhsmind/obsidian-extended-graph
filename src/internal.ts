@@ -1,4 +1,3 @@
-
 export * from "./globalVariables";
 export * from "./pluginInstances";
 
@@ -174,3 +173,5 @@ export * from "./helpers/plugins";
 export * from "./helpers/strings";
 export * from "./helpers/svg";
 export * from "./helpers/vault";
+export * from "./ui/modals/findPathModal"; // Thêm dòng này
+export * from "./graph/pathfinder";
